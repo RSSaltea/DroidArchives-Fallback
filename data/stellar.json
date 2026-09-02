@@ -47,5 +47,6 @@
   "ID10": { "cost": 96000, "income": 128 },
   "SENATE HOVERCAM": { "cost": 2400000, "income": 1470 },
   "TRAK-R": { "cost": 2250000000, "income": 26400 },
-  "DRFT-R": { "cost": 6380000000000, "income": 725000 }
+  "DRFT-R": { "cost": 6380000000000, "income": 725000 },
+  "B1 HEAVY": { "income": 48000 }
 }

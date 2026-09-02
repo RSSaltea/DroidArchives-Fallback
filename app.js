@@ -569,9 +569,12 @@ function fusionOutcome(units){
     // has written down, so it is asked rather than guessed at.
     if(mixedQuality)return{kind:'unknown',variant,mixedQuality};
     if(d&&isIconic(d))return{kind:'unknown',variant,mixedQuality};
-    return nextVariant(variant)
-      ?{kind:'quality',name:names[0],rarity:droidRarity(names[0]),variant:nextVariant(variant),from:variant,mixedQuality}
-      :{kind:'capped',name:names[0],rarity:droidRarity(names[0]),variant,mixedQuality};
+    const own=droidRarity(names[0]);
+    if(nextVariant(variant))return{kind:'quality',name:names[0],rarity:own,variant:nextVariant(variant),from:variant,mixedQuality};
+    // Stellar has nothing above it, so three Stellar of one droid step rarity
+    // instead: three Legendary Stellar make a Mythic Stellar, not nothing.
+    if(nextRarity(own))return{kind:'rarity',rarity:nextRarity(own),from:own,variant,mixedQuality};
+    return{kind:'capped',name:names[0],rarity:own,variant,mixedQuality};
   }
   const rarities=[...new Set(rows.map(row=>droidRarity(row.name)))];
   if(rarities.length===1&&rarities[0]&&nextRarity(rarities[0]))
@@ -643,15 +646,21 @@ function fusionRaritySteps(stock){
   for(const [name,byVariant] of stock){
     const d=fusionDroid(name);
     if(!d||isIconic(d)||!nextRarity(d.rarity))continue;
-    for(const [variant] of byVariant){
+    for(const [variant,count] of byVariant){
       const key=`${d.rarity}|${variant}`;
-      const group=groups.get(key)||{rarity:d.rarity,variant,names:[]};
+      const group=groups.get(key)||{rarity:d.rarity,variant,names:[],holdings:[],copies:0};
       group.names.push(name);
+      group.holdings.push([name,count]);
+      group.copies+=count;
       groups.set(key,group);
     }
   }
-  return [...groups.values()].filter(group=>group.names.length>=3&&!(group.names.length===3&&fusionRecipeFor(group.names)))
-    .map(group=>({...group,to:nextRarity(group.rarity),sets:Math.floor(group.names.length/3),names:group.names.sort()}))
+  return [...groups.values()].filter(group=>group.copies>=3
+      // Three of one droid come out a quality higher instead - unless the
+      // quality ladder has run out, and then they roll like anything else.
+      &&!(group.names.length===1&&nextVariant(group.variant))
+      &&!(group.names.length===3&&group.copies===3&&fusionRecipeFor(group.names)))
+    .map(group=>({...group,to:nextRarity(group.rarity),sets:Math.floor(group.copies/3),names:group.names.sort()}))
     .sort((a,b)=>rarityStep(b.rarity)-rarityStep(a.rarity)||variantStep(b.variant)-variantStep(a.variant));
 }
 // A Fusion droid is fused at the quality you want or not at all, so the useful
@@ -707,11 +716,17 @@ function fusionRoutesToNeeded(){
     const under=RARITY_LADDER[rarityStep(d.rarity)-1];
     if(under){
       const pool=[];
+      let copies=0;
       for(const [other,byVariant] of spare){
         const od=fusionDroid(other);
-        if(od&&!isIconic(od)&&od.rarity===under&&fusionCountFrom(byVariant,at)>0)pool.push(other);
+        if(!od||isIconic(od)||od.rarity!==under)continue;
+        const held=fusionCountFrom(byVariant,at);
+        if(held>0){pool.push(other);copies+=held}
       }
-      if(pool.length>=3)routes.push({name,at,rebirth:req.at,kind:'roll',sure:false,pool:pool.sort(),rarity:d.rarity,from:under});
+      // Three of one droid only roll once the quality ladder has run out;
+      // below that they would come back as that same droid a quality up.
+      if(copies>=3&&(pool.length>1||!nextVariant(at)))
+        routes.push({name,at,rebirth:req.at,kind:'roll',sure:false,pool:pool.sort(),rarity:d.rarity,from:under});
     }
   }
   return routes.sort((a,b)=>a.rebirth-b.rebirth||a.name.localeCompare(b.name)||(b.sure?1:0)-(a.sure?1:0));
@@ -759,7 +774,15 @@ function fusionBestFrom(stock,floor,made){
       income:droidIncomeAt(step.name,step.to),fills:droidexGapFor(step.name,step.to),after:usesMade(spend)});
   }
   for(const group of fusionRaritySteps(stock)){
-    const spend=group.names.slice(0,3).map(name=>({name,variant:group.variant,count:1}));
+    const spend=[];
+    let owed=3;
+    for(const [name,count] of group.holdings){
+      if(owed<=0)break;
+      const use=Math.min(owed,count);
+      spend.push({name,variant:group.variant,count:use});
+      owed-=use;
+    }
+    if(owed>0)continue;
     // A roll does not say which droid arrives, so nothing goes back in the pool
     // and no Droidex square can be promised.
     options.push({kind:'rarity',out:null,rarity:group.to,variant:group.variant,from:group.rarity,pool:group.names,spend,sure:false,
@@ -851,7 +874,7 @@ function fusionOutlookHtml(){
       <span class="fusion-ladder-step">${variantText(step.from)} <b>&rarr;</b> ${variantText(step.to)}</span>
       <em class="fusion-outlook-state">${step.have} held${step.sets>1?` &middot; ${step.sets} sets`:''}</em></li>`).join('')}</ul></div>`:'';
   const rarityBlock=rarity.length?`<div class="fusion-outlook-block"><h3>Rarity steps you could take</h3>
-    <p>Three droids that are not the same but share a rarity and a quality come out one rarity higher, at that same quality. Which droid you get is a roll. If the three you pick happen to be a recorded combination, that recipe wins instead and names its result.</p>
+    <p>Three droids sharing a rarity and a quality come out one rarity higher, at that same quality &mdash; including three of the same droid once it is Stellar and has no quality left to climb. Which droid you get is a roll. If the three you pick happen to be a recorded combination, that recipe wins instead and names its result.</p>
     <ul class="fusion-ladder">${rarity.map(group=>`<li><span class="fusion-ladder-step">${rarityText(group.rarity)} <b>&rarr;</b> ${rarityText(group.to)}</span> at ${variantText(group.variant)}
       <span class="fusion-outlook-parts">${group.names.map(name=>`<span class="fusion-outlook-part is-held">${escapeAttr(name)}</span>`).join('')}</span>
       <em class="fusion-outlook-state">${group.sets} set${group.sets===1?'':'s'} of three</em>${fusionPoolDetailHtml(group.names,group.variant)}</li>`).join('')}</ul></div>`:'';
@@ -1328,7 +1351,57 @@ function setNovaLevel(id,level,notify=true){const upgrade=novaUpgrade(id);if(!up
 function legacyNovaShopPage(){let category='featured';const render=()=>{const shop=state.novaShop;if(!shop){app.innerHTML='<h1>Nova Shop unavailable</h1>';return}const list=shop.upgrades.filter(x=>category==='all'||x.category===category);app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Nova Shop</div><section class="nova-hero"><div><p class="eyebrow">Nova upgrades</p><h1>Nova Shop</h1><p class="lead">Track Nova Crystal upgrades, costs, and unlocks. Upgrade levels are saved with your profile.</p></div><div class="nova-currency"><img src="${shop.currency.icon}" alt=""><strong>${shop.currency.name}s</strong></div></section><div class="variant-tabs nova-tabs"><button data-nova-cat="all" class="${category==='all'?'active':''}">All</button>${shop.categories.map(c=>`<button data-nova-cat="${c.id}" class="${category===c.id?'active':''}">${c.name}</button>`).join('')}</div><div class="nova-grid">${list.map(u=>{const level=novaLevelFor(u.id),next=u.levels[level]||{level:level+1,cost:null,unknown:true},done=!u.uncapped&&level>=u.levels.length,coming=Boolean(u.comingSoon);return `<article class="nova-card ${u.category==='featured'?'featured-upgrade':''} ${coming?'coming-soon':''}"><a href="#/nova-shop/${u.id}"><span class="nova-card-icon">${u.icon}</span><small>${shop.categories.find(c=>c.id===u.category)?.name||u.category}</small><strong>${u.name}</strong><em>${coming?'Soon':`${level}/${u.uncapped?'∞':u.levels.length}`}</em><p>${u.description}</p></a><div><button class="btn secondary" data-nova-dec="${u.id}" ${level<=0||coming?'disabled':''}>−</button><span>${coming?'Coming Soon':done?'Maxed':novaCost(next)}</span><button class="btn" data-nova-inc="${u.id}" ${coming||done?'disabled':''}>+</button></div></article>`}).join('')}</div><h2>Nova crystals from rebirths</h2><table class="nova-reward-table"><thead><tr><th>Rebirth</th><th>Nova Crystals</th><th>Credit Mult</th><th>XP Mult</th></tr></thead><tbody>${shop.rebirthRewards.map(r=>`<tr><td>RB ${r.rebirth}</td><td>${r.novaCrystals}</td><td>${r.creditMultPercent}%</td><td>${r.xpMultPercent}%</td></tr>`).join('')}</tbody></table>`;document.querySelectorAll('[data-nova-cat]').forEach(b=>b.onclick=()=>{category=b.dataset.novaCat;render()});document.querySelectorAll('[data-nova-inc]').forEach(b=>b.onclick=()=>{setNovaLevel(b.dataset.novaInc,novaLevelFor(b.dataset.novaInc)+1);render()});document.querySelectorAll('[data-nova-dec]').forEach(b=>b.onclick=()=>{setNovaLevel(b.dataset.novaDec,novaLevelFor(b.dataset.novaDec)-1);render()})};render()}
 function legacyNovaDetailPage(id){const u=novaUpgrade(id);if(!u){notFound();return}const category=state.novaShop.categories.find(c=>c.id===u.category)?.name||u.category,level=novaLevelFor(u.id),knownTotal=u.levels.reduce((s,x)=>s+(Number(x.cost)||0),0),spent=u.levels.slice(0,Math.min(level,u.levels.length)).reduce((s,x)=>s+(Number(x.cost)||0),0),next=u.levels[level]||{level:level+1,cost:null,unknown:true},done=!u.uncapped&&level>=u.levels.length,coming=Boolean(u.comingSoon);app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / <a href="#/nova-shop">Nova Shop</a> / ${u.name}</div><div class="article-grid"><article><p class="eyebrow">${category}</p><h1>${u.name}</h1><p class="lead">${u.description}</p><div class="base-top"><div class="stat"><small>Current level</small><strong>${coming?'Soon':`${level}/${u.uncapped?'∞':u.levels.length}`}</strong></div><div class="stat"><small>Known spent</small><strong>${fmt(spent)}</strong></div><div class="stat"><small>Known total</small><strong>${coming?'Coming Soon':u.uncapped?`${fmt(knownTotal)}+`:fmt(knownTotal)}</strong></div><div class="stat"><small>Next cost</small><strong>${coming?'Coming Soon':done?'Maxed':next.cost===null?'Unknown':fmt(next.cost)}</strong></div></div><h2>Upgrade costs</h2><table><thead><tr><th>Level</th><th>Nova Crystal cost</th><th>Running total</th></tr></thead><tbody>${u.levels.map((x,i)=>`<tr class="${i<level?'selected-variant':''}"><td>${x.level}</td><td>${novaCost(x)}</td><td>${fmt(u.levels.slice(0,i+1).reduce((s,y)=>s+(Number(y.cost)||0),0))}</td></tr>`).join('')}${u.uncapped?`<tr><td>${u.levels.length+1}+</td><td>Cost unknown</td><td>${fmt(knownTotal)}+</td></tr>`:''}${coming?'<tr><td colspan="3">Coming Soon</td></tr>':''}</tbody></table><div class="modal-actions"><button class="btn secondary" id="novaDown" ${level<=0||coming?'disabled':''}>Decrease level</button><button class="btn" id="novaUp" ${coming||done?'disabled':''}>Increase level</button></div></article><aside class="infobox nova-info"><div class="info-title">${u.name}</div><div class="nova-big-icon">${u.icon}</div><div class="info-rows"><div class="info-row"><b>Category</b><span>${category}</span></div><div class="info-row"><b>Level</b><span>${coming?'Coming Soon':`${level}/${u.uncapped?'∞':u.levels.length}`}</span></div><div class="info-row"><b>Currency</b><span>${state.novaShop.currency.name}</span></div><div class="info-row"><b>Source</b><span>Nova Shop</span></div></div></aside></div>`;document.querySelector('#novaUp').onclick=()=>{setNovaLevel(u.id,level+1);novaDetailPage(id)};document.querySelector('#novaDown').onclick=()=>{setNovaLevel(u.id,level-1);novaDetailPage(id)}}
 function droidsPage(){const q=new URLSearchParams(location.hash.split('?')[1]||'');app.innerHTML=`<div class="breadcrumbs"><a href="#/">Main page</a> / Droids</div><p class="eyebrow">Droidex</p><h1>All droids</h1><p class="lead">The complete archive. Select a droid for its dedicated page and all six quality variants.</p><div class="toolbar"><input id="droidSearch" placeholder="Filter by name…"><select id="typeFilter"><option value="">All types</option>${['WORKER','ASTROMECH','BATTLE'].map(x=>`<option ${q.get('type')===x?'selected':''}>${x}</option>`).join('')}</select><select id="rarityFilter"><option value="">All rarities</option>${['COMMON','RARE','EPIC','LEGENDARY','MYTHIC','ICONIC'].map(x=>`<option>${x}</option>`).join('')}</select></div><p id="resultCount" class="eyebrow"></p><div id="droidGrid" class="droid-grid"></div>`;const draw=()=>{let name=document.querySelector('#droidSearch').value.toLowerCase(),type=document.querySelector('#typeFilter').value,rarity=document.querySelector('#rarityFilter').value;let list=state.droids.filter(d=>d.name.toLowerCase().includes(name)&&(!type||d.type===type)&&(!rarity||d.rarity===rarity));document.querySelector('#resultCount').textContent=`${list.length} entries`;document.querySelector('#droidGrid').innerHTML=list.map(card).join('')};['droidSearch','typeFilter','rarityFilter'].forEach(id=>document.querySelector('#'+id).addEventListener('input',draw));draw()}
-function detailPage(id){const d=state.droids.find(x=>slug(x.name)===id);if(!d){notFound();return}let variant='DEFAULT';const render=()=>{const v=d.variants[variant]||d.variants.DEFAULT,attribute=droidAttribute(d,variant),chips=upgradeChipRate(d,variant);app.innerHTML=`<div class="breadcrumbs"><a href="#/">Main page</a> / <a href="#/droids">Droids</a> / ${d.name}</div><div class="article-grid"><article><p class="eyebrow">${rarityText(d.rarity)} ${d.type} droid</p><h1>${d.name}</h1><p class="lead"><strong>${d.name}</strong> is a ${rarityText(d.rarity)} ${d.type.toLowerCase()} droid. Its base form produces ${fmt(d.variants.DEFAULT.income)} credits per second and every quality is catalogued below.</p><div class="variant-tabs">${VARIANTS.map(x=>`<button data-v="${x}" class="${variant===x?'active':''}">${variantText(x)}</button>`).join('')}</div><h2>${variantText(variant)} statistics</h2><table><thead><tr><th>Variant</th><th>Craft time</th><th>Crafting cost</th><th>Credits / second</th><th>Credits / hour</th></tr></thead><tbody><tr class="selected-variant"><td><strong>${variantText(variant)}</strong></td><td>${craftTimeText(v.craftingSeconds)}</td><td>${fmt(v.cost)}</td><td>${fmt(v.income)}</td><td>${fmt(v.income*3600)}</td></tr></tbody></table><h2>Gameplay</h2><p class="lead">As a ${d.type.toLowerCase()} droid, ${droidGameplayAttribute(d,variant)} Production shown in the table is before your in-game credit multiplier.</p><div class="detail-actions"><button class="btn" id="addThis">Add ${variantText(variant)} to my base</button><button class="btn secondary" id="addBlueprintThis">Add blueprint</button></div></article><aside class="infobox"><div class="info-title">${d.name}</div><div class="info-image">${picture(d,variant)}</div><div class="info-rows"><div class="info-row"><b>Quality</b><span>${variantText(variant)}</span></div><div class="info-row"><b>Rarity</b><span>${rarityText(d.rarity)}</span></div><div class="info-row"><b>Type</b><span>${d.type}</span></div><div class="info-row"><b>Attribute</b><span>${attribute}</span></div><div class="info-row"><b>Upgrade Chips</b><span>${chips?`${fmt(chips)}/min`:'N/A'}</span></div><div class="info-row"><b>Sells for</b><span>${chipSellValue(d,variant)?`${fmt(chipSellValue(d,variant))} chips${bb8CompanionActive(placements().placed)?` · ${fmt(chipSellValue(d,variant)*2)} with BB-8`:''}`:'N/A'}</span></div><div class="info-row"><b>Craft time</b><span>${craftTimeText(v.craftingSeconds)}</span></div><div class="info-row"><b>Cost</b><span>${variantCostText(d,variant)}</span></div><div class="info-row"><b>Income</b><span>${variantIncomeText(d,variant)}</span></div></div></aside></div>`;document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{variant=b.dataset.v;render()});document.querySelector('#addThis').onclick=()=>requestAdd(d.name,variant);document.querySelector('#addBlueprintThis').onclick=()=>addBlueprint(d.name,variant)};render()}
+// Which quality you were looking at, kept per droid for the session. The page
+// re-renders for reasons that have nothing to do with you - a cloud change
+// landing, the timer strip remounting - and dropping back to Default every time
+// made the tabs unusable if you were reading anything else.
+const detailVariantChoice=new Map();
+const detailOnlySelected=new Map();
+// A fusion droid is made, not crafted, so its recipe is the only thing on the
+// page that says where it comes from.
+function detailFusionHtml(d){
+  const recipe=fusionRecipes().find(entry=>entry.name===d.name);
+  if(!recipe)return'';
+  const need=fusionNeed(recipe);
+  const parts=need.parts.map(part=>`<a class="detail-fusion-part ${part.short?'is-short':'is-held'}" href="#/droid/${slug(part.name)}">${escapeAttr(part.name)}${part.need>1?` &times;${part.need}`:''}<em>${part.have}/${part.need}</em></a>`).join('<b>+</b>');
+  return `<h2>Fusion recipe</h2>
+    <p class="lead">${escapeAttr(d.name)} cannot be crafted. It is fused from three droids, and comes out at the worst quality that went in.</p>
+    <div class="detail-fusion ${need.ready?'is-ready':''}">${parts}<span class="detail-fusion-arrow">&rarr;</span><span class="detail-fusion-out">${escapeAttr(d.name)}</span></div>
+    <p class="detail-fusion-note">${need.ready?'You hold all three.':`Still short ${need.missing.map(part=>`${part.short} &times; ${escapeAttr(part.name)}`).join(', ')}.`} <a href="#/fusion-lab">Fusion Lab</a></p>`;
+}
+function detailPage(id){
+  const d=state.droids.find(x=>slug(x.name)===id);
+  if(!d){notFound();return}
+  const qualities=onlyDefaultVariant(d)?['DEFAULT']:VARIANTS.filter(x=>d.variants[x]);
+  let variant=detailVariantChoice.get(d.name);
+  if(!qualities.includes(variant))variant=qualities[0]||'DEFAULT';
+  const render=()=>{
+    detailVariantChoice.set(d.name,variant);
+    const only=detailOnlySelected.get(d.name)===true;
+    const v=d.variants[variant]||d.variants.DEFAULT,attribute=droidAttribute(d,variant),chips=upgradeChipRate(d,variant);
+    const flawless=isDroidFlawless(d.name);
+    // Every quality in one table: comparing them was a click each way before.
+    const rows=qualities.filter(x=>!only||x===variant).map(x=>{
+      const row=d.variants[x],owned=Boolean(droidexEntry(d.name,x));
+      return `<tr class="${x===variant?'selected-variant':''} ${owned?'in-droidex':''}" data-row-variant="${x}">
+        <td><strong>${variantText(x)}</strong>${owned?'<span class="dex-tick" title="In your Droidex">&#10003;</span>':''}</td>
+        <td>${craftTimeText(row.craftingSeconds)}</td><td>${fmt(row.cost)}</td>
+        <td>${fmt(row.income)}</td><td>${fmt(row.income*3600)}</td></tr>`;
+    }).join('');
+    const tabs=qualities.map(x=>`<button data-v="${x}" class="${variant===x?'active':''} ${droidexEntry(d.name,x)?'in-droidex':''}" title="${droidexEntry(d.name,x)?`${variantLabel(x)} is in your Droidex`:`${variantLabel(x)} is missing from your Droidex`}">${variantText(x)}</button>`).join('');
+    const missing=qualities.filter(x=>!droidexEntry(d.name,x));
+    app.innerHTML=`<div class="breadcrumbs"><a href="#/">Main page</a> / <a href="#/droids">Droids</a> / ${d.name}</div><div class="article-grid"><article><p class="eyebrow">${rarityText(d.rarity)} ${d.type} droid</p><h1>${d.name}</h1><p class="lead"><strong>${d.name}</strong> is a ${rarityText(d.rarity)} ${d.type.toLowerCase()} droid. Its base form produces ${fmt(d.variants.DEFAULT.income)} credits per second and every quality is catalogued below.</p><div class="variant-tabs">${tabs}</div>
+      <div class="variant-dex-line">${qualities.length>1?`<span>${qualities.length-missing.length}/${qualities.length} in your Droidex${missing.length?` &middot; still missing ${missing.map(x=>variantText(x)).join(', ')}`:''}</span>`:'<span></span>'}${qualities.length>1?`<label class="variant-filter"><input type="checkbox" id="onlySelectedVariant" ${only?'checked':''}> Only ${variantText(variant)}</label>`:''}</div>
+      <h2>Statistics</h2><table><thead><tr><th>Variant</th><th>Craft time</th><th>Crafting cost</th><th>Credits / second</th><th>Credits / hour</th></tr></thead><tbody>${rows}</tbody></table>${detailFusionHtml(d)}<h2>Gameplay</h2><p class="lead">As a ${d.type.toLowerCase()} droid, ${droidGameplayAttribute(d,variant)} Production shown in the table is before your in-game credit multiplier.</p><div class="detail-actions"><button class="btn" id="addThis">Add ${variantText(variant)} to my base</button><button class="btn secondary" id="addBlueprintThis">Add blueprint</button></div></article><aside class="infobox"><div class="info-title">${d.name}</div><div class="info-image">${picture(d,variant)}</div><div class="info-rows"><div class="info-row"><b>Quality</b><span>${variantText(variant)}</span></div><div class="info-row"><b>Rarity</b><span>${rarityText(d.rarity)}</span></div><div class="info-row"><b>Type</b><span>${d.type}</span></div><div class="info-row"><b>Attribute</b><span>${attribute}</span></div><div class="info-row"><b>Upgrade Chips</b><span>${chips?`${fmt(chips)}/min`:'N/A'}</span></div><div class="info-row"><b>Sells for</b><span>${chipSellValue(d,variant)?`${fmt(chipSellValue(d,variant))} chips${bb8CompanionActive(placements().placed)?` &middot; ${fmt(chipSellValue(d,variant)*2)} with BB-8`:''}`:'N/A'}</span></div><div class="info-row"><b>Craft time</b><span>${craftTimeText(v.craftingSeconds)}</span></div><div class="info-row"><b>Cost</b><span>${variantCostText(d,variant)}</span></div><div class="info-row"><b>Income</b><span>${variantIncomeText(d,variant)}</span></div><div class="info-row"><b>Droidex</b><span>${droidexEntry(d.name,variant)?`Tracked${flawless?' &middot; flawless':''}`:'Not tracked'}</span></div></div></aside></div>`;
+    document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{variant=b.dataset.v;render()});
+    document.querySelectorAll('[data-row-variant]').forEach(row=>row.onclick=()=>{variant=row.dataset.rowVariant;render()});
+    const onlyBox=document.querySelector('#onlySelectedVariant');
+    if(onlyBox)onlyBox.onchange=e=>{detailOnlySelected.set(d.name,e.target.checked);render()};
+    document.querySelector('#addThis').onclick=()=>requestAdd(d.name,variant);
+    document.querySelector('#addBlueprintThis').onclick=()=>addBlueprint(d.name,variant);
+  };
+  render();
+}
 function commitOwned(name,variant,qty=1,preferred,preferredSlot){const slot=Number(preferredSlot),hasSlot=Number.isInteger(slot),building=BUILDING_STATIONS.includes(preferred)&&!autoCompleteBuilds(),row=state.owned.find(x=>x.name===name&&x.variant===variant&&x.preferred===preferred&&(!hasSlot||Number(x.preferredSlot)===slot)&&rowIsBuilding(x)===building);row?row.qty+=qty:state.owned.push({name,variant,qty,...(preferred?{preferred,...(hasSlot?{preferredSlot:slot}:{})}:{}),...(preferred==='BUILD'&&!building?{built:true}:{})});
   // A droid still being built is not in the Droidex yet; completing it records it.
   const logged=building?false:recordDroidex(name,variant);
@@ -1889,6 +1962,9 @@ function basePageV2(){
   const rosterGroups=[];
   state.owned.forEach((x,index)=>{const group=rosterGroups.find(g=>g.name===x.name&&g.variant===x.variant);
     group?(group.qty+=x.qty,group.last=index):rosterGroups.push({name:x.name,variant:x.variant,qty:x.qty,last:index})});
+  // Alphabetical, then by quality within a droid: the roster is something you
+  // scan for a name, not a record of the order things were added.
+  rosterGroups.sort((left,right)=>left.name.localeCompare(right.name)||VARIANTS.indexOf(left.variant)-VARIANTS.indexOf(right.variant));
   const roster=rosterGroups.map(g=>{const d=state.droids.find(y=>y.name===g.name);
     return `<div class="roster-card" data-roster-name="${d.name.toLowerCase()}"><a href="#/droid/${slug(d.name)}">${picture(d,g.variant)}<span><strong>${d.name}</strong><small>${variantText(g.variant)} &middot; &times;${g.qty}</small></span></a><button class="icon-btn roster-remove" data-i="${g.last}" title="${g.qty>1?`Remove one of ${g.qty}`:`Remove ${d.name}`}">×</button></div>`}).join('');
   const located=requirementLocations(),units=requirementUnits(p);

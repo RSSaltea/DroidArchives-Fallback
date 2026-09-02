@@ -813,6 +813,35 @@ html.in-companion .site-header .discord-button{flex:0 0 auto}
 :root:not([data-theme="dark"]) .fuse-first-no{background:#e4e9f6;color:#3c4a7a}
 :root:not([data-theme="dark"]) .sell-card.to-fusion{border-color:#8098d8}
 
+/* Droid page: every quality is listed at once, so the row you have selected has
+   to stand out, and the ones already in the Droidex have to be tellable from
+   the ones still missing. */
+.variant-tabs button.in-droidex{position:relative}
+.variant-tabs button.in-droidex:after{content:"";position:absolute;top:4px;right:4px;width:5px;height:5px;border-radius:50%;background:#7df0a1}
+.variant-dex-line{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:-6px 0 14px;color:var(--muted);font-size:11px}
+.variant-filter{display:inline-flex;align-items:center;gap:6px;font-weight:800;cursor:pointer;white-space:nowrap}
+.variant-filter input{width:14px;height:14px;accent-color:#7df0a1;cursor:pointer}
+.article-grid tbody tr[data-row-variant]{cursor:pointer}
+.article-grid tbody tr[data-row-variant]:hover>td{background:rgba(255,255,255,.04)}
+.article-grid tbody tr.selected-variant>td{background:rgba(125,240,161,.08);box-shadow:inset 3px 0 var(--green)}
+.dex-tick{margin-left:7px;color:#7df0a1;font-weight:900}
+.article-grid tbody tr.in-droidex:not(.selected-variant)>td:first-child{box-shadow:inset 3px 0 rgba(125,240,161,.35)}
+
+/* Where a fusion droid comes from. Green means you hold enough of that
+   ingredient already. */
+.detail-fusion{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line);border-left:4px solid #9fb0ff;background:var(--panel)}
+.detail-fusion.is-ready{border-left-color:#7df0a1}
+.detail-fusion b{color:var(--muted);font-weight:900}
+.detail-fusion-part{display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border:1px solid var(--line);border-radius:5px;color:var(--ink);text-decoration:none;font-weight:800;font-size:12px}
+.detail-fusion-part em{font-style:normal;font-size:10px;font-weight:900}
+.detail-fusion-part.is-held em{color:#7df0a1}
+.detail-fusion-part.is-short em{color:#ff9f9f}
+.detail-fusion-part:hover{border-color:var(--green)}
+.detail-fusion-arrow{color:#9fb0ff;font-weight:900}
+.detail-fusion-out{font-weight:900}
+.detail-fusion-note{margin:9px 0 0;color:var(--muted);font-size:11px}
+:root:not([data-theme="dark"]) .detail-fusion{background:#fffdf8;border-color:#d8d0c2;border-left-color:#7b8ad8}
+:root:not([data-theme="dark"]) .article-grid tbody tr.selected-variant>td{background:#eef7ef}
 /* --- Needed cards ------------------------------------------------------
    A needed card is an article rather than a link now, so the add and quality
    buttons have somewhere to sit. The link inside goes display:contents to keep

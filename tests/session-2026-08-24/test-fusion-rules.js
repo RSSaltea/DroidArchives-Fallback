@@ -45,7 +45,10 @@ console.log('=== three of one droid hand that same droid back a quality up ===')
 r=outcome([{name:'A-LEG',variant:'GOLD'},{name:'A-LEG',variant:'GOLD'},{name:'A-LEG',variant:'GOLD'}]);
 ok('three Gold of one droid make that same droid at Diamond',r.kind==='quality'&&r.name==='A-LEG'&&r.rarity==='LEGENDARY'&&r.variant==='DIAMOND',JSON.stringify(r));
 r=outcome([{name:'A-LEG',variant:'STELLAR'},{name:'A-LEG',variant:'STELLAR'},{name:'A-LEG',variant:'STELLAR'}]);
-ok('Stellar is the top quality, so three of them cannot step up',r.kind==='capped',JSON.stringify(r));
+// Stellar has nothing above it, so the three step rarity instead.
+ok('three Stellar of one Legendary make a random Mythic Stellar',r.kind==='rarity'&&r.rarity==='MYTHIC'&&r.variant==='STELLAR'&&r.from==='LEGENDARY',JSON.stringify(r));
+r=outcome([{name:'A-MYTH',variant:'STELLAR'},{name:'A-MYTH',variant:'STELLAR'},{name:'A-MYTH',variant:'STELLAR'}]);
+ok('but a Mythic at Stellar has neither ladder left',r.kind==='capped',JSON.stringify(r));
 r=outcome([{name:'A-LEG',variant:'GOLD'},{name:'A-LEG',variant:'GOLD'},{name:'A-LEG',variant:'DIAMOND'}]);
 ok('three of one droid at mixed qualities is not recorded',r.kind==='unknown',JSON.stringify(r));
 r=outcome([{name:'ICON',variant:'DEFAULT'},{name:'ICON',variant:'DEFAULT'},{name:'ICON',variant:'DEFAULT'}]);
