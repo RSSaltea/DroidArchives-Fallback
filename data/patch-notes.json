@@ -2,6 +2,21 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-02-droid-page-and-fusion-rule",
+      "date": "2026-09-02",
+      "title": "The whole droid page at a glance",
+      "summary": "Every quality in one table, your Droidex marked on it, fusion recipes, and a fusion rule put right.",
+      "changes": [
+        "A droid's page now lists every quality in one table, so you can compare them without clicking between them.",
+        "The quality you are looking at stays put. It used to drop back to Default whenever you switched to the game and came back.",
+        "Qualities already in your Droidex are ticked on the table and marked on the tabs, with a line saying how many are left and which.",
+        "A fusion droid's page now shows its recipe: the three droids it is made from, green when you already hold enough.",
+        "The Roster is in alphabetical order.",
+        "Three of the same droid at Stellar now correctly make a random droid one rarity up, at Stellar. Stellar has no quality above it, so they were being treated as a dead end.",
+        "B1 HEAVY at Stellar earns 48K/s, not the 50.4K it was showing."
+      ]
+    },
+    {
       "id": "2026-08-30-needed-lists-and-rebirth-perks",
       "date": "2026-08-30",
       "title": "Add and upgrade droids straight from the needed lists",
