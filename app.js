@@ -571,9 +571,11 @@ function fusionOutcome(units){
     if(d&&isIconic(d))return{kind:'unknown',variant,mixedQuality};
     const own=droidRarity(names[0]);
     if(nextVariant(variant))return{kind:'quality',name:names[0],rarity:own,variant:nextVariant(variant),from:variant,mixedQuality};
-    // Stellar has nothing above it, so three Stellar of one droid step rarity
-    // instead: three Legendary Stellar make a Mythic Stellar, not nothing.
-    if(nextRarity(own))return{kind:'rarity',rarity:nextRarity(own),from:own,variant,mixedQuality};
+    // Stellar has nothing above it, so three Stellar of one droid roll a rarity
+    // instead: three Legendary Stellar make a random Mythic Stellar. A Mythic
+    // has no rarity above it either and rolls into another random Mythic
+    // Stellar rather than being a dead end.
+    if(own)return{kind:'rarity',rarity:nextRarity(own)||own,from:own,variant,mixedQuality};
     return{kind:'capped',name:names[0],rarity:own,variant,mixedQuality};
   }
   const rarities=[...new Set(rows.map(row=>droidRarity(row.name)))];
@@ -645,8 +647,11 @@ function fusionRaritySteps(stock){
   const groups=new Map();
   for(const [name,byVariant] of stock){
     const d=fusionDroid(name);
-    if(!d||isIconic(d)||!nextRarity(d.rarity))continue;
+    if(!d||isIconic(d))continue;
     for(const [variant,count] of byVariant){
+      // A Mythic only fuses at the top quality, where it rerolls into another
+      // Mythic; below that it has nowhere to go.
+      if(!nextRarity(d.rarity)&&nextVariant(variant))continue;
       const key=`${d.rarity}|${variant}`;
       const group=groups.get(key)||{rarity:d.rarity,variant,names:[],holdings:[],copies:0};
       group.names.push(name);
@@ -659,8 +664,11 @@ function fusionRaritySteps(stock){
       // Three of one droid come out a quality higher instead - unless the
       // quality ladder has run out, and then they roll like anything else.
       &&!(group.names.length===1&&nextVariant(group.variant))
+      // Only three of one droid are known to roll at the top rarity; three
+      // different Mythics are not something anyone has written down.
+      &&!(!nextRarity(group.rarity)&&group.names.length>1)
       &&!(group.names.length===3&&group.copies===3&&fusionRecipeFor(group.names)))
-    .map(group=>({...group,to:nextRarity(group.rarity),sets:Math.floor(group.copies/3),names:group.names.sort()}))
+    .map(group=>({...group,to:nextRarity(group.rarity)||group.rarity,sets:Math.floor(group.copies/3),names:group.names.sort()}))
     .sort((a,b)=>rarityStep(b.rarity)-rarityStep(a.rarity)||variantStep(b.variant)-variantStep(a.variant));
 }
 // A Fusion droid is fused at the quality you want or not at all, so the useful
@@ -711,9 +719,12 @@ function fusionRoutesToNeeded(){
       const best=fusionBestVariant(recipe,stock);
       if(best&&variantStep(best)>=variantStep(at))routes.push({name,at,rebirth:req.at,kind:'recipe',sure:true,inputs:recipe.inputs});
     }
+    // At the top rarity the roll comes from that same rarity rather than the
+    // one below, because there is no rarity below to step up from.
+    const rollFrom=nextRarity(d.rarity)?RARITY_LADDER[rarityStep(d.rarity)-1]:d.rarity;
     const below=VARIANTS[variantStep(at)-1];
     if(below&&(stock.get(name)?.get(below)||0)>=3)routes.push({name,at,rebirth:req.at,kind:'quality',sure:true,from:below});
-    const under=RARITY_LADDER[rarityStep(d.rarity)-1];
+    const under=rollFrom;
     if(under){
       const pool=[];
       let copies=0;

@@ -12,7 +12,7 @@
         "Qualities already in your Droidex are ticked on the table and marked on the tabs, with a line saying how many are left and which.",
         "A fusion droid's page now shows its recipe: the three droids it is made from, green when you already hold enough.",
         "The Roster is in alphabetical order.",
-        "Three of the same droid at Stellar now correctly make a random droid one rarity up, at Stellar. Stellar has no quality above it, so they were being treated as a dead end.",
+        "Three of the same droid at Stellar now make a random droid one rarity up, still at Stellar. Three Mythics reroll into a random Mythic. They were being treated as a dead end.",
         "B1 HEAVY at Stellar earns 48K/s, not the 50.4K it was showing."
       ]
     },

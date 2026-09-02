@@ -48,7 +48,11 @@ r=outcome([{name:'A-LEG',variant:'STELLAR'},{name:'A-LEG',variant:'STELLAR'},{na
 // Stellar has nothing above it, so the three step rarity instead.
 ok('three Stellar of one Legendary make a random Mythic Stellar',r.kind==='rarity'&&r.rarity==='MYTHIC'&&r.variant==='STELLAR'&&r.from==='LEGENDARY',JSON.stringify(r));
 r=outcome([{name:'A-MYTH',variant:'STELLAR'},{name:'A-MYTH',variant:'STELLAR'},{name:'A-MYTH',variant:'STELLAR'}]);
-ok('but a Mythic at Stellar has neither ladder left',r.kind==='capped',JSON.stringify(r));
+// A Mythic has no rarity above it either, so its roll stays at Mythic rather
+// than being a dead end.
+ok('three Stellar of one Mythic reroll into a random Mythic Stellar',r.kind==='rarity'&&r.rarity==='MYTHIC'&&r.from==='MYTHIC'&&r.variant==='STELLAR',JSON.stringify(r));
+r=outcome([{name:'A-MYTH',variant:'GOLD'},{name:'A-MYTH',variant:'GOLD'},{name:'A-MYTH',variant:'GOLD'}]);
+ok('below Stellar a Mythic still climbs the quality ladder',r.kind==='quality'&&r.variant==='DIAMOND',JSON.stringify(r));
 r=outcome([{name:'A-LEG',variant:'GOLD'},{name:'A-LEG',variant:'GOLD'},{name:'A-LEG',variant:'DIAMOND'}]);
 ok('three of one droid at mixed qualities is not recorded',r.kind==='unknown',JSON.stringify(r));
 r=outcome([{name:'ICON',variant:'DEFAULT'},{name:'ICON',variant:'DEFAULT'},{name:'ICON',variant:'DEFAULT'}]);
