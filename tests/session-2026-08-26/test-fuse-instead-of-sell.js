@@ -161,6 +161,8 @@ console.log('');
 console.log('=== the walkthrough agrees with the Sell list ===');
 {
   for(const k of ['const variantLabel=','const rarityLabel=','const fmt=']) vm.runInContext(pick(k),sb);
+  sb.soldInsteadOfFusion=()=>[];
+  vm.runInContext(grab('function optimiseFusionChain('),sb);
   vm.runInContext(grab('function withFusionSteps('),sb);
   sb.state={droids,fusion,droidex:[],owned:[],optimiseFuseFirst:true};
   sb.projected={sell:[{name:MYTH,variant:'DIAMOND',qty:3},{name:MYTH,variant:'RAINBOW',qty:2}],placed:[]};
@@ -192,6 +194,45 @@ console.log('=== the walkthrough agrees with the Sell list ===');
   sb.state.optimiseFuseFirst=true;
   sb.projected={sell:[],placed:[]};sb.steps=input;
   ok('an empty Sell list changes nothing',vm.runInContext('withFusionSteps(steps,projected)',sb).length===input.length);
+}
+
+console.log('=== fusion feedback regressions ===');
+{
+  let excluded=[];
+  sb.soldInsteadOfFusion=()=>excluded;
+  sb.state={droids,fusion,droidex:[],owned:[],optimiseFuseFirst:true};
+  const units=Array.from({length:6},(_,source)=>({name:MYTH,variant:'DIAMOND',qty:6,source,unit:0,station:'WORKER'}));
+  const moves=units.map(unit=>({type:'sell',kind:'sell',unit,from:unit.station,at:unit.station,text:`Sell ${unit.name} Diamond from ${unit.station}.`}));
+  const run=(rows=units,list=moves)=>{sb.projected={sell:rows,placed:[]};sb.steps=list;return vm.runInContext('withFusionSteps(steps,projected)',sb)};
+  const result=run();
+  let table=0,batches=0;
+  for(const step of result){
+    if(step.type==='fuse-in'||step.type==='fuse-held')table++;
+    if(step.type==='fuse-result')table+=step.unit.count;
+    ok('table never holds more than three inputs',table<=3);
+    if(step.type==='fuse'){ok('a fusion consumes exactly three inputs',table===3);table=0;batches++}
+  }
+  ok('six spare droids produce two separate batches',batches===2);
+  ok('every fusion has its room label',result.filter(s=>s.type==='fuse').every(s=>s.at==='FUSION'));
+  excluded=['0:0'];
+  const sold=run();
+  ok('Sell keeps the selected copy out of all fusions',sold.some(s=>s.type==='sell'&&s.unit.source===0)&&!sold.some(s=>s.type==='fuse-in'&&s.unit.source===0));
+  ok('remaining copies are recalculated into one batch',sold.filter(s=>s.type==='fuse').length===1);
+  excluded=[];
+  const held=units.slice(0,3).map((u,i)=>({...u,station:i<2?'FUSION':'WORKER'}));
+  const heldMoves=held.map(unit=>({type:'sell',unit,from:unit.station,at:unit.station,text:`Sell ${unit.name} Diamond from ${unit.station}.`}));
+  const tablePlan=run(held,heldMoves);
+  ok('two existing table droids are left there',tablePlan.filter(s=>s.type==='fuse-held').length===2);
+  ok('only the missing third droid is sent to Fusion',tablePlan.filter(s=>s.type==='fuse-in').length===1);
+  ok('no droid is sent from Fusion to Fusion',!tablePlan.some(s=>s.type==='fuse-in'&&s.from==='FUSION'));
+  sb.baseP={placed:[{name:'GONK',variant:'DEFAULT',station:'FUSION',source:99,unit:0}]};
+  ok('a kept table occupant is never consumed or overfilled',vm.runInContext('withFusionSteps(steps,projected,baseP)',sb).every(s=>s.type!=='fuse'));
+  const chainUnits=[...units.slice(0,3),...units.slice(3,5).map(u=>({...u,variant:'RAINBOW'}))];
+  const chained=run(chainUnits,chainUnits.map(unit=>({type:'sell',unit,from:'WORKER',at:'WORKER',text:`Sell ${unit.name} ${unit.variant} from Worker.`})));
+  ok('a later batch explicitly loads the earlier result',chained.some(s=>s.type==='fuse-result'&&s.unit.variant==='RAINBOW'));
+  ok('the earlier result is made before it is loaded',chained.findIndex(s=>s.type==='fuse')<chained.findIndex(s=>s.type==='fuse-result'));
+  sb.steps=chained;vm.runInContext(grab('function optimiseVisits('),sb);
+  ok('route grouping preserves the batch order',JSON.stringify(vm.runInContext('optimiseVisits(steps).flatMap(v=>v.steps)',sb))===JSON.stringify(chained));
 }
 
 console.log('');

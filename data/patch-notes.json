@@ -2,6 +2,19 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-12-fusion-fixes",
+      "date": "2026-09-12",
+      "title": "Fusion fixes",
+      "summary": "Fixed fusion steps in Optimise and added a Sell option.",
+      "changes": [
+        "Fixed Fusion showing as Undefined.",
+        "Fusion steps now work in batches of three.",
+        "Added a Sell button to skip fusing a droid.",
+        "Droids already in Fusion are no longer sent there again.",
+        "Fixed incorrect fusion counts for stacked droids."
+      ]
+    },
+    {
       "id": "2026-09-02-droid-page-and-fusion-rule",
       "date": "2026-09-02",
       "title": "The whole droid page at a glance",
