@@ -2131,6 +2131,7 @@ async function applyOptimisedLayout(plan){
   const steps=safeOptimiseStepPlan(baseP,projected);
   annotateLogSlots(steps);
   if(applyLoggedLandings(projected,steps))projected.rows=optimisedRows(projected.placed,projected.overflow);
+  if(steps.some(step=>step.fusionBlocked))return toast('Free a Fusion Build slot and run Optimise again before applying this layout');
   if(projected.sell.length&&!confirm(`Apply this layout and remove ${projected.sell.length} droid${projected.sell.length===1?'':'s'} from Sell?`))return;
   const previousOwned=state.owned;
   state.owned=projected.rows;
@@ -2174,7 +2175,7 @@ function stepHtml(step,index){
   const record=(step.kind==='work'||step.to==='LOUNGE')&&!state.sharedView&&slotLogTracking()&&slotLabAllowed()&&free.length
     ?`<label class="step-record"><small>Landed in?</small><select data-log-step="${escapeAttr(step.text)}"><option value="">${free.length} it could take…</option>${options}</select></label>`
     :'';
-  return `${tick}<span class="step-thumb">${d?picture(d,step.unit.variant):''}</span><span class="step-text">${text}${assumed}</span>${record}${skip}${['fuse-in','fuse-held'].includes(step.type)&&step.unit?`<button class="step-skip" data-sell-instead="${step.unit.source}:${step.unit.unit}" title="Sell this droid instead and recalculate the fusions">Sell</button>`:''}`;
+  return `${tick}<span class="step-thumb">${d?picture(d,step.unit.variant):''}</span><span class="step-text">${text}${assumed}</span>${record}${skip}${['fuse-in','fuse-held','fuse-deferred'].includes(step.type)&&step.unit?`<button class="step-skip" data-sell-instead="${step.unit.source}:${step.unit.unit}" title="Sell this droid instead and recalculate the fusions">Sell</button>`:''}`;
 }
 function normaliseProjectedForSteps(baseP,projected){const keyOf=x=>`${x.source}:${x.unit}`,groupOf=x=>`${x.name}:${x.variant}`,cloneRows=rows=>rows.map(x=>({...x})),placed=cloneRows(projected.placed),sell=cloneRows(projected.sell),overflow=cloneRows(projected.overflow);for(const group of [...new Set([...placed,...sell].map(groupOf))]){const current=baseP.placed.filter(x=>groupOf(x)===group),targets=placed.filter(x=>groupOf(x)===group),sells=sell.filter(x=>groupOf(x)===group);if(current.length<2||!sells.length)continue;const used=new Set(),take=picker=>{const row=current.find(x=>!used.has(keyOf(x))&&picker(x));if(row)used.add(keyOf(row));return row};for(const target of targets){const exact=take(x=>x.station===target.station&&x.slot===target.slot),sameStation=exact||take(x=>x.station===target.station),any=sameStation||take(()=>true);if(any){target.source=any.source;target.unit=any.unit}}for(const sold of sells){const any=take(()=>true);if(any){sold.source=any.source;sold.unit=any.unit}}}return{...projected,placed,sell,overflow}}
 
@@ -2568,15 +2569,78 @@ function withFusionSteps(steps,projected,baseP){
   });
   return [...out,...steps.filter(s=>s.type!=='sell')];
 }
+// Simulate the result slots as well as the three inputs. A fusion result stays
+// in Fusion Build until an explicit move consumes or removes it.
+function scheduleFusionBuildSteps(steps,baseP,projected){
+  const keyOf=x=>`${x.source}:${x.unit}`,placed=new Map(baseP.placed.map(x=>[keyOf(x),{...x}]));
+  const out=[],prefix=steps.filter(s=>['sell','fuse-in','fuse-held','fuse-result','fuse'].includes(s.type));
+  const buildSlots=stationSlotIndices('FUSION_BUILD');
+  const freeSlot=station=>slotFillOrder(station).find(slot=>![...placed.values()].some(x=>x.station===station&&x.slot===slot));
+  const freeBuild=()=>buildSlots.find(slot=>![...placed.values()].some(x=>x.station==='FUSION_BUILD'&&x.slot===slot));
+  const remaining=()=>({...baseP,placed:[...placed.values()],overflow:(baseP.overflow||[]).filter(x=>!removed.has(keyOf(x)))});
+  const removed=new Set();
+  const remove=unit=>{placed.delete(keyOf(unit));removed.add(keyOf(unit))};
+  const drainBuild=visit=>{
+    for(const unit of placed.values()){
+      if(unit.station!=='FUSION_BUILD'||!unit.built||unit.lockedSlot)continue;
+      const native=state.droids.find(d=>d.name===unit.name)?.type;
+      const destinations=[native,...NEAREST_ORDER.filter(type=>type!==native)].filter(type=>PRODUCTIVE_STATIONS.includes(type));
+      const to=destinations.find(type=>freeSlot(type)!==undefined);
+      if(!to)continue;
+      const slot=slotFillOrder(to,{station:unit.station,slot:unit.slot}).find(slot=>![...placed.values()].some(x=>x.station===to&&x.slot===slot));
+      const fromSlot=unit.slot;
+      out.push({type:'move',kind:'work',unit:{...unit},at:'FUSION_BUILD',from:'FUSION_BUILD',fromSlot,to,visit,
+        assumed:to!==native&&destinations.filter(type=>freeSlot(type)!==undefined).length>1,
+        text:`Tell ${unitName(unit)} to go to work from Fusion Build - it will take a ${placeName(to)} slot and free a Fusion Build slot before the next batch.`});
+      placed.set(keyOf(unit),{...unit,station:to,slot});
+      return true;
+    }
+    return false;
+  };
+  for(let i=0;i<prefix.length;){
+    const first=prefix[i];
+    if(first.type==='sell'){out.push(first);remove(first.unit);i++;continue}
+    const end=prefix.findIndex((s,j)=>j>=i&&s.type==='fuse');
+    if(end<0)break;
+    const batch=prefix.slice(i,end+1),fusion=prefix[end];
+    // Chained results must finish building before they can leave their slots.
+    for(const step of batch.filter(s=>s.type==='fuse-result')){
+      for(let n=0;n<step.unit.count;n++){
+        const result=[...placed.values()].find(x=>x.fusionResult&&x.name===step.unit.name&&x.variant===step.unit.variant);
+        if(result)remove(result);
+      }
+      out.push({...step,at:'FUSION_BUILD',text:`Wait for ${unitName(step.unit)} to finish in Fusion Build, then put ${step.unit.count} into Fusion for this batch. This frees its Fusion Build slot.`});
+    }
+    if(freeBuild()===undefined)drainBuild(first.visit);
+    const slot=freeBuild();
+    if(slot===undefined){
+      out.push({type:'note',at:'FUSION_BUILD',visit:first.visit,fusionBlocked:true,
+        text:`Fusion Build is full (${buildSlots.length}/${buildSlots.length}). Finish building and move a completed droid out, then update your Base and run Optimise again. Keep the next batch where it is until a slot is free.`});
+      for(const step of prefix.slice(i).filter(s=>['fuse-in','fuse-held'].includes(s.type)))out.push({...step,type:'fuse-deferred',kind:'fuse-deferred',
+        text:`Keep ${unitName(step.unit)} where it is for now - waiting for a free Fusion Build slot.`});
+      return{steps:out,remaining:remaining(),blocked:true};
+    }
+    for(const step of batch){
+      if(step.type==='fuse-result')continue;
+      if(step.type==='fuse-in'||step.type==='fuse-held')remove(step.unit);
+      out.push(step.type==='fuse'?{...step,to:'FUSION_BUILD',toSlot:slot,
+        text:step.text.replace('Collect the result and clear the table before the next batch.',`The result occupies Fusion Build slot ${slot+1} until it finishes building and is moved out.`)}:step);
+    }
+    placed.set(`fusion-result-${i}:0`,{source:`fusion-result-${i}`,unit:0,name:fusion.unit?.name||'Fusion result',variant:fusion.unit?.variant||fusion.fusion.variant,
+      station:'FUSION_BUILD',slot,built:false,lockedSlot:true,fusionResult:true});
+    i=end+1;
+  }
+  return{steps:out,remaining:remaining(),blocked:false};
+}
 function safeOptimiseStepPlan(baseP,projected){try{
   const planner=optimiseStepStyle()==='classic'?optimiseStepPlan:optimiseRoutePlan;
   const steps=withFusionSteps(planner(baseP,projected),projected,baseP);
   if(!steps.some(s=>s.type==='fuse'))return steps;
-  // Selling/fusing first opens slots. Route the remaining moves against that
-  // actual starting layout so automatic Work destinations stay accurate.
-  const sold=new Set(projected.sell.map(x=>`${x.source}:${x.unit}`));
-  const remaining={...baseP,placed:baseP.placed.filter(x=>!sold.has(`${x.source}:${x.unit}`)),overflow:(baseP.overflow||[]).filter(x=>!sold.has(`${x.source}:${x.unit}`))};
-  return [...steps.filter(s=>['sell','fuse-in','fuse-held','fuse-result','fuse'].includes(s.type)),...planner(remaining,{...projected,sell:[]})];
+  const scheduled=scheduleFusionBuildSteps(steps,baseP,projected);
+  if(scheduled.blocked)return scheduled.steps;
+  // Re-route from the simulated layout, including completed droids moved out
+  // of Fusion Build and all result slots reserved by the preceding batches.
+  return [...scheduled.steps,...planner(scheduled.remaining,{...projected,sell:[]})];
 }catch(e){console.warn('Optimise step plan unavailable',e);return[]}}
 function critCalcPage(){
   const render=()=>{
@@ -2674,6 +2738,7 @@ function optimisePage(){
   const fuseOn=state.optimiseFuseFirst!==false;
   const fuseChain=steps.filter(s=>s.type==='fuse').map(s=>s.fusion);
   // Match the exact copies used by the walkthrough, including Sell overrides.
+  const fuseDeferred=new Set(steps.filter(s=>s.type==='fuse-deferred').map(s=>`${s.unit.source}:${s.unit.unit}`));
   const fuseTake=new Set(steps.filter(s=>['fuse-in','fuse-held'].includes(s.type)).map(s=>`${s.unit.source}:${s.unit.unit}`));
   const fuseSwitch=`<label class="fuse-first-switch"><input type="checkbox" id="toggleFuseFirst" ${fuseOn?'checked':''}><span>Fuse instead of selling</span></label>`;
   const fuseStep=step=>{
@@ -2691,7 +2756,7 @@ function optimisePage(){
   const fuseFirst=`<section class="sell-wide fuse-first ${fuseOn?'':'is-off'}"><header><div><strong>Fuse before you sell</strong><span>${fuseOn?`${fuseChain.length} step${fuseChain.length===1?'':'s'} out of the Sell list alone`:'Off &mdash; everything below is sold'}</span></div>${fuseSwitch}</header>
     ${fuseOn?`<ol class="fuse-first-list">${fuseChain.map(fuseStep).join('')}</ol>
     <p class="fuse-first-note">Each step takes three droids out of the Sell list and puts one back, so a later step can spend what an earlier one made. Gains are measured against the weakest droid earning in the layout above; a rarity roll is judged on the middle earner of that rarity and quality.</p>`:'<p class="fuse-first-note">Turn this on and the Sell list is checked for fusions worth making first &mdash; a better droid, or one your Droidex is still missing.</p>'}</section>`;
-  const sell=p.sell.map(x=>{const d=state.droids.find(y=>y.name===x.name);const toFusion=fuseTake.has(`${x.source}:${x.unit}`);return `<div class="sell-card cycle-unused ${toFusion?'to-fusion':''}"><a href="#/droid/${slug(d.name)}"><div>${picture(d,x.variant)}</div><span><strong>${d.name}</strong><small>${variantText(x.variant)} · From: ${originLabel(x)}</small><em>${toFusion?'&rarr; Fusion room, not sold':(x.sellReason||'No rebirth use')}</em></span></a></div>`}).join('');
+  const sell=p.sell.map(x=>{const d=state.droids.find(y=>y.name===x.name);const toFusion=fuseTake.has(`${x.source}:${x.unit}`),deferred=fuseDeferred.has(`${x.source}:${x.unit}`);return `<div class="sell-card cycle-unused ${toFusion?'to-fusion':''}"><a href="#/droid/${slug(d.name)}"><div>${picture(d,x.variant)}</div><span><strong>${d.name}</strong><small>${variantText(x.variant)} · From: ${originLabel(x)}</small><em>${toFusion?'&rarr; Fusion room, not sold':deferred?'Waiting for Fusion Build space':(x.sellReason||'No rebirth use')}</em></span></a></div>`}).join('');
   app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Optimise</div><div class="base-heading"><div><p class="eyebrow">Credit optimiser</p><h1>Optimise</h1><p class="lead">A preview of your Base rearranged for the best estimated credits per hour.</p></div>${nothingToDo?'<p class="optimise-settled">Already optimal.</p>':'<button class="btn" id="applyOptimised">Apply optimised layout</button>'}</div><div class="base-top optimise-stats"><div class="stat"><small>Current / hour</small><strong>${fmt(currentIncome*3600)}</strong></div><div class="stat"><small>Optimised / hour</small><strong>${fmt(income*3600)}</strong></div><div class="stat"><small>Estimated gain / hour</small><strong>${gain?`+${fmt(gain*3600)}`:'—'}</strong></div><div class="stat scrap-stat"><small>Optimised scrap / hit</small><strong>${optimisedScrap.hit?fmt(optimisedScrap.hit):'—'}</strong><em>${scrapGain.hit?`+${fmt(scrapGain.hit)} per hit`:'No change'}</em></div><div class="stat scrap-stat"><small>Optimised scrap / break</small><strong>${optimisedScrap.break?fmt(optimisedScrap.break):'—'}</strong><em>${scrapGain.break?`+${fmt(scrapGain.break)} per break`:'No change'}</em></div><div class="stat"><small>Droids owned</small><strong>${state.owned.reduce((s,x)=>s+x.qty,0)}</strong></div></div>${nothingToDo?'':'<div class="notice">This page does not change your Base until you click <strong>Apply optimised layout</strong>. Droids in Sell are excluded from the applied layout.</div>'}${missingPreferredCompanions().length?`<div class="notice companion-wanted"><strong>Buy for a Companion slot:</strong> ${missingPreferredCompanions().map(name=>`<a href="#/droid/${slug(name)}">${name}</a>`).join(', ')} — you picked ${missingPreferredCompanions().length===1?'this':'these'} as a preferred companion but ${missingPreferredCompanions().length===1?'do not':'do not'} own ${missingPreferredCompanions().length===1?'it':'them'} yet.</div>`:''}${steps.length?`<section class="optimise-steps ${stepsCollapsed?'collapsed':''}"><header><div><p class="eyebrow">${stepsEyebrow}</p><h2>Step-by-step moves</h2></div><div class="optimise-steps-actions">${trackToggle}${stepsStyleToggle}<button class="icon-btn optimise-steps-toggle" id="toggleOptimiseSteps" title="${stepsCollapsed?'Show':'Minimise'} steps">${stepsCollapsed?'+' :'−'}</button></div></header>${stepsList}</section>`:''}<div class="base-layout-v2 optimise-layout"><div class="typed-stations">${['WORKER','ASTROMECH','BATTLE'].map(station).join('')}</div><div class="build-side">${station('BUILD')}</div>${overflow?`<section class="roster-wide"><header><div><strong>Unplaced</strong><span>${p.overflow.length} over capacity</span></div></header><div id="rosterCards">${overflow}</div></section>`:''}${fuseFirst}${sell?`<section class="sell-wide"><header><div><strong>Sell</strong><span>${p.sell.length} unused or duplicate rebirth droid${p.sell.length===1?'':'s'}</span></div></header><div class="sell-grid">${sell}</div></section>`:''}</div>`;
   document.querySelector('.build-side').insertAdjacentHTML('afterend',`<div class="special-stations">${station('LOUNGE')}${station('COMPANION')}${station('UPGRADE_CHIP')}${station('FUSION')}${station('FUSION_BUILD')}</div>`);
   document.querySelector('#toggleFuseFirst')?.addEventListener('change',event=>{state.optimiseFuseFirst=event.target.checked;save();optimisePage()});document.querySelector('#toggleOptimiseSteps')?.addEventListener('click',()=>{localStorage.setItem('droid-archive-optimise-steps-collapsed',stepsCollapsed?'0':'1');optimisePage()});
@@ -2733,7 +2798,8 @@ function optimisePage(){
     // snapshot the current base so the apply can be undone.
     window.__companionApplyOptimise=()=>{
       try{
-        const projected=optimisedPlacements(placements(),plan);
+        const baseP=placements(),projected=optimisedPlacements(baseP,plan);
+        if(safeOptimiseStepPlan(baseP,projected).some(step=>step.fusionBlocked))return{applied:false,reason:'Free a Fusion Build slot and run Optimise again'};
         window.__companionOptimiseUndo=state.owned.map(r=>({...r}));
         state.owned=projected.rows;save();
         return{applied:true,sold:projected.sell.length};

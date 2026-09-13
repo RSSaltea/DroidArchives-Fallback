@@ -29,7 +29,7 @@ try:
             page.locator('#patchNotesClose').click()
         page.evaluate('''() => {
           const {state,optimisePage,autoPurchaseEligibleSlots}=testApp;
-          state.rebirth=3;autoPurchaseEligibleSlots();
+          state.rebirth=3;state.novaUpgrades['fusion-tank']=2;autoPurchaseEligibleSlots();
           state.optimiseKeepDroidex=false;state.optimiseFuseFirst=true;
           state.owned=[{name:'SNOW MOUSE',variant:'STELLAR',qty:15},
             {name:'SNOW MOUSE',variant:'DIAMOND',qty:6,preferred:'BUILD'}];
@@ -47,12 +47,12 @@ try:
         assert page.locator('.sell-card.to-fusion').count() == 3
         page.locator('#toggleStepStyle').click()
         assert page.locator('[data-sell-instead]').count() == 3
-        assert 'Collect the result and clear the table' in page.locator('.optimise-steps').inner_text()
+        assert 'The result occupies Fusion Build slot' in page.locator('.optimise-steps').inner_text()
         # An already occupied table needs just its missing third input.
         page.evaluate('''() => {
           localStorage.removeItem('droid-archive-optimise-sell-instead');
           const {state,optimisePage,autoPurchaseEligibleSlots}=testApp;
-          state.rebirth=3;autoPurchaseEligibleSlots();
+          state.rebirth=3;state.novaUpgrades['fusion-tank']=2;autoPurchaseEligibleSlots();
           state.owned=[{name:'SNOW MOUSE',variant:'STELLAR',qty:15},
             {name:'SNOW MOUSE',variant:'DIAMOND',qty:1,preferred:'FUSION',preferredSlot:0},
             {name:'SNOW MOUSE',variant:'DIAMOND',qty:1,preferred:'FUSION',preferredSlot:1},
@@ -63,8 +63,48 @@ try:
         assert text.count('Leave SNOW MOUSE Diamond in Fusion for this batch.') == 2
         assert text.count('to the Fusion room instead of selling.') == 1
         assert page.locator('[data-sell-instead]').count() == 3
+        # Reproduce two completed Fusion Builds, then two independent fusions.
+        for style in ('route', 'classic'):
+            page.evaluate("""style => {
+              localStorage.setItem('droid-archive-optimise-step-style',style);
+              const {state,optimisePage}=testApp;
+              state.owned=[{name:'SNOW MOUSE',variant:'STELLAR',qty:13},
+                {name:'SNOW MOUSE',variant:'STELLAR',qty:1,preferred:'FUSION_BUILD',preferredSlot:0,built:true},
+                {name:'SNOW MOUSE',variant:'STELLAR',qty:1,preferred:'FUSION_BUILD',preferredSlot:1,built:true},
+                {name:'SNOW MOUSE',variant:'DIAMOND',qty:6,preferred:'BUILD'}];
+              optimisePage();
+            }""", style)
+            rows = page.locator('.optimise-steps .step-text').all_text_contents()
+            fuses = [i for i, text in enumerate(rows) if text.startswith('Fuse ')]
+            releases = [i for i, text in enumerate(rows) if 'free a Fusion Build slot before the next batch' in text]
+            transfers = [i for i, text in enumerate(rows) if 'to the Fusion room instead of selling' in text]
+            assert len(fuses) == 2, rows
+            assert len(transfers) == 6, rows
+            assert fuses[0] < releases[0] < transfers[3] < fuses[1], rows
+            assert sum('go to work from Fusion Build' in text for text in rows) == 1, rows
+        # New results have a build time: a single result slot cannot run two
+        # independent batches without another Base update.
+        page.evaluate("""() => {
+          const {state,optimisePage}=testApp;
+          state.novaUpgrades['fusion-tank']=0;
+          state.owned=[{name:'SNOW MOUSE',variant:'STELLAR',qty:15},
+            {name:'SNOW MOUSE',variant:'DIAMOND',qty:6,preferred:'BUILD'}];
+          optimisePage();
+        }""")
+        rows = page.locator('.optimise-steps .step-text').all_text_contents()
+        assert sum(text.startswith('Fuse ') for text in rows) == 1, rows
+        assert sum('to the Fusion room instead of selling' in text for text in rows) == 3, rows
+        assert any('Fusion Build is full (1/1)' in text for text in rows), rows
+        assert page.locator('.sell-card').filter(has_text='Waiting for Fusion Build space').count() == 3
+        before = page.evaluate('JSON.stringify(testApp.state.owned)')
+        dialogs = []
+        page.on('dialog', lambda dialog: (dialogs.append(dialog.message), dialog.dismiss()))
+        page.locator('#applyOptimised').click()
+        assert page.evaluate('JSON.stringify(testApp.state.owned)') == before
+        assert not dialogs, dialogs
+        assert 'Free a Fusion Build slot and run Optimise again before applying' in page.locator('body').inner_text()
         assert not errors, errors
         browser.close()
-        print('Browser checks passed: batches, labels, stack counts, Sell, classic plan, existing table inputs.')
+        print('Browser checks passed: batches, Sell, existing inputs, Fusion Build capacity in both plan styles, blocked Apply.')
 finally:
     server.shutdown()

@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-13-fusion-build-space",
+      "date": "2026-09-13",
+      "title": "Fusion Build space",
+      "summary": "Optimise now tracks Fusion Build space between batches.",
+      "changes": [
+        "Existing builds and new fusion results now count towards occupied slots.",
+        "Completed droids move out before another batch is loaded when space is needed.",
+        "If Fusion Build is full, the next batch waits until a slot is free."
+      ]
+    },
+    {
       "id": "2026-09-12-fusion-fixes",
       "date": "2026-09-12",
       "title": "Fusion fixes",
