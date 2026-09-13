@@ -11,7 +11,7 @@ function fn(name){const at=src.indexOf(`function ${name}(`);assert(at>=0,name);c
 function setup(){
  const state={droids:structuredClone(data),owned:[],protocolPriority:'credits'};
  const caps={WORKER:1,ASTROMECH:1,BATTLE:1};
- const ctx=vm.createContext({state,console,PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
+ const ctx=vm.createContext({state,console,ASTROMECH_MISSION_SLOTS:[0,2,4,6,8],PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
   effectiveMultiplier:()=>1,isIconic:d=>d?.rarity==='ICONIC',iconicIncome:d=>d?.rarity==='ICONIC'?(d.special?.incomePercent??.15):0,
   placedBaseIncome:placed=>placed.reduce((n,x)=>n+(state.droids.find(d=>d.name===x.name)?.variants[x.variant]?.income||0),0),
   expandedOwned:()=>state.owned.flatMap((x,source)=>Array.from({length:x.qty||1},(_,unit)=>({...x,source,unit}))),
@@ -19,6 +19,7 @@ function setup(){
   productiveStations:()=>Object.entries(caps).flatMap(([station,n])=>Array.from({length:n},(_,slot)=>({station,slot}))),
   stationSlotIndices:station=>Array.from({length:caps[station]??(station.startsWith('PROTOCOL_')?1:0)},(_,i)=>i),
   slotFillOrder:station=>Array.from({length:caps[station]||0},(_,i)=>i).reverse(),
+  optimiseAssignmentMoves:()=>[],
   stabiliseAssignments:x=>x,
   optimiseCreditBase:()=>({income:0,assignments:[],moves:[]}),
   unitName:x=>x.name,slotLabel:x=>x?`${x.station} ${x.slot+1}`:'Roster',withFusionSteps:x=>x
@@ -133,4 +134,20 @@ test('Build replacement stays occupied until its incoming droid can swap in',()=
 test('an empty Build slot is never used as storage',()=>{
  const p=planMoves([['WORKER',0]],[['BUILD',0]],2);
  assert(p.steps.some(s=>s.type==='note'));assert.equal(p.current[0].station,'WORKER');
+});
+
+test('mission Iconics are reserved before Protocol credit and crafting searches',()=>{
+ for(const priority of ['credits','crafting']){
+ const {state,caps,run}=setup();caps.ASTROMECH=3;state.protocolPriority=priority;
+ state.owned=[{name:'CB-23',variant:'DEFAULT'},{name:'R2-D2',variant:'DEFAULT'},{name:'DRFT-R',variant:'STELLAR'},{name:'C-3PO',variant:'DEFAULT'}];
+ const result=run(`optimiseBase({placed:[{...state.owned[0],source:0,unit:0,station:'ASTROMECH',slot:0},{...state.owned[1],source:1,unit:0,station:'ASTROMECH',slot:1}]},0)`);
+ for(const name of ['CB-23','R2-D2']){const pick=result.assignments.find(x=>x.name===name);assert(pick?.missionPriority);assert.equal(pick.station,'ASTROMECH');assert([0,2].includes(pick.slot));}
+ assert.equal(result.assignments.find(x=>x.name==='CB-23').slot,0);
+ assert.equal(new Set(result.assignments.map(x=>`${x.station}:${x.slot}`)).size,result.assignments.length);
+ }
+});
+test('mission priority respects locks and unfinished Iconics',()=>{
+ const {state,run}=setup();state.owned=[{name:'CB-23',variant:'DEFAULT'},{name:'R2-D2',variant:'DEFAULT'}];
+ const result=run(`optimiseBase({placed:[{...state.owned[0],source:0,unit:0,station:'WORKER',slot:0,lockedSlot:true},{...state.owned[1],source:1,unit:0,station:'BUILD',slot:0,built:false}]},0)`);
+ assert.equal(result.assignments.length,0);
 });

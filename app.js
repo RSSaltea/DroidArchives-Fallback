@@ -284,6 +284,24 @@ function protocolDetailHtml(d){
 // Deterministic improving moves/swaps give a bounded estimate, not a claim of
 // a globally optimal solution to this nonlinear assignment problem.
 function optimiseBase(p,currentIncome){
+  const keyOf=x=>`${x.source}:${x.unit}`,fixed=p.placed.filter(x=>x.lockedSlot||isBuilding(x)),fixedKeys=new Set(fixed.map(keyOf));
+  const missionSlots=stationSlotIndices('ASTROMECH').filter(slot=>ASTROMECH_MISSION_SLOTS.includes(slot)&&!fixed.some(x=>x.station==='ASTROMECH'&&x.slot===slot));
+  const rank=name=>name==='R2-D2'?0:name==='CB-23'?1:2;
+  const candidates=expandedOwned().filter(x=>{const d=state.droids.find(d=>d.name===x.name);return d?.type==='ASTROMECH'&&isIconic(d)&&!fixedKeys.has(keyOf(x));})
+    .sort((a,b)=>rank(a.name)-rank(b.name)||a.name.localeCompare(b.name));
+  const picks=candidates.slice(0,missionSlots.length),used=new Set(),reservations=[];
+  // Preserve existing mission positions first; a non-mission position is never
+  // a reason to displace one of these assignments for a higher credit earner.
+  for(const unit of picks){const old=p.placed.find(x=>keyOf(x)===keyOf(unit));if(old?.station==='ASTROMECH'&&missionSlots.includes(old.slot)&&!used.has(old.slot)){used.add(old.slot);reservations.push({...unit,station:'ASTROMECH',slot:old.slot});}}
+  for(const unit of picks)if(!reservations.some(x=>keyOf(x)===keyOf(unit))){const slot=missionSlots.find(x=>!used.has(x));used.add(slot);reservations.push({...unit,station:'ASTROMECH',slot});}
+  if(!reservations.length)return optimiseUnreservedBase(p,currentIncome);
+  const keys=new Set(reservations.map(keyOf)),spots=new Set(reservations.map(x=>`${x.station}:${x.slot}`));
+  const constrained={...p,placed:[...p.placed.filter(x=>!keys.has(keyOf(x))&&!spots.has(`${x.station}:${x.slot}`)),...reservations.map(x=>({...x,lockedSlot:true}))]};
+  const result=optimiseUnreservedBase(constrained,currentIncome);
+  const assignments=[...result.assignments,...reservations.map(x=>({key:keyOf(x),name:x.name,variant:x.variant,station:x.station,slot:x.slot,missionPriority:true}))];
+  return {...result,assignments,moves:optimiseAssignmentMoves(assignments,p)};
+}
+function optimiseUnreservedBase(p,currentIncome){
   const initial=optimiseCreditBase(p,currentIncome);
   if(!expandedOwned().some(x=>state.droids.find(d=>d.name===x.name)?.type==='PROTOCOL'))return initial;
   const keyOf=x=>`${x.source}:${x.unit}`,locked=p.placed.filter(x=>x.lockedSlot||isBuilding(x)),lockedKeys=new Set(locked.map(keyOf)),blocked=new Set(locked.map(x=>`${x.station}:${x.slot}`));
@@ -2047,6 +2065,7 @@ function slotProductionHtml(d,variant,station,baseIncome,placed=[]){
   const match=earns&&station===d.type,adjustment=match?1.1:1,adjustedRate=baseRate*effectiveMultiplier()*adjustment*protocolRegionMultiplier(placed,station),potentialRate=baseRate*effectiveMultiplier();
   return earns?`<span>${variantText(variant)} · Base ${fmt(baseRate)}/s</span><span class="adjusted-production">Adjusted ${fmt(adjustedRate)}/s</span><span class="production-breakdown">×${effectiveMultiplier().toFixed(2)} base multiplier${match?` · ×${adjustment.toFixed(2)} station match`:''}${protocolRegionMultiplier(placed,station)>1?` · ×${protocolRegionMultiplier(placed,station).toFixed(2)} Protocol`:''}</span>`:`<span>${variantText(variant)} · Base ${fmt(baseRate)}/s</span><span class="adjusted-production">Would earn ${fmt(potentialRate)}/s</span><span class="production-breakdown">No contribution here</span>`
 }
+function optimiseAssignmentMoves(assignments,p){const current=new Map(p.placed.map(x=>[`${x.source}:${x.unit}`,x])),wanted=new Map(assignments.map(x=>[x.key,x])),firstOpen=(station,origin)=>slotFillOrder(station,origin).find(i=>!p.placed.some(x=>x.station===station&&x.slot===i))??-1;return assignments.filter(x=>current.get(x.key)?.station!==x.station).map(x=>{const old=current.get(x.key),sourceLabel=old?old.station:'Roster',displaced=p.placed.find(y=>y.station===x.station&&`${y.source}:${y.unit}`!==x.key&&wanted.get(`${y.source}:${y.unit}`)?.station!==x.station),open=firstOpen(x.station,old),targetSlot=displaced?displaced.slot:open>=0?open:x.slot,targetLabel=displaced?`${x.station} slot holding ${displaced.name} ${variantText(displaced.variant)}`:`empty ${x.station} slot`;return{unit:{...x,slot:targetSlot},current:sourceLabel,targetStation:x.station,targetSlot,targetLabel,displaced:displaced?{key:`${displaced.source}:${displaced.unit}`,name:displaced.name,variant:displaced.variant,target:sourceLabel}:null}});}
 function optimiseCreditBase(p,currentIncome){
   // A droid still being built cannot be picked up, so it is pinned exactly like
   // a locked one and never offered a productive slot.
@@ -2082,7 +2101,7 @@ function optimiseCreditBase(p,currentIncome){
     if(income>best.income+1e-6||Math.abs(income-best.income)<=1e-6&&stability>(best.stability||0))best={income,stability,assignments}
   }
   best.assignments=stabiliseAssignments(best.assignments,p);
-  const current=new Map(p.placed.map(x=>[`${x.source}:${x.unit}`,x])),wanted=new Map(best.assignments.map(x=>[x.key,x])),firstOpen=(station,origin)=>slotFillOrder(station,origin).find(i=>!p.placed.some(x=>x.station===station&&x.slot===i))??-1,moves=best.assignments.filter(x=>current.get(x.key)?.station!==x.station).map(x=>{const old=current.get(x.key),sourceLabel=old?old.station:'Roster',displaced=p.placed.find(y=>y.station===x.station&&`${y.source}:${y.unit}`!==x.key&&wanted.get(`${y.source}:${y.unit}`)?.station!==x.station),open=firstOpen(x.station,old),targetSlot=displaced?displaced.slot:open>=0?open:x.slot,targetLabel=displaced?`${x.station} slot holding ${displaced.name} ${variantText(displaced.variant)}`:`empty ${x.station} slot`;return{unit:{...x,slot:targetSlot},current:sourceLabel,targetStation:x.station,targetSlot,targetLabel,displaced:displaced?{key:`${displaced.source}:${displaced.unit}`,name:displaced.name,variant:displaced.variant,target:sourceLabel}:null}});
+  const moves=optimiseAssignmentMoves(best.assignments,p);
   const gain=Math.max(0,best.income-currentIncome),actionable=gain>1&&moves.length;
   return{income:best.income,gain:actionable?gain:0,moves:actionable?moves:[],assignments:best.assignments}
 }
@@ -2173,7 +2192,7 @@ function basePageV2(){
   document.querySelectorAll('[data-purchase-station]').forEach(button=>button.onclick=()=>purchaseRebirthSlot(button.dataset.purchaseStation,Number(button.dataset.purchaseSlot),render));
   requestAnimationFrame(()=>decorateCommandDeck('/base'));
  };render()}
-function stabiliseProjectedPlacements(baseP,placed){const current=new Map(baseP.placed.map(x=>[`${x.source}:${x.unit}`,x])),stations=[...new Set(placed.map(x=>x.station))],stable=[];for(const station of stations){const list=placed.filter(x=>x.station===station),slots=stationSlotIndices(station),used=new Set(),floating=[];for(const item of list){const old=current.get(`${item.source}:${item.unit}`);if(old?.station===station&&slots.includes(old.slot)&&!used.has(old.slot)){used.add(old.slot);stable.push({...item,slot:old.slot})}else floating.push(item)}const spare=new Set(slots.filter(slot=>!used.has(slot))),colliding=[];
+function stabiliseProjectedPlacements(baseP,placed){const current=new Map(baseP.placed.map(x=>[`${x.source}:${x.unit}`,x])),stations=[...new Set(placed.map(x=>x.station))],stable=[];for(const station of stations){const list=placed.filter(x=>x.station===station),slots=stationSlotIndices(station),pinned=list.filter(x=>x.missionPriority||x.lockedSlot),used=new Set(pinned.map(x=>x.slot)),floating=[];stable.push(...pinned);for(const item of list.filter(x=>!pinned.includes(x))){const old=current.get(`${item.source}:${item.unit}`);if(old?.station===station&&slots.includes(old.slot)&&!used.has(old.slot)){used.add(old.slot);stable.push({...item,slot:old.slot})}else floating.push(item)}const spare=new Set(slots.filter(slot=>!used.has(slot))),colliding=[];
     for(const item of floating){if(spare.has(item.slot)){spare.delete(item.slot);stable.push(item)}else colliding.push(item)}
     for(const item of colliding){
       const old=current.get(`${item.source}:${item.unit}`);
@@ -2193,7 +2212,7 @@ function optimisedPlacements(baseP,plan){
   const claim=(unit,station,slot)=>{occupied[station].add(slot);placed.push({...unit,station,slot})},free=(station,origin)=>slotFillOrder(station,origin).find(i=>!occupied[station].has(i))??-1,canKeep=(station,slot)=>station&&stationSlotIndices(station).includes(slot)&&!occupied[station].has(slot);
   const lockedKeys=new Set(baseP.placed.filter(x=>x.lockedSlot||isBuilding(x)).map(x=>`${x.source}:${x.unit}`));
   for(const locked of baseP.placed.filter(x=>lockedKeys.has(`${x.source}:${x.unit}`)))if(canKeep(locked.station,locked.slot))claim(locked,locked.station,locked.slot);
-  for(const unit of units){const key=`${unit.source}:${unit.unit}`,target=assigned.get(key);if(target)claim(unit,target.station,target.slot)}
+  for(const unit of units){const key=`${unit.source}:${unit.unit}`,target=assigned.get(key);if(target)claim(target.missionPriority?{...unit,missionPriority:true}:unit,target.station,target.slot)}
   const bestFuture=new Map();
   for(const unit of units){if(assigned.has(`${unit.source}:${unit.unit}`))continue;const previous=bestFuture.get(unit.name);if(!previous||VARIANTS.indexOf(unit.variant)>VARIANTS.indexOf(previous.variant))bestFuture.set(unit.name,{variant:unit.variant,key:`${unit.source}:${unit.unit}`})}
   const candidates=[],droidexKeepers=new Map(),droidexKeptKeys=new Map(),keptByHand=new Map(),protocolKeptKeys=new Map(),spared=sparedFromSelling(),keepBuildOpen=Boolean(state.optimiseFreeBuild),strictKeepBuild=keepBuildOpen&&optimiseFreeBuildMode()!=='unused-income';
@@ -2468,6 +2487,8 @@ const placeName=station=>station===ROSTER?'Roster':stationName(station);
 function optimiseRoutePlan(baseP,rawProjected){
   // Sending to work cannot fill Build. These layouts need an occupied-slot swap;
   // the slot planner still uses Lounge moves wherever they are usable.
+  if(rawProjected.placed.some(g=>g.missionPriority&&!baseP.placed.some(x=>x.source===g.source&&x.unit===g.unit&&x.station===g.station&&x.slot===g.slot)))
+    return protocolStepPlan(baseP,normaliseProjectedForSteps(baseP,rawProjected),false);
   if(rawProjected.placed.some(g=>g.station==='BUILD'&&!baseP.placed.some(x=>x.source===g.source&&x.unit===g.unit&&x.station==='BUILD')))
     return protocolStepPlan(baseP,normaliseProjectedForSteps(baseP,rawProjected),false);
 

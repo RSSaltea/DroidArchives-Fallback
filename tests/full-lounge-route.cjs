@@ -53,6 +53,29 @@ const server=http.createServer((req,res)=>{
  const actual=await page.evaluate(()=>window.testPlan.placements());
  const rows=xs=>xs.map(x=>`${x.name}|${x.variant}|${x.station}|${x.slot}`).sort();
  assert.deepEqual(rows(actual.placed),rows(result.target.placed));assert.equal(actual.overflow.length,0);
+ const missions=await page.evaluate(()=>{
+  const d=window.testPlan,out=[];
+  for(const protocol of [false,true])for(const priority of ['credits','crafting']){
+   d.state.protocolPriority=priority;
+   d.state.owned=[{name:'CB-23',variant:'DEFAULT',preferred:'ASTROMECH',preferredSlot:1},
+    {name:'R2-D2',variant:'DEFAULT',preferred:'ASTROMECH',preferredSlot:0},
+    {name:'BB-8',variant:'DEFAULT',preferred:'WORKER',preferredSlot:0},
+    {name:'CHOPPER',variant:'DEFAULT',preferred:'LOUNGE',preferredSlot:0},
+    {name:'DRFT-R',variant:'STELLAR',qty:11,preferred:'WORKER'},
+    {name:'MECHA-DROID',variant:'STELLAR',qty:19,preferred:'ASTROMECH'},
+    ...(protocol?[{name:'C-3PO',variant:'DEFAULT',preferred:'BATTLE'}]:[])].map(x=>({qty:1,built:true,...x}));
+   const base=d.placements(),plan=d.optimiseBase(base,d.incomeForPlaced(base.placed)),target=d.optimisedPlacements(base,plan);
+   out.push({protocol,priority,picks:target.placed.filter(x=>['CB-23','R2-D2','BB-8','CHOPPER'].includes(x.name)),steps:d.safeOptimiseStepPlan(base,target)});
+  }
+  return out;
+ });
+ for(const scenario of missions){
+  assert.equal(scenario.picks.length,4);
+  for(const pick of scenario.picks){assert.equal(pick.station,'ASTROMECH');assert([0,2,4,6,8].includes(pick.slot));}
+  assert.equal(new Set(scenario.picks.map(x=>x.slot)).size,4);
+  assert(!scenario.steps.some(x=>x.type==='note'),JSON.stringify(scenario.steps));
+ }
+ console.log('PASS: all four Astromech Iconics keep mission slots through both optimisers and both priorities.');
  assert.deepEqual(errors,[]);
  console.log('PASS: reported full-Lounge profile completes four legal swaps and applies without losing droids.');
  }finally{await browser.close();server.close();}
