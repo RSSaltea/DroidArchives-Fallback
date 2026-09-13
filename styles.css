@@ -978,3 +978,8 @@ body.has-rebirth-quick-bar #app{padding-bottom:74px}
 .protocol-divider::before,.protocol-divider::after{background:#5c4f22}
 :root:not([data-theme="dark"]) .protocol-divider{color:#8a6a12}
 :root:not([data-theme="dark"]) .protocol-divider::before,:root:not([data-theme="dark"]) .protocol-divider::after{background:#d8c690}
+
+/* One Fusion panel, with the result slots separated below the input slots. */
+.fusion-panel{min-width:0;align-self:start;border:1px solid var(--line);border-radius:8px;background:var(--panel);overflow:hidden}
+.fusion-panel>.station{border:0!important;border-radius:0!important;margin:0!important;box-shadow:none!important}
+.fusion-panel>.station+.station{border-top:1px solid var(--line)!important}

@@ -17,7 +17,7 @@ const server=http.createServer((req,res)=>{
  const page=await browser.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  await page.route('https://**/*',r=>r.abort());
- await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.testPlan={state,save,validateBaseImport,placements,optimiseBase,incomeForPlaced,optimisedPlacements,safeOptimiseStepPlan,isBuilding};'}));
+ await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.testPlan={state,save,validateBaseImport,placements,optimiseBase,incomeForPlaced,optimisedPlacements,safeOptimiseStepPlan,isBuilding,keepForFusion,baseExport,profileDataFromState,optimiseFusionChain};'}));
  await page.addInitScript(notes=>localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(notes)),JSON.parse(fs.readFileSync(path.join(root,'data/patch-notes.json'),'utf8')).notes.map(n=>n.id));
  await page.goto(`http://127.0.0.1:${server.address().port}`);
  await page.waitForFunction(()=>window.testPlan?.state.droids.length);
@@ -76,6 +76,31 @@ const server=http.createServer((req,res)=>{
   assert(!scenario.steps.some(x=>x.type==='note'),JSON.stringify(scenario.steps));
  }
  console.log('PASS: all four Astromech Iconics keep mission slots through both optimisers and both priorities.');
+ const reserved=await page.evaluate(()=>{
+  const d=window.testPlan;d.state.companionGoals=['pickaxe'];d.state.preferredCompanions=[];d.state.optimiseKeepDroidex=false;
+  d.state.fusionKeepRules=[{rarity:'LEGENDARY',variant:'BESKAR'},{rarity:'MYTHIC',variant:'DIAMOND'}];
+  const matches=[['MECHA-DROID','BESKAR'],['MECHA-DROID','DIAMOND'],['RIC','DIAMOND'],['RIC','GOLD']].map(([name,variant])=>d.keepForFusion({name,variant}));
+  d.state.owned=[{name:'MECHA-DROID',variant:'BESKAR',qty:1,preferred:'LOUNGE',preferredSlot:0,built:true}];
+  const base=d.placements(),one=d.optimisedPlacements(base,{assignments:[]}),chain=d.optimiseFusionChain(one,base);
+  d.state.owned[0].qty=14;d.state.optimiseFreeBuild=true;d.state.optimiseFreeBuildMode='upgrade-cost';
+  const full=d.optimisedPlacements(d.placements(),{assignments:[]});
+  d.state.owned[0].qty=3;const ready=d.optimisedPlacements(d.placements(),{assignments:[]}),readyChain=d.optimiseFusionChain(ready,d.placements());
+  d.state.owned[0].qty=1;d.save();const exported=d.baseExport(),roundtrip=d.validateBaseImport(exported);
+  return {matches,one,chain,full,readyChain,rules:roundtrip.fusionKeepRules,profile:d.profileDataFromState().fusionKeepRules};
+ });
+ assert.deepEqual(reserved.matches,[true,false,true,false]);assert.equal(reserved.one.sell.length,0);
+ assert.equal(reserved.one.placed[0].keepReason,'fusion');assert.equal(reserved.chain.length,0);
+ assert.equal(reserved.full.sell.length,0);assert(reserved.full.overflow.length>0);assert(reserved.readyChain.length>0);
+ assert.equal(reserved.rules.length,2);assert.deepEqual(reserved.profile,reserved.rules);
+ await page.reload();await page.waitForFunction(()=>window.testPlan?.state.droids.length);
+ assert.equal(await page.evaluate(()=>window.testPlan.state.fusionKeepRules.length),2);
+ await page.goto(`http://127.0.0.1:${server.address().port}/#/base`);
+ await page.click('#toggleCommandOptimise');
+ await page.locator('[data-fusion-keep-settings]:visible').click();
+ await page.waitForSelector('#addFusionKeepRule');assert((await page.locator('#modalRoot').innerText()).includes('LEGENDARY+'));
+ await page.locator('[data-remove-fusion-rule]').first().click();await page.click('#closeFusionKeepRules');
+ assert.equal(await page.evaluate(()=>window.testPlan.state.fusionKeepRules.length),1);
+ console.log('PASS: incomplete fusion batch is kept; rarity/quality thresholds, profile persistence, export/import and rule controls work.');
  assert.deepEqual(errors,[]);
  console.log('PASS: reported full-Lounge profile completes four legal swaps and applies without losing droids.');
  }finally{await browser.close();server.close();}
