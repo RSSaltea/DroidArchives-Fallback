@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-13-protocol-in-region-cards",
+      "date": "2026-09-13",
+      "title": "Protocol slots in their region",
+      "summary": "Protocol slots moved into the region cards, and Regional production can be hidden.",
+      "changes": [
+        "Edited the Protocol Credits and Protocol Crafting slots to sit inside the Worker, Astromech and Battle cards, in their own Protocol section.",
+        "Added a setting in Advanced settings to hide Regional production."
+      ]
+    },
+    {
       "id": "2026-09-13-protocol-regions",
       "date": "2026-09-13",
       "title": "Protocol droids",
