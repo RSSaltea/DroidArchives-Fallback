@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-13-protocol-optimise",
+      "date": "2026-09-13",
+      "title": "Protocol droids in Optimise",
+      "summary": "Optimise keeps spare Protocol droids and can fuse them.",
+      "changes": [
+        "Fixed Optimise steps showing under an \"undefined\" heading.",
+        "Edited Optimise to keep spare Protocol droids instead of selling them.",
+        "Added Optimise suggesting Protocol fusions when the result gives a better bonus than the one in your slots."
+      ]
+    },
+    {
       "id": "2026-09-13-protocol-in-region-cards",
       "date": "2026-09-13",
       "title": "Protocol slots in their region",

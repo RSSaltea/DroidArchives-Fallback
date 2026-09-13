@@ -160,7 +160,7 @@ console.log('=== both switches are wired at both ends ===');
 console.log('');
 console.log('=== the walkthrough agrees with the Sell list ===');
 {
-  for(const k of ['const variantLabel=','const rarityLabel=','const fmt=']) vm.runInContext(pick(k),sb);
+  for(const k of ['const variantLabel=','const rarityLabel=','const fmt=','const protocolFusionSpares=']) vm.runInContext(pick(k),sb);
   sb.soldInsteadOfFusion=()=>[];
   vm.runInContext(grab('function optimiseFusionChain('),sb);
   vm.runInContext(grab('function withFusionSteps('),sb);

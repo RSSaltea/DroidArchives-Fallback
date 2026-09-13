@@ -322,7 +322,11 @@ function optimiseBase(p,currentIncome){
 // "go to work" auto-route into these new regional slots.
 function protocolStepPlan(baseP,projected){
   const keyOf=x=>`${x.source}:${x.unit}`,current=new Map(baseP.placed.map(x=>[keyOf(x),{...x}])),goals=new Map(projected.placed.map(x=>[keyOf(x),x])),steps=[];
-  for(const unit of projected.sell){steps.push({type:'sell',unit,from:current.get(keyOf(unit)),text:`Sell ${unitName(unit)}${current.has(keyOf(unit))?` from ${slotLabel(current.get(keyOf(unit)))}`:''}.`});current.delete(keyOf(unit));}
+  // Sell in station order, so each place you visit is one stop rather than a
+  // zigzag between the Lounge and the stations.
+  const whereNow=unit=>current.get(keyOf(unit));
+  const sellOrder=[...projected.sell].sort((a,b)=>String(whereNow(a)?.station||'ROSTER').localeCompare(String(whereNow(b)?.station||'ROSTER'))||(whereNow(a)?.slot??0)-(whereNow(b)?.slot??0));
+  for(const unit of sellOrder){steps.push({type:'sell',unit,from:current.get(keyOf(unit)),text:`Sell ${unitName(unit)}${current.has(keyOf(unit))?` from ${slotLabel(current.get(keyOf(unit)))}`:''}.`});current.delete(keyOf(unit));}
   const done=(a,b)=>a?.station===b?.station&&a?.slot===b?.slot;
   for(let pass=0;pass<120;pass++){
     const pending=[...goals].filter(([key,goal])=>!done(current.get(key),goal));if(!pending.length)break;
@@ -346,6 +350,16 @@ function protocolStepPlan(baseP,projected){
       if(buffer&&blocked){const [key,unit]=blocked.occupant;steps.push({type:'move',unit,from:unit,to:buffer,text:`Move ${unitName(unit)} from ${slotLabel(unit)} to ${slotLabel(buffer)} temporarily to clear the destination.`});current.set(key,{...unit,...buffer});continue;}
       steps.push({type:'note',text:'A transfer needs temporary space. Free a Lounge slot, update Base, then regenerate these remaining moves.'});break;
     }
+  }
+  // The walkthrough is grouped into stops by where each step happens, the way the
+  // ordinary planner groups its own. These steps carried no stop at all, so every
+  // one of them landed under a heading reading "undefined". A note belongs to the
+  // stop it follows.
+  let visit=0,last;
+  for(const step of steps){
+    const where=step.at||step.from?.station||(step.type==='note'?last:null)||'ROSTER';
+    if(where!==last){visit++;last=where}
+    step.at=where;step.visit=`protocol-${visit}`;
   }
   return withFusionSteps(steps,projected,baseP);
 }
@@ -912,8 +926,12 @@ function fusionSpendFrom(stock,name,variant,need){
 // One fusion the pool could make right now. A result that fills a Droidex square
 // wins outright: those cannot be bought back, while a better earner can. After
 // that a certain result beats a roll, and then it is simply the bigger gain.
-function fusionBestFrom(stock,floor,made){
+function fusionBestFrom(stock,floor,made,protocolFloors){
   const options=[];
+  // A Protocol droid is worth making for the bonus it gives in a Protocol slot, not
+  // for its credits, so it is measured against the weakest bonus slotted in each
+  // role. A rarity roll names no droid, so it is judged as before.
+  const protocolGain=(name,variant)=>{const pd=fusionDroid(name);if(!protocolFloors||pd?.type!=='PROTOCOL')return 0;return Math.max(protocolBonus(pd,variant,'CREDITS')-protocolFloors.CREDITS,protocolBonus(pd,variant,'CRAFTING')-protocolFloors.CRAFTING,0)};
   const usesMade=spend=>[...new Set(spend.map(part=>made.get(part.name+'|'+part.variant)).filter(i=>i!==undefined))];
   for(const recipe of fusionRecipes()){
     const at=fusionBestVariant(recipe,stock);
@@ -927,12 +945,12 @@ function fusionBestFrom(stock,floor,made){
     }
     if(!ok)continue;
     options.push({kind:'recipe',out:{name:recipe.name,variant:at},spend,sure:true,
-      income:droidIncomeAt(recipe.name,at),fills:droidexGapFor(recipe.name,at),after:usesMade(spend)});
+      income:droidIncomeAt(recipe.name,at),fills:droidexGapFor(recipe.name,at),bonusGain:protocolGain(recipe.name,at),protocol:fusionDroid(recipe.name)?.type==='PROTOCOL',after:usesMade(spend)});
   }
   for(const step of fusionQualitySteps(stock)){
     const spend=[{name:step.name,variant:step.from,count:3}];
     options.push({kind:'quality',out:{name:step.name,variant:step.to},spend,sure:true,
-      income:droidIncomeAt(step.name,step.to),fills:droidexGapFor(step.name,step.to),after:usesMade(spend)});
+      income:droidIncomeAt(step.name,step.to),fills:droidexGapFor(step.name,step.to),bonusGain:protocolGain(step.name,step.to),protocol:fusionDroid(step.name)?.type==='PROTOCOL',after:usesMade(spend)});
   }
   for(const group of fusionRaritySteps(stock)){
     const spend=[];
@@ -949,9 +967,9 @@ function fusionBestFrom(stock,floor,made){
     options.push({kind:'rarity',out:null,rarity:group.to,variant:group.variant,from:group.rarity,pool:group.names,spend,sure:false,
       income:typicalIncomeFor(group.to,group.variant),fills:false,after:usesMade(spend)});
   }
-  const worth=options.filter(option=>option.income>floor||option.fills);
+  const worth=options.filter(option=>option.income>floor||option.fills||option.bonusGain>0);
   if(!worth.length)return null;
-  const rank=option=>(option.fills?1e12:0)+(option.sure?1e6:0)+(option.income-floor);
+  const rank=option=>(option.fills?1e12:0)+(option.sure?1e6:0)+(option.bonusGain>0?1e3*option.bonusGain:0)+(option.income-floor);
   return worth.sort((a,b)=>rank(b)-rank(a))[0];
 }
 const droidexGapFor=(name,variant)=>{const d=fusionDroid(name);return Boolean(d)&&!isIconic(d)&&!droidexEntry(name,variant)};
@@ -969,11 +987,16 @@ function fusionChainFromSpares(spares,placed){
   const earning=(placed||[]).filter(x=>PRODUCTIVE_STATIONS.includes(x.station)).map(x=>droidIncomeAt(x.name,x.variant));
   const slots=PRODUCTIVE_STATIONS.reduce((total,type)=>total+capacity(type),0);
   const floor=earning.length<slots?0:Math.min(...earning);
+  // The weakest Protocol bonus slotted in each role. An empty Protocol slot is a
+  // floor of zero, since any Protocol droid improves on nothing there.
+  const hasProtocol=[...stock.keys()].some(name=>fusionDroid(name)?.type==='PROTOCOL');
+  const protocolFloor=role=>{const values=Object.keys(PROTOCOL_SLOTS).filter(station=>PROTOCOL_SLOTS[station].role===role).map(station=>{const unit=(placed||[]).find(x=>x.station===station),pd=unit&&fusionDroid(unit.name);return pd?protocolBonus(pd,unit.variant,role):0});return values.length?Math.min(...values):0};
+  const protocolFloors=hasProtocol?{CREDITS:protocolFloor('CREDITS'),CRAFTING:protocolFloor('CRAFTING')}:null;
   const steps=[],made=new Map();
   // Each round re-reads the pool, so the chain stops on its own once nothing
   // left is worth more than the weakest droid already earning.
   for(let round=0;round<12;round++){
-    const pick=fusionBestFrom(stock,floor,made);
+    const pick=fusionBestFrom(stock,floor,made,protocolFloors);
     if(!pick)break;
     for(const part of pick.spend)take(part.name,part.variant,part.count);
     if(pick.out){add(pick.out.name,pick.out.variant);made.set(pick.out.name+'|'+pick.out.variant,steps.length)}
@@ -2069,7 +2092,7 @@ function outstandingDroidsHtml(p){
   const spare=[];
   for(const unit of [...(p?.placed||[]),...(p?.overflow||[])]){
     const d=state.droids.find(x=>x.name===unit.name);
-    if(!d||isIconic(d)||d.special?.cannotSell)continue;
+    if(!d||isIconic(d)||d.special?.cannotSell||d.type==='PROTOCOL')continue;
     if(requirementSchedule(unit.name,{after:state.rebirth,through:goal}).length)continue;
     if(spare.some(x=>x.d.name===d.name&&x.unit.variant===unit.variant))continue;
     spare.push({d,unit,chips:chipSellValue(d,unit.variant)});
@@ -2161,7 +2184,7 @@ function optimisedPlacements(baseP,plan){
   for(const unit of units){const key=`${unit.source}:${unit.unit}`,target=assigned.get(key);if(target)claim(unit,target.station,target.slot)}
   const bestFuture=new Map();
   for(const unit of units){if(assigned.has(`${unit.source}:${unit.unit}`))continue;const previous=bestFuture.get(unit.name);if(!previous||VARIANTS.indexOf(unit.variant)>VARIANTS.indexOf(previous.variant))bestFuture.set(unit.name,{variant:unit.variant,key:`${unit.source}:${unit.unit}`})}
-  const candidates=[],droidexKeepers=new Map(),droidexKeptKeys=new Map(),keptByHand=new Map(),spared=sparedFromSelling(),keepBuildOpen=Boolean(state.optimiseFreeBuild),strictKeepBuild=keepBuildOpen&&optimiseFreeBuildMode()!=='unused-income';
+  const candidates=[],droidexKeepers=new Map(),droidexKeptKeys=new Map(),keptByHand=new Map(),protocolKeptKeys=new Map(),spared=sparedFromSelling(),keepBuildOpen=Boolean(state.optimiseFreeBuild),strictKeepBuild=keepBuildOpen&&optimiseFreeBuildMode()!=='unused-income';
   // A droid in the Upgrade Chip slot is producing, so it is claimed here, before
   // the unused-for-rebirth sell pass below. Picking afterwards meant the best
   // chip earner was sold for having no rebirth use and a weaker droid inherited
@@ -2231,6 +2254,14 @@ function optimisedPlacements(baseP,plan){
         candidates.push({unit,fallbacks:loungeLikeStations(),old:current.get(key),betterStorageOpen:false,kept:false,spared:true});
         continue;
       }
+      // Protocol droids are never dead ends. No rebirth asks for them, but a spare
+      // can still be upgraded or fused into a stronger bonus, so it is kept rather
+      // than sold for having no rebirth use.
+      if(d?.type==='PROTOCOL'){
+        protocolKeptKeys.set(key,'Kept · Protocol droids can be upgraded or fused');
+        candidates.push({unit,fallbacks:loungeLikeStations(),old:current.get(key),betterStorageOpen:false,kept:false,spared:true,keepReason:'protocol'});
+        continue;
+      }
       // Not needed for a rebirth, but upgrading it could still complete Droidex
       // entries nothing else can reach. Keep one copy per droid, and only while
       // there is storage free — a Droidex entry is not worth an overflowing base.
@@ -2257,7 +2288,7 @@ function optimisedPlacements(baseP,plan){
     const {unit,fallbacks,old}=item;
     let station='',slot=-1;
     for(const fallback of fallbacks){if(fallback==='BUILD'&&old?.station!=='BUILD')continue;slot=free(fallback,old);if(slot>=0){claim(unit,fallback,slot);station=fallback;break}}
-    if(!station){const d=state.droids.find(x=>x.name===unit.name);if(item.spared)overflow.push(unit);else if(strictKeepBuild&&!isIconic(d))sell.push({...unit,sellReason:`Sold to keep Build slots open · ${optimiseFreeBuildModeLabel(optimiseFreeBuildMode()).toLowerCase()} priority`});else overflow.push(unit)}
+    if(!station){const d=state.droids.find(x=>x.name===unit.name);if(item.spared)overflow.push(item.keepReason?{...unit,keepReason:item.keepReason}:unit);else if(strictKeepBuild&&!isIconic(d))sell.push({...unit,sellReason:`Sold to keep Build slots open · ${optimiseFreeBuildModeLabel(optimiseFreeBuildMode()).toLowerCase()} priority`});else overflow.push(unit)}
   }
   const stablePlaced=stabiliseProjectedPlacements(baseP,placed),rebirthPick=stablePlaced.reduce((map,x)=>{const previous=map.get(x.name),key=`${x.source}:${x.unit}`;if(!previous||VARIANTS.indexOf(x.variant)>VARIANTS.indexOf(previous.variant))map.set(x.name,{variant:x.variant,key});return map},new Map()),finalPlaced=[],finalSell=[...sell];
   // Upgrade Chip counts as producing here: a droid making chips is earning its
@@ -2266,10 +2297,10 @@ function optimisedPlacements(baseP,plan){
     const key=`${x.source}:${x.unit}`,d=state.droids.find(y=>y.name===x.name),producing=PRODUCTIVE_STATIONS.includes(x.station)||isProtocolStation(x.station)||x.station==='UPGRADE_CHIP',status=d?droidCycleStatus(d,x.variant,rebirthPick.get(x.name)?.key===key):{kind:'unused'};
     // Why a droid is being kept, so the plan can say Rebirth or Droidex rather
     // than leaving you to guess.
-    const companionDetail=companionKept.get(key)||missionKept.get(key),handDetail=keptByHand.get(key),keepDetail=droidexKeptKeys.get(key);
-    const reason=companionDetail?{keepReason:'companion',keepDetail:companionDetail}:handDetail?{keepReason:'manual',keepDetail:handDetail}:keepDetail?{keepReason:'droidex',keepDetail}:producing||status.kind!=='unused'?{keepReason:'rebirth',keepDetail:status.label}:{};
+    const companionDetail=companionKept.get(key)||missionKept.get(key),handDetail=keptByHand.get(key),keepDetail=droidexKeptKeys.get(key),protocolDetail=protocolKeptKeys.get(key);
+    const reason=companionDetail?{keepReason:'companion',keepDetail:companionDetail}:handDetail?{keepReason:'manual',keepDetail:handDetail}:protocolDetail?{keepReason:'protocol',keepDetail:protocolDetail}:keepDetail?{keepReason:'droidex',keepDetail}:producing||status.kind!=='unused'?{keepReason:'rebirth',keepDetail:status.label}:{};
     const keep={...x,...reason,...(isBuilding(x)?{keepReason:'building',keepDetail:'Still being built · cannot be moved yet'}:{})};
-    if(!producing&&status.kind==='unused'&&!isIconic(d)&&!x.lockedSlot&&!keepDetail&&!companionDetail&&!handDetail&&!isBuilding(x))finalSell.push({...x,sellReason:status.label});else finalPlaced.push(keep);
+    if(!producing&&status.kind==='unused'&&!isIconic(d)&&!x.lockedSlot&&!keepDetail&&!companionDetail&&!handDetail&&!protocolDetail&&!isBuilding(x))finalSell.push({...x,sellReason:status.label});else finalPlaced.push(keep);
   }
   if(keepBuildOpen&&optimiseFreeBuildMode()==='unused-income')finalSell.sort((a,b)=>{const ad=state.droids.find(d=>d.name===a.name),bd=state.droids.find(d=>d.name===b.name);return(ad?.variants[a.variant]?.income||0)-(bd?.variants[b.variant]?.income||0)});
   const rows=optimisedRows(finalPlaced,overflow);
@@ -2327,7 +2358,7 @@ function stepHtml(step,index){
   const record=(step.kind==='work'||step.to==='LOUNGE')&&!state.sharedView&&slotLogTracking()&&slotLabAllowed()&&free.length
     ?`<label class="step-record"><small>Landed in?</small><select data-log-step="${escapeAttr(step.text)}"><option value="">${free.length} it could take…</option>${options}</select></label>`
     :'';
-  return `${tick}<span class="step-thumb">${d?picture(d,step.unit.variant):''}</span><span class="step-text">${text}${assumed}</span>${record}${skip}${['fuse-in','fuse-held','fuse-deferred'].includes(step.type)&&step.unit?`<button class="step-skip" data-sell-instead="${step.unit.source}:${step.unit.unit}" title="Sell this droid instead and recalculate the fusions">Sell</button>`:''}`;
+  return `${tick}<span class="step-thumb">${d?picture(d,step.unit.variant):''}</span><span class="step-text">${text}${assumed}</span>${record}${skip}${['fuse-in','fuse-held','fuse-deferred'].includes(step.type)&&step.unit?`<button class="step-skip" data-sell-instead="${step.unit.source}:${step.unit.unit}" title="${step.protocolSpare?'Keep this Protocol droid instead and recalculate the fusions':'Sell this droid instead and recalculate the fusions'}">${step.protocolSpare?'Keep':'Sell'}</button>`:''}`;
 }
 function normaliseProjectedForSteps(baseP,projected){const keyOf=x=>`${x.source}:${x.unit}`,groupOf=x=>`${x.name}:${x.variant}`,cloneRows=rows=>rows.map(x=>({...x})),placed=cloneRows(projected.placed),sell=cloneRows(projected.sell),overflow=cloneRows(projected.overflow);for(const group of [...new Set([...placed,...sell].map(groupOf))]){const current=baseP.placed.filter(x=>groupOf(x)===group),targets=placed.filter(x=>groupOf(x)===group),sells=sell.filter(x=>groupOf(x)===group);if(current.length<2||!sells.length)continue;const used=new Set(),take=picker=>{const row=current.find(x=>!used.has(keyOf(x))&&picker(x));if(row)used.add(keyOf(row));return row};for(const target of targets){const exact=take(x=>x.station===target.station&&x.slot===target.slot),sameStation=exact||take(x=>x.station===target.station),any=sameStation||take(()=>true);if(any){target.source=any.source;target.unit=any.unit}}for(const sold of sells){const any=take(()=>true);if(any){sold.source=any.source;sold.unit=any.unit}}}return{...projected,placed,sell,overflow}}
 
@@ -2659,11 +2690,16 @@ const OPTIMISE_STEP_STYLES=["route","classic"];
 // entire step list instead of just the preference.
 const optimiseStepStyle=()=>{try{const saved=localStorage.getItem("droid-archive-optimise-step-style");return OPTIMISE_STEP_STYLES.includes(saved)?saved:"route"}catch(e){return"route"}};
 // Plan batches from individual sell candidates, respecting per-copy Sell choices.
+// Protocol droids Optimise keeps rather than sells. They are not in the sell list,
+// but a spare one is exactly what a fusion can use.
+const protocolFusionSpares=projected=>[...(projected?.placed||[]),...(projected?.overflow||[])].filter(x=>x.keepReason==='protocol');
 function optimiseFusionChain(projected,baseP){
   const excluded=new Set(soldInsteadOfFusion());
-  const spares=(projected?.sell||[]).filter(x=>!excluded.has(`${x.source}:${x.unit}`));
-  // A kept droid on the table must be moved by the ordinary layout plan first.
-  const sellKeys=new Set((projected?.sell||[]).map(x=>`${x.source}:${x.unit}`));
+  const pool=[...(projected?.sell||[]),...protocolFusionSpares(projected)];
+  const spares=pool.filter(x=>!excluded.has(`${x.source}:${x.unit}`));
+  // A kept droid on the table must be moved by the ordinary layout plan first. A
+  // kept Protocol spare is the exception: it is there to be fused.
+  const sellKeys=new Set(pool.map(x=>`${x.source}:${x.unit}`));
   if((baseP?.placed||[]).some(x=>x.station==='FUSION'&&!sellKeys.has(`${x.source}:${x.unit}`)))return[];
   return fusionChainFromSpares(spares,projected?.placed);
 }
@@ -2672,6 +2708,15 @@ function withFusionSteps(steps,projected,baseP){
   const chain=optimiseFusionChain(projected,baseP);
   if(!chain.length)return steps;
   const excluded=new Set(soldInsteadOfFusion()),available=steps.filter(s=>s.type==='sell'&&s.unit&&!excluded.has(`${s.unit.source}:${s.unit.unit}`));
+  // A kept Protocol spare has no sell step to turn into a fusion step, so it gets a
+  // stand-in. If a fusion uses it, it is sent to Fusion; if not, it is simply kept
+  // and never appears in the plan. It is fused from wherever it stands right now.
+  for(const unit of protocolFusionSpares(projected)){
+    if(excluded.has(`${unit.source}:${unit.unit}`))continue;
+    const now=(baseP?.placed||[]).find(x=>x.source===unit.source&&x.unit===unit.unit)||(unit.station?unit:null);
+    available.push({type:'protocol-spare',protocolSpare:true,unit,from:now?{station:now.station,slot:now.slot}:undefined,at:now?.station||'ROSTER',
+      text:`Send ${unit.name} ${variantLabel(unit.variant)}${now?` from ${slotLabel(now)}`:''}.`});
+  }
   const batches=[],claimed=new Set(),made=new Map();
   const keyOf=x=>`${x.name}|${x.variant}`;
   for(const fusion of chain){
@@ -2708,11 +2753,11 @@ function withFusionSteps(steps,projected,baseP){
       out.push({...input,type:already?'fuse-held':'fuse-in',kind:already?'fuse-held':'fuse-in',
         at:already?'FUSION':(input.at||origin(input)||'ROSTER'),to:'FUSION',visit:`fusion-${index}`,
         text:already?`Leave ${input.unit.name} ${variantLabel(input.unit.variant)} in Fusion for this batch.`:
-          `${input.text.replace(/^Sell /,'Send ').replace(/\.\s*$/,'')} to the Fusion room instead of selling.`});
+          input.protocolSpare?`${input.text.replace(/[.]$/,'')} to the Fusion room.`:`${input.text.replace(/^Sell /,'Send ').replace(/\.\s*$/,'')} to the Fusion room instead of selling.`});
     }
     const spend=step.spend.map(part=>`${part.count} \u00d7 ${part.name} ${variantLabel(part.variant)}`).join(' + ');
     const makes=step.out?`${step.out.name} ${variantLabel(step.out.variant)}`:`a ${rarityLabel(step.rarity)} droid at ${variantLabel(step.variant)}`;
-    const why=step.fills?' It is a Droidex square you do not have.':step.gain>0?` It out-earns the weakest droid working, by about ${fmt(step.gain*3600)}/hr.`:'';
+    const why=step.fills?' It is a Droidex square you do not have.':step.protocol&&step.bonusGain>0?' It gives a stronger Protocol bonus than the weakest one in your slots.':step.gain>0?` It out-earns the weakest droid working, by about ${fmt(step.gain*3600)}/hr.`:'';
     const waits=step.after.length?' Do this one after the fusion above, which makes the copy it needs.':'';
     const roll=step.sure?'':' Which droid arrives is a roll.';
     out.push({type:'fuse',kind:'fuse',at:'FUSION',visit:`fusion-${index}`,fusion:step,
@@ -2796,7 +2841,10 @@ function safeOptimiseStepPlan(baseP,projected){try{
   if(scheduled.blocked)return scheduled.steps;
   // Re-route from the simulated layout, including completed droids moved out
   // of Fusion Build and all result slots reserved by the preceding batches.
-  return [...scheduled.steps,...planner(scheduled.remaining,{...projected,sell:[]})];
+  // A kept Protocol spare that went into a fusion is gone, so the re-plan must not
+  // try to move it to where it would otherwise have been kept.
+  const consumed=new Set(steps.filter(s=>['fuse-in','fuse-held'].includes(s.type)&&s.unit).map(s=>`${s.unit.source}:${s.unit.unit}`));
+  return [...scheduled.steps,...planner(scheduled.remaining,{...projected,sell:[],placed:(projected.placed||[]).filter(x=>!consumed.has(`${x.source}:${x.unit}`))})];
 }catch(e){console.warn('Optimise step plan unavailable',e);return[]}}
 function critCalcPage(){
   const render=()=>{
