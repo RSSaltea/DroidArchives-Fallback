@@ -82,19 +82,26 @@ console.log('=== a live window counts in hours, minutes and seconds ===');
 console.log('');
 console.log('=== the overlay does the same ===');
 {
-  const overlay=fs.readFileSync(ROOT+'desktop/renderer/overlay.js','utf8');
-  const at=overlay.indexOf('const liveClock =');
-  ok('the overlay has an hours:minutes:seconds clock',at>=0);
-  if(at>=0){
-    const ov={};vm.createContext(ov);
-    vm.runInContext(overlay.slice(at,overlay.indexOf('};',at)+2),ov);
-    ov.ms=2*3600000+39*60000+25000;
-    ok('and it renders the same 02:39:25',vm.runInContext('liveClock(ms)',ov)==='02:39:25');
-    ov.ms=1000;
-    ok('padding holds at one second',vm.runInContext('liveClock(ms)',ov)==='00:00:01');
+  // desktop/ is never part of the public repos, so a site-only checkout has no
+  // overlay to check. Skip rather than fail, the way the companion's own
+  // detector test does when its fixtures are absent.
+  const overlayPath=ROOT+'desktop/renderer/overlay.js';
+  if(!fs.existsSync(overlayPath))console.log('  skip desktop/ is not in this checkout');
+  else{
+    const overlay=fs.readFileSync(overlayPath,'utf8');
+    const at=overlay.indexOf('const liveClock =');
+    ok('the overlay has an hours:minutes:seconds clock',at>=0);
+    if(at>=0){
+      const ov={};vm.createContext(ov);
+      vm.runInContext(overlay.slice(at,overlay.indexOf('};',at)+2),ov);
+      ov.ms=2*3600000+39*60000+25000;
+      ok('and it renders the same 02:39:25',vm.runInContext('liveClock(ms)',ov)==='02:39:25');
+      ov.ms=1000;
+      ok('padding holds at one second',vm.runInContext('liveClock(ms)',ov)==='00:00:01');
+    }
+    ok('the overlay picks it only while the window is open',
+      /info\.active \? liveClock\(info\.until - now\) : longClock\(info\.until - now\)/.test(overlay));
   }
-  ok('the overlay picks it only while the window is open',
-    /info\.active \? liveClock\(info\.until - now\) : longClock\(info\.until - now\)/.test(overlay));
 }
 
 console.log('');

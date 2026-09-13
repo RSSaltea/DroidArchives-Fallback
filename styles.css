@@ -953,3 +953,20 @@ body.has-rebirth-quick-bar #app{padding-bottom:74px}
 :root:not([data-theme="dark"]) .outstanding-card.spare em{color:#287443}
 :root:not([data-theme="dark"]) .outstanding-card em{color:#8a6412}
 :root:not([data-theme="dark"]) .rebirth-quick-bar{box-shadow:0 12px 30px #332b2033}
+/* Protocol slots sit with the region whose earnings/build they affect. */
+.protocol-region-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 18px}
+.region-stations{min-width:0;display:flex;flex-direction:column;gap:12px}
+.region-stations>.station{flex:1}
+.protocol-region-slots .slot-grid{grid-template-columns:minmax(0,1fr)}
+.protocol-region-slots .station header{align-items:flex-start;gap:6px;flex-wrap:wrap}
+.protocol-region-slots .station header strong{font-size:13px}
+.protocol-region-slots .station{min-width:0;border-color:#80702c}
+.protocol-summary{margin:18px 0;padding:18px}
+.protocol-summary h2{margin:0 0 14px;font-size:20px}
+.protocol-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.protocol-summary-grid>div{display:flex;flex-direction:column;gap:7px;min-width:0}
+.protocol-summary-grid h3{margin:0;font-size:15px}
+.protocol-summary-grid strong{font-size:22px}
+.protocol-summary-grid small,.protocol-note{font-size:12px;line-height:1.5;color:var(--muted,#a6afc2)}
+.protocol-note{margin-bottom:0}
+@media(max-width:650px){.protocol-summary-grid{grid-template-columns:1fr}.protocol-region-slots{gap:8px}}

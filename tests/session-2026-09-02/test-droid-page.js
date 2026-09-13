@@ -23,7 +23,7 @@ for(const k of ['const slug=','const escapeAttr=','const isIconic=','const isFus
   'const knownNumber=','const variantIncomeText=','const variantCostText=','const detailVariantChoice=',
   'const detailOnlySelected=']) vm.runInContext(line(k),sb);
 for(const k of ['function droidAttribute(','function droidexEntry(','function imageFor(','function picture(',
-  'function fusionNeed(','function detailFusionHtml(','function detailPage(']) vm.runInContext(grab(k),sb);
+  'function fusionNeed(','function detailFusionHtml(','function protocolDetailHtml(','function detailPage(']) vm.runInContext(grab(k),sb);
 vm.runInContext('function notFound(){app.innerHTML="NOT FOUND"};function placements(){return{placed:[]}};'
   +'function bb8CompanionActive(){return false};function requestAdd(){};function addBlueprint(){};function chipSellValue(){return 0};',sb);
 
@@ -66,6 +66,7 @@ console.log('=== a fusion droid shows where it comes from ===');
   ok('all three ingredients are named',parts.length===3,JSON.stringify(parts.map(p=>p[2])));
   ok('and it says the droid cannot be crafted',html.includes('cannot be crafted'));
   ok('an ordinary droid has no recipe block',!draw('gonk').includes('<h2>Fusion recipe</h2>'));
+  ok('nor a Protocol bonuses block, which only Protocol droids get',!draw('gonk').includes('Protocol bonuses'));
 }
 
 console.log('');

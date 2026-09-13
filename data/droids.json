@@ -2500,7 +2500,7 @@
   {
     "name": "C-3PO",
     "rarity": "ICONIC",
-    "type": "WORKER",
+    "type": "PROTOCOL",
     "variants": {
       "DEFAULT": {
         "cost": 0,
@@ -3329,5 +3329,337 @@
         "craftingSeconds": 139320
       }
     }
+  },
+  {
+    "name": "SA-5",
+    "rarity": "RARE",
+    "type": "PROTOCOL",
+    "variants": {
+      "DEFAULT": {
+        "cost": 180000.0,
+        "income": 14,
+        "craftingSeconds": 54.57,
+        "sellCredits": 126000.0,
+        "protocolCpsBonusPercent": 8,
+        "protocolCraftingBonusPercent": 120,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 720000.0,
+        "income": 28,
+        "craftingSeconds": 218.28,
+        "sellCredits": 504000.0,
+        "protocolCpsBonusPercent": 16,
+        "protocolCraftingBonusPercent": 240,
+        "sellUpgradeChips": 6
+      },
+      "DIAMOND": {
+        "cost": 1440000.0,
+        "income": 56,
+        "craftingSeconds": 327.42,
+        "sellCredits": 1008000.0,
+        "protocolCpsBonusPercent": 24,
+        "protocolCraftingBonusPercent": 360,
+        "sellUpgradeChips": 9
+      },
+      "RAINBOW": {
+        "cost": 2160000.0,
+        "income": 112,
+        "craftingSeconds": 436.56,
+        "sellCredits": 1512000.0,
+        "protocolCpsBonusPercent": 32,
+        "protocolCraftingBonusPercent": 480,
+        "sellUpgradeChips": 12
+      },
+      "BESKAR": {
+        "cost": 2880000.0,
+        "income": 168,
+        "craftingSeconds": 545.7,
+        "sellCredits": 2016000.0,
+        "protocolCpsBonusPercent": 40,
+        "protocolCraftingBonusPercent": 600,
+        "sellUpgradeChips": 15
+      },
+      "GALACTIC": {
+        "cost": 3600000.0,
+        "income": 336,
+        "craftingSeconds": 763.98,
+        "sellCredits": 2520000.0,
+        "protocolCpsBonusPercent": 48,
+        "protocolCraftingBonusPercent": 720,
+        "sellUpgradeChips": 18
+      },
+      "STELLAR": {
+        "cost": 4320000.0,
+        "income": 448,
+        "craftingSeconds": 982.26,
+        "sellCredits": 3024000.0,
+        "protocolCpsBonusPercent": 56,
+        "protocolCraftingBonusPercent": 840,
+        "sellUpgradeChips": 21
+      }
+    },
+    "portraits": {
+      "DEFAULT": "assets/droids/protocol/T_Portrait_SA5_Common.png",
+      "GOLD": "assets/droids/protocol/T_Portrait_SA5_Common.png",
+      "DIAMOND": "assets/droids/protocol/T_Portrait_SA5_Common.png",
+      "RAINBOW": "assets/droids/protocol/T_Portrait_SA5_Common.png",
+      "BESKAR": "assets/droids/protocol/T_Portrait_SA5_Common.png",
+      "GALACTIC": "assets/droids/protocol/T_Portrait_SA5_Common.png",
+      "STELLAR": "assets/droids/protocol/T_Portrait_SA5_Common.png"
+    },
+    "acquisition": "World Mission Protocol Crates",
+    "source": "https://gonk.tools/wiki",
+    "sourceChecked": "2026-09-13",
+    "craftingXp": 18000.0
+  },
+  {
+    "name": "LOM",
+    "rarity": "EPIC",
+    "type": "PROTOCOL",
+    "variants": {
+      "DEFAULT": {
+        "cost": 7000000.0,
+        "income": 105,
+        "craftingSeconds": 214.275,
+        "sellCredits": 4900000.0,
+        "protocolCpsBonusPercent": 12,
+        "protocolCraftingBonusPercent": 180,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 28000000.0,
+        "income": 210,
+        "craftingSeconds": 857.1,
+        "sellCredits": 19600000.0,
+        "protocolCpsBonusPercent": 24,
+        "protocolCraftingBonusPercent": 360,
+        "sellUpgradeChips": 30
+      },
+      "DIAMOND": {
+        "cost": 56000000.0,
+        "income": 420,
+        "craftingSeconds": 1285.65,
+        "sellCredits": 39200000.0,
+        "protocolCpsBonusPercent": 36,
+        "protocolCraftingBonusPercent": 540,
+        "sellUpgradeChips": 33
+      },
+      "RAINBOW": {
+        "cost": 84000000.0,
+        "income": 840,
+        "craftingSeconds": 1714.2,
+        "sellCredits": 58800000.0,
+        "protocolCpsBonusPercent": 48,
+        "protocolCraftingBonusPercent": 720,
+        "sellUpgradeChips": 36
+      },
+      "BESKAR": {
+        "cost": 875000000.0,
+        "income": 3570,
+        "craftingSeconds": 2142.75,
+        "sellCredits": 612500000.0,
+        "protocolCpsBonusPercent": 60,
+        "protocolCraftingBonusPercent": 900,
+        "sellUpgradeChips": 39
+      },
+      "GALACTIC": {
+        "cost": 2100000000.0,
+        "income": 5460,
+        "craftingSeconds": 2999.85,
+        "sellCredits": 1470000000.0,
+        "protocolCpsBonusPercent": 72,
+        "protocolCraftingBonusPercent": 1080,
+        "sellUpgradeChips": 42
+      },
+      "STELLAR": {
+        "cost": 5250000000.0,
+        "income": 8400,
+        "craftingSeconds": 3856.95,
+        "sellCredits": 3675000000.0,
+        "protocolCpsBonusPercent": 84,
+        "protocolCraftingBonusPercent": 1260,
+        "sellUpgradeChips": 45
+      }
+    },
+    "portraits": {
+      "DEFAULT": "assets/droids/protocol/T_Portrait_LOM_Common.png",
+      "GOLD": "assets/droids/protocol/T_Portrait_LOM_Common.png",
+      "DIAMOND": "assets/droids/protocol/T_Portrait_LOM_Common.png",
+      "RAINBOW": "assets/droids/protocol/T_Portrait_LOM_Common.png",
+      "BESKAR": "assets/droids/protocol/T_Portrait_LOM_Common.png",
+      "GALACTIC": "assets/droids/protocol/T_Portrait_LOM_Common.png",
+      "STELLAR": "assets/droids/protocol/T_Portrait_LOM_Common.png"
+    },
+    "acquisition": "World Mission Protocol Crates",
+    "source": "https://gonk.tools/wiki",
+    "sourceChecked": "2026-09-13",
+    "craftingXp": 700000.0
+  },
+  {
+    "name": "PZ",
+    "rarity": "LEGENDARY",
+    "type": "PROTOCOL",
+    "variants": {
+      "DEFAULT": {
+        "cost": 37000000.0,
+        "income": 900,
+        "craftingSeconds": 1609.5,
+        "sellCredits": 25900000.0,
+        "protocolCpsBonusPercent": 16,
+        "protocolCraftingBonusPercent": 240,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 148000000.0,
+        "income": 1800,
+        "craftingSeconds": 6438,
+        "sellCredits": 103600000.0,
+        "protocolCpsBonusPercent": 32,
+        "protocolCraftingBonusPercent": 480,
+        "sellUpgradeChips": 84
+      },
+      "DIAMOND": {
+        "cost": 296000000.0,
+        "income": 3600,
+        "craftingSeconds": 9657,
+        "sellCredits": 207200000.0,
+        "protocolCpsBonusPercent": 48,
+        "protocolCraftingBonusPercent": 720,
+        "sellUpgradeChips": 87
+      },
+      "RAINBOW": {
+        "cost": 444000000.0,
+        "income": 7200,
+        "craftingSeconds": 12876,
+        "sellCredits": 310800000.0,
+        "protocolCpsBonusPercent": 64,
+        "protocolCraftingBonusPercent": 960,
+        "sellUpgradeChips": 90
+      },
+      "BESKAR": {
+        "cost": 14800000000.0,
+        "income": 21600,
+        "craftingSeconds": 16095,
+        "sellCredits": 10360000000.0,
+        "protocolCpsBonusPercent": 80,
+        "protocolCraftingBonusPercent": 1200,
+        "sellUpgradeChips": 93
+      },
+      "GALACTIC": {
+        "cost": 88800000000.0,
+        "income": 54000.0,
+        "craftingSeconds": 22533,
+        "sellCredits": 62160000000.0,
+        "protocolCpsBonusPercent": 96,
+        "protocolCraftingBonusPercent": 1440,
+        "sellUpgradeChips": 96
+      },
+      "STELLAR": {
+        "cost": 536500000000.0,
+        "income": 135000.0,
+        "craftingSeconds": 28971,
+        "sellCredits": 375550000000.0,
+        "protocolCpsBonusPercent": 112,
+        "protocolCraftingBonusPercent": 1680,
+        "sellUpgradeChips": 99
+      }
+    },
+    "portraits": {
+      "DEFAULT": "assets/droids/protocol/T_Portrait_PZ_Common.png",
+      "GOLD": "assets/droids/protocol/T_Portrait_PZ_Common.png",
+      "DIAMOND": "assets/droids/protocol/T_Portrait_PZ_Common.png",
+      "RAINBOW": "assets/droids/protocol/T_Portrait_PZ_Common.png",
+      "BESKAR": "assets/droids/protocol/T_Portrait_PZ_Common.png",
+      "GALACTIC": "assets/droids/protocol/T_Portrait_PZ_Common.png",
+      "STELLAR": "assets/droids/protocol/T_Portrait_PZ_Common.png"
+    },
+    "acquisition": "World Mission Protocol Crates",
+    "source": "https://gonk.tools/wiki",
+    "sourceChecked": "2026-09-13",
+    "craftingXp": 3700000.0
+  },
+  {
+    "name": "TDA",
+    "rarity": "MYTHIC",
+    "type": "PROTOCOL",
+    "variants": {
+      "DEFAULT": {
+        "cost": 400000000.0,
+        "income": 4000.0,
+        "craftingSeconds": 4940,
+        "sellCredits": 280000000.0,
+        "protocolCpsBonusPercent": 20,
+        "protocolCraftingBonusPercent": 300,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 1600000000.0,
+        "income": 8000.0,
+        "craftingSeconds": 19760,
+        "sellCredits": 1120000000.0,
+        "protocolCpsBonusPercent": 40,
+        "protocolCraftingBonusPercent": 600,
+        "sellUpgradeChips": 192
+      },
+      "DIAMOND": {
+        "cost": 3200000000.0,
+        "income": 16000.0,
+        "craftingSeconds": 29640,
+        "sellCredits": 2240000000.0,
+        "protocolCpsBonusPercent": 60,
+        "protocolCraftingBonusPercent": 900,
+        "sellUpgradeChips": 195
+      },
+      "RAINBOW": {
+        "cost": 9600000000.0,
+        "income": 32000.0,
+        "craftingSeconds": 39520,
+        "sellCredits": 6720000000.0,
+        "protocolCpsBonusPercent": 80,
+        "protocolCraftingBonusPercent": 1200,
+        "sellUpgradeChips": 198
+      },
+      "BESKAR": {
+        "cost": 320000000000.0,
+        "income": 64000.0,
+        "craftingSeconds": 49400,
+        "sellCredits": 224000000000.0,
+        "protocolCpsBonusPercent": 100,
+        "protocolCraftingBonusPercent": 1500,
+        "sellUpgradeChips": 201
+      },
+      "GALACTIC": {
+        "cost": 1880000000000.0,
+        "income": 176000.0,
+        "craftingSeconds": 69160,
+        "sellCredits": 1316000000000.0,
+        "protocolCpsBonusPercent": 120,
+        "protocolCraftingBonusPercent": 1800,
+        "sellUpgradeChips": 204
+      },
+      "STELLAR": {
+        "cost": 11200000000000,
+        "income": 500000.0,
+        "craftingSeconds": 88920,
+        "sellCredits": 7840000000000.0,
+        "protocolCpsBonusPercent": 140,
+        "protocolCraftingBonusPercent": 2100,
+        "sellUpgradeChips": 207
+      }
+    },
+    "portraits": {
+      "DEFAULT": "assets/droids/protocol/T_Portrait_TDA_Common.png",
+      "GOLD": "assets/droids/protocol/T_Portrait_TDA_Common.png",
+      "DIAMOND": "assets/droids/protocol/T_Portrait_TDA_Common.png",
+      "RAINBOW": "assets/droids/protocol/T_Portrait_TDA_Common.png",
+      "BESKAR": "assets/droids/protocol/T_Portrait_TDA_Common.png",
+      "GALACTIC": "assets/droids/protocol/T_Portrait_TDA_Common.png",
+      "STELLAR": "assets/droids/protocol/T_Portrait_TDA_Common.png"
+    },
+    "acquisition": "World Mission Protocol Crates",
+    "source": "https://gonk.tools/wiki",
+    "sourceChecked": "2026-09-13",
+    "craftingXp": 40000000.0
   }
 ]

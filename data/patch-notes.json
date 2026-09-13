@@ -2,6 +2,20 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-13-protocol-regions",
+      "date": "2026-09-13",
+      "title": "Protocol droids",
+      "summary": "Four new Protocol droids, and Protocol slots in every region.",
+      "changes": [
+        "Added four Protocol droids: SA-5, LOM, PZ and TDA.",
+        "Added a Protocol Credits slot and a Protocol Crafting slot to Worker, Astromech and Battle. Each one only boosts its own region.",
+        "Added each region's credit and crafting bonuses to the Base.",
+        "Added a setting in Advanced settings to make Optimise favour credit gain or craft speed.",
+        "Edited C-3PO to be a Protocol droid.",
+        "Edited D-O to use its new portrait."
+      ]
+    },
+    {
       "id": "2026-09-13-fusion-build-space",
       "date": "2026-09-13",
       "title": "Fusion Build space",
