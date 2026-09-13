@@ -320,7 +320,7 @@ function optimiseBase(p,currentIncome){
 }
 // Explicit destinations for Protocol layouts: don't predict an undocumented
 // "go to work" auto-route into these new regional slots.
-function protocolStepPlan(baseP,projected){
+function protocolStepPlan(baseP,projected,includeFusion=true){
   const keyOf=x=>`${x.source}:${x.unit}`,current=new Map(baseP.placed.map(x=>[keyOf(x),{...x}])),goals=new Map(projected.placed.map(x=>[keyOf(x),x])),steps=[];
   // Sell in station order, so each place you visit is one stop rather than a
   // zigzag between the Lounge and the stations.
@@ -338,14 +338,15 @@ function protocolStepPlan(baseP,projected){
   // Each cycle needs at most one extra Lounge move per droid.
   for(let pass=0;pass<goals.size*3+1;pass++){
     const pending=[...goals].filter(([key,goal])=>!done(current.get(key),goal));if(!pending.length)break;
-    const transfers=pending.filter(([key,goal])=>movable(current.get(key))&&goal.station!=='BUILD'&&goal.station!=='FUSION_BUILD');
+    const transfers=pending.filter(([key])=>movable(current.get(key)));
+    const reservedBuild=x=>x&&['BUILD','FUSION_BUILD'].includes(x.station)&&[...goals.values()].some(g=>done(g,x));
     // First finish any transfer that needs no swap. In particular, let Lounge
     // residents leave before deciding that storage is full.
-    const free=transfers.find(([,goal])=>destinationOpen(goal));
+    const free=transfers.find(([key,goal])=>!['BUILD','FUSION_BUILD'].includes(goal.station)&&!reservedBuild(current.get(key))&&destinationOpen(goal));
     if(free){move(free[0],free[1],free[1]);continue;}
     const blocked=transfers.map(([key,goal])=>({key,goal,occupant:[...current].find(([other,x])=>other!==key&&done(x,goal))})).filter(x=>x.occupant&&movable(x.occupant[1]));
     // Break an occupied cycle through the Lounge before considering a swap.
-    const staged=blocked[0];
+    const staged=blocked.find(x=>!reservedBuild(x.occupant[1])&&!['BUILD','FUSION_BUILD'].includes(x.goal.station));
     if(staged){
       const [key,unit]=staged.occupant;
       const buffer=slotFillOrder('LOUNGE',unit).map(slot=>({station:'LOUNGE',slot})).find(destinationOpen);
@@ -357,7 +358,7 @@ function protocolStepPlan(baseP,projected){
     });
     if(swap){
       const {key,goal,occupant:[other,occupant]}=swap,from=current.get(key);
-      steps.push({type:'swap',unit:goal,from,withUnit:occupant,withFrom:occupant,text:`Swap ${unitName(goal)} in ${slotLabel(from)} with ${unitName(occupant)} in ${slotLabel(occupant)} (no free Lounge slot).`});
+      steps.push({type:'swap',unit:goal,from,withUnit:occupant,withFrom:occupant,text:`Swap ${unitName(goal)} in ${slotLabel(from)} with ${unitName(occupant)} in ${slotLabel(occupant)} (no usable Lounge transfer).`});
       current.set(other,{...occupant,station:from.station,slot:from.slot});current.set(key,{...goal});continue;
     }
     steps.push({type:'note',text:'A transfer needs temporary space or an unlocked droid. Free a Lounge slot or check slot locks, update Base, then regenerate these remaining moves.'});break;
@@ -372,7 +373,7 @@ function protocolStepPlan(baseP,projected){
     if(where!==last){visit++;last=where}
     step.at=where;step.visit=`protocol-${visit}`;
   }
-  return withFusionSteps(steps,projected,baseP);
+  return includeFusion?withFusionSteps(steps,projected,baseP):steps;
 }
 
 const SLOT_RULES={...Object.fromEntries(Object.keys(PROTOCOL_SLOTS).map(station=>[station,{initial:1,unlocks:[]}])),FUSION:{initial:0,unlocks:Array(3).fill(FUSION_REBIRTH)},FUSION_BUILD:{initial:0,unlocks:[FUSION_REBIRTH,99,99]},WORKER:{initial:4,unlocks:[1,4,7,10,12,14,16]},ASTROMECH:{initial:3,unlocks:[2,5,8,11,13,15]},BATTLE:{initial:2,unlocks:[3,6,9,17,18,19,20,21,22]},BUILD:{initial:1,unlocks:[1,2]},LOUNGE:{initial:5,unlocks:Array(8).fill(99)},COMPANION:{initial:2,unlocks:[]},UPGRADE_CHIP:{initial:1,unlocks:[]}};
@@ -2301,6 +2302,17 @@ function optimisedPlacements(baseP,plan){
     for(const fallback of fallbacks){if(fallback==='BUILD'&&old?.station!=='BUILD')continue;slot=free(fallback,old);if(slot>=0){claim(unit,fallback,slot);station=fallback;break}}
     if(!station){const d=state.droids.find(x=>x.name===unit.name);if(item.spared)overflow.push(item.keepReason?{...unit,keepReason:item.keepReason}:unit);else if(strictKeepBuild&&!isIconic(d))sell.push({...unit,sellReason:`Sold to keep Build slots open · ${optimiseFreeBuildModeLabel(optimiseFreeBuildMode()).toLowerCase()} priority`});else overflow.push(unit)}
   }
+  // A completed, occupied Build slot can receive the displaced droid by swap.
+  // Empty Build slots cannot be filled this way. Keep these replacements in the
+  // target layout instead of stranding their current work/Companion slots.
+  if(!keepBuildOpen){
+    const vacatedBuild=baseP.placed.filter(x=>x.station==='BUILD'&&!x.lockedSlot&&!isBuilding(x)&&!occupied.BUILD.has(x.slot)&&placed.some(g=>g.source===x.source&&g.unit===x.unit&&g.station!=='BUILD'));
+    for(const spot of vacatedBuild){
+      const index=overflow.findIndex(x=>current.has(`${x.source}:${x.unit}`));
+      if(index<0)break;
+      const [unit]=overflow.splice(index,1);claim(unit,'BUILD',spot.slot);
+    }
+  }
   const stablePlaced=stabiliseProjectedPlacements(baseP,placed),rebirthPick=stablePlaced.reduce((map,x)=>{const previous=map.get(x.name),key=`${x.source}:${x.unit}`;if(!previous||VARIANTS.indexOf(x.variant)>VARIANTS.indexOf(previous.variant))map.set(x.name,{variant:x.variant,key});return map},new Map()),finalPlaced=[],finalSell=[...sell];
   // Upgrade Chip counts as producing here: a droid making chips is earning its
   // slot even with no rebirth use, so it is exempt from the unused sell pass.
@@ -2454,6 +2466,11 @@ const stationGap=(a,b)=>{
 const placeName=station=>station===ROSTER?'Roster':stationName(station);
 
 function optimiseRoutePlan(baseP,rawProjected){
+  // Sending to work cannot fill Build. These layouts need an occupied-slot swap;
+  // the slot planner still uses Lounge moves wherever they are usable.
+  if(rawProjected.placed.some(g=>g.station==='BUILD'&&!baseP.placed.some(x=>x.source===g.source&&x.unit===g.unit&&x.station==='BUILD')))
+    return protocolStepPlan(baseP,normaliseProjectedForSteps(baseP,rawProjected),false);
+
   const projected=normaliseProjectedForSteps(baseP,rawProjected),keyOf=x=>`${x.source}:${x.unit}`;
   const units=new Map([...baseP.placed,...projected.placed,...projected.sell,...projected.overflow].map(x=>[keyOf(x),x]));
   const startAt=new Map([...units.keys()].map(key=>[key,ROSTER]));

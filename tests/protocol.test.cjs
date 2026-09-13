@@ -124,3 +124,13 @@ test('locked and unfinished blockers are never parked in the Lounge',()=>{
   assert(p.steps.some(s=>s.type==='note'));assert.equal(p.current[1].station,station);
  }
 });
+
+test('Build replacement stays occupied until its incoming droid can swap in',()=>{
+ const p=planMoves([['BUILD',0,{built:true}],['WORKER',0]],[['WORKER',0],['BUILD',0]],2);
+ finished(p);assert(p.steps.some(s=>s.type==='swap'));
+ assert(!p.steps.some(s=>s.type==='move'&&(s.from.station==='BUILD'||s.to.station==='BUILD')));
+});
+test('an empty Build slot is never used as storage',()=>{
+ const p=planMoves([['WORKER',0]],[['BUILD',0]],2);
+ assert(p.steps.some(s=>s.type==='note'));assert.equal(p.current[0].station,'WORKER');
+});
