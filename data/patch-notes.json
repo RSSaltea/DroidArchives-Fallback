@@ -2,6 +2,23 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-14-fusion-reserves-and-optimise-fixes",
+      "date": "2026-09-14",
+      "title": "Fusion reserves and Optimise fixes",
+      "summary": "Save droids for future fusions, keep mission Iconics in place, and follow clearer move plans.",
+      "changes": [
+        "Added Keep for fusion beside Sell to reserve all copies of a droid and quality, even before a full batch is available.",
+        "Added saved fusion rules in Advanced settings, including combinations such as Legendary+ at Beskar+ and Mythic at Diamond+. Rules travel with profile exports.",
+        "Fixed Astromech Iconics losing mission slots to higher credit earners. Mission priority now applies before optimisation, while respecting slot locks and unfinished builds.",
+        "Edited move plans to use available Lounge space before swaps.",
+        "Fixed full-Lounge plans leaving displaced droids without destinations when completed Build droids move to work.",
+        "Combined Fusion and Fusion Build in one panel with a separator on Base and Optimise.",
+        "Added a retry and default-portrait fallback when a droid image fails to load.",
+        "Tidied Advanced settings so the fusion rules button stays compact and the controls fit on smaller screens.",
+        "Fixed saved fusion rules being cleared when a profile is loaded, including when restoring it in another tab."
+      ]
+    },
+    {
       "id": "2026-09-13-protocol-optimise",
       "date": "2026-09-13",
       "title": "Protocol droids in Optimise",

@@ -14,10 +14,10 @@ const server=http.createServer((req,res)=>{
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
  const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
  try{
- const page=await browser.newPage(),errors=[];
+ const context=await browser.newContext(),page=await context.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  await page.route('https://**/*',r=>r.abort());
- await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.testPlan={state,save,validateBaseImport,placements,optimiseBase,incomeForPlaced,optimisedPlacements,safeOptimiseStepPlan,isBuilding,keepForFusion,baseExport,profileDataFromState,optimiseFusionChain};'}));
+ await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.testPlan={state,save,validateBaseImport,placements,optimiseBase,incomeForPlaced,optimisedPlacements,safeOptimiseStepPlan,isBuilding,keepForFusion,baseExport,profileDataFromState,optimiseFusionChain,applyProfileData,blankProfileData,normalizeProfileDoc};'}));
  await page.addInitScript(notes=>localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(notes)),JSON.parse(fs.readFileSync(path.join(root,'data/patch-notes.json'),'utf8')).notes.map(n=>n.id));
  await page.goto(`http://127.0.0.1:${server.address().port}`);
  await page.waitForFunction(()=>window.testPlan?.state.droids.length);
@@ -92,6 +92,23 @@ const server=http.createServer((req,res)=>{
  assert.equal(reserved.one.placed[0].keepReason,'fusion');assert.equal(reserved.chain.length,0);
  assert.equal(reserved.full.sell.length,0);assert(reserved.full.overflow.length>0);assert(reserved.readyChain.length>0);
  assert.equal(reserved.rules.length,2);assert.deepEqual(reserved.profile,reserved.rules);
+
+ const switched=await page.evaluate(()=>{
+  const d=window.testPlan,saved=d.profileDataFromState(),blank=d.blankProfileData();
+  d.applyProfileData(blank);const empty=d.state.fusionKeepRules;
+  const doc=d.normalizeProfileDoc({profiles:[{id:'saved',data:saved},{id:'blank',data:blank}]});
+  d.applyProfileData(doc.profiles[0].data);d.save();
+  return {empty,restored:d.state.fusionKeepRules};
+ });
+ assert.deepEqual(switched.empty,[]);assert.deepEqual(switched.restored,reserved.rules);
+ const tab=await page.context().newPage();
+ await tab.route('https://**/*',r=>r.abort());
+ await tab.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.profileTest={state,applyProfileData,profileDataFromState};'}));
+ await tab.goto(`http://127.0.0.1:${server.address().port}/#/base`);
+ await tab.waitForFunction(()=>window.profileTest?.state.droids.length);
+ const tabRules=await tab.evaluate(()=>{const d=window.profileTest;d.applyProfileData(d.profileDataFromState());return d.state.fusionKeepRules;});
+ assert.deepEqual(tabRules,reserved.rules);await tab.close();
+ console.log('PASS: saved rules survive profile normalization, switching away and back, and loading in a second tab.');
  await page.reload();await page.waitForFunction(()=>window.testPlan?.state.droids.length);
  assert.equal(await page.evaluate(()=>window.testPlan.state.fusionKeepRules.length),2);
  await page.goto(`http://127.0.0.1:${server.address().port}/#/base`);
