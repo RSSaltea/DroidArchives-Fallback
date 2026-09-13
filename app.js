@@ -328,28 +328,39 @@ function protocolStepPlan(baseP,projected){
   const sellOrder=[...projected.sell].sort((a,b)=>String(whereNow(a)?.station||'ROSTER').localeCompare(String(whereNow(b)?.station||'ROSTER'))||(whereNow(a)?.slot??0)-(whereNow(b)?.slot??0));
   for(const unit of sellOrder){steps.push({type:'sell',unit,from:current.get(keyOf(unit)),text:`Sell ${unitName(unit)}${current.has(keyOf(unit))?` from ${slotLabel(current.get(keyOf(unit)))}`:''}.`});current.delete(keyOf(unit));}
   const done=(a,b)=>a?.station===b?.station&&a?.slot===b?.slot;
-  for(let pass=0;pass<120;pass++){
+  const movable=x=>!x||(!x.lockedSlot&&!isBuilding(x));
+  const destinationOpen=goal=>![...current.values()].some(x=>done(x,goal));
+  const move=(key,unit,to,temporary=false)=>{
+    const from=current.get(key);
+    steps.push({type:'move',unit,from,to,text:`Move ${unitName(unit)} from ${slotLabel(from)} to ${slotLabel(to)}${temporary?' temporarily to clear the destination':''}.`});
+    current.set(key,{...unit,...to});
+  };
+  // Each cycle needs at most one extra Lounge move per droid.
+  for(let pass=0;pass<goals.size*3+1;pass++){
     const pending=[...goals].filter(([key,goal])=>!done(current.get(key),goal));if(!pending.length)break;
-    let progressed=false;
-    for(const [key,goal] of pending){
-      const from=current.get(key),block=[...current].find(([other,x])=>other!==key&&done(x,goal));
-      if(!block&&goal.station!=='BUILD'&&goal.station!=='FUSION_BUILD'){
-        steps.push({type:'move',unit:goal,from,to:goal,text:`Move ${unitName(goal)} from ${slotLabel(from)} to ${slotLabel(goal)}.`});current.set(key,{...goal});progressed=true;break;
-      }
-      if(block&&from&&!block[1].lockedSlot&&!isBuilding(block[1])&&canUseStation(state.droids.find(d=>d.name===block[1].name),from.station)){
-        const [other,occupant]=block;
-        steps.push({type:'swap',unit:goal,from,withUnit:occupant,withFrom:occupant,text:`Swap ${unitName(goal)} in ${slotLabel(from)} with ${unitName(occupant)} in ${slotLabel(occupant)}.`});
-        current.set(other,{...occupant,station:from.station,slot:from.slot});current.set(key,{...goal});progressed=true;break;
-      }
+    const transfers=pending.filter(([key,goal])=>movable(current.get(key))&&goal.station!=='BUILD'&&goal.station!=='FUSION_BUILD');
+    // First finish any transfer that needs no swap. In particular, let Lounge
+    // residents leave before deciding that storage is full.
+    const free=transfers.find(([,goal])=>destinationOpen(goal));
+    if(free){move(free[0],free[1],free[1]);continue;}
+    const blocked=transfers.map(([key,goal])=>({key,goal,occupant:[...current].find(([other,x])=>other!==key&&done(x,goal))})).filter(x=>x.occupant&&movable(x.occupant[1]));
+    // Break an occupied cycle through the Lounge before considering a swap.
+    const staged=blocked[0];
+    if(staged){
+      const [key,unit]=staged.occupant;
+      const buffer=slotFillOrder('LOUNGE',unit).map(slot=>({station:'LOUNGE',slot})).find(destinationOpen);
+      if(buffer){move(key,unit,buffer,true);continue;}
     }
-    if(!progressed){
-      // A normal worker cannot be swapped back into a Protocol-only source.
-      // Park the blocking worker in actual available storage, then continue.
-      const buffer=stationSlotIndices('LOUNGE').map(slot=>({station:'LOUNGE',slot})).find(spot=>![...current.values()].some(x=>done(x,spot)));
-      const blocked=pending.map(([key,goal])=>({key,goal,occupant:[...current].find(([other,x])=>other!==key&&done(x,goal))})).find(x=>x.occupant&&!x.occupant[1].lockedSlot&&!isBuilding(x.occupant[1]));
-      if(buffer&&blocked){const [key,unit]=blocked.occupant;steps.push({type:'move',unit,from:unit,to:buffer,text:`Move ${unitName(unit)} from ${slotLabel(unit)} to ${slotLabel(buffer)} temporarily to clear the destination.`});current.set(key,{...unit,...buffer});continue;}
-      steps.push({type:'note',text:'A transfer needs temporary space. Free a Lounge slot, update Base, then regenerate these remaining moves.'});break;
+    const swap=blocked.find(x=>{
+      const from=current.get(x.key);
+      return from&&canUseStation(state.droids.find(d=>d.name===x.occupant[1].name),from.station);
+    });
+    if(swap){
+      const {key,goal,occupant:[other,occupant]}=swap,from=current.get(key);
+      steps.push({type:'swap',unit:goal,from,withUnit:occupant,withFrom:occupant,text:`Swap ${unitName(goal)} in ${slotLabel(from)} with ${unitName(occupant)} in ${slotLabel(occupant)} (no free Lounge slot).`});
+      current.set(other,{...occupant,station:from.station,slot:from.slot});current.set(key,{...goal});continue;
     }
+    steps.push({type:'note',text:'A transfer needs temporary space or an unlocked droid. Free a Lounge slot or check slot locks, update Base, then regenerate these remaining moves.'});break;
   }
   // The walkthrough is grouped into stops by where each step happens, the way the
   // ordinary planner groups its own. These steps carried no stop at all, so every

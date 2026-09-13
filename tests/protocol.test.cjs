@@ -18,6 +18,7 @@ function setup(){
   isBuilding:x=>x.station==='BUILD'&&!x.built,
   productiveStations:()=>Object.entries(caps).flatMap(([station,n])=>Array.from({length:n},(_,slot)=>({station,slot}))),
   stationSlotIndices:station=>Array.from({length:caps[station]??(station.startsWith('PROTOCOL_')?1:0)},(_,i)=>i),
+  slotFillOrder:station=>Array.from({length:caps[station]||0},(_,i)=>i).reverse(),
   stabiliseAssignments:x=>x,
   optimiseCreditBase:()=>({income:0,assignments:[],moves:[]}),
   unitName:x=>x.name,slotLabel:x=>x?`${x.station} ${x.slot+1}`:'Roster',withFusionSteps:x=>x
@@ -73,4 +74,53 @@ test('craft speed ties put the strongest boost behind the longest active build',
 test('protocol transfers specify regional destinations without auto-route claims',()=>{
  const {run}=setup();const steps=run(`protocolStepPlan({placed:[{name:'LOM',variant:'DEFAULT',station:'BUILD',slot:0,source:0,unit:0,built:true}]},{placed:[{name:'LOM',variant:'DEFAULT',station:'PROTOCOL_WORKER_CREDITS',slot:0,source:0,unit:0}],sell:[]})`);
  assert.equal(steps.length,1);assert.equal(steps[0].to.station,'PROTOCOL_WORKER_CREDITS');assert(!steps[0].text.includes('go to work'));
+});
+
+// Replay instructions against occupancy, so a pretty walkthrough cannot conceal
+// a move into an occupied slot or lose a droid during temporary storage.
+function planMoves(positions,targets,lounge=1){
+ const {ctx,caps,run}=setup();caps.LOUNGE=lounge;
+ const base=positions.map(([station,slot,extra={}],source)=>({name:'LOM',variant:'DEFAULT',source,unit:0,station,slot,...extra}));
+ const goals=base.map((x,i)=>({...x,station:targets[i][0],slot:targets[i][1]}));
+ ctx.base={placed:base};ctx.target={placed:goals,sell:[]};
+ const steps=run('protocolStepPlan(base,target)'),current=structuredClone(base);
+ for(const step of steps){
+  if(step.type==='note')continue;
+  const unit=current[step.unit.source];assert.equal(unit.station,step.from.station);assert.equal(unit.slot,step.from.slot);
+  assert(!unit.lockedSlot);assert(!(unit.station==='BUILD'&&!unit.built));
+  if(step.type==='swap'){
+   const other=current[step.withUnit.source];assert.equal(other.station,step.withFrom.station);assert.equal(other.slot,step.withFrom.slot);
+   const from={station:unit.station,slot:unit.slot};Object.assign(unit,{station:other.station,slot:other.slot});Object.assign(other,from);
+  }else{
+   assert(!current.some(x=>x!==unit&&x.station===step.to.station&&x.slot===step.to.slot));
+   if(step.to.station==='LOUNGE')assert(step.to.slot<lounge);
+   Object.assign(unit,{station:step.to.station,slot:step.to.slot});
+  }
+ }
+ return {steps,current,goals};
+}
+function finished(plan){assert.deepEqual(plan.current,plan.goals);assert(!plan.steps.some(s=>s.type==='note'));}
+test('occupied work cycle uses nearest available Lounge slot then returns to work',()=>{
+ const p=planMoves([['WORKER',0],['ASTROMECH',0],['BATTLE',0]],[['ASTROMECH',0],['BATTLE',0],['WORKER',0]],2);
+ finished(p);assert(!p.steps.some(s=>s.type==='swap'));assert.equal(p.steps[0].to.station,'LOUNGE');assert.equal(p.steps[0].to.slot,1);
+ assert(p.steps.some(s=>s.from.station==='LOUNGE'&&s.to.station!=='LOUNGE'));assert(p.steps.every(s=>s.at&&s.visit));
+});
+test('drains a full Lounge before breaking a work cycle',()=>{
+ const p=planMoves([['WORKER',0],['ASTROMECH',0],['LOUNGE',0]],[['ASTROMECH',0],['WORKER',0],['BATTLE',0]]);
+ finished(p);assert(!p.steps.some(s=>s.type==='swap'));assert.equal(p.steps[0].from.station,'LOUNGE');
+});
+test('Lounge to work exchange uses the spare Lounge slot',()=>{
+ const p=planMoves([['WORKER',0],['LOUNGE',0]],[['LOUNGE',0],['WORKER',0]],2);
+ finished(p);assert(!p.steps.some(s=>s.type==='swap'));
+});
+test('full Lounge falls back to a swap without displacing its resident',()=>{
+ const p=planMoves([['WORKER',0],['ASTROMECH',0],['LOUNGE',0]],[['ASTROMECH',0],['WORKER',0],['LOUNGE',0]]);
+ finished(p);assert.equal(p.steps.length,1);assert.equal(p.steps[0].type,'swap');
+});
+test('locked and unfinished blockers are never parked in the Lounge',()=>{
+ for(const extra of [{lockedSlot:true},{built:false}]){
+  const station=extra.lockedSlot?'ASTROMECH':'BUILD';
+  const p=planMoves([['WORKER',0],[station,0,extra]],[[station,0],['WORKER',0]]);
+  assert(p.steps.some(s=>s.type==='note'));assert.equal(p.current[1].station,station);
+ }
 });
