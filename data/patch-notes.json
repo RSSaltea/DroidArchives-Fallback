@@ -9,7 +9,8 @@
       "changes": [
         "Fixed Optimise steps showing under an \"undefined\" heading.",
         "Edited Optimise to keep spare Protocol droids instead of selling them.",
-        "Added Optimise suggesting Protocol fusions when the result gives a better bonus than the one in your slots."
+        "Added Optimise suggesting Protocol fusions when the result gives a better bonus than the one in your slots.",
+        "Edited Fusion steps in Optimise to use their own purple colour, so Send to Fusion stands out from Send to storage."
       ]
     },
     {

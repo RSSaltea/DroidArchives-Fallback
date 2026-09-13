@@ -2339,11 +2339,14 @@ const unitName=x=>`${x.name} ${variantText(x.variant)}`;
 // costs you a droid, so the opening verb is colour-coded: red to sell, amber to
 // shuffle into storage, green to put to work. Covers both planners' wording.
 const STEP_VERB_TONE={Sell:'sell',Send:'stage',Move:'stage',Swap:'stage',Carry:'stage',Tell:'place',Make:'place',Put:'place'};
+const FUSION_STEP_TYPES=['fuse-in','fuse-held','fuse-deferred','fuse-result','fuse'];
 const stepTicked=text=>optimiseTickedSteps().includes(text);
 function stepHtml(step,index){
   const d=state.droids.find(x=>x.name===step.unit?.name);
   const assumed=step.assumed?'<em class="step-assumed" title="More than one credit station was open, so which slot it takes depends on your base layout. Check this one.">check where it lands</em>':'';
-  const tone=STEP_VERB_TONE[String(step.text||'').split(' ')[0]];
+  // A step for the Fusion room gets its own colour, so sending a droid to be fused
+  // never reads like sending it to storage.
+  const tone=FUSION_STEP_TYPES.includes(step.type)?'fusion':STEP_VERB_TONE[String(step.text||'').split(' ')[0]];
   const text=tone?String(step.text).replace(/^(\S+)/,`<b class="step-verb verb-${tone}">$1</b>`):step.text;
   const ticked=stepTicked(step.text);
   const tick=step.type==='note'?'':`<label class="step-tick" title="Mark this step as done"><input type="checkbox" data-step-tick="${escapeAttr(step.text)}" ${ticked?'checked':''}><span></span></label>`;
@@ -2756,13 +2759,16 @@ function withFusionSteps(steps,projected,baseP){
           input.protocolSpare?`${input.text.replace(/[.]$/,'')} to the Fusion room.`:`${input.text.replace(/^Sell /,'Send ').replace(/\.\s*$/,'')} to the Fusion room instead of selling.`});
     }
     const spend=step.spend.map(part=>`${part.count} \u00d7 ${part.name} ${variantLabel(part.variant)}`).join(' + ');
-    const makes=step.out?`${step.out.name} ${variantLabel(step.out.variant)}`:`a ${rarityLabel(step.rarity)} droid at ${variantLabel(step.variant)}`;
+    const rolled=rarityLabel(step.rarity);
+    const makes=step.out?`${step.out.name} ${variantLabel(step.out.variant)}`:`${/^[aeiou]/i.test(rolled)?'an':'a'} ${rolled} droid at ${variantLabel(step.variant)}`;
+    // Protocol droids roll into any type of droid, not only another Protocol one.
+    const anyType=!step.sure&&step.spend.some(part=>fusionDroid(part.name)?.type==='PROTOCOL')?' It can be a Worker, Astromech, Battle or Protocol droid.':'';
     const why=step.fills?' It is a Droidex square you do not have.':step.protocol&&step.bonusGain>0?' It gives a stronger Protocol bonus than the weakest one in your slots.':step.gain>0?` It out-earns the weakest droid working, by about ${fmt(step.gain*3600)}/hr.`:'';
     const waits=step.after.length?' Do this one after the fusion above, which makes the copy it needs.':'';
     const roll=step.sure?'':' Which droid arrives is a roll.';
     out.push({type:'fuse',kind:'fuse',at:'FUSION',visit:`fusion-${index}`,fusion:step,
       unit:step.out?{name:step.out.name,variant:step.out.variant}:null,
-      text:`Fuse ${spend}. This makes ${makes}.${why}${roll}${waits} Collect the result and clear the table before the next batch.`});
+      text:`Fuse ${spend}. This makes ${makes}.${why}${roll}${anyType}${waits} Collect the result and clear the table before the next batch.`});
   });
   return [...out,...steps.filter(s=>s.type!=='sell')];
 }

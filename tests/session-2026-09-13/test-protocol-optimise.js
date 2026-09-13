@@ -123,6 +123,14 @@ console.log('=== spare Protocol droids can be fused, judged by the bonus they gi
   ok('and never told they are being sold',sends.every(x=>!/instead of selling/.test(x.text)),sends.map(x=>x.text).join(' | '));
   ok('the fusion says the bonus is why',fuse&&/stronger Protocol bonus/.test(fuse.text),fuse&&fuse.text);
 
+  // Three at the top quality roll the next rarity, and the result can be any type.
+  const stellar=[0,1,2].map(i=>({name:'SA-5',variant:'STELLAR',station:'LOUNGE',slot:i,source:i,unit:0,keepReason:'protocol'}));
+  sb.projected={placed:[...['WORKER','ASTROMECH','BATTLE'].map((station,i)=>({name:'SA-5',variant:'DEFAULT',station,slot:0,source:50+i,unit:0})),...stellar],overflow:[],sell:[]};
+  sb.baseP={placed:stellar};
+  const roll=vm.runInContext('withFusionSteps([],projected,baseP)',sb).find(x=>x.type==='fuse');
+  ok('three Protocol droids at Stellar roll into the next rarity',roll&&/an Epic droid at Stellar/.test(roll.text),roll&&roll.text);
+  ok('and it says the result can be any type',roll&&/Worker, Astromech, Battle or Protocol/.test(roll.text),roll&&roll.text);
+
   // Not enough to fuse: kept, and nothing is said about them.
   sb.projected={placed:spares.slice(0,2),overflow:[],sell:[]};sb.baseP={placed:spares.slice(0,2)};
   ok('two spares make no steps at all',vm.runInContext('withFusionSteps([],projected,baseP)',sb).length===0);
@@ -131,6 +139,14 @@ console.log('=== spare Protocol droids can be fused, judged by the bonus they gi
 console.log('');
 console.log('=== the rest of the page agrees ===');
 {
+  const tones=grab('function stepHtml(').match(/const tone=.*/)[0];
+  const sbv={};vm.createContext(sbv);
+  vm.runInContext(line('const STEP_VERB_TONE=')+line('const FUSION_STEP_TYPES='),sbv);
+  const toneOf=step=>{sbv.step=step;return vm.runInContext('(()=>{'+tones+'return tone})()',sbv)};
+  for(const type of ['fuse-in','fuse-held','fuse-deferred','fuse-result','fuse'])
+    ok(type+' is coloured as a Fusion step',toneOf({type,text:'Send X to the Fusion room.'})==='fusion',toneOf({type,text:'Send X.'}));
+  ok('sending to storage keeps its own colour',toneOf({type:'move',text:'Send X to the Lounge.'})==='stage');
+  ok('the Fusion colour is styled, and differs from storage',/\.verb-fusion\{color:#[0-9a-f]{6}\}/i.test(fs.readFileSync(ROOT+'styles.css','utf8')));
   ok('a kept Protocol spare in a fusion step offers Keep, not Sell',src.includes("${step.protocolSpare?'Keep':'Sell'}</button>"));
   ok('the Base panel no longer lists Protocol droids as spare to sell',src.includes("d.special?.cannotSell||d.type==='PROTOCOL')continue;"));
   const plan=grab('function safeOptimiseStepPlan(');

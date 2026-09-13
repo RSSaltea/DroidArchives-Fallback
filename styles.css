@@ -465,6 +465,7 @@ html:not([data-ui-style="modern"])[data-nav-fit="collapsed"] .sidebar.mobile-ope
 .verb-sell{color:#ff8a7a}
 .verb-stage{color:#f5b944}
 .verb-place{color:#7fd1a0}
+.verb-fusion{color:#c29bff}
 .optimise-settled{margin:0;padding:10px 16px;background:rgba(127,209,160,.12);border:1px solid #4f9d73;border-radius:6px;color:#9ae6bb;font-weight:800;white-space:nowrap}
 .optimise-steps li.step-done{opacity:.45}
 .optimise-steps li.step-done .step-text{text-decoration:line-through}
