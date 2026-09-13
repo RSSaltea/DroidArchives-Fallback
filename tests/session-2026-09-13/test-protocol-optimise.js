@@ -16,7 +16,7 @@ const protocolBlock=src.slice(src.indexOf('const PROTOCOL_REGIONS='),src.indexOf
 console.log('=== Protocol steps are grouped into named stops ===');
 {
   const state={droids:structuredClone(droids)};
-  const sb={state,console,
+  const sb={state,console,PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
     unitName:x=>x.name,
     slotLabel:x=>x?`${x.station} ${x.slot+1}`:'Roster',
     withFusionSteps:x=>x,

@@ -338,8 +338,16 @@ function optimiseUnreservedBase(p,currentIncome){
 }
 // Explicit destinations for Protocol layouts: don't predict an undocumented
 // "go to work" auto-route into these new regional slots.
+function plannedWorkLanding(unit,placed){
+  const native=state.droids.find(d=>d.name===unit.name)?.type;
+  const first=station=>slotFillOrder(station,unit).find(slot=>!placed.some(x=>x.station===station&&x.slot===slot));
+  if(PRODUCTIVE_STATIONS.includes(native)){const slot=first(native);if(slot!==undefined)return{station:native,slot,assumed:false};}
+  const open=NEAREST_ORDER.map(station=>({station,slot:first(station)})).filter(x=>x.slot!==undefined);
+  if(open.length)return{...open[0],assumed:open.length>1};
+  const slot=first('UPGRADE_CHIP');return slot===undefined?null:{station:'UPGRADE_CHIP',slot,assumed:false};
+}
 function protocolStepPlan(baseP,projected,includeFusion=true){
-  const keyOf=x=>`${x.source}:${x.unit}`,current=new Map(baseP.placed.map(x=>[keyOf(x),{...x}])),goals=new Map(projected.placed.map(x=>[keyOf(x),x])),steps=[];
+  const keyOf=x=>`${x.source}:${x.unit}`,current=new Map(baseP.placed.map(x=>[keyOf(x),{...x}])),goals=new Map(projected.placed.map(x=>[keyOf(x),x])),steps=[],stagedWork=new Set();
   // Sell in station order, so each place you visit is one stop rather than a
   // zigzag between the Lounge and the stations.
   const whereNow=unit=>current.get(keyOf(unit));
@@ -350,25 +358,26 @@ function protocolStepPlan(baseP,projected,includeFusion=true){
   const destinationOpen=goal=>![...current.values()].some(x=>done(x,goal));
   const move=(key,unit,to,temporary=false)=>{
     const from=current.get(key);
-    steps.push({type:'move',unit,from,to,text:`Move ${unitName(unit)} from ${slotLabel(from)} to ${slotLabel(to)}${temporary?' temporarily to clear the destination':''}.`});
+    const work=PRODUCTIVE_STATIONS.includes(to.station)||to.station==='UPGRADE_CHIP';
+    steps.push({type:'move',unit,from,to,workCommand:work,assumed:Boolean(to.assumed),text:work?`Tell ${unitName(unit)} in ${slotLabel(from)} to go to work &mdash; it will take ${slotLabel(to)}${temporary?' temporarily, so the next droid can swap into this occupied slot':''}.${to.assumed?' If it chooses another region, update Base and regenerate before continuing.':''}`:`Move ${unitName(unit)} from ${slotLabel(from)} to ${slotLabel(to)}${temporary?' temporarily to clear the destination':''}.`});
     current.set(key,{...unit,...to});
   };
   // Each cycle needs at most one extra Lounge move per droid.
-  for(let pass=0;pass<goals.size*3+1;pass++){
+  for(let pass=0;pass<goals.size*6+1;pass++){
     const pending=[...goals].filter(([key,goal])=>!done(current.get(key),goal));if(!pending.length)break;
     const transfers=pending.filter(([key])=>movable(current.get(key)));
     const reservedBuild=x=>x&&['BUILD','FUSION_BUILD'].includes(x.station)&&[...goals.values()].some(g=>done(g,x));
     // First finish any transfer that needs no swap. In particular, let Lounge
     // residents leave before deciding that storage is full.
-    const free=transfers.find(([key,goal])=>!['BUILD','FUSION_BUILD'].includes(goal.station)&&!reservedBuild(current.get(key))&&destinationOpen(goal));
-    if(free){move(free[0],free[1],free[1]);continue;}
+    const free=transfers.find(([key,goal])=>!['BUILD','FUSION_BUILD'].includes(goal.station)&&!reservedBuild(current.get(key))&&destinationOpen(goal)&&(!(PRODUCTIVE_STATIONS.includes(goal.station)||goal.station==='UPGRADE_CHIP')||done(plannedWorkLanding(current.get(key)||goal,[...current.values()]),goal)));
+    if(free){const landing=PRODUCTIVE_STATIONS.includes(free[1].station)||free[1].station==='UPGRADE_CHIP'?plannedWorkLanding(current.get(free[0])||free[1],[...current.values()]):free[1];move(free[0],free[1],landing);continue;}
     const blocked=transfers.map(([key,goal])=>({key,goal,occupant:[...current].find(([other,x])=>other!==key&&done(x,goal))})).filter(x=>x.occupant&&movable(x.occupant[1]));
     // Break an occupied cycle through the Lounge before considering a swap.
     const staged=blocked.find(x=>!reservedBuild(x.occupant[1])&&!['BUILD','FUSION_BUILD'].includes(x.goal.station));
     if(staged){
       const [key,unit]=staged.occupant;
       const buffer=slotFillOrder('LOUNGE',unit).map(slot=>({station:'LOUNGE',slot})).find(destinationOpen);
-      if(buffer){move(key,unit,buffer,true);continue;}
+      if(buffer){const after=[...current.values()].filter(x=>keyOf(x)!==key).concat({...unit,...buffer});const goal=staged.goal;if(!(PRODUCTIVE_STATIONS.includes(goal.station)||goal.station==='UPGRADE_CHIP')||done(plannedWorkLanding(current.get(staged.key)||goal,after),goal)){move(key,unit,buffer,true);continue;}}
     }
     const swap=blocked.find(x=>{
       const from=current.get(x.key);
@@ -379,7 +388,11 @@ function protocolStepPlan(baseP,projected,includeFusion=true){
       steps.push({type:'swap',unit:goal,from,withUnit:occupant,withFrom:occupant,text:`Swap ${unitName(goal)} in ${slotLabel(from)} with ${unitName(occupant)} in ${slotLabel(occupant)} (no usable Lounge transfer).`});
       current.set(other,{...occupant,station:from.station,slot:from.slot});current.set(key,{...goal});continue;
     }
-    steps.push({type:'note',text:'A transfer needs temporary space or an unlocked droid. Free a Lounge slot or check slot locks, update Base, then regenerate these remaining moves.'});break;
+    // Fill a required empty work slot with a reachable droid, then swap. Work
+    // always chooses its own type first; an empty target alone is not a move.
+    const filler=transfers.map(([key,goal])=>({key,goal,from:current.get(key),landing:plannedWorkLanding(current.get(key)||goal,[...current.values()])})).find(x=>x.landing&&!reservedBuild(x.from)&&!stagedWork.has(`${x.key}:${x.landing.station}:${x.landing.slot}`)&&transfers.some(([key,goal])=>key!==x.key&&done(goal,x.landing)));
+    if(filler){stagedWork.add(`${filler.key}:${filler.landing.station}:${filler.landing.slot}`);move(filler.key,filler.goal,filler.landing,true);continue;}
+    steps.push({type:'note',text:'Work cannot reach the remaining destinations from this layout. Fill the required region with a matching droid or free a compatible swap, update Base, then regenerate. Do not send a droid to a different region while its own region has space.'});break;
   }
   // The walkthrough is grouped into stops by where each step happens, the way the
   // ordinary planner groups its own. These steps carried no stop at all, so every

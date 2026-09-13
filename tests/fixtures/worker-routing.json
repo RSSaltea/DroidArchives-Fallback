@@ -1,0 +1,2674 @@
+{
+  "app": "Droid Archives",
+  "version": 5,
+  "base": {
+    "owned": [
+      {
+        "name": "CHOPPER",
+        "variant": "DEFAULT",
+        "qty": 1,
+        "preferred": "COMPANION",
+        "preferredSlot": 0,
+        "lockedSlot": true
+      },
+      {
+        "name": "BB-8",
+        "variant": "DEFAULT",
+        "qty": 1,
+        "preferred": "COMPANION",
+        "preferredSlot": 1,
+        "lockedSlot": true
+      },
+      {
+        "name": "SEN-TRI",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "WORKER",
+        "preferredSlot": 5,
+        "built": true
+      },
+      {
+        "name": "GUNRUNNER",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "WORKER",
+        "preferredSlot": 0,
+        "built": true
+      },
+      {
+        "name": "MECHA-DROID",
+        "variant": "GALACTIC",
+        "qty": 1,
+        "preferred": "WORKER",
+        "preferredSlot": 6,
+        "built": true
+      },
+      {
+        "name": "MECHA-DROID",
+        "variant": "GALACTIC",
+        "qty": 1,
+        "preferred": "WORKER",
+        "preferredSlot": 4,
+        "built": true
+      },
+      {
+        "name": "RIC",
+        "variant": "BESKAR",
+        "qty": 1,
+        "preferred": "WORKER",
+        "preferredSlot": 8,
+        "built": true
+      },
+      {
+        "name": "GUNRUNNER",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "WORKER",
+        "preferredSlot": 9,
+        "built": true
+      },
+      {
+        "name": "LEP",
+        "variant": "GALACTIC",
+        "qty": 1,
+        "preferred": "WORKER",
+        "preferredSlot": 1,
+        "built": true
+      },
+      {
+        "name": "PROTO-ROLLER",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "WORKER",
+        "preferredSlot": 2,
+        "built": true
+      },
+      {
+        "name": "PROTO-ROLLER",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "WORKER",
+        "preferredSlot": 3,
+        "built": true
+      },
+      {
+        "name": "MONO-WALKER",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "WORKER",
+        "preferredSlot": 7,
+        "built": true
+      },
+      {
+        "name": "B1 HEAVY",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "BATTLE",
+        "preferredSlot": 0,
+        "built": true
+      },
+      {
+        "name": "B2-RP",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "BATTLE",
+        "preferredSlot": 3,
+        "built": true
+      },
+      {
+        "name": "B2 SUPER",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "BATTLE",
+        "preferredSlot": 1,
+        "built": true
+      },
+      {
+        "name": "MISTER BONES",
+        "variant": "DEFAULT",
+        "qty": 1,
+        "preferred": "BATTLE",
+        "preferredSlot": 5
+      },
+      {
+        "name": "OPTI-STRIKE",
+        "variant": "BESKAR",
+        "qty": 1,
+        "preferred": "BATTLE",
+        "preferredSlot": 7
+      },
+      {
+        "name": "IG",
+        "variant": "GALACTIC",
+        "qty": 1,
+        "preferred": "BATTLE",
+        "preferredSlot": 6,
+        "built": true
+      },
+      {
+        "name": "OPTI-STRIKE",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "BATTLE",
+        "preferredSlot": 10,
+        "built": true
+      },
+      {
+        "name": "KX",
+        "variant": "GALACTIC",
+        "qty": 1,
+        "preferred": "BATTLE",
+        "preferredSlot": 8,
+        "built": true
+      },
+      {
+        "name": "PZ",
+        "variant": "DIAMOND",
+        "qty": 1,
+        "preferred": "PROTOCOL_WORKER_CRAFTING",
+        "preferredSlot": 0
+      },
+      {
+        "name": "C-3PO",
+        "variant": "DEFAULT",
+        "qty": 1,
+        "preferred": "PROTOCOL_WORKER_CREDITS",
+        "preferredSlot": 0
+      },
+      {
+        "name": "SNOW MOUSE",
+        "variant": "BESKAR",
+        "qty": 1,
+        "preferred": "ASTROMECH",
+        "preferredSlot": 2,
+        "built": true
+      },
+      {
+        "name": "LOADLIFTER",
+        "variant": "RAINBOW",
+        "qty": 1,
+        "preferred": "FUSION_BUILD",
+        "preferredSlot": 2,
+        "built": true
+      },
+      {
+        "name": "RIC",
+        "variant": "GOLD",
+        "qty": 1,
+        "preferred": "FUSION_BUILD",
+        "preferredSlot": 0,
+        "built": true
+      },
+      {
+        "name": "SA-5",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "PROTOCOL_ASTROMECH_CREDITS",
+        "preferredSlot": 0
+      },
+      {
+        "name": "LOM",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "PROTOCOL_ASTROMECH_CRAFTING",
+        "preferredSlot": 0
+      },
+      {
+        "name": "PZ",
+        "variant": "DEFAULT",
+        "qty": 1,
+        "preferred": "PROTOCOL_BATTLE_CREDITS",
+        "preferredSlot": 0
+      },
+      {
+        "name": "SA-5",
+        "variant": "GALACTIC",
+        "qty": 1,
+        "preferred": "PROTOCOL_BATTLE_CRAFTING",
+        "preferredSlot": 0
+      },
+      {
+        "name": "DRFT-R",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "ASTROMECH",
+        "preferredSlot": 4
+      },
+      {
+        "name": "MO-TRAK",
+        "variant": "BESKAR",
+        "qty": 1,
+        "preferred": "ASTROMECH",
+        "preferredSlot": 3
+      },
+      {
+        "name": "DRFT-R",
+        "variant": "GALACTIC",
+        "qty": 1,
+        "preferred": "ASTROMECH",
+        "preferredSlot": 0
+      },
+      {
+        "name": "TRI-TEK",
+        "variant": "BESKAR",
+        "qty": 1,
+        "preferred": "ASTROMECH",
+        "preferredSlot": 8
+      },
+      {
+        "name": "BB9",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "ASTROMECH",
+        "preferredSlot": 7
+      },
+      {
+        "name": "R7",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "ASTROMECH",
+        "preferredSlot": 5
+      },
+      {
+        "name": "BB9",
+        "variant": "GALACTIC",
+        "qty": 1,
+        "preferred": "ASTROMECH",
+        "preferredSlot": 6
+      },
+      {
+        "name": "MO-TRAK",
+        "variant": "BESKAR",
+        "qty": 1,
+        "preferred": "FUSION_BUILD",
+        "preferredSlot": 1
+      },
+      {
+        "name": "TDA",
+        "variant": "DIAMOND",
+        "qty": 1,
+        "preferred": "LOUNGE",
+        "preferredSlot": 0
+      },
+      {
+        "name": "OPTI-STRIKE",
+        "variant": "BESKAR",
+        "qty": 1,
+        "preferred": "LOUNGE",
+        "preferredSlot": 1
+      },
+      {
+        "name": "PZ",
+        "variant": "GOLD",
+        "qty": 1,
+        "preferred": "LOUNGE",
+        "preferredSlot": 2
+      },
+      {
+        "name": "TDA",
+        "variant": "DIAMOND",
+        "qty": 1,
+        "preferred": "LOUNGE",
+        "preferredSlot": 3
+      },
+      {
+        "name": "D-O",
+        "variant": "DEFAULT",
+        "qty": 1,
+        "preferred": "LOUNGE",
+        "preferredSlot": 4
+      },
+      {
+        "name": "RIC",
+        "variant": "GALACTIC",
+        "qty": 1,
+        "preferred": "LOUNGE",
+        "preferredSlot": 5
+      },
+      {
+        "name": "SNOW MOUSE",
+        "variant": "STELLAR",
+        "qty": 1,
+        "preferred": "LOUNGE",
+        "preferredSlot": 6
+      }
+    ],
+    "blueprints": [],
+    "droidex": [
+      {
+        "name": "MECHA-DROID",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "SNOW MOUSE",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "SNOW MOUSE",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "SNOW MOUSE",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "SNOW MOUSE",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "LEP",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "MOUSE",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "PIT",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "GONK",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "CB",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "R3",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "R5",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "R8",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "IMPERIAL PROBE",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "B1 BATTLE",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "DRK-1 PROBE",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "ID10",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "BDX EXPLORER",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "ARG",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "SENATE HOVERCAM",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "B-U4D",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "BAL-CORE",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "ROLL-R",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "2BB",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "A-LT",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "R4",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "R9",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "B1 SECURITY",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "NAV-EX",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "VECT-ARM",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "HOV-R",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "OPTI-POD",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "SEN-TRI",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "AMP WALKER",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "LO",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "GROUNDMECH",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "B2 HEAVY",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "B2 SUPER",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "R6",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "TRAK-R",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "R2",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "BB",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "GUNRUNNER",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "ORB-WALKER",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "UTIL-TEC",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "B1 HEAVY",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "STRIKE-ORB",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "HAUL-R",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "LNG-SHOT",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "PROTO-ROLLER",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "MECHA-DROID",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "CYCLO-GRAV",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "B2-RP",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "R7",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "BB9",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "MONO-WALKER",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "OPTI-STRIKE",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "RIC",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "LOADLIFTER",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "LEP",
+        "variant": "DEFAULT",
+        "flawless": true
+      },
+      {
+        "name": "RIC-1200",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "DRFT-R",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "CYCLENS",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "MO-TRAK",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "TRI-TEK",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "IG",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "KX",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "BB-8",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "CB-23",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "R2-D2",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "C-3PO",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "CHOPPER",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "MOUSE",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "PIT",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "R4",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "A-LT",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "2BB",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "ROLL-R",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "BAL-CORE",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "ID10",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "BDX EXPLORER",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "ARG",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "SENATE HOVERCAM",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "B-U4D",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "DRK-1 PROBE",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "B1 BATTLE",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "IMPERIAL PROBE",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "R8",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "R5",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "GONK",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "CB",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "R3",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "B2 HEAVY",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "B2 SUPER",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "B1 HEAVY",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "UTIL-TEC",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "ORB-WALKER",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "GUNRUNNER",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "BB",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "R2",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "R6",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "TRAK-R",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "OPTI-POD",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "HOV-R",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "VECT-ARM",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "SEN-TRI",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "AMP WALKER",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "NAV-EX",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "B1 SECURITY",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "LO",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "GROUNDMECH",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "R9",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "STRIKE-ORB",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "HAUL-R",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "LNG-SHOT",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "PROTO-ROLLER",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "TRI-TEK",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "MO-TRAK",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "LOADLIFTER",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "RIC",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "CYCLENS",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "DRFT-R",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "RIC-1200",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "OPTI-STRIKE",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "MONO-WALKER",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "BB9",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "R7",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "B2-RP",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "CYCLO-GRAV",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "MECHA-DROID",
+        "variant": "GOLD",
+        "flawless": true
+      },
+      {
+        "name": "IG",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "KX",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "R4",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "A-LT",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "2BB",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "ROLL-R",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "BAL-CORE",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "ID10",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "BDX EXPLORER",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "ARG",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "SENATE HOVERCAM",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "B-U4D",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "DRK-1 PROBE",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "B1 BATTLE",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "IMPERIAL PROBE",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "R8",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "R5",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "MOUSE",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "PIT",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "CB",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "R3",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "GUNRUNNER",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "R2",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "LO",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "GROUNDMECH",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "R9",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "B1 SECURITY",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "NAV-EX",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "AMP WALKER",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "VECT-ARM",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "SEN-TRI",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "OPTI-POD",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "HOV-R",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "B2 HEAVY",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "B2 SUPER",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "R6",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "TRAK-R",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "B1 HEAVY",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "UTIL-TEC",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "ORB-WALKER",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "TRI-TEK",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "MO-TRAK",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "LOADLIFTER",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "LEP",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "CYCLO-GRAV",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "B2-RP",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "MECHA-DROID",
+        "variant": "DIAMOND",
+        "flawless": true
+      },
+      {
+        "name": "PROTO-ROLLER",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "LNG-SHOT",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "HAUL-R",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "STRIKE-ORB",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "MONO-WALKER",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "BB9",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "R7",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "RIC",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "OPTI-STRIKE",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "CYCLENS",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "DRFT-R",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "RIC-1200",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "KX",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "IG",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "R4",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "A-LT",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "B-U4D",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "SENATE HOVERCAM",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "2BB",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "ARG",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "BDX EXPLORER",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "ROLL-R",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "BAL-CORE",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "ID10",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "R5",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "R8",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "PIT",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "MOUSE",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "GONK",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "IMPERIAL PROBE",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "B1 BATTLE",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "CB",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "R3",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "DRK-1 PROBE",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "B2 HEAVY",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "B2 SUPER",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "B1 HEAVY",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "UTIL-TEC",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "ORB-WALKER",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "GUNRUNNER",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "BB",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "R2",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "R6",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "TRAK-R",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "OPTI-POD",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "HOV-R",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "NAV-EX",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "VECT-ARM",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "SEN-TRI",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "AMP WALKER",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "LO",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "B1 SECURITY",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "R9",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "GROUNDMECH",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "OPTI-STRIKE",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "CYCLO-GRAV",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "MECHA-DROID",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "PROTO-ROLLER",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "LOADLIFTER",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "LNG-SHOT",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "B2-RP",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "R7",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "BB9",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "HAUL-R",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "STRIKE-ORB",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "MONO-WALKER",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "LEP",
+        "variant": "RAINBOW",
+        "flawless": true
+      },
+      {
+        "name": "TRI-TEK",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "MO-TRAK",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "CYCLENS",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "DRFT-R",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "RIC-1200",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "KX",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "IG",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "MOUSE",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "PIT",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "R4",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "A-LT",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "2BB",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "ROLL-R",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "BAL-CORE",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "ID10",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "BDX EXPLORER",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "ARG",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "SENATE HOVERCAM",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "B-U4D",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "DRK-1 PROBE",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "B1 BATTLE",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "IMPERIAL PROBE",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "R8",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "R5",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "GONK",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "CB",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "R3",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "B2 HEAVY",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "B2 SUPER",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "B1 HEAVY",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "UTIL-TEC",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "ORB-WALKER",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "GUNRUNNER",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "BB",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "R2",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "R6",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "TRAK-R",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "OPTI-POD",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "SEN-TRI",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "AMP WALKER",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "LO",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "GROUNDMECH",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "R9",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "B1 SECURITY",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "NAV-EX",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "VECT-ARM",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "HOV-R",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "LOADLIFTER",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "RIC",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "SNOW MOUSE",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "OPTI-STRIKE",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "MONO-WALKER",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "STRIKE-ORB",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "HAUL-R",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "BB9",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "LNG-SHOT",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "R7",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "PROTO-ROLLER",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "B2-RP",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "CYCLO-GRAV",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "TRI-TEK",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "MO-TRAK",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "CYCLENS",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "DRFT-R",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "KX",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "IG",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "R4",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "A-LT",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "2BB",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "ROLL-R",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "BAL-CORE",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "ID10",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "BDX EXPLORER",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "ARG",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "SENATE HOVERCAM",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "B-U4D",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "DRK-1 PROBE",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "B1 BATTLE",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "IMPERIAL PROBE",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "R8",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "R5",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "MOUSE",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "PIT",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "GONK",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "CB",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "R3",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "UTIL-TEC",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "TRAK-R",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "R6",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "R2",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "BB",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "GUNRUNNER",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "SEN-TRI",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "OPTI-POD",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "HOV-R",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "VECT-ARM",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "NAV-EX",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "AMP WALKER",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "LO",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "B1 SECURITY",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "R9",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "GROUNDMECH",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "B2 HEAVY",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "B2 SUPER",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "B1 HEAVY",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "STRIKE-ORB",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "HAUL-R",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "LNG-SHOT",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "PROTO-ROLLER",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "MECHA-DROID",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "BB9",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "R7",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "B2-RP",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "CYCLO-GRAV",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "OPTI-STRIKE",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "LOADLIFTER",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "DRFT-R",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "TRI-TEK",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "ORB-WALKER",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "RIC-1200",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "LEP",
+        "variant": "GALACTIC",
+        "flawless": true
+      },
+      {
+        "name": "KX",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "MONO-WALKER",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "RIC",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "BB",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "DJ R-3X",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "RIC-1200",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "BB9",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "SEN-TRI",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "BB",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "MO-TRAK",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "OPTI-STRIKE",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "LEP",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "PROTO-ROLLER",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "B2 HEAVY",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "HAUL-R",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "B2 SUPER",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "AMP WALKER",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "LOADLIFTER",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "B1 HEAVY",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "B2-RP",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "GUNRUNNER",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "MOUSE",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "PIT",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "GONK",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "CB",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "R3",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "R5",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "R8",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "IMPERIAL PROBE",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "B1 BATTLE",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "DRK-1 PROBE",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "ID10",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "BDX EXPLORER",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "ARG",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "SENATE HOVERCAM",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "B-U4D",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "BAL-CORE",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "ROLL-R",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "2BB",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "A-LT",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "R4",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "R9",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "B1 SECURITY",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "NAV-EX",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "VECT-ARM",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "HOV-R",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "GROUNDMECH",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "LO",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "OPTI-POD",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "R2",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "R6",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "LNG-SHOT",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "IG",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "TRAK-R",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "CYCLO-GRAV",
+        "variant": "STELLAR",
+        "flawless": true
+      },
+      {
+        "name": "STRIKE-ORB",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "DRFT-R",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "MONO-WALKER",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "R7",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "SNOW MOUSE",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "LEP",
+        "variant": "BESKAR",
+        "flawless": true
+      },
+      {
+        "name": "WHL-EX",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "GONK",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "MISTER BONES",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "IG",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "D-O",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "RIC",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "PZ",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "SA-5",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "LOM",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "PZ",
+        "variant": "DEFAULT",
+        "flawless": false
+      },
+      {
+        "name": "SA-5",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "SA-5",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "PZ",
+        "variant": "GOLD",
+        "flawless": false
+      },
+      {
+        "name": "SNOW MOUSE",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "LOM",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "SA-5",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "TDA",
+        "variant": "DIAMOND",
+        "flawless": false
+      },
+      {
+        "name": "PZ",
+        "variant": "RAINBOW",
+        "flawless": false
+      },
+      {
+        "name": "PZ",
+        "variant": "BESKAR",
+        "flawless": false
+      },
+      {
+        "name": "LOM",
+        "variant": "GALACTIC",
+        "flawless": false
+      },
+      {
+        "name": "LOM",
+        "variant": "STELLAR",
+        "flawless": false
+      },
+      {
+        "name": "LOM",
+        "variant": "DIAMOND",
+        "flawless": false
+      }
+    ],
+    "novaUpgrades": {
+      "credits": 5,
+      "multi-crit": 1,
+      "collect-all": 3,
+      "fusion-tank": 2,
+      "lounge-slot": 1,
+      "scrap-value": 6,
+      "fusion-speed": 3,
+      "super-crates": 3,
+      "companion-slot": 1,
+      "daily-crystals": 1,
+      "blueprint-scrap": 4,
+      "chip-sell-bonus": 3,
+      "critical-amount": 2,
+      "critical-chance": 4,
+      "pickaxe-mastery": 11,
+      "blueprint-vendor": 1,
+      "blueprint-storage": 3,
+      "upgrade-chip-scrap": 10,
+      "double-daily-quests": 1,
+      "rebirth-droid-alert": 1,
+      "upgrade-chip-station": 1
+    },
+    "cantinaPurchases": {
+      "vip-pack": true,
+      "crit-pack": true,
+      "fusion-pack": true,
+      "starter-pack": true,
+      "fusion-tank-2": true,
+      "companion-pack": true
+    },
+    "multiplier": 128.6,
+    "cycle": 1,
+    "rebirth": 27,
+    "superRebirthGoal": 35,
+    "fusionKeepRules": [
+      {
+        "rarity": "LEGENDARY",
+        "variant": "BESKAR"
+      },
+      {
+        "rarity": "MYTHIC",
+        "variant": "RAINBOW"
+      }
+    ],
+    "protocolPriority": "credits",
+    "optimiseFreeBuild": false,
+    "optimiseFreeBuildMode": "upgrade-cost",
+    "optimiseKeepDroidex": false,
+    "companionGoals": [
+      "pickaxe"
+    ],
+    "preferredCompanions": [
+      "CHOPPER",
+      "BB-8"
+    ],
+    "autoCompleteBuilds": false,
+    "autoPurchaseSlots": true,
+    "purchasedSlots": [
+      "WORKER:4",
+      "BUILD:1",
+      "ASTROMECH:3",
+      "BUILD:2",
+      "FUSION:0",
+      "FUSION:1",
+      "FUSION:2",
+      "FUSION_BUILD:0",
+      "BATTLE:2",
+      "WORKER:5",
+      "ASTROMECH:4",
+      "BATTLE:3",
+      "WORKER:6",
+      "ASTROMECH:5",
+      "BATTLE:4",
+      "WORKER:7",
+      "ASTROMECH:6",
+      "WORKER:8",
+      "ASTROMECH:7",
+      "WORKER:9",
+      "ASTROMECH:8",
+      "WORKER:10",
+      "BATTLE:5",
+      "LOUNGE:5",
+      "BATTLE:6",
+      "LOUNGE:6",
+      "BATTLE:7",
+      "LOUNGE:7",
+      "BATTLE:8",
+      "LOUNGE:8",
+      "BATTLE:9",
+      "BATTLE:10"
+    ],
+    "loungePurchased": 0,
+    "novaLevel": 0
+  }
+}

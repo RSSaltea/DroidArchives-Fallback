@@ -15,7 +15,8 @@
         "Combined Fusion and Fusion Build in one panel with a separator on Base and Optimise.",
         "Added a retry and default-portrait fallback when a droid image fails to load.",
         "Tidied Advanced settings so the fusion rules button stays compact and the controls fit on smaller screens.",
-        "Fixed saved fusion rules being cleared when a profile is loaded, including when restoring it in another tab."
+        "Fixed saved fusion rules being cleared when a profile is loaded, including when restoring it in another tab.",
+        "Fixed cross-region Work instructions ignoring free slots in a droid’s own region. Plans now fill reachable slots and use swaps before requesting cross-region moves."
       ]
     },
     {

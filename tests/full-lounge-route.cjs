@@ -17,7 +17,7 @@ const server=http.createServer((req,res)=>{
  const context=await browser.newContext(),page=await context.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  await page.route('https://**/*',r=>r.abort());
- await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.testPlan={state,save,validateBaseImport,placements,optimiseBase,incomeForPlaced,optimisedPlacements,safeOptimiseStepPlan,isBuilding,keepForFusion,baseExport,profileDataFromState,optimiseFusionChain,applyProfileData,blankProfileData,normalizeProfileDoc};'}));
+ await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.testPlan={state,save,validateBaseImport,placements,optimiseBase,incomeForPlaced,optimisedPlacements,safeOptimiseStepPlan,isBuilding,keepForFusion,baseExport,profileDataFromState,optimiseFusionChain,applyProfileData,blankProfileData,normalizeProfileDoc,stationSlotIndices,slotFillOrder};'}));
  await page.addInitScript(notes=>localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(notes)),JSON.parse(fs.readFileSync(path.join(root,'data/patch-notes.json'),'utf8')).notes.map(n=>n.id));
  await page.goto(`http://127.0.0.1:${server.address().port}`);
  await page.waitForFunction(()=>window.testPlan?.state.droids.length);
@@ -76,6 +76,30 @@ const server=http.createServer((req,res)=>{
   assert(!scenario.steps.some(x=>x.type==='note'),JSON.stringify(scenario.steps));
  }
  console.log('PASS: all four Astromech Iconics keep mission slots through both optimisers and both priorities.');
+ const routing=await page.evaluate(profile=>{
+  const d=window.testPlan;Object.assign(d.state,d.validateBaseImport(profile));
+  const base=d.placements(),target=d.optimisedPlacements(base,d.optimiseBase(base,d.incomeForPlaced(base.placed))),steps=d.safeOptimiseStepPlan(base,target);
+  const key=x=>`${x.source}:${x.unit}`,spot=x=>`${x.station}:${x.slot}`,current=new Map(base.placed.map(x=>[key(x),{...x}])),failures=[];
+  for(const step of steps){
+   if(step.type==='note'){failures.push(step.text);continue;}
+   const unit=current.get(key(step.unit));if(!unit||spot(unit)!==spot(step.from))failures.push('wrong origin');
+   if(step.type==='sell'){current.delete(key(step.unit));continue;}
+   if(step.type==='swap'){const other=current.get(key(step.withUnit)),from={station:unit.station,slot:unit.slot};Object.assign(unit,{station:other.station,slot:other.slot});Object.assign(other,from);continue;}
+   if(step.workCommand){
+    const native=d.state.droids.find(x=>x.name===unit.name).type;
+    const free=s=>d.stationSlotIndices(s).filter(slot=>![...current.values()].some(x=>x.station===s&&x.slot===slot));
+    if(['WORKER','ASTROMECH','BATTLE'].includes(native)&&free(native).length&&step.to.station!==native)failures.push(`${unit.name} bypassed its free native slots`);
+    const expected=d.slotFillOrder(step.to.station,unit).find(slot=>free(step.to.station).includes(slot));if(step.to.slot!==expected)failures.push('wrong automatic slot');
+   }
+   if([...current.values()].some(x=>spot(x)===spot(step.to)))failures.push('occupied destination');
+   Object.assign(unit,{station:step.to.station,slot:step.to.slot});
+  }
+  for(const goal of target.placed)if(spot(current.get(key(goal)))!==spot(goal))failures.push('unfinished layout');
+  return {failures,steps:steps.length};
+ },JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/worker-routing.json'),'utf8')));
+ assert.deepEqual(routing.failures,[]);assert(routing.steps>0);
+ console.log('PASS: reported SEN-TRI route completes without bypassing any free native slot.');
+ await page.evaluate(profile=>Object.assign(window.testPlan.state,window.testPlan.validateBaseImport(profile)),profile);
  const reserved=await page.evaluate(()=>{
   const d=window.testPlan;d.state.companionGoals=['pickaxe'];d.state.preferredCompanions=[];d.state.optimiseKeepDroidex=false;
   d.state.fusionKeepRules=[{rarity:'LEGENDARY',variant:'BESKAR'},{rarity:'MYTHIC',variant:'DIAMOND'}];
