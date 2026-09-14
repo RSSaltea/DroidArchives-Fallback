@@ -25,6 +25,13 @@ function setup(){
   unitName:x=>x.name,slotLabel:x=>x?`${x.station} ${x.slot+1}`:'Roster',withFusionSteps:x=>x
  });
  vm.runInContext(src.slice(src.indexOf('const PROTOCOL_REGIONS='),src.indexOf('const SLOT_RULES=')),ctx);
+ vm.runInContext(fn('stabiliseProjectedPlacements'),ctx);
+ vm.runInContext(fn('applyPlannedEquivalentSlots'),ctx);
+ vm.runInContext(fn('normaliseProjectedForSteps'),ctx);
+ vm.runInContext(fn('safeOptimiseStepPlan'),ctx);
+ ctx.isProtocolStation=s=>s.startsWith('PROTOCOL_');ctx.optimiseStepStyle=()=> 'route';
+ vm.runInContext('globalThis.optimiseRoutePlan=protocolStepPlan',ctx);
+ vm.runInContext(src.slice(src.indexOf('const optimisedRows='),src.indexOf('function optimisedPlacements(')),ctx);
  return {state,caps,run:code=>vm.runInContext(code,ctx),ctx};
 }
 test('new source stats, all seven qualities, portraits and C-3PO type',()=>{
@@ -83,7 +90,7 @@ function planMoves(positions,targets,lounge=1){
  const {ctx,caps,run}=setup();caps.LOUNGE=lounge;
  const base=positions.map(([station,slot,extra={}],source)=>({name:'LOM',variant:'DEFAULT',source,unit:0,station,slot,...extra}));
  const goals=base.map((x,i)=>({...x,station:targets[i][0],slot:targets[i][1]}));
- ctx.base={placed:base};ctx.target={placed:goals,sell:[]};
+ ctx.base={placed:base};ctx.target={placed:goals,sell:[],overflow:[]};
  const steps=run('protocolStepPlan(base,target)'),current=structuredClone(base);
  for(const step of steps){
   if(step.type==='note')continue;
@@ -98,7 +105,8 @@ function planMoves(positions,targets,lounge=1){
    Object.assign(unit,{station:step.to.station,slot:step.to.slot});
   }
  }
- return {steps,current,goals};
+ ctx.steps=steps;run('applyPlannedEquivalentSlots(base,target,steps)');
+ return {steps,current,goals:structuredClone(ctx.target.placed)};
 }
 function finished(plan){assert.deepEqual(plan.current,plan.goals);assert(!plan.steps.some(s=>s.type==='note'));}
 test('occupied work cycle uses nearest available Lounge slot then returns to work',()=>{
@@ -112,7 +120,8 @@ test('drains a full Lounge before breaking a work cycle',()=>{
 });
 test('Lounge to work exchange uses the spare Lounge slot',()=>{
  const p=planMoves([['WORKER',0],['LOUNGE',0]],[['LOUNGE',0],['WORKER',0]],2);
- finished(p);assert(!p.steps.some(s=>s.type==='swap'));
+ finished(p);assert(!p.steps.some(s=>s.type==='swap'));assert.equal(p.steps.length,2);
+ assert.equal(p.current[0].slot,1);
 });
 test('full Lounge falls back to a swap without displacing its resident',()=>{
  const p=planMoves([['WORKER',0],['ASTROMECH',0],['LOUNGE',0]],[['ASTROMECH',0],['WORKER',0],['LOUNGE',0]]);
@@ -125,7 +134,7 @@ test('parked droids do not bounce between Lounge buffers while native work slots
   const positions=[['R7','ASTROMECH',0],['KX','WORKER',0],['LOM','LOUNGE',2],['R7','LOUNGE',0],['KX','LOUNGE',1]];
   const destinations=[['LOUNGE',0],['LOUNGE',1],['PROTOCOL_WORKER_CREDITS',0],['ASTROMECH',0],['WORKER',0]];
   const base=positions.map(([name,station,slot],source)=>({name,station,slot,variant:'DEFAULT',source,unit:0}));
-  ctx.base={placed:base};ctx.target={placed:base.map((x,i)=>({...x,station:destinations[i][0],slot:destinations[i][1]})),sell:[]};
+  ctx.base={placed:base};ctx.target={placed:base.map((x,i)=>({...x,station:destinations[i][0],slot:destinations[i][1]})),sell:[],overflow:[]};
   const steps=run(`protocolStepPlan(base,target,false,${batch})`),current=structuredClone(base);
   assert(!steps.some(s=>s.type==='note'));assert(steps.length<15);
   const seen=new Set([JSON.stringify(current)]);
@@ -145,7 +154,29 @@ test('parked droids do not bounce between Lounge buffers while native work slots
    }
    const layout=JSON.stringify(current);assert(!seen.has(layout),'repeated layout');seen.add(layout);
   }
-  assert.deepEqual(current,ctx.target.placed);
+  ctx.steps=steps;run('applyPlannedEquivalentSlots(base,target,steps)');
+  assert.deepEqual(current,structuredClone(ctx.target.placed));
+ }
+});
+
+test('MO-TRAK stays in its reached Lounge slot and Apply rows match the walkthrough',()=>{
+ for(const batch of [false,true]){
+  const {ctx,caps,run}=setup();caps.LOUNGE=5;
+  ctx.base={placed:[
+   {name:'MO-TRAK',variant:'RAINBOW',source:0,unit:0,station:'ASTROMECH',slot:0},
+   {name:'TRI-TEK',variant:'BESKAR',source:1,unit:0,station:'LOUNGE',slot:2},
+   {name:'KX',variant:'STELLAR',source:2,unit:0,station:'LOUNGE',slot:0,lockedSlot:true}
+  ]};
+  ctx.target={placed:ctx.base.placed.map((x,i)=>({...x,...(i===0?{station:'LOUNGE',slot:2}:i===1?{station:'ASTROMECH',slot:0}:{})})),sell:[],overflow:[]};
+  const original=JSON.stringify(ctx.target),steps=run(`protocolStepPlan(base,target,false,${batch})`);
+  assert.equal(JSON.stringify(ctx.target),original,'candidate planning must not mutate the preview');
+  assert.equal(steps.length,2);assert.equal(steps[0].unit.name,'MO-TRAK');assert.equal(steps[0].to.slot,4);
+  assert.equal(steps[1].unit.name,'TRI-TEK');assert.equal(steps[1].to.station,'ASTROMECH');
+  ctx.steps=steps;run('applyPlannedEquivalentSlots(base,target,steps)');
+  const mo=ctx.target.placed.find(x=>x.name==='MO-TRAK'),row=ctx.target.rows.find(x=>x.name==='MO-TRAK');
+  assert.equal(mo.slot,4);assert.equal(row.preferred,'LOUNGE');assert.equal(row.preferredSlot,4);
+  assert.equal(ctx.target.placed.find(x=>x.lockedSlot).slot,0);
+  assert.equal(new Set(ctx.target.placed.map(x=>`${x.station}:${x.slot}`)).size,3);
  }
 });
 test('locked and unfinished blockers are never parked in the Lounge',()=>{
@@ -213,7 +244,7 @@ test('independent region exchanges batch through Lounge in three visits',()=>{
  const {state,caps,ctx,run}=setup();Object.assign(caps,{WORKER:3,BATTLE:3,ASTROMECH:0,LOUNGE:3});
  state.droids.push({name:'TEST WORKER',type:'WORKER'},{name:'TEST BATTLE',type:'BATTLE'});
  const base=Array.from({length:6},(_,i)=>({name:i<3?'TEST WORKER':'TEST BATTLE',variant:'DEFAULT',source:i,unit:0,station:i<3?'BATTLE':'WORKER',slot:i%3}));
- ctx.base={placed:base};ctx.target={placed:base.map(x=>({...x,station:x.station==='WORKER'?'BATTLE':'WORKER'})),sell:[]};
+ ctx.base={placed:base};ctx.target={placed:base.map(x=>({...x,station:x.station==='WORKER'?'BATTLE':'WORKER'})),sell:[],overflow:[]};
  const steps=run('protocolStepPlan(base,target,false)'),baseline=run('protocolStepPlan(base,target,false,false)');
  const visits=xs=>xs.filter((x,i)=>!i||x.at!==xs[i-1].at).length;
  assert(!steps.some(x=>x.type==='note'||x.type==='swap'));assert.equal(visits(steps),3);assert(visits(steps)<visits(baseline));
@@ -225,7 +256,8 @@ test('independent region exchanges batch through Lounge in three visits',()=>{
   Object.assign(unit,{station:step.to.station,slot:step.to.slot});
   assert(current.filter(x=>x.station==='LOUNGE').length<=3);
  }
- assert.deepEqual(current,ctx.target.placed);
+ ctx.steps=steps;run('applyPlannedEquivalentSlots(base,target,steps)');
+ assert.deepEqual(current,structuredClone(ctx.target.placed));
 });
 
 
@@ -252,4 +284,86 @@ test('Astromech role validation defaults invalid and missing preferences to Miss
  state.astromechIconicRoles={'R2-D2':'credits','CB-23':'mission'};
  assert.equal(run("astromechIconicRole('R2-D2')"),'credits');
  assert.equal(run("astromechIconicRole('CB-23')"),'mission');
+});
+
+function replayPlan(ctx,run){
+ const steps=run('safeOptimiseStepPlan(base,target)'),key=x=>`${x.source}:${x.unit}`,spot=x=>`${x.station}:${x.slot}`;
+ assert(!steps.some(s=>s.type==='note'));const current=new Map(ctx.base.placed.map(x=>[key(x),{...x}]));
+ for(const step of steps){
+  const unit=current.get(key(step.unit));assert(unit);assert.equal(spot(unit),spot(step.from));assert(!unit.lockedSlot);
+  if(step.type==='sell'){current.delete(key(unit));continue;}
+  if(step.type==='swap'){
+   const other=current.get(key(step.withUnit));assert.equal(spot(other),spot(step.withFrom));assert(!other.lockedSlot);
+   const from={station:unit.station,slot:unit.slot};Object.assign(unit,{station:other.station,slot:other.slot});Object.assign(other,from);
+  }else{
+   assert.equal(step.type,'move');assert(![...current.values()].some(x=>spot(x)===spot(step.to)));
+   if(step.workCommand){ctx.moving=unit;ctx.positions=[...current.values()];const landing=run('plannedWorkLanding(moving,positions)');assert.equal(spot(step.to),spot(landing));}
+   Object.assign(unit,{station:step.to.station,slot:step.to.slot});
+  }
+  assert.equal(new Set([...current.values()].map(spot)).size,current.size);
+ }
+ for(const goal of ctx.target.placed)assert.equal(spot(current.get(key(goal))),spot(goal));
+ return steps;
+}
+
+test('identical Rainbow LOM already crafting stays put; the other copy moves directly',()=>{
+ const {ctx,run}=setup();
+ ctx.base={placed:[
+  {name:'LOM',variant:'RAINBOW',source:0,unit:0,station:'PROTOCOL_WORKER_CRAFTING',slot:0,built:true},
+  {name:'LOM',variant:'RAINBOW',source:1,unit:0,station:'PROTOCOL_WORKER_CREDITS',slot:0}
+ ]};
+ // The floating destination deliberately comes before the already occupied one.
+ ctx.target={placed:ctx.base.placed.map((x,i)=>({...x,station:i?'PROTOCOL_WORKER_CRAFTING':'PROTOCOL_ASTROMECH_CRAFTING'})),sell:[],overflow:[]};
+ const steps=replayPlan(ctx,run);
+ assert.equal(steps.length,1);assert.equal(steps[0].from.station,'PROTOCOL_WORKER_CREDITS');
+ assert.equal(steps[0].to.station,'PROTOCOL_ASTROMECH_CRAFTING');
+ assert.equal(ctx.target.placed.find(x=>x.source===0).station,'PROTOCOL_WORKER_CRAFTING');
+ assert.equal(ctx.target.rows.find(x=>x.preferred==='PROTOCOL_WORKER_CRAFTING').built,true);
+});
+
+test('IG arriving in Worker 8 stays there; CYCLENS swaps straight from Worker 2 to Astromech',()=>{
+ const {ctx,caps,run}=setup();Object.assign(caps,{WORKER:8,BATTLE:6,ASTROMECH:1,LOUNGE:0});
+ const names=['PROTO-ROLLER','IG','CYCLENS','R7','IG'];
+ const starts=[['WORKER',7],['BATTLE',5],['WORKER',1],['ASTROMECH',0],['BATTLE',1]];
+ const goals=[['BATTLE',5],['WORKER',1],['ASTROMECH',0],['BATTLE',1],['WORKER',7]];
+ const units=starts.map(([station,slot],source)=>({name:names[source],variant:['STELLAR','BESKAR','BESKAR','STELLAR','BESKAR'][source],source,unit:0,station,slot}));
+ const fixed=[...Array.from({length:8},(_,slot)=>['WORKER',slot]),...Array.from({length:6},(_,slot)=>['BATTLE',slot])]
+  .filter(([station,slot])=>!units.some(x=>x.station===station&&x.slot===slot))
+  .map(([station,slot],i)=>({name:'MOUSE',variant:'DEFAULT',source:10+i,unit:0,station,slot,lockedSlot:true}));
+ ctx.base={placed:[...units,...fixed]};ctx.target={placed:[...units.map((x,i)=>({...x,station:goals[i][0],slot:goals[i][1]})),...fixed],sell:[],overflow:[]};
+ const steps=replayPlan(ctx,run);
+ assert.equal(steps.length,3);assert(steps.every(x=>x.type==='swap'&&x.from.station!==x.withFrom.station));
+ assert(steps.some(x=>x.unit.name==='CYCLENS'&&x.from.station==='WORKER'&&x.from.slot===1&&x.withFrom.station==='ASTROMECH'));
+ assert.equal(ctx.target.placed.find(x=>x.source===1).slot,7);
+});
+
+test('Worker slot-only permutations need no steps, while mission slot choices remain exact',()=>{
+ const {ctx,caps,run}=setup();Object.assign(caps,{WORKER:2,ASTROMECH:3,LOUNGE:0});
+ ctx.base={placed:[{name:'IG',variant:'BESKAR',source:0,unit:0,station:'WORKER',slot:0},{name:'CYCLENS',variant:'BESKAR',source:1,unit:0,station:'WORKER',slot:1}]};
+ ctx.target={placed:ctx.base.placed.map(x=>({...x,slot:1-x.slot})),sell:[],overflow:[]};
+ assert.equal(replayPlan(ctx,run).length,0);
+ ctx.base={placed:ctx.base.placed.map((x,i)=>({...x,station:'ASTROMECH',slot:i*2}))};
+ ctx.target={placed:ctx.base.placed.map(x=>({...x,slot:2-x.slot,missionPriority:true})),sell:[],overflow:[]};
+ assert.equal(replayPlan(ctx,run).length,1);
+ caps.ASTROMECH=4;
+ ctx.base={placed:ctx.base.placed.map((x,i)=>({...x,slot:1+i*2}))};
+ ctx.target={placed:ctx.base.placed.map(x=>({...x,slot:4-x.slot})),sell:[],overflow:[]};
+ assert.equal(replayPlan(ctx,run).length,0,'ordinary Astromech credit slots are interchangeable');
+ ctx.base={placed:ctx.base.placed.map((x,i)=>({...x,slot:i}))};
+ ctx.target={placed:ctx.base.placed.map(x=>({...x,slot:1-x.slot})),sell:[],overflow:[]};
+ assert.equal(replayPlan(ctx,run).length,1,'moving into or out of a mission position is a real change');
+});
+
+test('duplicate matching preserves locks, unfinished builds, manual Keep and copy counts',()=>{
+ const {ctx,run}=setup();
+ for(const protection of [{lockedSlot:true},{keepReason:'manual'},{station:'BUILD',built:false}]){
+  const a={name:'LOM',variant:'RAINBOW',source:0,unit:0,station:'PROTOCOL_WORKER_CRAFTING',slot:0,...protection};
+  const b={name:'LOM',variant:'RAINBOW',source:1,unit:0,station:'PROTOCOL_ASTROMECH_CRAFTING',slot:0};
+  ctx.base={placed:[a,b]};ctx.target={placed:[{...a,station:b.station}],sell:[b],overflow:[]};
+  const result=run('normaliseProjectedForSteps(base,target)');
+  assert.equal(result.placed[0].source,0);assert.equal(result.sell[0].source,1);
+ }
+ ctx.base={placed:[{name:'LOM',variant:'RAINBOW',source:0,unit:0,station:'LOUNGE',slot:0},{name:'LOM',variant:'RAINBOW',source:1,unit:0,station:'PROTOCOL_WORKER_CRAFTING',slot:0}]};
+ ctx.target={placed:[{...ctx.base.placed[0],station:'PROTOCOL_WORKER_CRAFTING',slot:0}],sell:[ctx.base.placed[1]],overflow:[]};
+ const steps=replayPlan(ctx,run);assert.equal(steps.length,1);assert.equal(steps[0].type,'sell');assert.equal(steps[0].unit.source,0);
 });

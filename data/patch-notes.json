@@ -2,6 +2,38 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-14-equivalent-droid-moves",
+      "date": "2026-09-14",
+      "title": "Fewer unnecessary Optimise moves",
+      "summary": "Optimise keeps identical copies already doing the job and stops shuffling droids between equivalent regional slots.",
+      "changes": [
+        "Identical droids at the same quality are matched to their existing jobs first, avoiding replacement moves such as moving one Rainbow LOM out and another into the same Protocol slot.",
+        "Droids can stay in the Worker, Battle, Lounge or ordinary Astromech credit slot they reach. Mission positions, Protocol roles, Build slots and locked positions remain distinct.",
+        "The preview and applied layout follow the shorter walkthrough while preserving the selected jobs and earnings."
+      ]
+    },
+    {
+      "id": "2026-09-14-second-companion-selection",
+      "date": "2026-09-14",
+      "title": "Fixed second Companion selection",
+      "summary": "A preferred Companion already in a locked slot no longer prevents the other slot from getting its selected boost.",
+      "changes": [
+        "Optimise recognises preferred companions already equipped and chooses the strongest eligible spare for the remaining boost slot.",
+        "Unavailable preferred droids no longer waste a free slot. Another selected boost is tried when its requested type has no eligible spare.",
+        "Work, mission and Upgrade Chip assignments, locked droids and unfinished builds remain protected. Companion boosts only choose spare droids."
+      ]
+    },
+    {
+      "id": "2026-09-14-keep-reached-lounge-slot",
+      "date": "2026-09-14",
+      "title": "Keep droids in the Lounge slot they reach",
+      "summary": "Optimise skips unnecessary moves between Lounge slots once a droid is safely stored.",
+      "changes": [
+        "A droid being kept in the Lounge can stay in the free slot it reaches during the walkthrough, instead of moving again to match a guessed slot number.",
+        "The layout preview and Apply optimised layout now use that final Lounge position. Locked slots remain fixed."
+      ]
+    },
+    {
       "id": "2026-09-14-lounge-routing-loop",
       "date": "2026-09-14",
       "title": "Fixed repeated Lounge moves in Optimise",
