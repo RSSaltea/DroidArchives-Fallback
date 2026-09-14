@@ -2503,121 +2503,166 @@
       "rebirth": 12,
       "novaCrystals": 11,
       "creditMultPercent": 22,
-      "xpMultPercent": 110
+      "xpMultPercent": 110,
+      "regularNovaCrystals": 0
     },
     {
       "rebirth": 13,
       "novaCrystals": 16,
       "creditMultPercent": 32,
-      "xpMultPercent": 160
+      "xpMultPercent": 160,
+      "regularNovaCrystals": 0
     },
     {
       "rebirth": 14,
       "novaCrystals": 22,
       "creditMultPercent": 44,
-      "xpMultPercent": 220
+      "xpMultPercent": 220,
+      "regularNovaCrystals": 0
     },
     {
       "rebirth": 15,
       "novaCrystals": 29,
       "creditMultPercent": 58,
-      "xpMultPercent": 290
+      "xpMultPercent": 290,
+      "regularNovaCrystals": 0
     },
     {
       "rebirth": 16,
       "novaCrystals": 37,
       "creditMultPercent": 74,
-      "xpMultPercent": 370
+      "xpMultPercent": 370,
+      "regularNovaCrystals": 0
     },
     {
       "rebirth": 17,
       "novaCrystals": 46,
       "creditMultPercent": 92,
-      "xpMultPercent": 460
+      "xpMultPercent": 460,
+      "regularNovaCrystals": 0
     },
     {
       "rebirth": 18,
       "novaCrystals": 56,
       "creditMultPercent": 112,
-      "xpMultPercent": 560
+      "xpMultPercent": 560,
+      "regularNovaCrystals": 0
     },
     {
       "rebirth": 19,
       "novaCrystals": 67,
       "creditMultPercent": 134,
-      "xpMultPercent": 670
+      "xpMultPercent": 670,
+      "regularNovaCrystals": 0
     },
     {
       "rebirth": 20,
       "novaCrystals": 79,
       "creditMultPercent": 158,
-      "xpMultPercent": 790
+      "xpMultPercent": 790,
+      "regularNovaCrystals": 5
     },
     {
       "rebirth": 21,
       "novaCrystals": 92,
       "creditMultPercent": 184,
-      "xpMultPercent": 920
+      "xpMultPercent": 920,
+      "regularNovaCrystals": 10
     },
     {
       "rebirth": 22,
       "novaCrystals": 106,
       "creditMultPercent": 212,
-      "xpMultPercent": 1060
+      "xpMultPercent": 1060,
+      "regularNovaCrystals": 15
     },
     {
       "rebirth": 23,
       "novaCrystals": 121,
       "creditMultPercent": 242,
       "xpMultPercent": 1210,
-      "critChancePercent": 5
+      "critChancePercent": 5,
+      "regularNovaCrystals": 20
     },
     {
       "rebirth": 24,
       "novaCrystals": 137,
       "creditMultPercent": 274,
       "xpMultPercent": 1370,
-      "critAmountPercent": 10
+      "critAmountPercent": 10,
+      "regularNovaCrystals": 25
     },
     {
       "rebirth": 25,
       "novaCrystals": 154,
       "creditMultPercent": 308,
-      "xpMultPercent": 1540
+      "xpMultPercent": 1540,
+      "regularNovaCrystals": 40
     },
     {
       "rebirth": 26,
       "novaCrystals": 172,
       "creditMultPercent": 344,
       "xpMultPercent": 1720,
-      "critChancePercent": 5
+      "critChancePercent": 5,
+      "regularNovaCrystals": 50
     },
     {
       "rebirth": 27,
       "novaCrystals": 191,
       "creditMultPercent": 382,
       "xpMultPercent": 1910,
-      "critAmountPercent": 10
+      "critAmountPercent": 10,
+      "regularNovaCrystals": 60
     },
     {
       "rebirth": 28,
       "novaCrystals": 211,
       "creditMultPercent": 422,
-      "xpMultPercent": 2110
+      "xpMultPercent": 2110,
+      "regularNovaCrystals": 70
     },
     {
       "rebirth": 29,
       "novaCrystals": 232,
       "creditMultPercent": 464,
       "xpMultPercent": 2320,
-      "critChancePercent": 5
+      "critChancePercent": 5,
+      "regularNovaCrystals": 80
     },
     {
       "rebirth": 30,
       "novaCrystals": 254,
       "creditMultPercent": 508,
       "xpMultPercent": 2540,
-      "critAmountPercent": 10
+      "critAmountPercent": 10,
+      "regularNovaCrystals": 120
+    },
+    {
+      "rebirth": 31,
+      "novaCrystals": 277,
+      "regularNovaCrystals": 140
+    },
+    {
+      "rebirth": 32,
+      "novaCrystals": 301,
+      "regularNovaCrystals": 160
+    },
+    {
+      "rebirth": 33,
+      "novaCrystals": 326,
+      "regularNovaCrystals": 180
+    },
+    {
+      "rebirth": 34,
+      "novaCrystals": 352,
+      "regularNovaCrystals": 200
+    },
+    {
+      "rebirth": 35,
+      "novaCrystals": 379,
+      "regularNovaCrystals": 300
     }
-  ]
+  ],
+  "rebirthRewardsNote": "Rebirth is the completed rank. regularNovaCrystals is paid on reaching that rank; novaCrystals is the separate Super Rebirth payout at that rank. Regular rewards and ranks 31-35 updated from player-provided reward table and in-game screenshots, 14 September 2026."
 }

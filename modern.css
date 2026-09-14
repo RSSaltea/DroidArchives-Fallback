@@ -398,3 +398,6 @@ html[data-ui-style="modern"] .modern-optimise-settings>.modern-super-rebirth{gri
 html[data-ui-style="modern"] .modern-optimise-settings>.modern-sell-priority{grid-column:1/-1;border-top:1px solid var(--line);border-right:0}
 @media(max-width:1180px){html[data-ui-style="modern"] .modern-optimise-settings{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:820px){html[data-ui-style="modern"] .modern-optimise-settings{grid-template-columns:minmax(0,1fr)}}
+
+/* Paint the Fusion background once, rather than restarting it at Build. */
+html[data-ui-style="modern"] .fusion-panel{background:linear-gradient(145deg,#121b28,#0e1621)}

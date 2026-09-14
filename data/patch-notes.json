@@ -2,6 +2,29 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-14-crate-mini-event",
+      "date": "2026-09-14",
+      "title": "DJ and Crate Mini Event timer",
+      "summary": "The existing DJ timer now also tracks the Mega Crate Mini Event.",
+      "changes": [
+        "The shared timer shows whichever mini event starts next, or keeps counting down an active event until it ends.",
+        "Added the two weekly three-hour Mega Crate windows: Thursday 14:00 UTC and Friday 00:00 UTC (15:00 Thursday and 01:00 Friday in September UK time).",
+        "The website changes the timer name, artwork and colour for the selected event. The companion shows the same event and uses the existing DJ alert settings for both."
+      ]
+    },
+    {
+      "id": "2026-09-14-nova-rebirth-rewards",
+      "date": "2026-09-14",
+      "title": "Nova rewards from regular rebirths",
+      "summary": "Track regular Nova rewards and Super Rebirth payouts through rebirth 35.",
+      "changes": [
+        "Added regular Nova rewards to Rebirth Outlook, Base and the Rebirth guide, with Super Rebirth payouts labelled separately.",
+        "Extended Nova rewards and the Nova Shop planner through rebirth 35.",
+        "Added regular rewards, running totals, Super Rebirth payouts and combined totals to the Nova Shop reference table.",
+        "The Nova planner now counts regular Nova earned during a full run as well as the final Super Rebirth payout. Reaching rebirth 35 earns 1,475 regular Nova plus 379 on Super Rebirth, for 1,854 total."
+      ]
+    },
+    {
       "id": "2026-09-14-fusion-reserves-and-optimise-fixes",
       "date": "2026-09-14",
       "title": "Fusion reserves and Optimise fixes",

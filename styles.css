@@ -89,6 +89,10 @@ h2{font-size:22px;border-bottom:1px solid var(--line);padding-bottom:9px;margin-
 .spawn-dj strong{background:linear-gradient(90deg,#ff7ad9,#ffd166,#7de2ff);-webkit-background-clip:text;background-clip:text;color:transparent}
 .spawn-dj[data-timer-active="1"]{border-color:#ff5ec8;box-shadow:0 0 0 1px #ff5ec8aa,0 6px 18px #ff5ec833}
 .spawn-dj[data-timer-active="1"] small{color:#ff9fdd;font-weight:800}
+.spawn-dj[data-mini-event="crate"]{border-color:#bf922c;background:linear-gradient(135deg,#29200b,#382b11 58%,#21190a)}
+.spawn-dj[data-mini-event="crate"] strong{background:none;color:#ffd45a}
+.spawn-dj[data-mini-event="crate"][data-timer-active="1"]{border-color:#ffd45a;box-shadow:0 0 0 1px #ffd45aaa,0 6px 18px #ffd45a33}
+.spawn-dj[data-mini-event="crate"][data-timer-active="1"] small{color:#ffd45a}
 .spawn-rainbow{border-color:#26647a;background:linear-gradient(135deg,#111a2b,#151827 58%,#271830)}
 .spawn-rainbow strong{background:linear-gradient(90deg,#ff7a40,#ffe15b,#62e77d,#54d9ff,#d27cff);-webkit-background-clip:text;background-clip:text;color:transparent}
 .spawn-galactic{border-color:#7f47ff;background:radial-gradient(circle at 18% 22%,#cbb7ff33,transparent 18%),radial-gradient(circle at 74% 34%,#ff7cff24,transparent 16%),linear-gradient(135deg,#11142b,#201242 58%,#34175d)}
@@ -878,6 +882,13 @@ html.in-companion .site-header .discord-button{flex:0 0 auto}
    Super Rebirth call can be made without leaving the page. */
 .rebirth-group-rewards{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .rebirth-reward{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rebirth-nova-reward{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px;padding:5px 8px;border:1px solid var(--line);border-radius:5px;font-size:11px;color:var(--muted)}
+.rebirth-nova-reward.regular{border-color:#8e71d766}
+.outlook-next-rewards{margin:9px 0}
+.nova-rebirth-rewards p{max-width:100ch;line-height:1.5;color:var(--muted)}
+.nova-reward-table{min-width:720px}
+.nova-reward-table th{white-space:normal}
+.nova-srb-levels article small{display:block;color:var(--muted);font-size:11px}
 .nova-amount{display:inline-flex;align-items:center;gap:5px;font:800 12px/1 Inter,system-ui,sans-serif;color:#b9a6ff;white-space:nowrap}
 .nova-amount img{width:15px;height:15px;object-fit:contain}
 .rebirth-reward-mult{font:800 11px/1 Inter,system-ui,sans-serif;color:#ffd45a;white-space:nowrap}
@@ -981,7 +992,7 @@ body.has-rebirth-quick-bar #app{padding-bottom:74px}
 
 /* One Fusion panel, with the result slots separated below the input slots. */
 .fusion-panel{min-width:0;align-self:start;border:1px solid var(--line);border-radius:8px;background:var(--panel);overflow:hidden}
-.fusion-panel>.station{border:0!important;border-radius:0!important;margin:0!important;box-shadow:none!important}
+.fusion-panel>.station{background:transparent!important;border:0!important;border-radius:0!important;margin:0!important;box-shadow:none!important}
 .fusion-panel>.station+.station{border-top:0!important}
 .fusion-build-divider{margin:0 10px;padding:5px 8px}
 
