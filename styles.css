@@ -982,4 +982,5 @@ body.has-rebirth-quick-bar #app{padding-bottom:74px}
 /* One Fusion panel, with the result slots separated below the input slots. */
 .fusion-panel{min-width:0;align-self:start;border:1px solid var(--line);border-radius:8px;background:var(--panel);overflow:hidden}
 .fusion-panel>.station{border:0!important;border-radius:0!important;margin:0!important;box-shadow:none!important}
-.fusion-panel>.station+.station{border-top:1px solid var(--line)!important}
+.fusion-panel>.station+.station{border-top:0!important}
+.fusion-build-divider{margin:0 10px;padding:5px 8px}

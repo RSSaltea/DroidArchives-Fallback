@@ -17,7 +17,7 @@ const server=http.createServer((req,res)=>{
  const context=await browser.newContext(),page=await context.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  await page.route('https://**/*',r=>r.abort());
- await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.testPlan={state,save,validateBaseImport,placements,optimiseBase,incomeForPlaced,optimisedPlacements,safeOptimiseStepPlan,isBuilding,keepForFusion,baseExport,profileDataFromState,optimiseFusionChain,applyProfileData,blankProfileData,normalizeProfileDoc,stationSlotIndices,slotFillOrder};'}));
+ await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.testPlan={state,save,validateBaseImport,placements,optimiseBase,incomeForPlaced,optimisedPlacements,safeOptimiseStepPlan,isBuilding,keepForFusion,baseExport,profileDataFromState,optimiseFusionChain,applyProfileData,blankProfileData,normalizeProfileDoc,stationSlotIndices,slotFillOrder,withFusionSteps,fusionRebirthProtectedKeys};'}));
  await page.addInitScript(notes=>localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(notes)),JSON.parse(fs.readFileSync(path.join(root,'data/patch-notes.json'),'utf8')).notes.map(n=>n.id));
  await page.goto(`http://127.0.0.1:${server.address().port}`);
  await page.waitForFunction(()=>window.testPlan?.state.droids.length);
@@ -96,7 +96,7 @@ const server=http.createServer((req,res)=>{
    Object.assign(unit,{station:step.to.station,slot:step.to.slot});
   }
   for(const goal of target.placed)if(spot(current.get(key(goal)))!==spot(goal))failures.push('unfinished layout');
-  return {failures,steps:steps.length,first:steps[0]};
+  return {failures,steps:steps.length,first:steps.find(x=>x.type!=='sell')};
  },JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures',fixture),'utf8')));
  assert.deepEqual(routing.failures,[]);assert(routing.steps>0);
  if(fixture==='three-free-lounge.json'){assert.equal(routing.first.type,'move');assert.equal(routing.first.to.station,'LOUNGE');}
@@ -104,7 +104,7 @@ const server=http.createServer((req,res)=>{
  }
  await page.evaluate(profile=>Object.assign(window.testPlan.state,window.testPlan.validateBaseImport(profile)),profile);
  const reserved=await page.evaluate(()=>{
-  const d=window.testPlan;d.state.companionGoals=['pickaxe'];d.state.preferredCompanions=[];d.state.optimiseKeepDroidex=false;
+  const d=window.testPlan;d.state.rebirth=35;d.state.companionGoals=['pickaxe'];d.state.preferredCompanions=[];d.state.optimiseKeepDroidex=false;
   d.state.fusionKeepRules=[{rarity:'LEGENDARY',variant:'BESKAR'},{rarity:'MYTHIC',variant:'DIAMOND'}];
   const matches=[['MECHA-DROID','BESKAR'],['MECHA-DROID','DIAMOND'],['RIC','DIAMOND'],['RIC','GOLD']].map(([name,variant])=>d.keepForFusion({name,variant}));
   d.state.owned=[{name:'MECHA-DROID',variant:'BESKAR',qty:1,preferred:'LOUNGE',preferredSlot:0,built:true}];
@@ -145,6 +145,27 @@ const server=http.createServer((req,res)=>{
  await page.locator('[data-remove-fusion-rule]').first().click();await page.click('#closeFusionKeepRules');
  assert.equal(await page.evaluate(()=>window.testPlan.state.fusionKeepRules.length),1);
  console.log('PASS: incomplete fusion batch is kept; rarity/quality thresholds, profile persistence, export/import and rule controls work.');
+ const rebirthProtection=await page.evaluate(()=>{
+  const d=window.testPlan;d.state.rebirth=20;d.state.superRebirthGoal=35;
+  d.state.rebirths[d.state.cycle]=[{to:21,requiredDroids:[{droidName:'MECHA-DROID',variant:'GALACTIC'}]}];
+  d.state.fusionKeepRules=[{rarity:'LEGENDARY',variant:'BESKAR'}];d.state.optimiseFreeBuild=false;
+  d.state.owned=[{name:'MECHA-DROID',variant:'BESKAR',qty:3,preferred:'LOUNGE',built:true}];
+  let base=d.placements(),projected=d.optimisedPlacements(base,{assignments:[]});
+  const protectedKey=[...d.fusionRebirthProtectedKeys()][0];
+  const candidate=projected.placed.find(x=>`${x.source}:${x.unit}`===protectedKey);
+  // Even a stale preview labelling all three as spares must not consume the keeper.
+  const stale={placed:base.placed.map(x=>({...x,keepReason:'fusion'})),sell:[],overflow:[]};
+  const incomplete=d.optimiseFusionChain(stale,base);
+  d.state.owned[0].qty=4;base=d.placements();const ready={placed:base.placed.map(x=>({...x,keepReason:'fusion'})),sell:[],overflow:[]};
+  const steps=d.withFusionSteps([],ready,base),consumed=steps.filter(s=>s.type==='fuse-in'||s.type==='fuse-held').map(s=>`${s.unit.source}:${s.unit.unit}`);
+  d.state.owned.push({name:'MECHA-DROID',variant:'GALACTIC',qty:1,preferred:'BUILD',built:false});
+  const strongest=[...d.fusionRebirthProtectedKeys()];
+  return {reason:candidate?.keepReason,incomplete:incomplete.length,protectedKey,consumed,strongest};
+ });
+ assert.equal(rebirthProtection.reason,'rebirth');assert.equal(rebirthProtection.incomplete,0);
+ assert.equal(rebirthProtection.consumed.length,3);assert(!rebirthProtection.consumed.includes(rebirthProtection.protectedKey));
+ assert.deepEqual(rebirthProtection.strongest,['1:0']);
+ console.log('PASS: rebirth upgrade candidate survives fusion rules and stale previews; only surplus copies are fused.');
  assert.deepEqual(errors,[]);
  console.log('PASS: reported full-Lounge profile completes four legal swaps and applies without losing droids.');
  }finally{await browser.close();server.close();}

@@ -91,7 +91,7 @@ console.log('=== spare Protocol droids can be fused, judged by the bonus they gi
   for(const k of ['function fusionCountFrom(','function fusionBestVariant(','function fusionQualitySteps(','function fusionRaritySteps(',
     'function typicalIncomeFor(','function fusionSpendFrom(','function fusionBestFrom(','function fusionChainFromSpares(',
     'function droidexEntry(','function optimiseFusionChain(','function withFusionSteps(']) vm.runInContext(grab(k),sb);
-  vm.runInContext("function capacity(){return 1};function soldInsteadOfFusion(){return []};function slotLabel(x){return x.station+' '+(x.slot+1)}",sb);
+  vm.runInContext("function fusionRebirthProtectedKeys(){return new Set()};function capacity(){return 1};function soldInsteadOfFusion(){return []};function slotLabel(x){return x.station+' '+(x.slot+1)}",sb);
   const everySquare=[];for(const d of droids)for(const v of VARIANTS)everySquare.push({name:d.name,variant:v});
   const slotted=(name,variant)=>Object.keys(vm.runInContext('PROTOCOL_SLOTS',sb)).map((station,i)=>({name,variant,station,slot:0,source:100+i,unit:0}));
   const spares=['DIAMOND','DIAMOND','DIAMOND'].map((variant,i)=>({name:'SA-5',variant,station:'LOUNGE',slot:i,source:i,unit:0,keepReason:'protocol'}));
