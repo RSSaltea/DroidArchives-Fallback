@@ -10,16 +10,16 @@ function fn(name){
   const tail=src.slice(start),end=tail.slice(1).search(/\n(?:function |const |let |async function |\/\/)/);
   return end<0?tail:tail.slice(0,end+1);
 }
-function setup({units,assignments=[],keep=[],rules=[],gaps=[],lounge=3,freeBuild=false}={}){
+function setup({units,assignments=[],keep=[],rules=[],gaps=[],lounge=3,freeBuild=false,roles={},astromechSlots=0}={}){
   units??=[{name:'SA-5',variant:'DEFAULT',station:'LOUNGE',slot:0}];
   units=units.map((u,source)=>({...u,source,unit:0}));
-  const state={droids,owned:units,fusionKeepRules:rules,optimiseKeepDroidex:true,optimiseFreeBuild:freeBuild};
-  const caps={WORKER:1,ASTROMECH:0,BATTLE:0,PROTOCOL_WORKER_CREDITS:1,PROTOCOL_WORKER_CRAFTING:1,BUILD:1,FUSION_BUILD:1,LOUNGE:lounge,COMPANION:0,UPGRADE_CHIP:0};
+  const state={droids,owned:units,astromechIconicRoles:roles,fusionKeepRules:rules,optimiseKeepDroidex:true,optimiseFreeBuild:freeBuild};
+  const caps={WORKER:1,ASTROMECH:astromechSlots,BATTLE:0,PROTOCOL_WORKER_CREDITS:1,PROTOCOL_WORKER_CRAFTING:1,BUILD:1,FUSION_BUILD:1,LOUNGE:lounge,COMPANION:0,UPGRADE_CHIP:0};
   const indices=station=>Array.from({length:caps[station]||0},(_,i)=>i);
   const ctx=vm.createContext({state,baseP:{placed:units.filter(u=>u.station)},plan:{assignments},
     VARIANTS:['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR'],
     RARITY_LADDER:['COMMON','RARE','EPIC','LEGENDARY','MYTHIC'],SLOT_RULES:caps,
-    PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],ASTROMECH_MISSION_SLOTS:[],
+    PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],ASTROMECH_MISSION_SLOTS:[0],
     expandedOwned:()=>units,stationSlotIndices:indices,slotFillOrder:indices,
     isIconic:d=>d?.rarity==='ICONIC'||d?.special?.onlyDefaultVariant,
     isBuilding:u=>['BUILD','FUSION_BUILD'].includes(u.station)&&!u.built,
@@ -31,7 +31,7 @@ function setup({units,assignments=[],keep=[],rules=[],gaps=[],lounge=3,freeBuild
     optimiseFreeBuildModeLabel:()=>'Upgrade cost',
     stabiliseProjectedPlacements:(_,placed)=>placed,optimisedRows:(placed,overflow)=>[...placed,...overflow]
   });
-  for(const name of ['normaliseFusionKeepRules','keepForFusion','optimisedPlacements'])vm.runInContext(fn(name),ctx);
+  for(const name of ['normaliseAstromechIconicRoles','astromechIconicRole','normaliseFusionKeepRules','keepForFusion','optimisedPlacements'])vm.runInContext(fn(name),ctx);
   return vm.runInContext('optimisedPlacements(baseP,plan)',ctx);
 }
 test('unused Protocol copies are sold from Lounge, obsolete Protocol slots and overflow',()=>{
@@ -71,4 +71,13 @@ test('locked, unfinished and Iconic Protocol droids are not sold',()=>{
     const result=setup({units:[{variant:'DEFAULT',slot:0,...unit}]});
     assert.equal(result.sell.length,0);assert.equal(result.placed.length,1);
   }
+});
+
+test('spare placement does not reclaim a Credit Gain Iconic for missions',()=>{
+  const units=[{name:'R2-D2',variant:'DEFAULT',station:'LOUNGE',slot:0}];
+  const mission=setup({units,astromechSlots:1});
+  assert.equal(mission.placed[0].station,'ASTROMECH');assert.match(mission.placed[0].keepDetail,/Mission slot/);
+  const credits=setup({units,astromechSlots:1,roles:{'R2-D2':'credits'}});
+  assert.equal(credits.placed[0].station,'LOUNGE');assert.doesNotMatch(credits.placed[0].keepDetail||'',/Mission slot/);
+  assert.equal(credits.sell.length,0);
 });

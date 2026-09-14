@@ -1004,3 +1004,13 @@ body.has-rebirth-quick-bar #app{padding-bottom:74px}
 /* Lounge destinations stand apart from work, swap and fusion instructions. */
 .verb-lounge{color:#79d4f5}
 :root:not([data-theme="dark"]) .verb-lounge{color:#096381}
+
+/* Astromech mission positions stay identifiable with or without an occupant. */
+.base-slot .mission-slot-badge{display:block;width:fit-content;max-width:100%;margin:5px auto 0;padding:2px 6px;border:1px solid #387d91;border-radius:4px;background:#132e39;color:#91deef;font-size:9px;font-weight:700;line-height:1.4;letter-spacing:.03em}
+.astromech-role-list{display:grid;gap:10px;margin:20px 0}
+.astromech-role-row{display:grid;grid-template-columns:42px minmax(0,1fr) 140px;gap:12px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:6px}
+.astromech-role-row img{width:40px;height:44px;object-fit:contain}
+.astromech-role-row strong,.astromech-role-row small{display:block}
+.astromech-role-row small{margin-top:4px;color:var(--muted);font-size:11px}
+.astromech-role-row .form-control{width:100%;margin:0}
+@media(max-width:480px){.astromech-role-row{grid-template-columns:32px minmax(0,1fr);gap:8px}.astromech-role-row img{width:30px}.astromech-role-row select{grid-column:1/-1}}

@@ -197,3 +197,29 @@ test('independent region exchanges batch through Lounge in three visits',()=>{
  }
  assert.deepEqual(current,ctx.target.placed);
 });
+
+
+test('Astromech Iconics use individual Mission or Credit Gain preferences',()=>{
+ const {state,ctx,run}=setup();
+ state.owned=['R2-D2','CB-23','BB-8','CHOPPER'].map(name=>({name,variant:'DEFAULT'}));
+ state.astromechIconicRoles={'R2-D2':'credits','BB-8':'credits'};
+ // Observe the reservation layer independently of the earning solver.
+ run('optimiseUnreservedBase=(p)=>({assignments:[],fixed:p.placed})');
+ ctx.p={placed:[]};
+ const result=run('optimiseBase(p,0)');
+ assert.deepEqual(Array.from(result.assignments,x=>x.name),['CB-23']);
+ assert(result.assignments.every(x=>x.missionPriority));
+ state.astromechIconicRoles=Object.fromEntries(state.owned.map(x=>[x.name,'credits']));
+ assert.equal(run('optimiseBase(p,0)').assignments.length,0);
+ state.astromechIconicRoles={};
+ assert.equal(run('optimiseBase(p,0)').assignments[0].name,'R2-D2');
+});
+test('Astromech role validation defaults invalid and missing preferences to Mission',()=>{
+ const {state,run}=setup();
+ for(const value of [null,[],5,'credits',{'R2-D2':'invalid'}]){
+  state.astromechIconicRoles=value;assert.equal(run("astromechIconicRole('R2-D2')"),'mission');
+ }
+ state.astromechIconicRoles={'R2-D2':'credits','CB-23':'mission'};
+ assert.equal(run("astromechIconicRole('R2-D2')"),'credits');
+ assert.equal(run("astromechIconicRole('CB-23')"),'mission');
+});

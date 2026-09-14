@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-14-astromech-settings",
+      "date": "2026-09-14",
+      "title": "Choose each Astromech Iconic’s role",
+      "summary": "Choose Mission or Credit Gain for each Astromech Iconic in Advanced Settings.",
+      "changes": [
+        "Mission remains the default. Credit Gain removes the mission reservation so Optimise can choose the best earning placement for that Iconic.",
+        "Choices save with each profile, including cloud sync and Base imports/exports. Locked slots still take priority.",
+        "Base now labels all five Astromech mission positions, including empty and locked slots."
+      ]
+    },
+    {
       "id": "2026-09-14-protocol-sales",
       "date": "2026-09-14",
       "title": "Sell unused Protocol droids",
