@@ -178,3 +178,22 @@ test('C-3PO gives +40/s only to his regional Build and wins crafting priority',(
  const result=run(`optimiseBase({placed:[]},0)`);
  assert(result.assignments.find(x=>x.name==='C-3PO').station.endsWith('_CRAFTING'));
 });
+
+test('independent region exchanges batch through Lounge in three visits',()=>{
+ const {state,caps,ctx,run}=setup();Object.assign(caps,{WORKER:3,BATTLE:3,ASTROMECH:0,LOUNGE:3});
+ state.droids.push({name:'TEST WORKER',type:'WORKER'},{name:'TEST BATTLE',type:'BATTLE'});
+ const base=Array.from({length:6},(_,i)=>({name:i<3?'TEST WORKER':'TEST BATTLE',variant:'DEFAULT',source:i,unit:0,station:i<3?'BATTLE':'WORKER',slot:i%3}));
+ ctx.base={placed:base};ctx.target={placed:base.map(x=>({...x,station:x.station==='WORKER'?'BATTLE':'WORKER'})),sell:[]};
+ const steps=run('protocolStepPlan(base,target,false)'),baseline=run('protocolStepPlan(base,target,false,false)');
+ const visits=xs=>xs.filter((x,i)=>!i||x.at!==xs[i-1].at).length;
+ assert(!steps.some(x=>x.type==='note'||x.type==='swap'));assert.equal(visits(steps),3);assert(visits(steps)<visits(baseline));
+ const current=structuredClone(base);
+ for(const step of steps){
+  const unit=current[step.unit.source];assert.equal(unit.station,step.from.station);assert.equal(unit.slot,step.from.slot);
+  assert(!current.some(x=>x.station===step.to.station&&x.slot===step.to.slot));
+  if(step.workCommand){const native=state.droids.find(x=>x.name===unit.name).type;assert.equal(step.to.station,native);}
+  Object.assign(unit,{station:step.to.station,slot:step.to.slot});
+  assert(current.filter(x=>x.station==='LOUNGE').length<=3);
+ }
+ assert.deepEqual(current,ctx.target.placed);
+});

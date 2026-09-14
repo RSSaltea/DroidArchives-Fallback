@@ -354,7 +354,7 @@ function plannedWorkLanding(unit,placed){
   if(open.length)return{...open[0],assumed:open.length>1};
   const slot=first('UPGRADE_CHIP');return slot===undefined?null:{station:'UPGRADE_CHIP',slot,assumed:false};
 }
-function protocolStepPlan(baseP,projected,includeFusion=true){
+function protocolStepPlan(baseP,projected,includeFusion=true,batch=true){
   const keyOf=x=>`${x.source}:${x.unit}`,current=new Map(baseP.placed.map(x=>[keyOf(x),{...x}])),goals=new Map(projected.placed.map(x=>[keyOf(x),x])),steps=[],stagedWork=new Set();
   // Sell in station order, so each place you visit is one stop rather than a
   // zigzag between the Lounge and the stations.
@@ -373,17 +373,21 @@ function protocolStepPlan(baseP,projected,includeFusion=true){
   // Each cycle needs at most one extra Lounge move per droid.
   for(let pass=0;pass<goals.size*6+1;pass++){
     const pending=[...goals].filter(([key,goal])=>!done(current.get(key),goal));if(!pending.length)break;
+    const here=steps.at(-1)?.from?.station;
     const transfers=pending.filter(([key])=>movable(current.get(key)));
+    if(batch)transfers.sort(([a],[b])=>Number(current.get(b)?.station===here)-Number(current.get(a)?.station===here));
     const reservedBuild=x=>x&&['BUILD','FUSION_BUILD'].includes(x.station)&&[...goals.values()].some(g=>done(g,x));
     // First finish any transfer that needs no swap. In particular, let Lounge
     // residents leave before deciding that storage is full.
     const free=transfers.find(([key,goal])=>!['BUILD','FUSION_BUILD'].includes(goal.station)&&!reservedBuild(current.get(key))&&destinationOpen(goal)&&(!(PRODUCTIVE_STATIONS.includes(goal.station)||goal.station==='UPGRADE_CHIP')||done(plannedWorkLanding(current.get(key)||goal,[...current.values()]),goal)));
-    if(free){const landing=PRODUCTIVE_STATIONS.includes(free[1].station)||free[1].station==='UPGRADE_CHIP'?plannedWorkLanding(current.get(free[0])||free[1],[...current.values()]):free[1];move(free[0],free[1],landing);continue;}
+
     const blocked=transfers.map(([key,goal])=>({key,goal,occupant:[...current].find(([other,x])=>other!==key&&done(x,goal))})).filter(x=>x.occupant&&movable(x.occupant[1]));
     // Break an occupied cycle through the Lounge before considering a swap.
     const stageOptions=blocked.filter(x=>!reservedBuild(x.occupant[1])&&!['BUILD','FUSION_BUILD'].includes(x.goal.station));
+    if(batch)stageOptions.sort((a,b)=>Number(b.occupant[1].station===here)-Number(a.occupant[1].station===here));
     let parked=false;
     for(const staged of stageOptions){
+      if(free&&(!batch||current.get(free[0])?.station===here||staged.occupant[1].station!==here))continue;
       const [key,unit]=staged.occupant;
       const buffer=slotFillOrder('LOUNGE',unit).map(slot=>({station:'LOUNGE',slot})).find(destinationOpen);
       if(!buffer)continue;
@@ -391,6 +395,7 @@ function protocolStepPlan(baseP,projected,includeFusion=true){
       if(!(PRODUCTIVE_STATIONS.includes(goal.station)||goal.station==='UPGRADE_CHIP')||done(plannedWorkLanding(current.get(staged.key)||goal,after),goal)){move(key,unit,buffer,true);parked=true;break;}
     }
     if(parked)continue;
+    if(free){const landing=PRODUCTIVE_STATIONS.includes(free[1].station)||free[1].station==='UPGRADE_CHIP'?plannedWorkLanding(current.get(free[0])||free[1],[...current.values()]):free[1];move(free[0],free[1],landing);continue;}
     // Fill a required empty work slot with a reachable droid, then swap. Work
     // always chooses its own type first; an empty target alone is not a move.
     const filler=transfers.map(([key,goal])=>({key,goal,from:current.get(key),landing:plannedWorkLanding(current.get(key)||goal,[...current.values()])})).find(x=>x.landing&&!reservedBuild(x.from)&&!stagedWork.has(`${x.key}:${x.landing.station}:${x.landing.slot}`)&&transfers.some(([key,goal])=>key!==x.key&&done(goal,x.landing)));
@@ -409,6 +414,7 @@ function protocolStepPlan(baseP,projected,includeFusion=true){
     }
     steps.push({type:'note',text:'Work cannot reach the remaining destinations from this layout. Fill the required region with a matching droid or free a compatible swap, update Base, then regenerate. Do not send a droid to a different region while its own region has space.'});break;
   }
+  if([...goals].some(([key,goal])=>!done(current.get(key),goal))&&!steps.some(x=>x.type==='note'))steps.push({type:'note',text:'The remaining transfers need a fresh plan. Update Base to match your current positions, then regenerate.'});
   // The walkthrough is grouped into stops by where each step happens, the way the
   // ordinary planner groups its own. These steps carried no stop at all, so every
   // one of them landed under a heading reading "undefined". A note belongs to the
@@ -418,6 +424,12 @@ function protocolStepPlan(baseP,projected,includeFusion=true){
     const where=step.at||step.from?.station||(step.type==='note'?last:null)||'ROSTER';
     if(where!==last){visit++;last=where}
     step.at=where;step.visit=`protocol-${visit}`;
+  }
+  if(batch){
+    const baseline=protocolStepPlan(baseP,projected,false,false);
+    const stops=plan=>plan.reduce((n,s,i)=>n+(i===0||s.at!==plan[i-1].at?1:0),0);
+    const complete=plan=>!plan.some(s=>s.type==='note');
+    if(complete(baseline)&&(!complete(steps)||stops(baseline)<stops(steps)))return includeFusion?withFusionSteps(baseline,projected,baseP):baseline;
   }
   return includeFusion?withFusionSteps(steps,projected,baseP):steps;
 }
@@ -2454,7 +2466,8 @@ function stepHtml(step,index){
   const assumed=step.assumed?'<em class="step-assumed" title="More than one credit station was open, so which slot it takes depends on your base layout. Check this one.">check where it lands</em>':'';
   // A step for the Fusion room gets its own colour, so sending a droid to be fused
   // never reads like sending it to storage.
-  const tone=FUSION_STEP_TYPES.includes(step.type)?'fusion':STEP_VERB_TONE[String(step.text||'').split(' ')[0]];
+  const toLounge=step.type==='move'&&(step.to==='LOUNGE'||step.to?.station==='LOUNGE');
+  const tone=FUSION_STEP_TYPES.includes(step.type)?'fusion':toLounge?'lounge':STEP_VERB_TONE[String(step.text||'').split(' ')[0]];
   const text=tone?String(step.text).replace(/^(\S+)/,`<b class="step-verb verb-${tone}">$1</b>`):step.text;
   const ticked=stepTicked(step.text);
   const tick=step.type==='note'?'':`<label class="step-tick" title="Mark this step as done"><input type="checkbox" data-step-tick="${escapeAttr(step.text)}" ${ticked?'checked':''}><span></span></label>`;
@@ -2469,7 +2482,7 @@ function stepHtml(step,index){
   const record=(step.kind==='work'||step.to==='LOUNGE')&&!state.sharedView&&slotLogTracking()&&slotLabAllowed()&&free.length
     ?`<label class="step-record"><small>Landed in?</small><select data-log-step="${escapeAttr(step.text)}"><option value="">${free.length} it could take…</option>${options}</select></label>`
     :'';
-  return `${tick}<span class="step-thumb">${d?picture(d,step.unit.variant):''}</span><span class="step-text">${text}${assumed}</span>${record}${skip}${step.type==='sell'&&step.unit?`<button class="step-skip" data-reserve-fusion="${step.unit.source}:${step.unit.unit}" title="Keep all copies of this droid and quality for future fusion">Keep for fusion</button>`:''}${['fuse-in','fuse-held','fuse-deferred'].includes(step.type)&&step.unit?`<button class="step-skip" data-sell-instead="${step.unit.source}:${step.unit.unit}" title="${step.protocolSpare?'Keep this reserved droid instead and recalculate the fusions':'Sell this droid instead and recalculate the fusions'}">${step.protocolSpare?'Keep':'Sell'}</button>`:''}`;
+  return `${tick}<span class="step-thumb">${d?picture(d,step.unit.variant):''}</span><span class="step-text${toLounge?' step-to-lounge':''}">${text}${assumed}</span>${record}${skip}${step.type==='sell'&&step.unit?`<button class="step-skip" data-reserve-fusion="${step.unit.source}:${step.unit.unit}" title="Keep all copies of this droid and quality for future fusion">Keep for fusion</button>`:''}${['fuse-in','fuse-held','fuse-deferred'].includes(step.type)&&step.unit?`<button class="step-skip" data-sell-instead="${step.unit.source}:${step.unit.unit}" title="${step.protocolSpare?'Keep this reserved droid instead and recalculate the fusions':'Sell this droid instead and recalculate the fusions'}">${step.protocolSpare?'Keep':'Sell'}</button>`:''}`;
 }
 function normaliseProjectedForSteps(baseP,projected){const keyOf=x=>`${x.source}:${x.unit}`,groupOf=x=>`${x.name}:${x.variant}`,cloneRows=rows=>rows.map(x=>({...x})),placed=cloneRows(projected.placed),sell=cloneRows(projected.sell),overflow=cloneRows(projected.overflow);for(const group of [...new Set([...placed,...sell].map(groupOf))]){const current=baseP.placed.filter(x=>groupOf(x)===group),targets=placed.filter(x=>groupOf(x)===group),sells=sell.filter(x=>groupOf(x)===group);if(current.length<2||!sells.length)continue;const used=new Set(),take=picker=>{const row=current.find(x=>!used.has(keyOf(x))&&picker(x));if(row)used.add(keyOf(row));return row};for(const target of targets){const exact=take(x=>x.station===target.station&&x.slot===target.slot),sameStation=exact||take(x=>x.station===target.station),any=sameStation||take(()=>true);if(any){target.source=any.source;target.unit=any.unit}}for(const sold of sells){const any=take(()=>true);if(any){sold.source=any.source;sold.unit=any.unit}}}return{...projected,placed,sell,overflow}}
 

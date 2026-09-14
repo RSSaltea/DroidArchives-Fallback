@@ -21,7 +21,8 @@
         "Fixed fusion rules overriding rebirth needs. Optimise protects the best owned copy of each droid needed before your rebirth goal, including copies that still need upgrading, and only uses surplus copies as fusion ingredients.",
         "Fixed Keep for fusion rules being bypassed by the Keep Build slots open sell pass when a matching droid was also needed for rebirth. Matching copies are kept even when storage is full.",
         "Added C-3PO’s 3× regional Protocol credit bonus. Optimise compares that against his work-slot bonus and keeps the higher-earning arrangement.",
-        "Added C-3PO’s +40/s regional Build Protocol crafting bonus for crafting calculations and Optimise."
+        "Added C-3PO’s +40/s regional Build Protocol crafting bonus for crafting calculations and Optimise.",
+        "Reduced repeated trips in Optimise by batching valid Lounge transfers and work commands at the current station, with capacity and automatic routing checked after every move."
       ]
     },
     {
