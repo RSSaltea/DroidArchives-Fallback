@@ -16,7 +16,8 @@
         "Added a retry and default-portrait fallback when a droid image fails to load.",
         "Tidied Advanced settings so the fusion rules button stays compact and the controls fit on smaller screens.",
         "Fixed saved fusion rules being cleared when a profile is loaded, including when restoring it in another tab.",
-        "Fixed cross-region Work instructions ignoring free slots in a droid’s own region. Plans now fill reachable slots and use swaps before requesting cross-region moves."
+        "Fixed cross-region Work instructions ignoring free slots in a droid’s own region. Plans now fill reachable slots and use swaps before requesting cross-region moves.",
+        "Fixed the move planner checking only one Lounge transfer before choosing swaps. It now checks all candidates and explains routing restrictions separately from a full Lounge."
       ]
     },
     {

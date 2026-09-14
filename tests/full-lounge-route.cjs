@@ -76,6 +76,7 @@ const server=http.createServer((req,res)=>{
   assert(!scenario.steps.some(x=>x.type==='note'),JSON.stringify(scenario.steps));
  }
  console.log('PASS: all four Astromech Iconics keep mission slots through both optimisers and both priorities.');
+ for(const fixture of ['worker-routing.json','three-free-lounge.json']){
  const routing=await page.evaluate(profile=>{
   const d=window.testPlan;Object.assign(d.state,d.validateBaseImport(profile));
   const base=d.placements(),target=d.optimisedPlacements(base,d.optimiseBase(base,d.incomeForPlaced(base.placed))),steps=d.safeOptimiseStepPlan(base,target);
@@ -95,10 +96,12 @@ const server=http.createServer((req,res)=>{
    Object.assign(unit,{station:step.to.station,slot:step.to.slot});
   }
   for(const goal of target.placed)if(spot(current.get(key(goal)))!==spot(goal))failures.push('unfinished layout');
-  return {failures,steps:steps.length};
- },JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/worker-routing.json'),'utf8')));
+  return {failures,steps:steps.length,first:steps[0]};
+ },JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures',fixture),'utf8')));
  assert.deepEqual(routing.failures,[]);assert(routing.steps>0);
- console.log('PASS: reported SEN-TRI route completes without bypassing any free native slot.');
+ if(fixture==='three-free-lounge.json'){assert.equal(routing.first.type,'move');assert.equal(routing.first.to.station,'LOUNGE');}
+ console.log('PASS: '+fixture+' completes without bypassing free native slots.');
+ }
  await page.evaluate(profile=>Object.assign(window.testPlan.state,window.testPlan.validateBaseImport(profile)),profile);
  const reserved=await page.evaluate(()=>{
   const d=window.testPlan;d.state.companionGoals=['pickaxe'];d.state.preferredCompanions=[];d.state.optimiseKeepDroidex=false;
