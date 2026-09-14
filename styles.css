@@ -884,7 +884,12 @@ html.in-companion .site-header .discord-button{flex:0 0 auto}
 .rebirth-reward{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
 .rebirth-nova-reward{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px;padding:5px 8px;border:1px solid var(--line);border-radius:5px;font-size:11px;color:var(--muted)}
 .rebirth-nova-reward.regular{border-color:#8e71d766}
-.outlook-next-rewards{margin:9px 0}
+.outlook-next-cost{display:flex;align-items:center;gap:14px}
+.outlook-next-rewards{margin-left:auto;max-width:100%}
+.outlook-next-rewards .rebirth-reward{display:flex;justify-content:flex-end;gap:6px;margin:0}
+.outlook-next-rewards .rebirth-nova-reward{display:inline-flex;flex-wrap:nowrap;margin:0;padding:4px 7px;white-space:nowrap}
+.outlook-next-rewards .nova-amount{display:inline-flex;margin:0;color:#b9a6ff}
+.outlook-next-rewards .rebirth-reward-mult,.outlook-next-rewards .rebirth-reward-perk{margin:0}
 .nova-rebirth-rewards p{max-width:100ch;line-height:1.5;color:var(--muted)}
 .nova-reward-table{min-width:720px}
 .nova-reward-table th{white-space:normal}
