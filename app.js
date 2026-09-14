@@ -382,9 +382,13 @@ function protocolStepPlan(baseP,projected,includeFusion=true,batch=true){
     steps.push({type:'move',unit,from,to,workCommand:work,assumed:Boolean(to.assumed),text:work?`Tell ${unitName(unit)} in ${slotLabel(from)} to go to work &mdash; it will take ${slotLabel(to)}${temporary?' temporarily, so the next droid can swap into this occupied slot':''}.${to.assumed?' If it chooses another region, update Base and regenerate before continuing.':''}`:`Move ${unitName(unit)} from ${slotLabel(from)} to ${slotLabel(to)}${temporary?' temporarily to clear the destination':''}.`});
     current.set(key,{...unit,...to});
   };
-  // Each cycle needs at most one extra Lounge move per droid.
+  const seenLayouts=new Set();
+  // Stop if a fallback returns to an earlier layout instead of making progress.
   for(let pass=0;pass<goals.size*6+1;pass++){
     const pending=[...goals].filter(([key,goal])=>!done(current.get(key),goal));if(!pending.length)break;
+    const layout=JSON.stringify([...current].map(([key,x])=>[key,x.station,x.slot]));
+    if(seenLayouts.has(layout))break;
+    seenLayouts.add(layout);
     const here=steps.at(-1)?.from?.station;
     const transfers=pending.filter(([key])=>movable(current.get(key)));
     if(batch)transfers.sort(([a],[b])=>Number(current.get(b)?.station===here)-Number(current.get(a)?.station===here));
@@ -395,7 +399,10 @@ function protocolStepPlan(baseP,projected,includeFusion=true,batch=true){
 
     const blocked=transfers.map(([key,goal])=>({key,goal,occupant:[...current].find(([other,x])=>other!==key&&done(x,goal))})).filter(x=>x.occupant&&movable(x.occupant[1]));
     // Break an occupied cycle through the Lounge before considering a swap.
-    const stageOptions=blocked.filter(x=>!reservedBuild(x.occupant[1])&&!['BUILD','FUSION_BUILD'].includes(x.goal.station));
+    // A Lounge resident is already parked. Moving it to another buffer can
+    // block a second goal and bounce it between those two Lounge slots forever.
+    // Let it leave for its destination, or use a compatible occupied-slot swap.
+    const stageOptions=blocked.filter(x=>x.occupant[1].station!=='LOUNGE'&&!reservedBuild(current.get(x.key))&&!reservedBuild(x.occupant[1])&&!['BUILD','FUSION_BUILD'].includes(x.goal.station));
     if(batch)stageOptions.sort((a,b)=>Number(b.occupant[1].station===here)-Number(a.occupant[1].station===here));
     let parked=false;
     for(const staged of stageOptions){

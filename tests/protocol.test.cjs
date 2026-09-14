@@ -118,6 +118,36 @@ test('full Lounge falls back to a swap without displacing its resident',()=>{
  const p=planMoves([['WORKER',0],['ASTROMECH',0],['LOUNGE',0]],[['ASTROMECH',0],['WORKER',0],['LOUNGE',0]]);
  finished(p);assert.equal(p.steps.length,1);assert.equal(p.steps[0].type,'swap');
 });
+
+test('parked droids do not bounce between Lounge buffers while native work slots are free',()=>{
+ for(const batch of [false,true]){
+  const {ctx,caps,run}=setup();caps.LOUNGE=3;
+  const positions=[['R7','ASTROMECH',0],['KX','WORKER',0],['LOM','LOUNGE',2],['R7','LOUNGE',0],['KX','LOUNGE',1]];
+  const destinations=[['LOUNGE',0],['LOUNGE',1],['PROTOCOL_WORKER_CREDITS',0],['ASTROMECH',0],['WORKER',0]];
+  const base=positions.map(([name,station,slot],source)=>({name,station,slot,variant:'DEFAULT',source,unit:0}));
+  ctx.base={placed:base};ctx.target={placed:base.map((x,i)=>({...x,station:destinations[i][0],slot:destinations[i][1]})),sell:[]};
+  const steps=run(`protocolStepPlan(base,target,false,${batch})`),current=structuredClone(base);
+  assert(!steps.some(s=>s.type==='note'));assert(steps.length<15);
+  const seen=new Set([JSON.stringify(current)]);
+  for(const step of steps){
+   const unit=current[step.unit.source];assert.equal(unit.station,step.from.station);assert.equal(unit.slot,step.from.slot);
+   if(step.type==='swap'){
+    const other=current[step.withUnit.source];assert.equal(other.station,step.withFrom.station);assert.equal(other.slot,step.withFrom.slot);
+    const from={station:unit.station,slot:unit.slot};Object.assign(unit,{station:other.station,slot:other.slot});Object.assign(other,from);
+   }else{
+    assert(!current.some(x=>x.station===step.to.station&&x.slot===step.to.slot));
+    if(step.workCommand){
+     ctx.positions=current;ctx.moving=unit;
+     const landing=run('plannedWorkLanding(moving,positions)');
+     assert.equal(step.to.station,landing.station);assert.equal(step.to.slot,landing.slot);
+    }
+    Object.assign(unit,{station:step.to.station,slot:step.to.slot});
+   }
+   const layout=JSON.stringify(current);assert(!seen.has(layout),'repeated layout');seen.add(layout);
+  }
+  assert.deepEqual(current,ctx.target.placed);
+ }
+});
 test('locked and unfinished blockers are never parked in the Lounge',()=>{
  for(const extra of [{lockedSlot:true},{built:false}]){
   const station=extra.lockedSlot?'ASTROMECH':'BUILD';

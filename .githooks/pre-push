@@ -1,0 +1,27 @@
+#!/bin/sh
+# Public website repos must never receive local companion history, even when
+# the latest commit deletes the app. Private backups use their own remote.
+remote=$1
+url=$2
+case "$remote:$url" in
+  origin:*|fallback:*|*:*/DroidArchives.git|*:*/DroidArchives|*:*/DroidArchives-fallback.git|*:*/DroidArchives-Fallback.git|*:*/DroidArchives-fallback|*:*/DroidArchives-Fallback) ;;
+  *) exit 0 ;;
+esac
+
+private_paths=' (desktop|release|research|references|conversation|scripts|\.agents|\.claude)(/|$)| (build-companion\.bat|backup\.ps1|HANDOFF\.md|REBUILD_PROGRESS\.md)$| .*\.(traineddata|exe|msi|appx|pyd|dll|zip|blockmap)$| assets/(test/|other/RebirthDroid\.png$)'
+while read -r local_ref local_oid remote_ref remote_oid; do
+  remote_oid=$(printf '%s' "$remote_oid" | tr -d '\r')
+  case "$local_oid" in 0000000000000000000000000000000000000000) continue ;; esac
+  # Include all newly reachable commits and blobs, not just the current tree.
+  if git cat-file -e "$remote_oid^{commit}" 2>/dev/null; then
+    objects=$(git rev-list --objects "$local_oid" "^$remote_oid") || exit 1
+  else
+    objects=$(git rev-list --objects "$local_oid") || exit 1
+  fi
+  if printf '%s\n' "$objects" | grep -Ei "$private_paths" >/dev/null; then
+    echo 'Push blocked: this history contains private companion app or local-only files.' >&2
+    echo 'Use .\deploy.ps1 to publish a website-only snapshot to the public repos.' >&2
+    exit 1
+  fi
+done
+exit 0

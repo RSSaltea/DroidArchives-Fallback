@@ -2,6 +2,28 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-14-lounge-routing-loop",
+      "date": "2026-09-14",
+      "title": "Fixed repeated Lounge moves in Optimise",
+      "summary": "Optimise no longer shuffles a parked droid back and forth between Lounge slots.",
+      "changes": [
+        "Droids already waiting in the Lounge leave for their destination or use a compatible swap, instead of repeatedly moving between temporary storage slots.",
+        "Build replacements keep the required occupied slot available for their swap.",
+        "The move planner stops if it returns to an earlier layout, preventing hundreds of repeated instructions."
+      ]
+    },
+    {
+      "id": "2026-09-14-fishing-cue",
+      "date": "2026-09-14",
+      "title": "Companion fishing timing cue",
+      "summary": "A countdown below Fish helps you aim for the centre band, from Gold through Stellar.",
+      "changes": [
+        "The companion detects the fishing gauge while it is open and shows when to press E or click.",
+        "Added a Fishing timing cue toggle and a reaction-time lead adjustment in app settings.",
+        "The cue pauses when the marker cannot be tracked reliably. Narrow high-quality windows still depend on frame timing and your reaction time."
+      ]
+    },
+    {
       "id": "2026-09-14-astromech-settings",
       "date": "2026-09-14",
       "title": "Choose each Astromech Iconic’s role",

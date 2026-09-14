@@ -1,0 +1,2 @@
+# Git for Windows must preserve the public-push guard's shell line endings.
+.githooks/* text eol=lf

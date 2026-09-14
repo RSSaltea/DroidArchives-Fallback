@@ -12,8 +12,11 @@ superRebirthRewards-CgMNMGB4.js
 .idea/
 *.code-workspace
 
-# Desktop companion app (not part of the GitHub Pages site)
-desktop/
+# Desktop companion source, tools, models, builds and local experiments
+/desktop/
+/build-companion.bat
+*.traineddata
+/research/
 
 # Build conversation archive and project handoff notes
 conversation/
@@ -37,7 +40,8 @@ Desktop.ini
 # Dependencies and generated output
 node_modules/
 dist/
-release/
+# Packaged app and release upload tools stay local.
+/release/
 out/
 *.exe
 *.msi
@@ -78,3 +82,6 @@ droid-archives-base-*.json
 # are tracked.
 tests/**/app-*.js
 tests/**/*.png
+
+# Private gameplay reference videos and calibration material
+/references/
