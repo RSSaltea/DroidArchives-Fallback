@@ -151,3 +151,30 @@ test('mission priority respects locks and unfinished Iconics',()=>{
  const result=run(`optimiseBase({placed:[{...state.owned[0],source:0,unit:0,station:'WORKER',slot:0,lockedSlot:true},{...state.owned[1],source:1,unit:0,station:'BUILD',slot:0,built:false}]},0)`);
  assert.equal(result.assignments.length,0);
 });
+
+test('C-3PO triples regional credits without also applying his work bonus',()=>{
+ const {run}=setup();
+ const total=run(`incomeForPlaced([{name:'MOUSE',variant:'DEFAULT',station:'WORKER'},{name:'C-3PO',variant:'DEFAULT',station:'PROTOCOL_WORKER_CREDITS'}])`);
+ assert(Math.abs(total-6.6)<1e-8);
+ assert.equal(run(`protocolBonus(state.droids.find(d=>d.name==='C-3PO'),'DEFAULT','CREDITS')`),200);
+});
+test('C-3PO takes regional support when it wins, or work when another Protocol makes work better',()=>{
+ for(const strongSupport of [false,true]){
+  const {state,caps,ctx,run}=setup();caps.WORKER=2;
+  state.droids.push({name:'EARNER',type:'WORKER',rarity:'COMMON',variants:{DEFAULT:{income:1000}}});
+  state.owned=[{name:'C-3PO',variant:'DEFAULT'}];
+  if(strongSupport){state.droids.push({name:'SUPPORT',type:'PROTOCOL',rarity:'COMMON',variants:{DEFAULT:{income:0,protocolCpsBonusPercent:190}}});state.owned.push({name:'SUPPORT',variant:'DEFAULT',qty:3});}
+  const result=run(`optimiseBase({placed:['WORKER','ASTROMECH','BATTLE'].map((station,i)=>({name:'EARNER',variant:'DEFAULT',source:99+i,unit:0,station,slot:0,lockedSlot:true}))},0)`);
+  const pick=result.assignments.find(x=>x.name==='C-3PO');assert(pick);
+  assert.equal(pick.station,strongSupport?'WORKER':'PROTOCOL_WORKER_CREDITS');
+ }
+});
+
+test('C-3PO gives +40/s only to his regional Build and wins crafting priority',()=>{
+ const {state,run}=setup();state.protocolPriority='crafting';state.owned=[{name:'C-3PO',variant:'DEFAULT'}];
+ assert.equal(run(`protocolCraftBonus([{name:'C-3PO',variant:'DEFAULT',station:'PROTOCOL_BATTLE_CRAFTING'}],2)`),40);
+ assert.equal(run(`protocolCraftBonus([{name:'C-3PO',variant:'DEFAULT',station:'PROTOCOL_BATTLE_CRAFTING'}],0)`),0);
+ assert.equal(run(`protocolCraftBonus([{name:'C-3PO',variant:'DEFAULT',station:'PROTOCOL_BATTLE_CREDITS'}],2)`),0);
+ const result=run(`optimiseBase({placed:[]},0)`);
+ assert(result.assignments.find(x=>x.name==='C-3PO').station.endsWith('_CRAFTING'));
+});

@@ -18,7 +18,10 @@
         "Fixed saved fusion rules being cleared when a profile is loaded, including when restoring it in another tab.",
         "Fixed cross-region Work instructions ignoring free slots in a droid’s own region. Plans now fill reachable slots and use swaps before requesting cross-region moves.",
         "Fixed the move planner checking only one Lounge transfer before choosing swaps. It now checks all candidates and explains routing restrictions separately from a full Lounge.",
-        "Fixed fusion rules overriding rebirth needs. Optimise protects the best owned copy of each droid needed before your rebirth goal, including copies that still need upgrading, and only uses surplus copies as fusion ingredients."
+        "Fixed fusion rules overriding rebirth needs. Optimise protects the best owned copy of each droid needed before your rebirth goal, including copies that still need upgrading, and only uses surplus copies as fusion ingredients.",
+        "Fixed Keep for fusion rules being bypassed by the Keep Build slots open sell pass when a matching droid was also needed for rebirth. Matching copies are kept even when storage is full.",
+        "Added C-3PO’s 3× regional Protocol credit bonus. Optimise compares that against his work-slot bonus and keeps the higher-earning arrangement.",
+        "Added C-3PO’s +40/s regional Build Protocol crafting bonus for crafting calculations and Optimise."
       ]
     },
     {

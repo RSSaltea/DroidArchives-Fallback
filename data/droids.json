@@ -2504,7 +2504,9 @@
     "variants": {
       "DEFAULT": {
         "cost": 0,
-        "income": 0
+        "income": 0,
+        "protocolCpsBonusPercent": 200,
+        "protocolCraftingBonusPercent": 4000
       },
       "GOLD": {
         "cost": 0,

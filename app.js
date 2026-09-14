@@ -328,6 +328,14 @@ function optimiseUnreservedBase(p,currentIncome){
         if(assignment[i]===assignment[j]||!allowed(assignment[j],slots[i])||!allowed(assignment[i],slots[j]))continue;
         const candidate=[...assignment];[candidate[i],candidate[j]]=[candidate[j],candidate[i]];const v=score(candidate);
         if(better(v,nextValue)){next=candidate;nextValue=v;}
+        // Moving C-3PO out of support may only pay off when another Protocol
+        // immediately takes over his bonus slot. Compare both changes together.
+        const vacated=assignment[i]>=0&&units[assignment[i]].name==='C-3PO'&&assignment[j]<0?i:assignment[j]>=0&&units[assignment[j]].name==='C-3PO'&&assignment[i]<0?j:-1;
+        if(vacated>=0&&isProtocolStation(slots[vacated].station))for(let u=0;u<units.length;u++){
+          if(used.has(u)||!allowed(u,slots[vacated]))continue;
+          const filled=[...candidate];filled[vacated]=u;const value=score(filled);
+          if(better(value,nextValue)){next=filled;nextValue=value;}
+        }
       }
     }
     if(!next)break;assignment=next;value=nextValue;
@@ -776,7 +784,7 @@ function fusionBuildSection(html){return html.replace(/<header>[\s\S]*?<\/header
 function fusionKeepSettings(){return `<button class="btn secondary" type="button" data-fusion-keep-settings>Keep for fusion (${normaliseFusionKeepRules(state.fusionKeepRules).length} rules)</button>`;}
 function showFusionKeepSettings(){
   const root=document.querySelector('#modalRoot'),rules=normaliseFusionKeepRules(state.fusionKeepRules);
-  root.innerHTML=`<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true"><h2>Keep for fusion</h2><p>Keep matching spare droids until you have enough to fuse. They can still work, but Optimise will not sell them. Each rule is an alternative.</p><ul>${rules.map((r,i)=>`<li>${escapeAttr(r.name?`${r.name} ? ${r.variant} (all copies)`:`${r.rarity}+ ? ${r.variant}+`)} <button class="btn ghost" data-remove-fusion-rule="${i}">Remove</button></li>`).join('')||'<li>No rules yet.</li>'}</ul><label class="field">Minimum rarity<select class="form-control" id="fusionKeepRarity">${RARITY_LADDER.map(r=>`<option ${r==='LEGENDARY'?'selected':''}>${r}</option>`).join('')}</select></label><label class="field">Minimum quality<select class="form-control" id="fusionKeepVariant">${VARIANTS.map(v=>`<option ${v==='BESKAR'?'selected':''}>${v}</option>`).join('')}</select></label><p>For example, add Legendary+ / Beskar+, then Mythic+ / Diamond+.</p><div class="modal-actions"><button class="btn" id="addFusionKeepRule">Add rule</button><button class="btn secondary" id="closeFusionKeepRules">Done</button></div></section></div>`;
+  root.innerHTML=`<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true"><h2>Keep for fusion</h2><p>Keep matching spare droids until you have enough to fuse. They can still work, but Optimise will not sell them. Each rule is an alternative.</p><ul>${rules.map((r,i)=>`<li>${escapeAttr(r.name?`${r.name} / ${r.variant} (all copies)`:`${r.rarity}+ / ${r.variant}+`)} <button class="btn ghost" data-remove-fusion-rule="${i}">Remove</button></li>`).join('')||'<li>No rules yet.</li>'}</ul><label class="field">Minimum rarity<select class="form-control" id="fusionKeepRarity">${RARITY_LADDER.map(r=>`<option ${r==='LEGENDARY'?'selected':''}>${r}</option>`).join('')}</select></label><label class="field">Minimum quality<select class="form-control" id="fusionKeepVariant">${VARIANTS.map(v=>`<option ${v==='BESKAR'?'selected':''}>${v}</option>`).join('')}</select></label><p>For example, add Legendary+ / Beskar+, then Mythic+ / Diamond+.</p><div class="modal-actions"><button class="btn" id="addFusionKeepRule">Add rule</button><button class="btn secondary" id="closeFusionKeepRules">Done</button></div></section></div>`;
   root.querySelector('#addFusionKeepRule').onclick=()=>{const rule={rarity:root.querySelector('#fusionKeepRarity').value,variant:root.querySelector('#fusionKeepVariant').value};if(!rules.some(r=>JSON.stringify(r)===JSON.stringify(rule)))rules.push(rule);state.fusionKeepRules=rules;save();showFusionKeepSettings();};
   root.querySelectorAll('[data-remove-fusion-rule]').forEach(b=>b.onclick=()=>{rules.splice(Number(b.dataset.removeFusionRule),1);state.fusionKeepRules=rules;save();showFusionKeepSettings();});
   root.querySelector('#closeFusionKeepRules').onclick=()=>{root.innerHTML='';route();};
@@ -2330,7 +2338,12 @@ function optimisedPlacements(baseP,plan){
     const key=`${unit.source}:${unit.unit}`;
     if(assigned.has(key)||lockedKeys.has(key)||chipPicks.has(key)||companionPicks.has(key)||missionPicks.has(key))continue;
     const d=state.droids.find(x=>x.name===unit.name),cycleStatus=d?droidCycleStatus(d,unit.variant,bestFuture.get(unit.name)?.key===key):{kind:'unused'};
-    if(keepForFusion(unit)&&cycleStatus.kind==='unused'){candidates.push({unit:{...unit,keepReason:'fusion'},fallbacks:loungeLikeStations(),old:current.get(key),betterStorageOpen:false,kept:false,spared:true,keepReason:'fusion'});continue;}
+    if(keepForFusion(unit)){
+      // Matching rules forbid selling even when this copy is also needed for a
+      // rebirth. Keep that purpose separate from spare fusion ingredients.
+      const keepReason=cycleStatus.kind==='unused'?'fusion':'rebirth';
+      candidates.push({unit:{...unit,keepReason},fallbacks:loungeLikeStations(),old:current.get(key),betterStorageOpen:false,kept:false,spared:true,keepReason});continue;
+    }
     if(cycleStatus.kind==='unused'&&!isIconic(d)){
       // You pressed Keep on this one in the plan, so it is stored rather than sold.
       if(spared.includes(key)){
@@ -2393,9 +2406,9 @@ function optimisedPlacements(baseP,plan){
     // Why a droid is being kept, so the plan can say Rebirth or Droidex rather
     // than leaving you to guess.
     const companionDetail=companionKept.get(key)||missionKept.get(key),handDetail=keptByHand.get(key),keepDetail=droidexKeptKeys.get(key),protocolDetail=protocolKeptKeys.get(key);
-    const reason=x.keepReason==='fusion'?{keepReason:'fusion',keepDetail:'Kept for fusion ? waiting for a matching batch'}:companionDetail?{keepReason:'companion',keepDetail:companionDetail}:handDetail?{keepReason:'manual',keepDetail:handDetail}:protocolDetail?{keepReason:'protocol',keepDetail:protocolDetail}:keepDetail?{keepReason:'droidex',keepDetail}:producing||status.kind!=='unused'?{keepReason:'rebirth',keepDetail:status.label}:{};
+    const reason=x.keepReason==='fusion'?{keepReason:'fusion',keepDetail:'Kept for fusion - waiting for a matching batch'}:companionDetail?{keepReason:'companion',keepDetail:companionDetail}:handDetail?{keepReason:'manual',keepDetail:handDetail}:protocolDetail?{keepReason:'protocol',keepDetail:protocolDetail}:keepDetail?{keepReason:'droidex',keepDetail}:producing||status.kind!=='unused'?{keepReason:'rebirth',keepDetail:status.label}:{};
     const keep={...x,...reason,...(isBuilding(x)?{keepReason:'building',keepDetail:'Still being built · cannot be moved yet'}:{})};
-    if(!producing&&status.kind==='unused'&&!isIconic(d)&&!x.lockedSlot&&!keepDetail&&!companionDetail&&!handDetail&&x.keepReason!=='fusion'&&!protocolDetail&&!isBuilding(x))finalSell.push({...x,sellReason:status.label});else finalPlaced.push(keep);
+    if(!producing&&status.kind==='unused'&&!isIconic(d)&&!x.lockedSlot&&!keepDetail&&!companionDetail&&!handDetail&&x.keepReason!=='fusion'&&!keepForFusion(x)&&!protocolDetail&&!isBuilding(x))finalSell.push({...x,sellReason:status.label});else finalPlaced.push(keep);
   }
   if(keepBuildOpen&&optimiseFreeBuildMode()==='unused-income')finalSell.sort((a,b)=>{const ad=state.droids.find(d=>d.name===a.name),bd=state.droids.find(d=>d.name===b.name);return(ad?.variants[a.variant]?.income||0)-(bd?.variants[b.variant]?.income||0)});
   const rows=optimisedRows(finalPlaced,overflow);
