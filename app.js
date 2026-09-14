@@ -2215,7 +2215,7 @@ function outstandingDroidsHtml(p){
   const spare=[];
   for(const unit of [...(p?.placed||[]),...(p?.overflow||[])]){
     const d=state.droids.find(x=>x.name===unit.name);
-    if(!d||isIconic(d)||d.special?.cannotSell||d.type==='PROTOCOL')continue;
+    if(!d||isIconic(d)||d.special?.cannotSell)continue;
     if(requirementSchedule(unit.name,{after:state.rebirth,through:goal}).length)continue;
     if(spare.some(x=>x.d.name===d.name&&x.unit.variant===unit.variant))continue;
     spare.push({d,unit,chips:chipSellValue(d,unit.variant)});
@@ -2307,7 +2307,7 @@ function optimisedPlacements(baseP,plan){
   for(const unit of units){const key=`${unit.source}:${unit.unit}`,target=assigned.get(key);if(target)claim(target.missionPriority?{...unit,missionPriority:true}:unit,target.station,target.slot)}
   const bestFuture=new Map();
   for(const unit of units){if(assigned.has(`${unit.source}:${unit.unit}`))continue;const previous=bestFuture.get(unit.name);if(!previous||VARIANTS.indexOf(unit.variant)>VARIANTS.indexOf(previous.variant))bestFuture.set(unit.name,{variant:unit.variant,key:`${unit.source}:${unit.unit}`})}
-  const candidates=[],droidexKeepers=new Map(),droidexKeptKeys=new Map(),keptByHand=new Map(),protocolKeptKeys=new Map(),spared=sparedFromSelling(),keepBuildOpen=Boolean(state.optimiseFreeBuild),strictKeepBuild=keepBuildOpen&&optimiseFreeBuildMode()!=='unused-income';
+  const candidates=[],droidexKeepers=new Map(),droidexKeptKeys=new Map(),keptByHand=new Map(),spared=sparedFromSelling(),keepBuildOpen=Boolean(state.optimiseFreeBuild),strictKeepBuild=keepBuildOpen&&optimiseFreeBuildMode()!=='unused-income';
   // A droid in the Upgrade Chip slot is producing, so it is claimed here, before
   // the unused-for-rebirth sell pass below. Picking afterwards meant the best
   // chip earner was sold for having no rebirth use and a weaker droid inherited
@@ -2383,14 +2383,6 @@ function optimisedPlacements(baseP,plan){
         candidates.push({unit,fallbacks:loungeLikeStations(),old:current.get(key),betterStorageOpen:false,kept:false,spared:true});
         continue;
       }
-      // Protocol droids are never dead ends. No rebirth asks for them, but a spare
-      // can still be upgraded or fused into a stronger bonus, so it is kept rather
-      // than sold for having no rebirth use.
-      if(d?.type==='PROTOCOL'){
-        protocolKeptKeys.set(key,'Kept · Protocol droids can be upgraded or fused');
-        candidates.push({unit,fallbacks:loungeLikeStations(),old:current.get(key),betterStorageOpen:false,kept:false,spared:true,keepReason:'protocol'});
-        continue;
-      }
       // Not needed for a rebirth, but upgrading it could still complete Droidex
       // entries nothing else can reach. Keep one copy per droid, and only while
       // there is storage free — a Droidex entry is not worth an overflowing base.
@@ -2437,10 +2429,10 @@ function optimisedPlacements(baseP,plan){
     const key=`${x.source}:${x.unit}`,d=state.droids.find(y=>y.name===x.name),producing=PRODUCTIVE_STATIONS.includes(x.station)||isProtocolStation(x.station)||x.station==='UPGRADE_CHIP',status=d?droidCycleStatus(d,x.variant,rebirthPick.get(x.name)?.key===key):{kind:'unused'};
     // Why a droid is being kept, so the plan can say Rebirth or Droidex rather
     // than leaving you to guess.
-    const companionDetail=companionKept.get(key)||missionKept.get(key),handDetail=keptByHand.get(key),keepDetail=droidexKeptKeys.get(key),protocolDetail=protocolKeptKeys.get(key);
-    const reason=x.keepReason==='fusion'?{keepReason:'fusion',keepDetail:'Kept for fusion - waiting for a matching batch'}:companionDetail?{keepReason:'companion',keepDetail:companionDetail}:handDetail?{keepReason:'manual',keepDetail:handDetail}:protocolDetail?{keepReason:'protocol',keepDetail:protocolDetail}:keepDetail?{keepReason:'droidex',keepDetail}:producing||status.kind!=='unused'?{keepReason:'rebirth',keepDetail:status.label}:{};
+    const companionDetail=companionKept.get(key)||missionKept.get(key),handDetail=keptByHand.get(key),keepDetail=droidexKeptKeys.get(key);
+    const reason=x.keepReason==='fusion'?{keepReason:'fusion',keepDetail:'Kept for fusion - waiting for a matching batch'}:companionDetail?{keepReason:'companion',keepDetail:companionDetail}:handDetail?{keepReason:'manual',keepDetail:handDetail}:keepDetail?{keepReason:'droidex',keepDetail}:producing||status.kind!=='unused'?{keepReason:'rebirth',keepDetail:status.label}:{};
     const keep={...x,...reason,...(isBuilding(x)?{keepReason:'building',keepDetail:'Still being built · cannot be moved yet'}:{})};
-    if(!producing&&status.kind==='unused'&&!isIconic(d)&&!x.lockedSlot&&!keepDetail&&!companionDetail&&!handDetail&&x.keepReason!=='fusion'&&!keepForFusion(x)&&!protocolDetail&&!isBuilding(x))finalSell.push({...x,sellReason:status.label});else finalPlaced.push(keep);
+    if(!producing&&status.kind==='unused'&&!isIconic(d)&&!x.lockedSlot&&!keepDetail&&!companionDetail&&!handDetail&&x.keepReason!=='fusion'&&!keepForFusion(x)&&!isBuilding(x))finalSell.push({...x,sellReason:status.label});else finalPlaced.push(keep);
   }
   if(keepBuildOpen&&optimiseFreeBuildMode()==='unused-income')finalSell.sort((a,b)=>{const ad=state.droids.find(d=>d.name===a.name),bd=state.droids.find(d=>d.name===b.name);return(ad?.variants[a.variant]?.income||0)-(bd?.variants[b.variant]?.income||0)});
   const rows=optimisedRows(finalPlaced,overflow);
@@ -2841,8 +2833,8 @@ const OPTIMISE_STEP_STYLES=["route","classic"];
 // entire step list instead of just the preference.
 const optimiseStepStyle=()=>{try{const saved=localStorage.getItem("droid-archive-optimise-step-style");return OPTIMISE_STEP_STYLES.includes(saved)?saved:"route"}catch(e){return"route"}};
 // Plan batches from individual sell candidates, respecting per-copy Sell choices.
-// Protocol droids Optimise keeps rather than sells. They are not in the sell list,
-// but a spare one is exactly what a fusion can use.
+// Explicit fusion reserves are eligible alongside sell candidates. Accept the
+// older Protocol keep reason too when processing an existing projected layout.
 const protocolFusionSpares=projected=>[...(projected?.placed||[]),...(projected?.overflow||[])].filter(x=>x.keepReason==='protocol'||x.keepReason==='fusion');
 function fusionRebirthProtectedKeys(){
   const needed=new Set(futureRequirements().map(x=>x.droidName)),best=new Map();
@@ -4067,7 +4059,7 @@ const UI_STYLE_KEY='droid-archive-ui-style';
 function applyUiStyle(){const style=localStorage.getItem(UI_STYLE_KEY)==='legacy'?'legacy':'modern',button=document.querySelector('#uiStyleButton');document.documentElement.dataset.uiStyle=style;if(button){button.querySelector('strong').textContent=style==='modern'?'Modern':'Legacy';button.title=`Switch to ${style==='modern'?'Legacy':'Modern'} interface`;button.setAttribute('aria-label',button.title);button.setAttribute('aria-pressed',String(style==='modern'))}}
 applyUiStyle();applyTheme();renderCloudHeader();scheduleHeaderNav(true);document.querySelector('#uiStyleButton').onclick=()=>{const next=document.documentElement.dataset.uiStyle==='modern'?'legacy':'modern';localStorage.setItem(UI_STYLE_KEY,next);applyUiStyle();route();requestAnimationFrame(updateTimerDocking);toast(`${next==='modern'?'Modern':'Legacy'} interface enabled`)};document.querySelector('#themeButton').onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';save();applyTheme();renderCloudHeader()};document.querySelector('#menuButton').onclick=()=>{const sidebar=document.querySelector('.sidebar'),dropdown=document.querySelector('#cloudDropdown'),cloudButton=document.querySelector('#cloudMenuButton');if(dropdown){dropdown.hidden=true;cloudButton?.setAttribute('aria-expanded','false')}sidebar.classList.toggle('mobile-open')};document.addEventListener('click',()=>{const dropdown=document.querySelector('#cloudDropdown'),button=document.querySelector('#cloudMenuButton');if(dropdown){dropdown.hidden=true;button?.setAttribute('aria-expanded','false')}});document.querySelector('#globalSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){location.hash='#/droids';setTimeout(()=>{const s=document.querySelector('#droidSearch');if(s){s.value=e.target.value;s.dispatchEvent(new Event('input'))}},20)}});window.addEventListener('hashchange',route);
 document.querySelector('#copyDiscord').onclick=async()=>{try{await navigator.clipboard.writeText('.saltea');toast('Discord username copied')}catch{toast('Discord: .saltea')}};
-const DATA_VERSION='2026-09-14-mini-events';
+const DATA_VERSION='2026-09-14-protocol-sales';
 const loadJson=async path=>{const response=await fetch(`${path}${path.includes('?')?'&':'?'}v=${DATA_VERSION}`);if(!response.ok)throw Error(`Unable to load ${path}`);return response.json()};
 function applyStellarData(droids,stellarStats={}){const rules=stellarStats._rules||{},images=stellarStats._images||{},round=value=>Math.round(value*1e6)/1e6;for(const droid of droids){if(droid.rarity==='ICONIC'||droid.variants.STELLAR)continue;const base=droid.variants.DEFAULT,known=stellarStats[droid.name]||{},costMultiplier=rules.costMultiplier?.[droid.rarity],incomeMultiplier=rules.incomeMultiplier?.[droid.rarity],craftingMultiplier=rules.craftingMultiplier;droid.variants.STELLAR={cost:known.cost??(knownNumber(base?.cost)&&knownNumber(costMultiplier)?round(base.cost*costMultiplier):null),income:known.income??(knownNumber(base?.income)&&knownNumber(incomeMultiplier)?round(base.income*incomeMultiplier):null),craftingSeconds:known.craftingSeconds??(knownNumber(base?.craftingSeconds)&&knownNumber(craftingMultiplier)?round(base.craftingSeconds*craftingMultiplier):null)};if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;}return droids}
 async function loadEvents(){try{const index=await loadJson('data/events/index.json');if(!Array.isArray(index.events))return[];return Promise.all(index.events.map(file=>loadJson(`data/events/${file}`)))}catch{return[]}}

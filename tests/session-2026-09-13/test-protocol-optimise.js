@@ -1,7 +1,5 @@
-// Optimise and Protocol droids. Its walkthrough grouped every Protocol step under a
-// stop reading "undefined", and it sold spare Protocol droids as dead ends when
-// they can be upgraded or fused. Spares are now kept, and fused when that gives a
-// stronger bonus than the weakest one slotted.
+// Protocol routing and beneficial fusion regressions. Unneeded Protocol copies
+// now follow normal sale rules; explicit fusion reserves remain protected.
 const fs=require('fs'),vm=require('vm'),path=require('path');
 const ROOT=path.resolve(__dirname,'..','..')+'/';
 const src=fs.readFileSync(ROOT+'app.js','utf8'),LINES=src.split(/\r?\n/);
@@ -55,29 +53,7 @@ console.log('=== Protocol steps are grouped into named stops ===');
 }
 
 console.log('');
-console.log('=== Optimise keeps spare Protocol droids ===');
-{
-  const fnText=grab('function optimisedPlacements(');
-  const protocolAt=fnText.indexOf("if(d?.type==='PROTOCOL'){"),dexAt=fnText.indexOf('Not needed for a rebirth, but upgrading it could still complete Droidex');
-  ok('a Protocol droid with no rebirth use is kept, not sold',protocolAt>=0);
-  ok('ahead of the Droidex keeper, which only keeps one copy while storage is free',protocolAt>=0&&protocolAt<dexAt);
-  ok('it is marked so that with no room it overflows instead of selling',fnText.includes("spared:true,keepReason:'protocol'"));
-  ok('its reason is shown',fnText.includes("Kept · Protocol droids can be upgraded or fused"));
-  ok('and the final sell pass leaves it alone',fnText.includes('&&!protocolDetail&&!isBuilding(x))'));
-
-  // The placement loop, lifted out: a kept Protocol droid with nowhere to stand.
-  const marker=LINES.findIndex(l=>l.includes("let station='',slot=-1;"));
-  const loop=LINES.slice(marker-3,marker+4).join('\n');
-  const sell=[],overflow=[];
-  const sb={candidates:[{unit:{name:'PZ',variant:'GOLD',source:1,unit:0},fallbacks:['LOUNGE'],old:null,kept:false,spared:true,keepReason:'protocol'}],
-    sell,overflow,strictKeepBuild:true,free:()=>-1,claim:()=>{},isIconic:()=>false,
-    optimiseFreeBuildMode:()=>'upgrade-cost',optimiseFreeBuildModeLabel:()=>'x',state:{droids:[{name:'PZ'}]}};
-  vm.createContext(sb);vm.runInContext(loop,sb);
-  ok('with every store full it is still not sold',sell.length===0,JSON.stringify(sell));
-  ok('it overflows, carrying its reason, so fusions can still find it',overflow.length===1&&overflow[0].keepReason==='protocol',JSON.stringify(overflow));
-}
-
-console.log('');
+// Full placement and sale regressions live in tests/protocol-selling.test.cjs.
 console.log('=== spare Protocol droids can be fused, judged by the bonus they give ===');
 {
   const sb={console};vm.createContext(sb);
@@ -94,7 +70,7 @@ console.log('=== spare Protocol droids can be fused, judged by the bonus they gi
   vm.runInContext("function fusionRebirthProtectedKeys(){return new Set()};function capacity(){return 1};function soldInsteadOfFusion(){return []};function slotLabel(x){return x.station+' '+(x.slot+1)}",sb);
   const everySquare=[];for(const d of droids)for(const v of VARIANTS)everySquare.push({name:d.name,variant:v});
   const slotted=(name,variant)=>Object.keys(vm.runInContext('PROTOCOL_SLOTS',sb)).map((station,i)=>({name,variant,station,slot:0,source:100+i,unit:0}));
-  const spares=['DIAMOND','DIAMOND','DIAMOND'].map((variant,i)=>({name:'SA-5',variant,station:'LOUNGE',slot:i,source:i,unit:0,keepReason:'protocol'}));
+  const spares=['DIAMOND','DIAMOND','DIAMOND'].map((variant,i)=>({name:'SA-5',variant,station:'LOUNGE',slot:i,source:i,unit:0,keepReason:'fusion'}));
 
   // Weak bonuses slotted: three SA-5 Diamond (24% credits) become a Rainbow (32%).
   sb.state={droids,fusion:JSON.parse(fs.readFileSync(ROOT+'data/fusion.json','utf8')),droidex:everySquare,owned:[],optimiseFuseFirst:true};
@@ -106,7 +82,18 @@ console.log('=== spare Protocol droids can be fused, judged by the bonus they gi
   // Strong bonuses slotted, and strong earners working: nothing is worth fusing.
   sb.p=[...slotted('TDA','STELLAR'),...['WORKER','ASTROMECH','BATTLE'].map((station,i)=>({name:'B1 HEAVY',variant:'DEFAULT',station,slot:0,source:200+i,unit:0}))];
   const none=vm.runInContext('fusionChainFromSpares(s,p)',sb);
-  ok('with stronger bonuses already slotted they are simply kept',none.length===0,JSON.stringify(none.map(c=>c.out)));
+  ok('with stronger bonuses already slotted no fusion is recommended',none.length===0,JSON.stringify(none.map(c=>c.out)));
+
+  // Unprotected Protocol spares now reach fusion planning through the sell list.
+  sb.sellable=spares.map(({keepReason,...unit})=>unit);
+  sb.sellSteps=sb.sellable.map(unit=>({type:'sell',unit,from:{station:unit.station,slot:unit.slot},at:unit.station,text:`Sell ${unit.name}.`}));
+  sb.baseP={placed:sb.sellable};
+  sb.projected={placed:sb.p,overflow:[],sell:sb.sellable};
+  const unchanged=vm.runInContext('withFusionSteps(sellSteps,projected,baseP)',sb);
+  ok('unneeded Protocol copies stay in the sell plan when fusion adds nothing',unchanged.length===3&&unchanged.every(x=>x.type==='sell'));
+  sb.projected.placed=slotted('SA-5','DEFAULT');
+  const improved=vm.runInContext('withFusionSteps(sellSteps,projected,baseP)',sb);
+  ok('a beneficial Protocol fusion still replaces the three sells',improved.filter(x=>x.type==='fuse-in').length===3&&improved.some(x=>x.type==='fuse')&&!improved.some(x=>x.type==='sell'));
 
   // No Protocol droid in the pool: the floors are never worked out at all.
   sb.s=[{name:'SNOW MOUSE',variant:'DIAMOND',qty:3}];sb.p=[];
@@ -124,7 +111,7 @@ console.log('=== spare Protocol droids can be fused, judged by the bonus they gi
   ok('the fusion says the bonus is why',fuse&&/stronger Protocol bonus/.test(fuse.text),fuse&&fuse.text);
 
   // Three at the top quality roll the next rarity, and the result can be any type.
-  const stellar=[0,1,2].map(i=>({name:'SA-5',variant:'STELLAR',station:'LOUNGE',slot:i,source:i,unit:0,keepReason:'protocol'}));
+  const stellar=[0,1,2].map(i=>({name:'SA-5',variant:'STELLAR',station:'LOUNGE',slot:i,source:i,unit:0,keepReason:'fusion'}));
   sb.projected={placed:[...['WORKER','ASTROMECH','BATTLE'].map((station,i)=>({name:'SA-5',variant:'DEFAULT',station,slot:0,source:50+i,unit:0})),...stellar],overflow:[],sell:[]};
   sb.baseP={placed:stellar};
   const roll=vm.runInContext('withFusionSteps([],projected,baseP)',sb).find(x=>x.type==='fuse');
@@ -141,14 +128,15 @@ console.log('=== the rest of the page agrees ===');
 {
   const tones=grab('function stepHtml(').match(/const tone=.*/)[0];
   const sbv={};vm.createContext(sbv);
+  const loungeTone=grab('function stepHtml(').match(/const toLounge=.*/)[0];
   vm.runInContext(line('const STEP_VERB_TONE=')+line('const FUSION_STEP_TYPES='),sbv);
-  const toneOf=step=>{sbv.step=step;return vm.runInContext('(()=>{'+tones+'return tone})()',sbv)};
+  const toneOf=step=>{sbv.step=step;return vm.runInContext('(()=>{'+loungeTone+tones+'return tone})()',sbv)};
   for(const type of ['fuse-in','fuse-held','fuse-deferred','fuse-result','fuse'])
     ok(type+' is coloured as a Fusion step',toneOf({type,text:'Send X to the Fusion room.'})==='fusion',toneOf({type,text:'Send X.'}));
-  ok('sending to storage keeps its own colour',toneOf({type:'move',text:'Send X to the Lounge.'})==='stage');
+  ok('sending to storage keeps its own colour',toneOf({type:'move',to:'LOUNGE',text:'Move X to the Lounge.'})==='lounge');
   ok('the Fusion colour is styled, and differs from storage',/\.verb-fusion\{color:#[0-9a-f]{6}\}/i.test(fs.readFileSync(ROOT+'styles.css','utf8')));
   ok('a kept Protocol spare in a fusion step offers Keep, not Sell',src.includes("${step.protocolSpare?'Keep':'Sell'}</button>"));
-  ok('the Base panel no longer lists Protocol droids as spare to sell',src.includes("d.special?.cannotSell||d.type==='PROTOCOL')continue;"));
+  ok('the Base panel includes saleable Protocol spares',!src.includes("d.special?.cannotSell||d.type==='PROTOCOL')continue;"));
   const plan=grab('function safeOptimiseStepPlan(');
   ok('the re-plan drops droids already sent to Fusion, so it cannot move them afterwards',plan.includes('placed:(projected.placed||[]).filter(x=>!consumed.has('));
 }

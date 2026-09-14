@@ -162,6 +162,7 @@ console.log('=== the walkthrough agrees with the Sell list ===');
 {
   for(const k of ['const variantLabel=','const rarityLabel=','const fmt=','const protocolFusionSpares=']) vm.runInContext(pick(k),sb);
   sb.soldInsteadOfFusion=()=>[];
+  sb.fusionRebirthProtectedKeys=()=>new Set();
   vm.runInContext(grab('function optimiseFusionChain('),sb);
   vm.runInContext(grab('function withFusionSteps('),sb);
   sb.state={droids,fusion,droidex:[],owned:[],optimiseFuseFirst:true};
