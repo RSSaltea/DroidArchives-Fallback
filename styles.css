@@ -986,5 +986,5 @@ body.has-rebirth-quick-bar #app{padding-bottom:74px}
 .fusion-build-divider{margin:0 10px;padding:5px 8px}
 
 /* Lounge destinations stand apart from work, swap and fusion instructions. */
-.optimise-steps .step-to-lounge,.verb-lounge{color:#79d4f5}
-:root:not([data-theme="dark"]) .optimise-steps .step-to-lounge,:root:not([data-theme="dark"]) .verb-lounge{color:#096381}
+.verb-lounge{color:#79d4f5}
+:root:not([data-theme="dark"]) .verb-lounge{color:#096381}
