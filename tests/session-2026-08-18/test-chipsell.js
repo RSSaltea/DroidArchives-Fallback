@@ -16,6 +16,7 @@ const sandbox={console,
   bb8CompanionActive:placed=>placed.some(x=>x.station==='COMPANION'&&x.name==='BB-8'),
   state:{cycle:1,rebirth:2,rebirths:{1:rebirths},droids:[]},
 };
+sandbox.rebirthFusionCalculatorHtml=()=>''; // Fusion scenarios have their own regression suite.
 vm.createContext(sandbox);
 vm.runInContext(grabConst('CHIP_SELL_VALUES'),sandbox);
 vm.runInContext('const chipSellValue=(d,variant)=>CHIP_SELL_VALUES[d?.rarity]?.[variant]||0;',sandbox);

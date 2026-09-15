@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-15-rebirth-preparation",
+      "date": "2026-09-15",
+      "title": "Rebirth preparation: chips and fusion",
+      "summary": "The Chips panel is now Rebirth Prep, with fusion options for missing rebirth droids.",
+      "changes": [
+        "Compare real fusion batches, random rarity rolls and Mythic rerolls, then see the chips needed to upgrade the result.",
+        "Fusion inputs are deducted from the remaining chip-sale value. Required rebirth copies stay protected.",
+        "Enter the in-game cost to check your credit budget. Random rolls are clearly marked and never guarantee the droid you need."
+      ]
+    },
+    {
       "id": "2026-09-15-fusion-build-lounge",
       "date": "2026-09-15",
       "title": "Clear Fusion Build automatically in the plan",

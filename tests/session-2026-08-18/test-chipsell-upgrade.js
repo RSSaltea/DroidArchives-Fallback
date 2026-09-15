@@ -19,6 +19,7 @@ const sandbox={console,
   state:{cycle:1,rebirth:29,rebirths:{1:REBIRTHS},droids:[
     droid('OPTI-STRIKE','LEGENDARY'),droid('KX','MYTHIC'),droid('DRFT-R','MYTHIC'),droid('FODDER','MYTHIC')]},
 };
+sandbox.rebirthFusionCalculatorHtml=()=>''; // Fusion scenarios have their own regression suite.
 vm.createContext(sandbox);
 vm.runInContext(grabConst('CHIP_SELL_VALUES'),sandbox);
 vm.runInContext(grabLine('CHIP_COSTS'),sandbox);

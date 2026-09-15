@@ -20,6 +20,7 @@ const sandbox={console,
     owned:[{name:'FODDER',variant:'GALACTIC',qty:10}]},
 };
 sandbox.expandedOwned=()=>sandbox.state.owned.flatMap((x,i)=>Array.from({length:x.qty},(_,unit)=>({...x,source:i,unit})));
+sandbox.rebirthFusionCalculatorHtml=()=>''; // Fusion scenarios have their own regression suite.
 vm.createContext(sandbox);
 vm.runInContext(grabConst('CHIP_SELL_VALUES'),sandbox);
 for(const k of ['const baseChipSellValue=','const chipSellBonusMultiplier=','const chipSellValue='])

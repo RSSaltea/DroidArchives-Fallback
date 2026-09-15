@@ -402,6 +402,7 @@ html:not([data-ui-style="modern"])[data-nav-fit="collapsed"] .sidebar.mobile-ope
 .chip-sell-totals .stat em{display:block;margin-top:3px;font-size:11px;font-style:normal;font-weight:600;color:var(--muted)}
 .chip-sell-totals .chip-sell-bb8.active em{color:#8fd9ef}
 .chip-sell-calculator table{width:100%}
+.chip-sell-breakdown{min-width:0;overflow-x:auto}
 .chip-sell-calculator tfoot th,.chip-sell-calculator tfoot td{font-weight:800;border-top:2px solid var(--line)}
 .chip-sell-calculator .chip-sell-empty{color:var(--muted);font-weight:600}
 .chip-held{margin-top:6px}
@@ -413,6 +414,14 @@ html:not([data-ui-style="modern"])[data-nav-fit="collapsed"] .sidebar.mobile-ope
 :root:not([data-theme="dark"]) .chip-held-card{background:rgba(0,0,0,.05)}
 .chip-held-card.needs-upgrade{border-color:#c98f2e;background:rgba(240,200,91,.10)}
 .chip-held-card.needs-upgrade small{color:#f0c85b}
+.rebirth-fusion-calculator{border-top:1px solid var(--line);padding-top:16px;margin-top:12px;min-width:0}
+.rebirth-fusion-calculator h3,.rebirth-fusion-target h4{margin:0 0 10px}.rebirth-fusion-target{margin:18px 0}
+.rebirth-fusion-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:12px;align-items:start}
+.rebirth-fusion-calculator .field{display:grid;gap:6px;margin:12px 0}.rebirth-fusion-calculator .form-control{min-width:0;width:100%;box-sizing:border-box}
+.rebirth-fusion-option summary{cursor:pointer;line-height:1.5}
+.rebirth-fusion-option{padding:14px;border:1px solid var(--line);border-radius:8px;min-width:0}
+.rebirth-fusion-option p{font-size:.85rem;line-height:1.5}.rebirth-fusion-option small{display:block;color:var(--muted);font-size:.78rem;line-height:1.5}
+.rebirth-fusion-option dl{margin:12px 0;font-size:.85rem}.rebirth-fusion-option dl>div{margin:9px 0}.rebirth-fusion-option dt{color:var(--muted)}.rebirth-fusion-option dd{margin:3px 0;font-weight:700}
 .chip-sell-totals .chip-sell-short strong{color:#ff9a8a}
 .chip-sell-totals .chip-sell-covered strong{color:#7fd1a0}
 .base-slot.occupied.slot-building{padding-bottom:34px;border-color:#c0563f;background:linear-gradient(180deg,rgba(192,86,63,.14),rgba(192,86,63,.05))}
