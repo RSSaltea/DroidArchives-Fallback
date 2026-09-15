@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-15-notification-tracking",
+      "date": "2026-09-15",
+      "title": "Droidex Notification tracking",
+      "summary": "Track your active notifications and keep the panel out of the way.",
+      "changes": [
+        "Added a Notifications button with its icon to the Base toolbar to show or hide the panel.",
+        "Click a droid to mark it as tracked. Tracked droids use your purchased slots and save with your profile.",
+        "Owned droids are excluded by default. Higher-variant recommendations are optional and require Variant Watch."
+      ]
+    },
+    {
       "id": "2026-09-15-rebirth-notifications-fusion-goals",
       "date": "2026-09-15",
       "title": "Droidex Notifications and Fusion settings",

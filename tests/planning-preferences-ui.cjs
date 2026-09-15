@@ -31,8 +31,14 @@ const server=http.createServer((req,res)=>{
     await page.locator('#notificationPriority').selectOption('rare');await page.locator('#saveNotificationSettings').click();
     assert.equal(await page.locator('.notification-list li').count(),2);
     assert.match(await page.locator('.notification-list li').first().innerText(),/KX/);
+    assert.equal(await page.locator('.notification-panel h2 img').count(),0);
+    await page.locator('[data-notification-track="KX"]').click();
+    assert.equal(await page.locator('.notification-tracked li').count(),1);assert.equal(await page.locator('.notification-recommended li').count(),1);
+    await page.locator('[data-notification-track="R6"]').click();assert.equal(await page.locator('.notification-recommended li').count(),0);
+    await page.locator('[data-notification-track="KX"]').click();assert.equal(await page.locator('.notification-tracked li').count(),1);
+    assert.match(await page.locator('.notification-recommended').innerText(),/KX/);
     const goalCheck=await page.evaluate(()=>{const t=window.plannerTest;t.state.superRebirthGoal=22;const result=t.notificationRecommendations();t.state.superRebirthGoal=35;return result;});
-    assert.equal(goalCheck.recommendations.length,1);assert.equal(goalCheck.recommendations[0].name,'R6');assert.equal(goalCheck.recommendations[0].variant,'GALACTIC');
+    assert.equal(goalCheck.recommendations.length,0,'R6 is already tracked');assert.equal(goalCheck.tracked[0].name,'R6');
     const exported=await page.evaluate(()=>window.plannerTest.baseExport());assert.equal(exported.base.notificationPreferences.priority,'rare');assert.equal(exported.base.novaUpgrades['droidex-notifications'],2);
     await page.evaluate(()=>window.plannerTest.showFusionSettings());
     await page.locator('#fusionGoal').selectOption('rarity');await page.locator('#fusionMythics').selectOption('reroll');await page.locator('#fusionRecipes').uncheck();await page.locator('#saveFusionSettings').click();
@@ -44,8 +50,10 @@ const server=http.createServer((req,res)=>{
       const imported=t.validateBaseImport(json);t.saveLocal();return {blank,restored,imported,normalized};
     });
     assert.equal(checks.blank.fusion.goal,'balanced');assert.equal(checks.blank.notifications.priority,'next');assert.equal(checks.blank.slots,0);
+    assert.equal(checks.blank.notifications.tracked.length,0);assert.equal(checks.restored.notifications.tracked[0].name,'R6');
     assert.equal(checks.restored.fusion.goal,'rarity');assert.equal(checks.restored.fusion.mythics,'reroll');assert.equal(checks.restored.fusion.recipes,false);assert.equal(checks.restored.notifications.priority,'rare');
     assert.equal(checks.imported.fusionPreferences.goal,'rarity');assert.equal(checks.imported.notificationPreferences.priority,'rare');
+    assert.equal(checks.imported.notificationPreferences.tracked[0].name,'R6');
     // A lower-quality copy still needed for rebirth cannot become an input.
     const protectedBatch=await page.evaluate(()=>{
       const t=window.plannerTest;t.state.owned=[{name:'MECHA-DROID',variant:'GALACTIC',qty:3},{name:'BB9',variant:'GALACTIC',qty:1}];
@@ -55,6 +63,7 @@ const server=http.createServer((req,res)=>{
     assert.equal(protectedBatch.chain.length,1);assert.equal(protectedBatch.chain[0].spend.find(x=>x.name==='MECHA-DROID').count,2);
     await page.reload();await page.waitForFunction(()=>window.plannerTest?.state.droids.length>0);
     assert.equal(await page.evaluate(()=>window.plannerTest.state.fusionPreferences.goal),'rarity');
+    assert.equal(await page.evaluate(()=>window.plannerTest.state.notificationPreferences.tracked[0].name),'R6');
     const other=await context.newPage();await other.goto(base+'/#/droidex');await other.waitForFunction(()=>window.plannerTest?.state.droids.length>0);
     assert.equal(await other.evaluate(()=>window.plannerTest.state.notificationPreferences.priority),'rare');await other.close();
     await page.evaluate(()=>{const t=window.plannerTest;t.state.patchNotes=[];document.querySelector('#modalRoot').innerHTML='';t.route()});
@@ -71,6 +80,27 @@ const server=http.createServer((req,res)=>{
     await page.locator('.modern-base-settings [data-fusion-settings]').click();
     assert.equal(await page.locator('#fusionGoal').inputValue(),'rarity');await page.locator('#cancelFusionSettings').click();
     await page.locator('.modern-base-settings').screenshot({path:path.join(root,'research/planning-base-settings.png')});
+    assert.equal(await page.locator('.modern-base-settings [data-notification-settings] img').count(),0);
+    await page.locator('#toggleNotificationsPanel img').waitFor();
+    assert.equal(await page.locator('#toggleNotificationsPanel img').getAttribute('src'),'assets/nav/DroidexNotifications.png');
+    await page.locator('#toggleNotificationsPanel').click();assert.equal(await page.locator('.notification-panel').isVisible(),false);
+    await page.reload();await page.waitForSelector('#toggleNotificationsPanel');assert.equal(await page.locator('.notification-panel').isVisible(),false);
+    await page.locator('#toggleNotificationsPanel').click();await page.waitForFunction(()=>document.querySelector('.notification-panel')?.getBoundingClientRect().height>0);
+    assert.equal(await page.locator('#toggleNotificationsPanel').getAttribute('aria-expanded'),'true');
+    assert.equal(await page.locator('#toggleNotificationsPanel img').count(),1);
+    await page.locator('.base-actions').screenshot({path:path.join(root,'research/notification-toolbar.png')});
+    await page.locator('.notification-panel [data-notification-settings]').click();
+    await page.locator('.notification-manual summary').click();
+    await page.locator('#notificationManualDroid').selectOption('MOUSE');
+    await page.locator('#notificationManualAdd').click();await page.locator('#saveNotificationSettings').click();
+    assert.equal(await page.locator('.notification-tracked li').count(),2);
+    assert.equal(await page.locator('.notification-recommended li').count(),0,'manual tracking uses the last free slot');
+    await page.locator('.notification-panel [data-notification-settings]').click();
+    await page.locator('#notificationSlots').selectOption('1');await page.locator('#saveNotificationSettings').click();
+    assert.equal(await page.locator('.notification-tracked li').count(),2,'lowering capacity preserves recorded game selections');
+    assert.match(await page.locator('.notification-panel .form-error').innerText(),/More notifications/);
+    await page.locator('[data-notification-track="MOUSE"]').click();
+    assert.equal(await page.locator('.notification-panel .form-error').count(),0);
     await page.evaluate(()=>{window.plannerTest.state.sharedView={canEdit:false};});
     await page.locator('.modern-base-settings [data-notification-settings]').click();
     assert.equal(await page.locator('#notificationSettingsTitle').count(),0,'read-only profile cannot open editing controls');
