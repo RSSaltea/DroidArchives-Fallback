@@ -29,6 +29,18 @@ test('Rank 31-35 screenshots offer the SRB payout for the current, preceding ran
   assert.equal(totals(35).superRebirthNova,379);
 });
 
+test('ranks 31-35 show the supplied credit and XP percentages',()=>{
+  const table=context.novaRebirthRewardsHtml();
+  [[31,554,2770],[32,602,3010],[33,652,3260],[34,704,3520],[35,758,3790]].forEach(([rank,credits,xp])=>{
+    const reward=shop.rebirthRewards.find(r=>r.rebirth===rank);
+    assert.equal(reward.creditMultPercent,credits);
+    assert.equal(reward.xpMultPercent,xp);
+    const row=table.match(new RegExp(`<tr data-nova-rebirth="${rank}">[^]*?</tr>`))[0];
+    assert(row.includes(`<td>${credits}%</td><td>${xp.toLocaleString('en-US')}%</td>`));
+    assert.match(context.rebirthRewardHtml(rank),new RegExp(`SRB \\+${credits}% credits`));
+  });
+});
+
 test('full-run planner includes regular earnings once and rounds up complete runs',()=>{
   const row=(target,rank)=>context.novaRebirthRouteOptions(target).find(r=>r.rebirth===rank);
   assert.equal(row(1854,35).runs,1);

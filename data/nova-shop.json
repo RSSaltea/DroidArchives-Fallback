@@ -2728,28 +2728,38 @@
     {
       "rebirth": 31,
       "novaCrystals": 277,
-      "regularNovaCrystals": 140
+      "regularNovaCrystals": 140,
+      "creditMultPercent": 554,
+      "xpMultPercent": 2770
     },
     {
       "rebirth": 32,
       "novaCrystals": 301,
-      "regularNovaCrystals": 160
+      "regularNovaCrystals": 160,
+      "creditMultPercent": 602,
+      "xpMultPercent": 3010
     },
     {
       "rebirth": 33,
       "novaCrystals": 326,
-      "regularNovaCrystals": 180
+      "regularNovaCrystals": 180,
+      "creditMultPercent": 652,
+      "xpMultPercent": 3260
     },
     {
       "rebirth": 34,
       "novaCrystals": 352,
-      "regularNovaCrystals": 200
+      "regularNovaCrystals": 200,
+      "creditMultPercent": 704,
+      "xpMultPercent": 3520
     },
     {
       "rebirth": 35,
       "novaCrystals": 379,
-      "regularNovaCrystals": 300
+      "regularNovaCrystals": 300,
+      "creditMultPercent": 758,
+      "xpMultPercent": 3790
     }
   ],
-  "rebirthRewardsNote": "Rebirth is the completed rank. regularNovaCrystals is paid on reaching that rank; novaCrystals is the separate Super Rebirth payout at that rank. Regular rewards and ranks 31-35 updated from player-provided reward table and in-game screenshots, 14 September 2026."
+  "rebirthRewardsNote": "Rebirth is the completed rank. regularNovaCrystals is paid on reaching that rank; novaCrystals is the separate Super Rebirth payout at that rank. Regular rewards and ranks 31-35 updated from player-provided reward table and in-game screenshots, 14 September 2026. Credit and XP percentages for ranks 31-35 supplied by a player, 16 September 2026."
 }

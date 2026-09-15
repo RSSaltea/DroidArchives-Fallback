@@ -1045,4 +1045,17 @@ body.has-rebirth-quick-bar #app{padding-bottom:74px}
 .planning-check{display:flex;align-items:center;gap:9px;margin:16px 0;font-size:.9rem}.planning-check input{flex-shrink:0}
 .fusion-keep-control [data-fusion-settings]{margin-top:8px}
 .fusion-planning-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nova-iconic-unlock{display:flex;align-items:center;gap:10px;padding:14px;border:1px solid var(--line);background:var(--panel);font-weight:700;cursor:pointer}
+.nova-iconic-unlock input{width:20px;height:20px;accent-color:#70e2c1}
+.nova-iconic-unlock-note{color:var(--muted);font-size:.85rem;line-height:1.6}
+.nova-iconic-purchases{margin:22px 0;padding:20px;border:1px solid var(--line);background:var(--panel);border-radius:12px}
+.nova-iconic-purchases>header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.nova-iconic-purchases h2{margin:0}.nova-iconic-purchases>p{color:var(--muted);line-height:1.6}
+.nova-iconic-purchase-list{display:grid;gap:10px}.nova-iconic-purchase{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px;border:1px solid var(--line);border-radius:8px}
+.nova-iconic-purchase>a{display:flex;align-items:center;gap:12px;color:var(--ink);min-width:0}
+.nova-iconic-purchase>a>img,.nova-iconic-purchase>a>picture,.nova-iconic-purchase>a>.picture{width:44px;height:48px;object-fit:contain;flex-shrink:0}
+.nova-iconic-purchase>a img{max-width:44px;max-height:48px;object-fit:contain}
+.nova-iconic-purchase>div{display:grid;gap:6px}.nova-iconic-purchase span,.nova-iconic-purchase-note{font-size:.85rem;color:var(--muted)}
+.nova-iconic-purchase.worth-buying{border-color:#478572}.nova-iconic-purchase.worth-buying>div>strong{color:var(--green,#70e2c1)}
+@media(max-width:600px){.nova-iconic-purchases{padding:14px}.nova-iconic-purchase{align-items:flex-start;flex-direction:column}}
 @media(max-width:600px){.notification-panel{padding:12px}.notification-panel>header{flex-wrap:wrap}.notification-panel>header .btn{padding:8px 12px}}
