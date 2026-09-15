@@ -94,7 +94,7 @@ const batch=(name,count=3,variant='GALACTIC')=>({name,qty:count,variant});
 function chain(rows,settings){state.fusionPreferences=settings;sb.rows=rows;return run('fusionChainFromSpares(rows,[])');}
 let steps=chain([batch('MECHA-DROID')],{});assert.equal(steps[0].kind,'quality');assert.equal(steps[0].out.variant,'STELLAR');
 steps=chain([batch('MECHA-DROID')],{goal:'rarity'});assert.equal(steps.length,0,'cannot relabel three identical droids as a rarity upgrade');
-steps=chain([batch('MECHA-DROID'),batch('BB9',2),batch('CYCLO-GRAV',1)],{goal:'rarity'});assert(steps.length>0);assert(steps.every(s=>s.kind==='rarity'&&s.rarity==='MYTHIC'));
+steps=chain([batch('MECHA-DROID'),batch('BB9',2),batch('CYCLO-GRAV',1)],{goal:'rarity'});assert.equal(steps.length,2,'mix all six Legendaries into two Mythic rolls');assert(steps.every(s=>s.kind==='rarity'&&s.rarity==='MYTHIC'&&s.variant==='GALACTIC'));
 for(const step of steps){sb.inputs=step.spend.flatMap(p=>Array.from({length:p.count},()=>({name:p.name,variant:p.variant})));assert.equal(run('fusionOutcome(inputs).kind'),'rarity');assert.equal(run('fusionOutcome(inputs).rarity'),'MYTHIC');}
 steps=chain([batch('MECHA-DROID'),batch('BB9',2)],{goal:'variant'});assert(steps.every(s=>s.kind==='quality'));
 steps=chain([batch('KX',2,'DIAMOND'),batch('RIC',1,'DIAMOND')],{mythics:'reroll'});assert.equal(steps.length,1);assert.equal(steps[0].rarity,'MYTHIC');assert.equal(steps[0].variant,'DIAMOND');assert.equal(steps[0].out,null);

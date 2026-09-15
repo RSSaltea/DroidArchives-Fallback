@@ -1132,15 +1132,36 @@ function fusionRaritySteps(stock){
     // Verify the actual three inputs. Taking the first three from a pool with
     // several names used to accidentally choose a quality upgrade or recipe.
     const holdings=group.holdings.sort((a,b)=>a[0].localeCompare(b[0]));
-    let spend=null;
-    outer:for(let a=0;a<holdings.length;a++)for(let b=a;b<holdings.length;b++)for(let c=b;c<holdings.length;c++){
+    const combinations=[];
+    for(let a=0;a<holdings.length;a++)for(let b=a;b<holdings.length;b++)for(let c=b;c<holdings.length;c++){
       const counts=new Map();for(const i of [a,b,c])counts.set(i,(counts.get(i)||0)+1);
       if([...counts].some(([i,n])=>holdings[i][1]<n))continue;
       const units=[a,b,c].map(i=>({name:holdings[i][0],variant:group.variant}));
       const outcome=fusionOutcome(units);
       if(outcome?.kind!=='rarity'||outcome.rarity!==(nextRarity(group.rarity)||group.rarity))continue;
-      spend=[...counts].map(([i,count])=>({name:holdings[i][0],variant:group.variant,count}));break outer;
+      combinations.push([...counts]);
     }
+    // Choose a batch that leaves the most further legal rarity rolls. Spending
+    // all minority names first can strand three identical droids below Stellar.
+    const upper=counts=>{const total=counts.reduce((a,b)=>a+b,0);return Math.min(12,Math.floor(total/3),nextVariant(group.variant)?total-Math.max(...counts):Infinity)};
+    const memo=new Map();
+    const pack=(counts,budget=12)=>{
+      const key=budget+':'+counts.join(','),cached=memo.get(key);if(cached)return cached;
+      const limit=Math.min(budget,upper(counts));let best={count:0,combo:null};if(!limit)return best;
+      const choices=combinations.filter(combo=>combo.every(([i,n])=>counts[i]>=n)).map(combo=>{
+        const rest=[...counts];for(const [i,n] of combo)rest[i]-=n;
+        return {combo,rest,bound:Math.min(budget-1,upper(rest)),concentration:rest.reduce((sum,n)=>sum+n*n,0)};
+      }).sort((a,b)=>b.bound-a.bound||a.concentration-b.concentration);
+      for(const choice of choices){
+        if(1+choice.bound<=best.count)continue;
+        const count=1+pack(choice.rest,budget-1).count;
+        if(count>best.count)best={count,combo:choice.combo};
+        if(best.count>=limit)break;
+      }
+      memo.set(key,best);return best;
+    };
+    const packed=pack(holdings.map(([,count])=>count));
+    const spend=packed.combo?.map(([i,count])=>({name:holdings[i][0],variant:group.variant,count}));
     if(spend)steps.push({...group,to:nextRarity(group.rarity)||group.rarity,spend,names:group.names.sort()});
   }
   return steps.sort((a,b)=>rarityStep(b.rarity)-rarityStep(a.rarity)||variantStep(b.variant)-variantStep(a.variant));
@@ -2715,6 +2736,25 @@ function optimisedPlacements(baseP,plan){
   const rows=optimisedRows(finalPlaced,overflow);
   return{placed:finalPlaced,overflow,sell:finalSell,rows}
 }
+async function collectOptimiseFusionResults(projected){
+  const pending=(projected.fusionResults||[]).filter(u=>u.fusionUnknown),picked=[];
+  for(const [index,result] of pending.entries()){
+    const choice=await new Promise(resolve=>{
+      const root=document.querySelector('#modalRoot');let settled=false;
+      const finish=value=>{if(settled)return;settled=true;observer.disconnect();resolve(value)};
+      const observer=new MutationObserver(()=>{if(!root.querySelector('#fusionResultCancel'))finish(null)});
+      showFusionResultPrompt(result.fusionInputs.map(u=>u.name),finish,{kind:'rarity',rarity:result.rarity,variant:result.variant});
+      root.querySelector('.eyebrow').textContent=`Optimise · Fusion result ${index+1} of ${pending.length}`;
+      root.querySelector('.picker-hint').textContent=`Which ${rarityLabel(result.rarity)} droid did you get at ${variantLabel(result.variant)}? It will be saved in Fusion Build ${result.slot+1}. Nothing is applied until all results are selected. Cancel if you have not completed this fusion.`;
+      observer.observe(root,{childList:true,subtree:true});
+    });
+    if(!choice)return false;
+    picked.push({...result,name:choice.name,variant:choice.variant,fusionUnknown:false});
+  }
+  projected.placed.push(...picked);
+  projected.rows=optimisedRows(projected.placed,projected.overflow);
+  return true;
+}
 async function applyOptimisedLayout(plan){
   if(state.sharedView&&!state.sharedView.canEdit)return toast('This shared profile is read only');
   const baseP=placements(),projected=optimisedPlacements(baseP,plan);
@@ -2726,6 +2766,8 @@ async function applyOptimisedLayout(plan){
   if(steps.some(step=>step.fusionBlocked))return toast('Free a Fusion Build slot and run Optimise again before applying this layout');
   if(projected.sell.length&&!confirm(`Apply this layout and remove ${projected.sell.length} droid${projected.sell.length===1?'':'s'} from Sell?`))return;
   const previousOwned=state.owned;
+  if(!await collectOptimiseFusionResults(projected))return;
+  if(state.owned!==previousOwned)return toast('Your Base changed while selecting fusion results. Regenerate Optimise before applying.');
   state.owned=projected.rows;
   clearOptimiseMarks();
   if(state.sharedView){
@@ -3288,7 +3330,8 @@ function scheduleFusionBuildSteps(steps,baseP,projected){
         text:step.text.replace('Collect the result and clear the table before the next batch.',`The result occupies Fusion Build slot ${slot+1} until it finishes building and is moved out.`)}:step);
     }
     placed.set(`fusion-result-${i}:0`,{source:`fusion-result-${i}`,unit:0,name:fusion.unit?.name||'Fusion result',variant:fusion.unit?.variant||fusion.fusion.variant,
-      station:'FUSION_BUILD',slot,built:false,lockedSlot:true,fusionResult:true});
+      station:'FUSION_BUILD',slot,built:false,lockedSlot:true,fusionResult:true,fusionUnknown:!fusion.unit?.name,rarity:fusion.fusion?.rarity,
+      fusionInputs:batch.filter(s=>['fuse-in','fuse-held','fuse-result'].includes(s.type)).flatMap(s=>Array.from({length:s.type==='fuse-result'?s.unit.count:1},()=>({name:s.unit.name,variant:s.unit.variant})))});
     i=end+1;
   }
   return{steps:out,remaining:remaining(),blocked:false};
@@ -3317,6 +3360,16 @@ function applyPlannedEquivalentSlots(baseP,projected,steps){
   projected.placed=updates;
   projected.rows=optimisedRows(updates,projected.overflow);
 }
+function applyFusionProjection(projected,scheduled){
+  if(scheduled.blocked)return;
+  const keyOf=u=>`${u.source}:${u.unit}`,consumed=new Set(scheduled.steps.filter(s=>['fuse-in','fuse-held'].includes(s.type)&&s.unit).map(s=>keyOf(s.unit)));
+  for(const field of ['placed','overflow','sell'])projected[field]=(projected[field]||[]).filter(u=>!consumed.has(keyOf(u)));
+  // Intermediate results spent by a later recipe are absent from remaining.
+  projected.fusionResults=scheduled.remaining.placed.filter(u=>u.fusionResult).map(u=>({...u,lockedSlot:false}));
+  projected.placed.push(...projected.fusionResults.filter(u=>!u.fusionUnknown));
+  projected.fusedInputs=consumed.size;
+  projected.rows=optimisedRows(projected.placed,projected.overflow);
+}
 function safeOptimiseStepPlan(baseP,projected){try{
   Object.assign(projected,normaliseProjectedForSteps(baseP,projected));
   projected.rows=optimisedRows(projected.placed,projected.overflow);
@@ -3335,7 +3388,9 @@ function safeOptimiseStepPlan(baseP,projected){try{
   // A kept Protocol spare that went into a fusion is gone, so the re-plan must not
   // try to move it to where it would otherwise have been kept.
   const consumed=new Set(steps.filter(s=>['fuse-in','fuse-held'].includes(s.type)&&s.unit).map(s=>`${s.unit.source}:${s.unit.unit}`));
-  return finish([...scheduled.steps,...planner(scheduled.remaining,{...projected,sell:[],placed:(projected.placed||[]).filter(x=>!consumed.has(`${x.source}:${x.unit}`))})]);
+  const complete=[...scheduled.steps,...planner(scheduled.remaining,{...projected,sell:[],placed:(projected.placed||[]).filter(x=>!consumed.has(`${x.source}:${x.unit}`))})];
+  applyFusionProjection(projected,scheduled);
+  return finish(complete);
 }catch(e){console.warn('Optimise step plan unavailable',e);return[]}}
 function critCalcPage(){
   const render=()=>{
@@ -3495,6 +3550,7 @@ function optimisePage(){
       try{
         const baseP=placements(),projected=optimisedPlacements(baseP,plan);
         if(safeOptimiseStepPlan(baseP,projected).some(step=>step.fusionBlocked))return{applied:false,reason:'Free a Fusion Build slot and run Optimise again'};
+        if(projected.fusionResults?.some(result=>result.fusionUnknown))return{applied:false,reason:'Use Apply optimised layout on the Base website to select your random fusion results first'};
         window.__companionOptimiseUndo=state.owned.map(r=>({...r}));
         state.owned=projected.rows;save();
         return{applied:true,sold:projected.sell.length};

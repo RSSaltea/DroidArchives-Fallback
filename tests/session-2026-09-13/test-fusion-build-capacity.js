@@ -6,7 +6,7 @@ const cap={FUSION_BUILD:3,WORKER:6,ASTROMECH:0,BATTLE:0,LOUNGE:0};
 const sb={state:{droids:[{name:'READY',type:'WORKER'},{name:'INPUT',type:'WORKER'}]},
   stationSlotIndices:s=>Array.from({length:cap[s]||0},(_,i)=>i),slotFillOrder:s=>Array.from({length:cap[s]||0},(_,i)=>i),
   NEAREST_ORDER:['WORKER','BATTLE','ASTROMECH'],PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
-  unitName:u=>u.name+' '+u.variant,placeName:s=>s};
+  unitName:u=>u.name+' '+u.variant,placeName:s=>s,optimisedRows:(placed,overflow)=>[...placed,...overflow].map(u=>({name:u.name,variant:u.variant,qty:1,preferred:u.station,preferredSlot:u.slot,built:!!u.built,lockedSlot:!!u.lockedSlot}))};
 vm.createContext(sb);vm.runInContext(src.slice(start,end),sb);
 const inputs=Array.from({length:6},(_,i)=>({source:i,unit:0,name:'INPUT',variant:'BESKAR',station:'WORKER',slot:i}));
 const ready=(slot,built=true)=>({source:10+slot,unit:0,name:'READY',variant:'DEFAULT',station:'FUSION_BUILD',slot,built});
@@ -63,3 +63,16 @@ assert.equal(plan.steps.filter(s=>s.type==='fuse').length,2);
 assert(plan.steps.find(s=>s.type==='fuse-result').text.includes('Wait for'));
 assert.equal(plan.remaining.placed.filter(x=>x.station==='FUSION_BUILD').length,1);
 console.log('PASS: chained results wait to finish and release their occupied slot');
+let projected={placed:[...inputs],overflow:[],sell:[...inputs]};
+sb.applyFusionProjection(projected,plan);
+assert.equal(projected.fusedInputs,5,'chained result replaces one original input');
+assert.equal(projected.fusionResults.length,1,'spent intermediate result is absent');
+assert.equal(projected.fusionResults[0].fusionUnknown,true);
+assert.equal(projected.rows.length,1,'only the unused original input remains until the roll is selected');
+assert.equal(projected.sell.length,1,'fused inputs are not also sold');
+plan=run([],first);projected={placed:[...inputs],overflow:[],sell:[...inputs]};sb.applyFusionProjection(projected,plan);
+assert.equal(projected.rows.length,4,'three inputs removed, one known output added');
+const result=projected.rows.find(u=>u.name==='RESULT');assert(result);assert.equal(result.preferred,'FUSION_BUILD');assert.equal(result.built,false);assert.equal(result.lockedSlot,false,'simulation locks are not permanent player locks');
+assert.equal(projected.rows.filter(u=>u.name==='INPUT').length,3,'same-name unused copies survive');
+const before=JSON.stringify(projected);sb.applyFusionProjection(projected,{blocked:true});assert.equal(JSON.stringify(projected),before);
+console.log('PASS: Apply projection removes exact fused copies, keeps final known results and never applies blocked batches');

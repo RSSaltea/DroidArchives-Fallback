@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-15-fusion-apply-batches",
+      "date": "2026-09-15",
+      "title": "Fusion fixes for Optimise",
+      "summary": "Better mixed fusion batches and correct results when applying your layout.",
+      "changes": [
+        "Optimise mixes spare droids across batches to avoid leaving identical copies behind when another rarity roll is possible.",
+        "Apply optimised layout removes the droids used in fusion and keeps the results. For random rolls, select the droid you received before saving."
+      ]
+    },
+    {
       "id": "2026-09-15-rebirth-preparation",
       "date": "2026-09-15",
       "title": "Rebirth preparation: chips and fusion",
