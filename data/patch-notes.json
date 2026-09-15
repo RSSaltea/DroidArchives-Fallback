@@ -2,6 +2,18 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-15-rebirth-notifications-fusion-goals",
+      "date": "2026-09-15",
+      "title": "Droidex Notifications and Fusion settings",
+      "summary": "Plan your Droidex Notifications and choose what Optimise should fuse.",
+      "changes": [
+        "Get Droidex Notification recommendations for upcoming, rarer or later rebirth droids, using your purchased slots and Variant Watch.",
+        "Choose higher rarity, variant upgrades or Mythic rerolls in Fusion settings.",
+        "Fixed fusion batches recommending the wrong type of upgrade. Rebirth droids stay protected.",
+        "Find both settings under Base > Advanced settings. Your choices save with each profile."
+      ]
+    },
+    {
       "id": "2026-09-15-nova-shop-additions",
       "date": "2026-09-15",
       "title": "New Nova Shop upgrades",

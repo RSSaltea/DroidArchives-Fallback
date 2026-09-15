@@ -1,0 +1,81 @@
+const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict');
+let chromium;try{({chromium}=require('playwright'))}catch{({chromium}=require(path.join(process.env.LOCALAPPDATA,'DroidArchivesResearch/ui-test/node_modules/playwright')))}
+const root=path.resolve(__dirname,'..');
+const server=http.createServer((req,res)=>{
+  let pathname=new URL(req.url,'http://localhost').pathname;if(pathname==='/')pathname='/index.html';
+  if(pathname==='/data/patch-notes.json'){res.writeHead(200,{'Content-Type':'application/json'}).end('{"notes":[]}');return}
+  const file=path.resolve(root,'.'+decodeURIComponent(pathname));if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return}
+  fs.readFile(file,(err,data)=>{if(err){res.writeHead(404).end();return}
+    if(pathname==='/app.js')data=Buffer.from(data.toString()+`\nwindow.plannerTest={state,profileDataFromState,blankProfileData,applyProfileData,normalizeProfileDoc,validateBaseImport,baseExport,saveLocal,save,route,notificationRecommendations,showFusionSettings,showNotificationSettings,optimiseFusionChain,expandedOwned};`);
+    res.writeHead(200,{'Content-Type':{'.html':'text/html','.js':'text/javascript','.json':'application/json','.css':'text/css','.png':'image/png','.svg':'image/svg+xml'}[path.extname(file)]||'application/octet-stream'});res.end(data);
+  });
+});
+(async()=>{
+  await new Promise(r=>server.listen(0,'127.0.0.1',r));
+  const base=`http://127.0.0.1:${server.address().port}`;
+  const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe'});
+  try{
+    const context=await browser.newContext({viewport:{width:1360,height:1000}});
+    await context.route('https://**/*',route=>route.abort());
+    await context.addInitScript(()=>{localStorage.setItem('droid-archive-sync-provider','local');localStorage.setItem('droid-archive-patch-notes-seen',JSON.stringify([]));});
+    const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+    await page.goto(base+'/#/droidex');await page.waitForFunction(()=>window.plannerTest?.state.droids.length>0);
+    await page.evaluate(()=>{
+      const t=window.plannerTest;document.querySelector('#modalRoot').innerHTML='';
+      t.state.patchNotes=[];
+      t.state.rebirth=20;t.state.superRebirthGoal=35;t.state.owned=[];
+      t.state.rebirths[0]=[{to:22,requiredDroids:[{droidName:'R6',variant:'GALACTIC'}]},{to:34,requiredDroids:[{droidName:'KX',variant:'STELLAR'}]},{to:35,requiredDroids:[{droidName:'R6',variant:'STELLAR'}]}];t.route();
+    });
+    await page.locator('[data-notification-settings]').click();
+    await page.locator('#notificationSlots').selectOption('2');await page.locator('#notificationVariantWatch').check();
+    await page.locator('#notificationPriority').selectOption('rare');await page.locator('#saveNotificationSettings').click();
+    assert.equal(await page.locator('.notification-list li').count(),2);
+    assert.match(await page.locator('.notification-list li').first().innerText(),/KX/);
+    const goalCheck=await page.evaluate(()=>{const t=window.plannerTest;t.state.superRebirthGoal=22;const result=t.notificationRecommendations();t.state.superRebirthGoal=35;return result;});
+    assert.equal(goalCheck.recommendations.length,1);assert.equal(goalCheck.recommendations[0].name,'R6');assert.equal(goalCheck.recommendations[0].variant,'GALACTIC');
+    const exported=await page.evaluate(()=>window.plannerTest.baseExport());assert.equal(exported.base.notificationPreferences.priority,'rare');assert.equal(exported.base.novaUpgrades['droidex-notifications'],2);
+    await page.evaluate(()=>window.plannerTest.showFusionSettings());
+    await page.locator('#fusionGoal').selectOption('rarity');await page.locator('#fusionMythics').selectOption('reroll');await page.locator('#fusionRecipes').uncheck();await page.locator('#saveFusionSettings').click();
+    const checks=await page.evaluate(()=>{
+      const t=window.plannerTest,saved=t.profileDataFromState(),json=t.baseExport();
+      const normalized=t.normalizeProfileDoc({profiles:[{id:'one',data:saved},{id:'two',data:t.blankProfileData()}],activeProfileId:'one'});
+      t.applyProfileData(normalized.profiles[1].data);const blank={fusion:t.state.fusionPreferences,notifications:t.state.notificationPreferences,slots:t.state.novaUpgrades['droidex-notifications']||0};
+      t.applyProfileData(normalized.profiles[0].data);const restored={fusion:t.state.fusionPreferences,notifications:t.state.notificationPreferences};
+      const imported=t.validateBaseImport(json);t.saveLocal();return {blank,restored,imported,normalized};
+    });
+    assert.equal(checks.blank.fusion.goal,'balanced');assert.equal(checks.blank.notifications.priority,'next');assert.equal(checks.blank.slots,0);
+    assert.equal(checks.restored.fusion.goal,'rarity');assert.equal(checks.restored.fusion.mythics,'reroll');assert.equal(checks.restored.fusion.recipes,false);assert.equal(checks.restored.notifications.priority,'rare');
+    assert.equal(checks.imported.fusionPreferences.goal,'rarity');assert.equal(checks.imported.notificationPreferences.priority,'rare');
+    // A lower-quality copy still needed for rebirth cannot become an input.
+    const protectedBatch=await page.evaluate(()=>{
+      const t=window.plannerTest;t.state.owned=[{name:'MECHA-DROID',variant:'GALACTIC',qty:3},{name:'BB9',variant:'GALACTIC',qty:1}];
+      t.state.rebirths[0]=[{to:22,requiredDroids:[{droidName:'MECHA-DROID',variant:'STELLAR'}]}];
+      const units=t.expandedOwned(),chain=t.optimiseFusionChain({sell:units,placed:[]},{placed:[]});return {chain,protectedKey:`${units[0].source}:${units[0].unit}`};
+    });
+    assert.equal(protectedBatch.chain.length,1);assert.equal(protectedBatch.chain[0].spend.find(x=>x.name==='MECHA-DROID').count,2);
+    await page.reload();await page.waitForFunction(()=>window.plannerTest?.state.droids.length>0);
+    assert.equal(await page.evaluate(()=>window.plannerTest.state.fusionPreferences.goal),'rarity');
+    const other=await context.newPage();await other.goto(base+'/#/droidex');await other.waitForFunction(()=>window.plannerTest?.state.droids.length>0);
+    assert.equal(await other.evaluate(()=>window.plannerTest.state.notificationPreferences.priority),'rare');await other.close();
+    await page.evaluate(()=>{const t=window.plannerTest;t.state.patchNotes=[];document.querySelector('#modalRoot').innerHTML='';t.route()});
+    await page.locator('.notification-panel').screenshot({path:path.join(root,'research/notification-panel-desktop.png')});
+    await page.setViewportSize({width:390,height:844});await page.locator('[data-notification-settings]').click();
+    await page.screenshot({path:path.join(root,'research/notification-settings-mobile.png')});
+    assert(await page.locator('.planning-settings-modal').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
+    await page.locator('#cancelNotificationSettings').click();
+    await page.evaluate(()=>window.plannerTest.showFusionSettings());await page.screenshot({path:path.join(root,'research/fusion-settings-mobile.png')});
+    assert(await page.locator('.planning-settings-modal').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
+    await page.locator('#cancelFusionSettings').click();
+    await page.setViewportSize({width:1360,height:1000});
+    await page.evaluate(()=>{localStorage.setItem('droid-archive-optimise-settings-open','1');location.hash='#/base'});
+    await page.locator('.modern-base-settings [data-fusion-settings]').click();
+    assert.equal(await page.locator('#fusionGoal').inputValue(),'rarity');await page.locator('#cancelFusionSettings').click();
+    await page.locator('.modern-base-settings').screenshot({path:path.join(root,'research/planning-base-settings.png')});
+    await page.evaluate(()=>{window.plannerTest.state.sharedView={canEdit:false};});
+    await page.locator('.modern-base-settings [data-notification-settings]').click();
+    assert.equal(await page.locator('#notificationSettingsTitle').count(),0,'read-only profile cannot open editing controls');
+    await page.evaluate(()=>window.plannerTest.state.sharedView=null);
+    assert.deepEqual(errors,[]);
+    console.log('PASS: UI controls, shared profile serialization, profile switching, import/export, refresh, second tab, rebirth protection and mobile layout');
+  }finally{await browser.close();server.close()}
+})().catch(error=>{console.error(error);server.close();process.exitCode=1});

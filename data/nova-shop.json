@@ -811,13 +811,13 @@
       "name": "Variant Watch",
       "category": "featured",
       "icon": "assets/nova-shop/T_Icon_DroidexNotificationVariants.png",
-      "description": "Droidex notifications alert you when a tracked Droid appears in its selected Rarity or any higher Rarity.",
+      "description": "Droidex notifications alert you when a tracked Droid appears in its selected variant or any higher variant.",
       "prerequisite": "Droidex Notifications",
       "levels": [
         {
           "level": 1,
           "cost": 100,
-          "reward": "Include the selected Rarity and all higher Rarities in Droidex notifications"
+          "reward": "Include the selected variant and all higher variants in Droidex notifications"
         }
       ]
     },

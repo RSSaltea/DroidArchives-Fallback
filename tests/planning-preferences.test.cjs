@@ -1,0 +1,42 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const root=path.resolve(__dirname,'..'),src=fs.readFileSync(path.join(root,'app.js'),'utf8');
+const line=key=>src.split(/\r?\n/).find(s=>s.startsWith(key));
+const fn=key=>{const start=src.indexOf('function '+key+'(');assert(start>=0,key);let depth=0,end=src.indexOf('{',start);for(;end<src.length;end++){if(src[end]==='{')depth++;if(src[end]==='}'&&!--depth)return src.slice(start,end+1);}};
+const state={droids:JSON.parse(fs.readFileSync(path.join(root,'data/droids.json'))),fusion:JSON.parse(fs.readFileSync(path.join(root,'data/fusion.json'))),owned:[],droidex:[],novaUpgrades:{},rebirth:20,rebirths:{},cycle:0,superRebirthGoal:35};
+const sb={state,console,capacity:()=>1,rebirthGoal:()=>state.superRebirthGoal,futureRequirements:()=>state.requirements||[],rebirthTrackerStatus:(at,req)=>({selected:state.manualVariant,ready:state.manualReady})};vm.createContext(sb);
+for(const name of ['VARIANTS','RARITY_LADDER','isIconic','isFusion','fusionDroid','fusionRecipes','fusionRecipeWants','fusionKey','fusionRecipeFor','variantStep','rarityStep','nextVariant','nextRarity','lowestVariant','droidRarity','droidIncomeAt','droidexGapFor','PRODUCTIVE_STATIONS'])vm.runInContext(line('const '+name+'='),sb);
+for(const name of ['normaliseNotificationPreferences','normaliseFusionPreferences','notificationRecommendations','fusionOutcome','fusionCountFrom','fusionBestVariant','fusionQualitySteps','fusionRaritySteps','fusionSpendFrom','fusionBestFrom','fusionChainFromSpares','typicalIncomeFor','droidexEntry'])vm.runInContext(fn(name),sb);
+const run=code=>vm.runInContext(code,sb);
+const requirements=[{droidName:'R6',variant:'GALACTIC',at:22},{droidName:'KX',variant:'STELLAR',at:34},{droidName:'RIC',variant:'GALACTIC',at:30},{droidName:'R6',variant:'STELLAR',at:35}];
+state.requirements=requirements;
+assert.equal(run('notificationRecommendations().recommendations.length'),0,'zero free slots');
+state.novaUpgrades['droidex-notifications']=1;
+let m=run('notificationRecommendations()');assert.equal(m.recommendations[0].name,'R6');assert.equal(m.recommendations[0].variant,'GALACTIC');assert.equal(m.variantWatch,false);
+state.novaUpgrades['variant-watch']=1;assert.equal(run('notificationRecommendations().variantWatch'),true);
+state.notificationPreferences={priority:'rare'};m=run('notificationRecommendations()');assert.equal(m.recommendations[0].name,'KX','late Mythic beats nearer low-rarity droid');
+state.notificationPreferences={priority:'furthest'};m=run('notificationRecommendations()');assert.equal(m.recommendations[0].name,'R6');assert.equal(m.recommendations[0].variant,'STELLAR');
+state.novaUpgrades['droidex-notifications']=10;m=run('notificationRecommendations()');assert.equal(m.recommendations.filter(x=>x.name==='R6').length,1,'one slot per droid');
+state.owned=[{name:'R6',variant:'STELLAR',qty:1,built:false}];assert(!run('notificationRecommendations().recommendations').some(x=>x.name==='R6'),'owned or building sufficient droid does not need another spawn');
+state.owned=[{name:'R6',variant:'DEFAULT',qty:1}];state.notificationPreferences.includeUpgrades=false;assert(!run('notificationRecommendations().recommendations').some(x=>x.name==='R6'));
+state.notificationPreferences.includeUpgrades=true;assert(run('notificationRecommendations().recommendations').some(x=>x.name==='R6'));
+state.rebirthTracker={notUsingBase:true};state.manualReady=true;assert.equal(run('notificationRecommendations().recommendations.length'),0);state.rebirthTracker=null;
+state.novaUpgrades['droidex-notifications']=100;assert.equal(run('notificationRecommendations().slots'),10);
+assert.equal(run("normaliseNotificationPreferences({horizon:-3,priority:'bad'}).horizon"),1);
+console.log('PASS: notification capacity, priorities, deduplication, upgrades, Variant Watch and manual tracker');
+
+state.owned=[];
+const batch=(name,count=3,variant='GALACTIC')=>({name,qty:count,variant});
+function chain(rows,settings){state.fusionPreferences=settings;sb.rows=rows;return run('fusionChainFromSpares(rows,[])');}
+let steps=chain([batch('MECHA-DROID')],{});assert.equal(steps[0].kind,'quality');assert.equal(steps[0].out.variant,'STELLAR');
+steps=chain([batch('MECHA-DROID')],{goal:'rarity'});assert.equal(steps.length,0,'cannot relabel three identical droids as a rarity upgrade');
+steps=chain([batch('MECHA-DROID'),batch('BB9',2),batch('CYCLO-GRAV',1)],{goal:'rarity'});assert(steps.length>0);assert(steps.every(s=>s.kind==='rarity'&&s.rarity==='MYTHIC'));
+for(const step of steps){sb.inputs=step.spend.flatMap(p=>Array.from({length:p.count},()=>({name:p.name,variant:p.variant})));assert.equal(run('fusionOutcome(inputs).kind'),'rarity');assert.equal(run('fusionOutcome(inputs).rarity'),'MYTHIC');}
+steps=chain([batch('MECHA-DROID'),batch('BB9',2)],{goal:'variant'});assert(steps.every(s=>s.kind==='quality'));
+steps=chain([batch('KX',2,'DIAMOND'),batch('RIC',1,'DIAMOND')],{mythics:'reroll'});assert.equal(steps.length,1);assert.equal(steps[0].rarity,'MYTHIC');assert.equal(steps[0].variant,'DIAMOND');assert.equal(steps[0].out,null);
+assert.equal(chain([batch('KX',3,'DIAMOND')],{mythics:'reroll'}).length,0,'same-name lower variants are not rerolls');
+assert.equal(chain([batch('KX',3,'STELLAR')],{mythics:'reroll'})[0].rarity,'MYTHIC');
+assert.equal(chain([batch('KX',3,'STELLAR')],{mythics:'off'}).length,0);
+assert.equal(chain([batch('KX',1),batch('IG',1),batch('RIC',1)],{mythics:'reroll'}).length,0,'known RIV-3T recipe cannot masquerade as a random reroll');
+steps=chain([batch('KX',1),batch('IG',1),batch('RIC',1),batch('LOADLIFTER',1)],{mythics:'reroll'});assert(steps.length>0,'alternative triple bypasses named recipe');
+const counts=new Map();for(const step of steps)for(const part of step.spend)counts.set(part.name,(counts.get(part.name)||0)+part.count);assert([...counts.values()].every(n=>n===1),'no repeated spend');
+console.log('PASS: exact fusion batches, rarity versus variant goals, Mythic rerolls, recipe collisions and stock consumption');

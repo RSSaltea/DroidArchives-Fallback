@@ -38,7 +38,7 @@ for(const chunk of [line('const VARIANTS='),line('const isIconic='),line('const 
   grab('function fusionBestVariant('),grab('function fusionQualitySteps('),grab('function fusionRaritySteps('),
   grab('function typicalIncomeFor('),grab('function fusionSpareStock('),grab('function fusionRoutesToNeeded('),
   grab('function droidexEntry('),line('const droidexGapFor='),grab('function fusionSpendFrom('),
-  grab('function fusionBestFrom('),grab('function fusionChainFromSpares(')])
+  grab('function fusionOutcome('),grab('function normaliseFusionPreferences('),grab('function fusionBestFrom('),grab('function fusionChainFromSpares(')])
   vm.runInContext(chunk,sandbox);
 const run=e=>vm.runInContext(e,sandbox);
 const own=rows=>{sandbox.state.owned=rows};

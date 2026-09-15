@@ -37,7 +37,7 @@ console.log('=== three that merely share a rarity step the rarity up ===');
 r=outcome([{name:'B-EPIC',variant:'BESKAR'},{name:'C-EPIC',variant:'BESKAR'},{name:'D-EPIC',variant:'BESKAR'}]);
 ok('three different Epics at Beskar make a Legendary Beskar',r.kind==='rarity'&&r.rarity==='LEGENDARY'&&r.variant==='BESKAR',JSON.stringify(r));
 r=outcome([{name:'A-MYTH',variant:'GOLD'},{name:'B-MYTH',variant:'GOLD'},{name:'C-MYTH',variant:'GOLD'}]);
-ok('Mythic is the top of the rarity ladder, so it has no step',r.kind==='unknown',JSON.stringify(r));
+ok('Three mixed-name Mythics reroll at the same variant',r.kind==='rarity'&&r.rarity==='MYTHIC'&&r.variant==='GOLD',JSON.stringify(r));
 r=outcome([{name:'A-EPIC',variant:'GOLD'},{name:'B-LEG',variant:'GOLD'},{name:'C-MYTH',variant:'GOLD'}]);
 ok('mixed rarities are not a recorded combination',r.kind==='unknown',JSON.stringify(r));
 

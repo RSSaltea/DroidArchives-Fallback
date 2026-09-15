@@ -1014,3 +1014,20 @@ body.has-rebirth-quick-bar #app{padding-bottom:74px}
 .astromech-role-row small{margin-top:4px;color:var(--muted);font-size:11px}
 .astromech-role-row .form-control{width:100%;margin:0}
 @media(max-width:480px){.astromech-role-row{grid-template-columns:32px minmax(0,1fr);gap:8px}.astromech-role-row img{width:30px}.astromech-role-row select{grid-column:1/-1}}
+/* Future-rebirth notification recommendations and profile planning controls. */
+.notification-panel{margin:16px 0;padding:18px;border:1px solid var(--border,#2a394e);border-radius:10px;background:var(--panel,#101824)}
+.notification-panel>header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.notification-panel h2{margin:3px 0 8px;font-size:1.2rem}
+.notification-panel p{margin:8px 0;color:var(--muted,#9aaac0);font-size:.88rem;line-height:1.5}
+.notification-panel .eyebrow{margin:0;color:var(--green,#51d98a)}
+.notification-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:8px;margin:14px 0;padding:0;list-style:none;counter-reset:notification}
+.notification-list li{counter-increment:notification;display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border,#2a394e);border-radius:6px;min-width:0}
+.notification-list li:before{content:counter(notification);color:var(--muted,#9aaac0);font-size:.8rem}
+.notification-list li>img,.notification-list li>picture{width:40px;height:48px;object-fit:contain;flex-shrink:0}
+.notification-list picture img{width:100%;height:100%;object-fit:contain}
+.notification-list strong{font-size:.9rem}.notification-list small{display:block;margin-top:5px;color:var(--muted,#9aaac0);font-size:.78rem;line-height:1.5}
+.planning-settings-modal{max-width:580px;max-height:90vh;overflow:auto}.planning-settings-modal .field{display:grid;gap:7px;margin:16px 0}.planning-settings-modal [hidden]{display:none!important}
+.planning-check{display:flex;align-items:center;gap:9px;margin:16px 0;font-size:.9rem}.planning-check input{flex-shrink:0}
+.fusion-keep-control [data-fusion-settings]{margin-top:8px}
+.fusion-planning-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+@media(max-width:600px){.notification-panel{padding:12px}.notification-panel>header{flex-wrap:wrap}.notification-panel>header .btn{padding:8px 12px}}

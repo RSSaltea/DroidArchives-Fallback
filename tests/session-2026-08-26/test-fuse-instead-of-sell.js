@@ -16,9 +16,9 @@ vm.runInContext('const VARIANTS='+JSON.stringify(VARIANTS)+';',sb);
 vm.runInContext(pick('const RARITY_LADDER='),sb);
 for(const k of ['const variantStep=','const rarityStep=','const nextVariant=','const nextRarity=','const isIconic=',
   'const fusionDroid=','const fusionRecipes=','const fusionRecipeWants=','const fusionKey=','const fusionRecipeFor=',
-  'const droidIncomeAt=','const droidexGapFor=','const PRODUCTIVE_STATIONS=']) vm.runInContext(pick(k),sb);
+  'const lowestVariant=','const droidRarity=','const droidIncomeAt=','const droidexGapFor=','const PRODUCTIVE_STATIONS=']) vm.runInContext(pick(k),sb);
 for(const k of ['function fusionCountFrom(','function fusionBestVariant(','function fusionQualitySteps(',
-  'function fusionRaritySteps(','function typicalIncomeFor(','function fusionSpendFrom(','function fusionBestFrom(',
+  'function fusionRaritySteps(','function typicalIncomeFor(','function fusionSpendFrom(','function fusionOutcome(','function normaliseFusionPreferences(','function fusionBestFrom(',
   'function fusionChainFromSpares(','function droidexEntry(']) vm.runInContext(grab(k),sb);
 vm.runInContext('function capacity(){return 5}',sb);   // only feeds the "are all productive slots full" test
 
