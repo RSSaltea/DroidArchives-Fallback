@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-15-notification-next-cycle",
+      "date": "2026-09-15",
+      "title": "Plan notifications for your next cycle",
+      "summary": "Skip early rebirths and prepare droids for after Super Rebirth.",
+      "changes": [
+        "Set a starting rebirth for Droidex Notifications. Use 11 to skip rebirths 1–10.",
+        "Choose the current cycle, current and next cycle, or next cycle only. Recommendations share your purchased notification slots.",
+        "Next-cycle preparation clearly explains that a friend or alt must hold the droids. Blueprints left on your floor disappear when you Super Rebirth."
+      ]
+    },
+    {
       "id": "2026-09-15-notification-upgrade-targets",
       "date": "2026-09-15",
       "title": "Notification upgrade targets",

@@ -132,6 +132,46 @@ const server=http.createServer((req,res)=>{
     await page.screenshot({path:path.join(root,'research/notification-upgrade-settings-mobile.png')});
     assert(await page.locator('.planning-settings-modal').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
     await page.locator('#cancelNotificationSettings').click();
+    // Next-cycle preparation uses the next cycle's data, not current Base ownership.
+    await page.evaluate(()=>{
+      const t=window.plannerTest;t.state.cycle=0;t.state.rebirth=34;t.state.superRebirthGoal=35;
+      t.state.owned=[{name:'LEP',variant:'STELLAR',qty:1}];
+      t.state.notificationPreferences={priority:'rare',tracked:[]};
+      t.state.rebirths[0]=[{to:35,requiredDroids:[{droidName:'CYCLENS',variant:'STELLAR'}]}];
+      t.state.rebirths[1]=[{to:10,requiredDroids:[{droidName:'MOUSE',variant:'GOLD'}]},{to:11,requiredDroids:[{droidName:'LEP',variant:'STELLAR'}]},{to:35,requiredDroids:[{droidName:'KX',variant:'STELLAR'}]}];t.route();
+    });
+    await page.locator('.notification-panel [data-notification-settings]').click();
+    assert.equal(await page.locator('#notificationStartRebirth').inputValue(),'1');
+    assert.equal(await page.locator('#notificationNextCycleNotice').isVisible(),false);
+    await page.locator('#notificationCycles').selectOption('next');
+    assert.match(await page.locator('#notificationNextCycleNotice').innerText(),/Blueprints left on your floor disappear/);
+    await page.locator('#notificationStartRebirth').fill('11');await page.locator('#notificationSlots').selectOption('10');
+    await page.locator('#notificationVariantWatch').uncheck();await page.locator('#saveNotificationSettings').click();
+    assert.equal(await page.locator('.notification-recommended li').count(),2);
+    assert.equal(await page.locator('[data-notification-track="MOUSE"]').count(),0);
+    assert.equal(await page.locator('[data-notification-track="CYCLENS"]').count(),0);
+    assert.match(await lep.innerText(),/Owned this cycle: Stellar/);assert.match(await lep.innerText(),/Next cycle 2 · R: 11/);
+    assert.match(await page.locator('.notification-panel .notification-cycle-notice').innerText(),/friend or alt/);
+    await page.locator('.notification-panel').screenshot({path:path.join(root,'research/notification-next-cycle-mobile.png')});
+    await lep.click();assert.equal(await page.locator('.notification-tracked li').count(),1);
+    await page.locator('.notification-panel [data-notification-settings]').click();
+    await page.locator('#notificationCycles').selectOption('both');await page.locator('#saveNotificationSettings').click();
+    assert.match(await page.locator('.notification-recommended li').first().innerText(),/CYCLENS/);
+    await page.setViewportSize({width:1360,height:1000});
+    await page.locator('.notification-panel').screenshot({path:path.join(root,'research/notification-next-cycle-desktop.png')});
+    const cyclePreferences=await page.evaluate(()=>{
+      const t=window.plannerTest,doc=t.normalizeProfileDoc({profiles:[{id:'cycles',data:t.profileDataFromState()}],activeProfileId:'cycles'});
+      return {imported:t.validateBaseImport(t.baseExport()).notificationPreferences,normalized:doc.profiles[0].data.notificationPreferences};
+    });
+    assert.equal(cyclePreferences.imported.startRebirth,11);assert.equal(cyclePreferences.normalized.cycles,'both');
+    await page.reload();await page.waitForSelector('.notification-panel');
+    assert.equal(await page.evaluate(()=>window.plannerTest.state.notificationPreferences.startRebirth),11);
+    assert.equal(await page.evaluate(()=>window.plannerTest.state.notificationPreferences.cycles),'both');
+    await page.setViewportSize({width:390,height:844});await page.locator('.notification-panel [data-notification-settings]').click();
+    assert.equal(await page.locator('#notificationCycles').inputValue(),'both');
+    await page.screenshot({path:path.join(root,'research/notification-next-cycle-settings-mobile.png')});
+    assert(await page.locator('.planning-settings-modal').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
+    await page.locator('#cancelNotificationSettings').click();
     assert.deepEqual(errors,[]);
     console.log('PASS: UI controls, shared profile serialization, profile switching, import/export, refresh, second tab, rebirth protection and mobile layout');
   }finally{await browser.close();server.close()}

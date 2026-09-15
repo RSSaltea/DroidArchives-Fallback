@@ -5,7 +5,7 @@ const fn=key=>{const start=src.indexOf('function '+key+'(');assert(start>=0,key)
 const state={droids:JSON.parse(fs.readFileSync(path.join(root,'data/droids.json'))),fusion:JSON.parse(fs.readFileSync(path.join(root,'data/fusion.json'))),owned:[],droidex:[],novaUpgrades:{},rebirth:20,rebirths:{},cycle:0,superRebirthGoal:35};
 const sb={state,console,capacity:()=>1,rebirthGoal:()=>state.superRebirthGoal,futureRequirements:()=>state.requirements||[],rebirthTrackerStatus:(at,req)=>({selected:state.manualVariant,ready:state.manualReady})};vm.createContext(sb);
 for(const name of ['VARIANTS','RARITY_LADDER','isIconic','isFusion','fusionDroid','fusionRecipes','fusionRecipeWants','fusionKey','fusionRecipeFor','variantStep','rarityStep','nextVariant','nextRarity','lowestVariant','droidRarity','droidIncomeAt','droidexGapFor','PRODUCTIVE_STATIONS'])vm.runInContext(line('const '+name+'='),sb);
-for(const name of ['normaliseNotificationPreferences','normaliseFusionPreferences','notificationRecommendations','fusionOutcome','fusionCountFrom','fusionBestVariant','fusionQualitySteps','fusionRaritySteps','fusionSpendFrom','fusionBestFrom','fusionChainFromSpares','typicalIncomeFor','droidexEntry'])vm.runInContext(fn(name),sb);
+for(const name of ['normaliseNotificationPreferences','normaliseFusionPreferences','notificationCyclePlan','notificationRecommendations','fusionOutcome','fusionCountFrom','fusionBestVariant','fusionQualitySteps','fusionRaritySteps','fusionSpendFrom','fusionBestFrom','fusionChainFromSpares','typicalIncomeFor','droidexEntry'])vm.runInContext(fn(name),sb);
 const run=code=>vm.runInContext(code,sb);
 const requirements=[{droidName:'R6',variant:'GALACTIC',at:22},{droidName:'KX',variant:'STELLAR',at:34},{droidName:'RIC',variant:'GALACTIC',at:30},{droidName:'R6',variant:'STELLAR',at:35}];
 state.requirements=requirements;
@@ -55,6 +55,39 @@ state.novaUpgrades['variant-watch']=1;state.notificationPreferences.tracked=[];s
 assert.equal(run('notificationRecommendations().recommendations[0].variant'),'BESKAR','manual tracker ownership supports intermediate upgrades');state.rebirthTracker=null;
 assert.equal(run("normaliseNotificationPreferences({upgradeTarget:'invalid'}).upgradeTarget"),'required');
 console.log('PASS: intermediate upgrade thresholds, final requirements, best owned copies, manual ownership and unchanged tracked records');
+
+state.owned=[];state.rebirth=0;state.cycle=0;
+state.notificationPreferences={startRebirth:11,priority:'next',horizon:3};
+state.requirements=[{droidName:'R6',variant:'GOLD',at:10},{droidName:'KX',variant:'BESKAR',at:11},{droidName:'LEP',variant:'STELLAR',at:13},{droidName:'RIC',variant:'GALACTIC',at:14}];
+m=run('notificationRecommendations()');assert.deepEqual(Array.from(m.eligible,x=>x.name),['KX','LEP'],'start is inclusive and horizon begins there');
+state.notificationPreferences.priority='rare';assert.equal(run('notificationRecommendations().eligible.length'),3);
+state.rebirth=11;assert(!run('notificationRecommendations().eligible').some(x=>x.name==='KX'),'completed rebirths stay excluded');
+state.rebirths={0:[],1:[{to:10,requiredDroids:[{droidName:'R6',variant:'GOLD'}]},{to:11,requiredDroids:[{droidName:'KX',variant:'BESKAR'},{droidName:'LEP',variant:'STELLAR'}]},{to:20,requiredDroids:[{droidName:'RIC',variant:'GALACTIC'}]}]};
+state.notificationPreferences={startRebirth:11,cycles:'next',priority:'rare',upgradeTarget:'next'};state.rebirth=34;
+state.owned=[{name:'KX',variant:'STELLAR'},{name:'LEP',variant:'RAINBOW'}];state.rebirthTracker={notUsingBase:true};state.manualReady=true;
+const before=JSON.stringify(state.owned);m=run('notificationRecommendations()');
+assert.equal(m.eligible.length,3,'current ownership and manual readiness cannot cover next cycle');assert(m.eligible.every(x=>x.nextCycleOnly));
+assert.equal(m.eligible.find(x=>x.name==='LEP').variant,'STELLAR','next-cycle target does not assume current lower copy survives');
+assert.equal(JSON.stringify(state.owned),before,'planning does not alter inventory');
+state.novaUpgrades['variant-watch']=0;assert.equal(run('notificationRecommendations().eligible.length'),3,'droid-only notifications can prepare next cycle');
+state.notificationPreferences.tracked=[{name:'KX',variant:null}];state.novaUpgrades['droidex-notifications']=2;
+m=run('notificationRecommendations()');assert.equal(m.availableSlots,1);assert.equal(m.recommendations.length,1);assert(!m.recommendations.some(x=>x.name==='KX'));
+state.rebirthTracker=null;state.notificationPreferences={startRebirth:11,cycles:'both',priority:'rare'};state.rebirth=20;
+state.requirements=[{droidName:'R6',variant:'GALACTIC',at:22},{droidName:'RIC',variant:'GALACTIC',at:30}];
+m=run('notificationRecommendations()');assert(m.recommendations.every(x=>!x.nextCycleOnly),'current-cycle needs have priority');assert.equal(m.eligible.filter(x=>x.name==='RIC').length,1,'same droid across cycles uses one notification');
+assert.equal(m.eligible.find(x=>x.name==='RIC').needs.length,2);
+state.superRebirthGoal=12;assert(!run('notificationRecommendations().eligible').some(x=>x.name==='RIC'),'goal applies to both cycles');state.superRebirthGoal=35;
+state.cycle=1;state.notificationPreferences.cycles='next';state.rebirths[0]=state.rebirths[1];m=run('notificationRecommendations()');assert.equal(m.cyclePlan.nextCycle,0,'wraps after final configured cycle');assert(m.eligible.every(x=>x.needs.every(n=>n.cycle===0)));
+state.rebirths={1:[]};assert.equal(run('notificationRecommendations().eligible.length'),0,'do not invent unavailable next-cycle data');
+assert.equal(run("normaliseNotificationPreferences({startRebirth:99,cycles:'bad'}).startRebirth"),35);assert.equal(run("normaliseNotificationPreferences({startRebirth:0,cycles:'bad'}).cycles"),'current');
+const cycleFiles=JSON.parse(fs.readFileSync(path.join(root,'data/rebirth-cycles/index.json'))).cycles;
+state.rebirths=Object.fromEntries(cycleFiles.map((file,i)=>[i,JSON.parse(fs.readFileSync(path.join(root,'data/rebirth-cycles',file)))]));
+state.cycle=0;state.notificationPreferences={cycles:'next',priority:'rare',startRebirth:11};state.novaUpgrades['droidex-notifications']=10;
+state.owned=state.droids.map(d=>({name:d.name,variant:'STELLAR'}));m=run('notificationRecommendations()');
+assert.equal(m.recommendations.length,10,'can use all ten slots for the next real cycle even with a complete Base');assert(m.recommendations.every(x=>x.needs.every(n=>n.cycle===1&&n.at>=11)));
+state.cycle=cycleFiles.length-1;assert.equal(run('notificationRecommendations().cyclePlan.nextCycle'),0,'real last cycle wraps to Cycle 1');
+state.cycle=0;state.rebirths={};state.rebirthTracker=null;
+console.log('PASS: inclusive rebirth start, cycle selection, future ownership, shared capacity, deduplication, goal limits and cycle wrap');
 
 state.owned=[];
 const batch=(name,count=3,variant='GALACTIC')=>({name,qty:count,variant});

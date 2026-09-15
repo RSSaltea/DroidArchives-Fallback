@@ -1022,6 +1022,8 @@ body.has-rebirth-quick-bar #app{padding-bottom:74px}
 .notification-panel h3{font-size:.85rem;margin:14px 0 8px;color:var(--muted,#9aaac0)}
 .notification-panel p{margin:8px 0;color:var(--muted,#9aaac0);font-size:.88rem;line-height:1.5}
 .notification-panel .eyebrow{margin:0;color:var(--green,#51d98a)}
+.notification-cycle-notice{margin:14px 0;padding:12px;border:1px solid #a58a3c;border-left:4px solid #d9b951;border-radius:6px;background:rgba(217,185,81,.07);font-size:.85rem;line-height:1.5}
+.notification-cycle-notice strong{color:#e5c975}.notification-cycle-notice p{margin:6px 0 0;font-size:.85rem}
 .notification-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:8px;margin:14px 0;padding:0;list-style:none}
 .notification-list li{display:flex;min-width:0}
 .notification-card{display:flex;align-items:center;gap:10px;padding:12px;width:100%;min-width:0;text-align:left;font:inherit;color:inherit;background:transparent;border:1px solid var(--border,#2a394e);border-radius:6px;cursor:pointer}
