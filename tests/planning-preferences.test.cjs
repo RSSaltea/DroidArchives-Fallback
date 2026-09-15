@@ -45,7 +45,10 @@ for(let i=0;i<ladder.length-1;i++){
   assert.equal(m.recommendations[0].variant,ladder[i+1]);assert.equal(m.recommendations[0].requiredVariant,'STELLAR');
 }
 state.owned=[{name:'LEP',variant:'STELLAR'}];assert.equal(run('notificationRecommendations().recommendations.length'),0);
-state.owned=[];assert.equal(run('notificationRecommendations().recommendations[0].variant'),'STELLAR','missing droids still target the requirement');
+state.owned=[];m=run('notificationRecommendations()');assert.equal(m.recommendations[0].variant,'DEFAULT','any copy improves on owning none');assert.equal(m.recommendations[0].requiredVariant,'STELLAR');
+state.notificationPreferences.upgradeTarget='required';assert.equal(run('notificationRecommendations().recommendations[0].variant'),'STELLAR','required mode still targets the rebirth requirement');
+state.notificationPreferences.upgradeTarget='next';state.notificationPreferences.ownedPolicy='missing';assert.equal(run('notificationRecommendations().recommendations[0].variant'),'STELLAR','disabled upgrade setting does not affect missing-only mode');
+state.notificationPreferences.ownedPolicy='upgrades';state.novaUpgrades['variant-watch']=0;assert.equal(run('notificationRecommendations().recommendations[0].variant'),'STELLAR','disabled upgrade setting requires Variant Watch');state.novaUpgrades['variant-watch']=1;
 state.owned=[{name:'LEP',variant:'GOLD'},{name:'LEP',variant:'RAINBOW',built:false}];
 assert.equal(run('notificationRecommendations().recommendations[0].variant'),'BESKAR','use the strongest owned copy, including builds');
 state.notificationPreferences.tracked=[{name:'LEP',variant:'BESKAR'}];state.owned=[{name:'LEP',variant:'BESKAR'}];

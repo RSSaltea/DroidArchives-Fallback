@@ -132,6 +132,15 @@ const server=http.createServer((req,res)=>{
     await page.screenshot({path:path.join(root,'research/notification-upgrade-settings-mobile.png')});
     assert(await page.locator('.planning-settings-modal').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
     await page.locator('#cancelNotificationSettings').click();
+    // Owning nothing starts at Default; tracked thresholds remain explicit.
+    await page.evaluate(()=>{const t=window.plannerTest;t.state.owned=[];t.state.notificationPreferences.tracked=[];t.route()});
+    assert.match(await lep.innerText(),/Owned: None/);assert.match(await lep.innerText(),/Track: Default and above/);assert.match(await lep.innerText(),/Rebirth needs: R: 35 · Stellar/);
+    await lep.click();assert.match(await lep.innerText(),/Tracking: Default and above/);
+    const missingExport=await page.evaluate(()=>window.plannerTest.validateBaseImport(window.plannerTest.baseExport()));
+    assert.equal(missingExport.notificationPreferences.tracked[0].variant,'DEFAULT');
+    await page.locator('.notification-panel [data-notification-settings]').click();
+    await page.locator('#notificationUpgradeTarget').selectOption('required');await page.locator('#saveNotificationSettings').click();
+    assert.match(await lep.innerText(),/Now recommended: Stellar and above/);assert.match(await lep.innerText(),/Tracking: Default and above/);
     // Next-cycle preparation uses the next cycle's data, not current Base ownership.
     await page.evaluate(()=>{
       const t=window.plannerTest;t.state.cycle=0;t.state.rebirth=34;t.state.superRebirthGoal=35;

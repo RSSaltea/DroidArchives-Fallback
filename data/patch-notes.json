@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-15-notification-any-improvement",
+      "date": "2026-09-15",
+      "title": "Consistent notification improvements",
+      "summary": "Any improvement now includes droids you do not own yet.",
+      "changes": [
+        "With Variant Watch and Any improvement enabled, owning no copy recommends Default and above. Owning Default recommends Gold and above, and so on.",
+        "Rebirth requirement and above still targets the required variant. Notifications already marked as tracked keep the threshold you recorded."
+      ]
+    },
+    {
       "id": "2026-09-15-protocol-slot-unlocks",
       "date": "2026-09-15",
       "title": "Protocol slot unlocks",
