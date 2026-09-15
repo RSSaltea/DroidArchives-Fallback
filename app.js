@@ -3193,13 +3193,15 @@ function scheduleFusionBuildSteps(steps,baseP,projected){
       if(unit.station!=='FUSION_BUILD'||!unit.built||unit.lockedSlot)continue;
       const native=state.droids.find(d=>d.name===unit.name)?.type;
       const destinations=[native,...NEAREST_ORDER.filter(type=>type!==native)].filter(type=>PRODUCTIVE_STATIONS.includes(type));
-      const to=destinations.find(type=>freeSlot(type)!==undefined);
+      // A full work floor must not block fusion when storage can hold a ready droid.
+      const to=destinations.find(type=>freeSlot(type)!==undefined)||(freeSlot('LOUNGE')!==undefined?'LOUNGE':null);
       if(!to)continue;
       const slot=slotFillOrder(to,{station:unit.station,slot:unit.slot}).find(slot=>![...placed.values()].some(x=>x.station===to&&x.slot===slot));
       const fromSlot=unit.slot;
-      out.push({type:'move',kind:'work',unit:{...unit},at:'FUSION_BUILD',from:'FUSION_BUILD',fromSlot,to,visit,
-        assumed:to!==native&&destinations.filter(type=>freeSlot(type)!==undefined).length>1,
-        text:`Tell ${unitName(unit)} to go to work from Fusion Build - it will take a ${placeName(to)} slot and free a Fusion Build slot before the next batch.`});
+      out.push({type:'move',kind:to==='LOUNGE'?'lounge':'work',unit:{...unit},at:'FUSION_BUILD',from:'FUSION_BUILD',fromSlot,to,toSlot:slot,visit,
+        assumed:to!=='LOUNGE'&&to!==native&&destinations.filter(type=>freeSlot(type)!==undefined).length>1,
+        text:to==='LOUNGE'?`Move ${unitName(unit)} from Fusion Build ${fromSlot+1} to Lounge ${slot+1} to free a Fusion Build slot before the next batch.`:
+          `Tell ${unitName(unit)} to go to work from Fusion Build - it will take a ${placeName(to)} slot and free a Fusion Build slot before the next batch.`});
       placed.set(keyOf(unit),{...unit,station:to,slot});
       return true;
     }

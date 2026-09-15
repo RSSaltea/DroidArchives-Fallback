@@ -2,7 +2,7 @@
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert');
 const src=fs.readFileSync(path.resolve(__dirname,'../../app.js'),'utf8');
 const start=src.indexOf('function scheduleFusionBuildSteps('),end=src.indexOf('function safeOptimiseStepPlan(',start);
-const cap={FUSION_BUILD:3,WORKER:6,ASTROMECH:0,BATTLE:0};
+const cap={FUSION_BUILD:3,WORKER:6,ASTROMECH:0,BATTLE:0,LOUNGE:0};
 const sb={state:{droids:[{name:'READY',type:'WORKER'},{name:'INPUT',type:'WORKER'}]},
   stationSlotIndices:s=>Array.from({length:cap[s]||0},(_,i)=>i),slotFillOrder:s=>Array.from({length:cap[s]||0},(_,i)=>i),
   NEAREST_ORDER:['WORKER','BATTLE','ASTROMECH'],PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
@@ -33,6 +33,25 @@ console.log('PASS: unfinished builds stop later transfers instead of overflowing
 plan=run([ready(0,false),ready(1,false),ready(2,false)]);
 assert(plan.blocked);assert(!plan.steps.some(s=>s.type==='fuse-in'||s.type==='fuse'));
 console.log('PASS: a full room at the start prevents loading the first batch');
+cap.LOUNGE=2;
+plan=run([ready(0),ready(1),ready(2)]);
+assert(!plan.blocked);assert.equal(plan.steps.filter(s=>s.type==='fuse').length,2);
+assert.equal(plan.steps[0].to,'LOUNGE');assert.equal(plan.steps[0].toSlot,0);assert.equal(plan.steps[0].fromSlot,0);
+assert.equal(plan.steps[0].kind,'lounge');assert(plan.steps[0].text.startsWith('Move READY'));
+assert.equal(plan.remaining.placed.find(x=>x.source===10).station,'LOUNGE');
+assert.equal(plan.remaining.placed.find(x=>x.source===11).station,'WORKER','prefer work after inputs free a work slot');
+assert.equal(new Set(plan.remaining.placed.map(x=>`${x.station}:${x.slot}`)).size,plan.remaining.placed.length);
+const loungeOccupant={source:20,unit:0,name:'READY',variant:'DEFAULT',station:'LOUNGE',slot:0};
+plan=run([ready(0),ready(1),ready(2),loungeOccupant],batch(0));
+assert.equal(plan.steps[0].toSlot,1,'use a genuinely empty Lounge slot');
+assert.equal(plan.remaining.placed.find(x=>x.source===20).slot,0,'existing occupant stays put');
+plan=run([{...ready(0),lockedSlot:true},ready(1,false),ready(2)],batch(0));
+assert.equal(plan.steps[0].unit.source,12,'skip locked and unfinished droids');
+plan=run([ready(0,false),ready(1,false),ready(2,false)],batch(0));assert(plan.blocked,'free Lounge cannot make unfinished builds movable');
+cap.LOUNGE=1;plan=run([ready(0),ready(1),ready(2),loungeOccupant],batch(0));
+assert(plan.blocked);assert(!plan.steps.some(s=>s.type==='fuse-in'||s.type==='fuse'),'full destinations remain blocked');
+cap.LOUNGE=0;
+console.log('PASS: completed builds use free Lounge slots, continue batches and respect occupants, locks and unfinished builds');
 cap.FUSION_BUILD=1;
 plan=run([]);assert(plan.blocked);assert.equal(plan.steps.filter(s=>s.type==='fuse').length,1);
 console.log('PASS: only unlocked result slots are counted');

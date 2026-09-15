@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-15-fusion-build-lounge",
+      "date": "2026-09-15",
+      "title": "Clear Fusion Build automatically in the plan",
+      "summary": "Optimise now plans a Lounge move when Fusion Build is full and work slots are occupied.",
+      "changes": [
+        "Completed, unlocked droids can move to a free Lounge slot so the next fusion batch can continue.",
+        "The walkthrough names the droid and destination, then plans the remaining moves from there."
+      ]
+    },
+    {
       "id": "2026-09-15-notification-next-cycle",
       "date": "2026-09-15",
       "title": "Plan notifications for your next cycle",
