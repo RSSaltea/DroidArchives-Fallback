@@ -105,6 +105,33 @@ const server=http.createServer((req,res)=>{
     await page.locator('.modern-base-settings [data-notification-settings]').click();
     assert.equal(await page.locator('#notificationSettingsTitle').count(),0,'read-only profile cannot open editing controls');
     await page.evaluate(()=>window.plannerTest.state.sharedView=null);
+    await page.evaluate(()=>{
+      const t=window.plannerTest;t.state.owned=[{name:'LEP',variant:'RAINBOW',qty:1}];
+      t.state.rebirths[t.state.cycle]=[{to:35,requiredDroids:[{droidName:'LEP',variant:'STELLAR'}]}];
+      t.state.notificationPreferences={priority:'rare',tracked:[]};t.route();
+    });
+    await page.locator('.notification-panel [data-notification-settings]').click();
+    assert(await page.locator('#notificationUpgradeTarget').isDisabled());
+    await page.locator('#notificationUpgrades').check();await page.locator('#notificationUpgradeTarget').selectOption('next');
+    await page.locator('#notificationVariantWatch').uncheck();assert(await page.locator('#notificationUpgradeTarget').isDisabled());
+    await page.locator('#notificationVariantWatch').check();await page.locator('#saveNotificationSettings').click();
+    const lep=page.locator('[data-notification-track="LEP"]');
+    assert.match(await lep.innerText(),/Owned: Rainbow/);assert.match(await lep.innerText(),/Track: Beskar and above/);assert.match(await lep.innerText(),/Rebirth needs: R: 35 · Stellar/);
+    await page.locator('.notification-panel').screenshot({path:path.join(root,'research/notification-upgrade-target.png')});
+    await lep.click();assert.match(await lep.innerText(),/Tracking: Beskar and above/);
+    const upgradeExport=await page.evaluate(()=>window.plannerTest.validateBaseImport(window.plannerTest.baseExport()));
+    assert.equal(upgradeExport.notificationPreferences.upgradeTarget,'next');assert.equal(upgradeExport.notificationPreferences.tracked[0].variant,'BESKAR');
+    await page.reload();await page.waitForSelector('[data-notification-track="LEP"]');
+    assert.equal(await page.evaluate(()=>window.plannerTest.state.notificationPreferences.upgradeTarget),'next');
+    await page.evaluate(()=>{const t=window.plannerTest;t.state.rebirths[t.state.cycle]=[{to:35,requiredDroids:[{droidName:'LEP',variant:'STELLAR'}]}];t.state.owned[0].variant='BESKAR';t.route()});
+    assert.match(await lep.innerText(),/Tracking: Beskar and above/);assert.match(await lep.innerText(),/Now recommended: Galactic and above/);
+    await page.setViewportSize({width:390,height:844});
+    assert(await lep.evaluate(el=>el.scrollWidth<=el.clientWidth+1));
+    await page.locator('.notification-panel [data-notification-settings]').click();
+    assert.equal(await page.locator('#notificationUpgradeTarget').inputValue(),'next');
+    await page.screenshot({path:path.join(root,'research/notification-upgrade-settings-mobile.png')});
+    assert(await page.locator('.planning-settings-modal').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
+    await page.locator('#cancelNotificationSettings').click();
     assert.deepEqual(errors,[]);
     console.log('PASS: UI controls, shared profile serialization, profile switching, import/export, refresh, second tab, rebirth protection and mobile layout');
   }finally{await browser.close();server.close()}

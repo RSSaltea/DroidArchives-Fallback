@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-15-notification-upgrade-targets",
+      "date": "2026-09-15",
+      "title": "Notification upgrade targets",
+      "summary": "Track useful upgrades before you find the final rebirth variant.",
+      "changes": [
+        "Added Any improvement over owned to Droidex Notification settings. Own Rainbow and need Stellar? Recommend Beskar and above.",
+        "Cards now show your owned variant, notification target and rebirth requirements on separate lines.",
+        "If a tracked target needs changing, the card tells you. Your recorded in-game selection stays unchanged until you update it."
+      ]
+    },
+    {
       "id": "2026-09-15-notification-tracking",
       "date": "2026-09-15",
       "title": "Droidex Notification tracking",

@@ -34,6 +34,28 @@ state.novaUpgrades['droidex-notifications']=100;assert.equal(run('notificationRe
 assert.equal(run("normaliseNotificationPreferences({horizon:-3,priority:'bad'}).horizon"),1);
 console.log('PASS: notification capacity, priorities, deduplication, upgrades, Variant Watch and manual tracker');
 
+state.requirements=[{droidName:'LEP',variant:'STELLAR',at:35}];
+state.notificationPreferences={priority:'rare',ownedPolicy:'upgrades'};
+state.owned=[{name:'LEP',variant:'RAINBOW'}];
+m=run('notificationRecommendations()');assert.equal(m.recommendations[0].variant,'STELLAR','existing profiles keep the final requirement as their target');
+state.notificationPreferences.upgradeTarget='next';
+const ladder=['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR'];
+for(let i=0;i<ladder.length-1;i++){
+  state.owned=[{name:'LEP',variant:ladder[i]}];m=run('notificationRecommendations()');
+  assert.equal(m.recommendations[0].variant,ladder[i+1]);assert.equal(m.recommendations[0].requiredVariant,'STELLAR');
+}
+state.owned=[{name:'LEP',variant:'STELLAR'}];assert.equal(run('notificationRecommendations().recommendations.length'),0);
+state.owned=[];assert.equal(run('notificationRecommendations().recommendations[0].variant'),'STELLAR','missing droids still target the requirement');
+state.owned=[{name:'LEP',variant:'GOLD'},{name:'LEP',variant:'RAINBOW',built:false}];
+assert.equal(run('notificationRecommendations().recommendations[0].variant'),'BESKAR','use the strongest owned copy, including builds');
+state.notificationPreferences.tracked=[{name:'LEP',variant:'BESKAR'}];state.owned=[{name:'LEP',variant:'BESKAR'}];
+m=run('notificationRecommendations()');assert.equal(m.tracked[0].variant,'BESKAR','recorded game threshold must not silently change');assert.equal(m.eligible[0].variant,'GALACTIC');
+state.novaUpgrades['variant-watch']=0;assert.equal(run('notificationRecommendations().eligible.length'),0);
+state.novaUpgrades['variant-watch']=1;state.notificationPreferences.tracked=[];state.rebirthTracker={notUsingBase:true};state.manualReady=false;state.manualVariant='RAINBOW';state.owned=[];
+assert.equal(run('notificationRecommendations().recommendations[0].variant'),'BESKAR','manual tracker ownership supports intermediate upgrades');state.rebirthTracker=null;
+assert.equal(run("normaliseNotificationPreferences({upgradeTarget:'invalid'}).upgradeTarget"),'required');
+console.log('PASS: intermediate upgrade thresholds, final requirements, best owned copies, manual ownership and unchanged tracked records');
+
 state.owned=[];
 const batch=(name,count=3,variant='GALACTIC')=>({name,qty:count,variant});
 function chain(rows,settings){state.fusionPreferences=settings;sb.rows=rows;return run('fusionChainFromSpares(rows,[])');}
