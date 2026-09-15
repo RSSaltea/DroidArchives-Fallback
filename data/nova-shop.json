@@ -745,6 +745,83 @@
       ]
     },
     {
+      "id": "droidex-notifications",
+      "sourceId": "DRN",
+      "name": "Droidex Notifications",
+      "category": "featured",
+      "icon": "assets/nova-shop/T_Icon_DroidexNotification.png",
+      "description": "Enable notifications for Droid spawns by selecting them in your Droidex. Track up to 10 Droids at a time.",
+      "prerequisite": "Rebirth Droid Alert",
+      "levels": [
+        {
+          "level": 1,
+          "cost": 20,
+          "reward": "Track up to 1 Droid at a time"
+        },
+        {
+          "level": 2,
+          "cost": 20,
+          "reward": "Track up to 2 Droids at a time"
+        },
+        {
+          "level": 3,
+          "cost": 20,
+          "reward": "Track up to 3 Droids at a time"
+        },
+        {
+          "level": 4,
+          "cost": 20,
+          "reward": "Track up to 4 Droids at a time"
+        },
+        {
+          "level": 5,
+          "cost": 20,
+          "reward": "Track up to 5 Droids at a time"
+        },
+        {
+          "level": 6,
+          "cost": 20,
+          "reward": "Track up to 6 Droids at a time"
+        },
+        {
+          "level": 7,
+          "cost": 20,
+          "reward": "Track up to 7 Droids at a time"
+        },
+        {
+          "level": 8,
+          "cost": 20,
+          "reward": "Track up to 8 Droids at a time"
+        },
+        {
+          "level": 9,
+          "cost": 20,
+          "reward": "Track up to 9 Droids at a time"
+        },
+        {
+          "level": 10,
+          "cost": 20,
+          "reward": "Track up to 10 Droids at a time"
+        }
+      ]
+    },
+    {
+      "id": "variant-watch",
+      "sourceId": "DVA",
+      "name": "Variant Watch",
+      "category": "featured",
+      "icon": "assets/nova-shop/T_Icon_DroidexNotificationVariants.png",
+      "description": "Droidex notifications alert you when a tracked Droid appears in its selected Rarity or any higher Rarity.",
+      "prerequisite": "Droidex Notifications",
+      "levels": [
+        {
+          "level": 1,
+          "cost": 100,
+          "reward": "Include the selected Rarity and all higher Rarities in Droidex notifications"
+        }
+      ]
+    },
+    {
       "id": "luck-boost-token",
       "sourceId": "LBT",
       "name": "Luck Boost Token",
@@ -1340,7 +1417,7 @@
       "name": "Pickaxe Mastery",
       "category": "core",
       "icon": "assets/nova-shop/T_Icon_KeepPickaxeLevel.png",
-      "description": "Keep up to 25 pickaxe levels when you Super Rebirth.",
+      "description": "Keep up to 29 pickaxe levels when you Super Rebirth.",
       "levels": [
         {
           "level": 1,
@@ -1396,6 +1473,16 @@
           "level": 11,
           "cost": 55,
           "reward": "Keep 25 pickaxe levels"
+        },
+        {
+          "level": 12,
+          "cost": 120,
+          "reward": "Keep 27 pickaxe levels"
+        },
+        {
+          "level": 13,
+          "cost": 140,
+          "reward": "Keep 29 pickaxe levels"
         }
       ]
     },

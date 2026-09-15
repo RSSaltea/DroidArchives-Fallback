@@ -1534,10 +1534,16 @@ const critProfile=({chanceLevel=0,amountLevel=0,multiLevel=0,chopper=false,picka
   const base=pickaxeHitSeconds(pickaxe+astromech),multiplier=critMultiplier(chance,amount,rolls);
   return{chance,amount,rolls,base,multiplier,perHit:base*multiplier};
 };
-// Pickaxe Mastery only decides how many levels survive a Super Rebirth: 5 at
-// rank 1, then two more each rank, up to 25. That is the floor the calculator
-// starts you at until you say otherwise.
-const pickaxeMasteryLevels=()=>{const r=novaLevelFor('pickaxe-mastery');return r>0?5+2*(r-1):0};
+// Pickaxe Mastery only decides how many levels survive a Super Rebirth. That is
+// the floor the calculator starts you at until you say otherwise. It is read from
+// the Nova Shop rewards, so new ranks only need the data; before the shop loads
+// it falls back to 5 at rank 1 and two more each rank.
+const pickaxeMasteryLevels=()=>{
+  const r=novaLevelFor('pickaxe-mastery');if(r<=0)return 0;
+  const levels=state.novaShop?.upgrades?.find(u=>u.id==='pickaxe-mastery')?.levels||[];
+  const kept=Number(String(levels[Math.min(r,levels.length)-1]?.reward||'').match(/\d+/)?.[0]);
+  return Number.isFinite(kept)&&kept>0?kept:5+2*(r-1);
+};
 // An Astromech companion's pickaxe levels stack onto your own.
 const companionAstromechBonus=placed=>Math.max(0,...[0,...placed.filter(x=>x.station==='COMPANION').map(x=>{
   const d=state.droids.find(y=>y.name===x.name);return d?.type==='ASTROMECH'?droidAttributeValue(d,x.variant):0})]);

@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-15-nova-shop-additions",
+      "date": "2026-09-15",
+      "title": "New Nova Shop upgrades",
+      "summary": "Pickaxe Mastery goes to 29 levels, and two new Featured upgrades.",
+      "changes": [
+        "Added Pickaxe Mastery 12 (keep 27 pickaxe levels, 120 Nova Crystals) and 13 (keep 29 pickaxe levels, 140 Nova Crystals).",
+        "Edited the Critical Calculator to use the new Pickaxe Mastery levels.",
+        "Added Droidex Notifications and Variant Watch to the Featured Nova Shop upgrades."
+      ]
+    },
+    {
       "id": "2026-09-14-equivalent-droid-moves",
       "date": "2026-09-14",
       "title": "Fewer unnecessary Optimise moves",
