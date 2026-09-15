@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-15-protocol-slot-unlocks",
+      "date": "2026-09-15",
+      "title": "Protocol slot unlocks",
+      "summary": "Protocol slots now follow their rebirth unlocks and your slot purchase settings.",
+      "changes": [
+        "Credit slots unlock at Rebirths 2, 6 and 10; Crafting slots at 14, 18 and 22, in Worker, Astromech and Battle order.",
+        "Purchase costs are stored for future use. Worker Crafting is provisionally set to Rebirth 14."
+      ]
+    },
+    {
       "id": "2026-09-15-fusion-apply-batches",
       "date": "2026-09-15",
       "title": "Fusion fixes for Optimise",

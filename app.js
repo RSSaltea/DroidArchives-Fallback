@@ -229,8 +229,15 @@ const FUSION_REBIRTH=3;
 // the room, the second with Fusion Tank 1, the third with Fusion Tank 2.
 const FUSION_BUILD_SLOTS=3;
 const PROTOCOL_REGIONS=['WORKER','ASTROMECH','BATTLE'];
+// Purchase costs are reference data only; slot availability follows rebirth and
+// the profile's existing purchase settings. Worker Crafting R14 is provisional.
+const PROTOCOL_SLOT_DATA={
+  WORKER:{CREDITS:{unlockRebirth:2,costCredits:500000},CRAFTING:{unlockRebirth:14,costCredits:11000000000,unlockRebirthProvisional:true}},
+  ASTROMECH:{CREDITS:{unlockRebirth:6,costCredits:10000000},CRAFTING:{unlockRebirth:18,costCredits:280000000000}},
+  BATTLE:{CREDITS:{unlockRebirth:10,costCredits:400000000},CRAFTING:{unlockRebirth:22,costCredits:3900000000000}}
+};
 const PROTOCOL_SLOTS=Object.fromEntries(PROTOCOL_REGIONS.flatMap((region,buildSlot)=>['CREDITS','CRAFTING'].map(role=>[
-  `PROTOCOL_${region}_${role}`,{region,buildSlot,role,label:`${region[0]+region.slice(1).toLowerCase()} Protocol · ${role==='CREDITS'?'Credits':'Crafting'}`}
+  `PROTOCOL_${region}_${role}`,{region,buildSlot,role,...PROTOCOL_SLOT_DATA[region][role],label:`${region[0]+region.slice(1).toLowerCase()} Protocol · ${role==='CREDITS'?'Credits':'Crafting'}`}
 ])));
 const isProtocolStation=station=>Boolean(PROTOCOL_SLOTS[station]);
 const protocolNumber=value=>Number(value)===0?'0':fmt(value);
@@ -468,7 +475,7 @@ function protocolStepPlan(baseP,projected,includeFusion=true,batch=true){
   return includeFusion?withFusionSteps(steps,projected,baseP):steps;
 }
 
-const SLOT_RULES={...Object.fromEntries(Object.keys(PROTOCOL_SLOTS).map(station=>[station,{initial:1,unlocks:[]}])),FUSION:{initial:0,unlocks:Array(3).fill(FUSION_REBIRTH)},FUSION_BUILD:{initial:0,unlocks:[FUSION_REBIRTH,99,99]},WORKER:{initial:4,unlocks:[1,4,7,10,12,14,16]},ASTROMECH:{initial:3,unlocks:[2,5,8,11,13,15]},BATTLE:{initial:2,unlocks:[3,6,9,17,18,19,20,21,22]},BUILD:{initial:1,unlocks:[1,2]},LOUNGE:{initial:5,unlocks:Array(8).fill(99)},COMPANION:{initial:2,unlocks:[]},UPGRADE_CHIP:{initial:1,unlocks:[]}};
+const SLOT_RULES={...Object.fromEntries(Object.entries(PROTOCOL_SLOTS).map(([station,slot])=>[station,{initial:0,unlocks:[slot.unlockRebirth],costs:[slot.costCredits]}])),FUSION:{initial:0,unlocks:Array(3).fill(FUSION_REBIRTH)},FUSION_BUILD:{initial:0,unlocks:[FUSION_REBIRTH,99,99]},WORKER:{initial:4,unlocks:[1,4,7,10,12,14,16]},ASTROMECH:{initial:3,unlocks:[2,5,8,11,13,15]},BATTLE:{initial:2,unlocks:[3,6,9,17,18,19,20,21,22]},BUILD:{initial:1,unlocks:[1,2]},LOUNGE:{initial:5,unlocks:Array(8).fill(99)},COMPANION:{initial:2,unlocks:[]},UPGRADE_CHIP:{initial:1,unlocks:[]}};
 // Astromech slots 1, 3, 5, 7 and 9 send droids on missions; the rest just earn.
 // Mission slots are numbered as the Base shows them, so these are the indices.
 const ASTROMECH_MISSION_SLOTS=[0,2,4,6,8];
