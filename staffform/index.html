@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Apply to help the Droid Archives community as a Helper or Moderator.">
+  <title>Join the team · Droid Archives</title>
+  <link rel="icon" href="../assets/other/icon.png">
+  <link rel="stylesheet" href="staffform.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="staffform.js" defer></script>
+</head>
+<body>
+  <header><a class="brand" href="../"><img src="../assets/other/icon.png" alt=""><span>Droid Archives</span></a><a href="https://discord.com/invite/6db7Kg8Wre" target="_blank" rel="noopener noreferrer">Join our Discord ↗</a></header>
+  <main>
+    <p class="eyebrow">HELPERS & MODERATORS</p>
+    <h1>A little help goes a long way.</h1>
+    <p class="intro">Help people find their way around Droid Archives, keep useful feedback from getting lost, and make the community a welcoming place.</p>
+    <div class="roles">
+      <section><span class="role-number">01</span><h2>Helper</h2><p>Answer questions, point people towards tools and information, and pass useful suggestions and feedback to the team.</p></section>
+      <section><span class="role-number">02</span><h2>Moderator</h2><p>Do everything a Helper does, plus deal with spam and inappropriate behaviour and keep discussions organised.</p></section>
+    </div>
+    <p class="reassurance">You do not need to know everything. We are looking for a small number of active, helpful and sensible people who care about the project.</p>
+    <section class="account" aria-labelledby="account-title">
+      <h2 id="account-title">Your Droid Archives account</h2>
+      <p id="account-status" role="status">Checking sign-in…</p>
+      <form id="login-form" hidden>
+        <p>Use the same account you use for your saved profiles.</p>
+        <div class="login-fields"><label>Email<input name="email" type="email" autocomplete="email" required maxlength="254"></label><label>Password<input name="password" type="password" autocomplete="current-password" required minlength="6"></label></div>
+        <div class="actions"><button type="submit" id="login-submit">Sign in</button><button type="button" class="secondary" id="signup">Create account</button><a href="../#/base" target="_blank" rel="noopener noreferrer">Forgot password?</a></div>
+      </form>
+      <button type="button" class="secondary" id="signout" hidden>Sign out</button>
+      <p class="error" id="login-error" role="alert"></p>
+    </section>
+    <form id="application-form">
+      <fieldset id="application-fields" disabled>
+        <legend>Your application</legend>
+        <p class="muted">Short, thoughtful answers are enough. Fields marked “optional” can be left blank.</p>
+        <label for="role">Which role interests you?</label>
+        <select name="role" id="role" required><option value="">Choose a role</option><option value="helper">Helper</option><option value="moderator">Moderator</option><option value="either">Either role</option></select>
+        <div class="contact-fields">
+          <label>Discord username<input name="discord_username" id="discord-username" required minlength="2" maxlength="80" autocomplete="off" placeholder="Your Discord username"></label>
+          <label>Discord user ID<input name="discord_id" required pattern="[0-9]{17,20}" maxlength="20" inputmode="numeric" aria-describedby="discord-help" placeholder="Your numeric user ID"></label>
+        </div>
+        <p class="hint" id="discord-help">In Discord, enable Developer Mode under Settings → Advanced, then right-click or long-press your profile and choose Copy User ID. This helps us contact the right person.</p>
+        <div id="questions"></div>
+        <label class="consent"><input type="checkbox" name="consent" required><span>I have answered honestly and understand that my application, Discord details and Droid Archives account ID will be shared with the Droid Archives team in its staff review channel so they can review it and contact me on Discord.</span></label>
+        <p class="hint">Please do not include passwords, your address, or private information about other people. Your email address will not be included in the Discord post. You can submit one application every 24 hours.</p>
+        <button id="submit-application" type="submit">Send application</button>
+      </fieldset>
+      <p id="application-status" role="status" tabindex="-1"></p>
+      <p class="error" id="application-error" role="alert" tabindex="-1"></p>
+    </form>
+    <noscript><p>Please enable JavaScript to sign in and send an application.</p></noscript>
+  </main>
+  <footer><a href="../">← Back to Droid Archives</a><span>Community built. Community supported.</span></footer>
+</body>
+</html>

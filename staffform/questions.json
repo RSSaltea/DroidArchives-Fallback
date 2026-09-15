@@ -1,0 +1,11 @@
+[
+  {"id":"availability","label":"When could you usually help?","hint":"Your time zone, usual days or times, and a realistic idea of your availability. There is no need to promise hours you cannot manage.","required":true},
+  {"id":"familiarity","label":"How do you use Droid Archives?","hint":"Tell us which parts of the website, tools or community you know, and anything you are still learning.","required":true},
+  {"id":"motivation","label":"Why would you like to join the team?","hint":"What interests you about helping, and what would you bring to the role?","required":true},
+  {"id":"help_scenario","label":"Someone is confused by a tool, and you do not know the answer. What would you do?","hint":"Explain how you would help them and when you would ask someone else to step in.","required":true},
+  {"id":"feedback_scenario","label":"You see a useful suggestion or bug report being discussed elsewhere. How would you pass it on?","hint":"What information would you collect so it can be followed up?","required":true},
+  {"id":"experience","label":"Have you helped or moderated a community before?","hint":"Optional. Relevant experience is welcome, but it is not a requirement.","required":false},
+  {"id":"moderation_scenario","label":"A discussion turns into an argument, and someone starts spamming. How would you handle it?","hint":"Explain your first steps, how you would use the server rules, and when you would escalate it.","required":true,"moderatorOnly":true},
+  {"id":"fairness_scenario","label":"A friend breaks a rule, or you disagree with another moderator's decision. What would you do?","hint":"How would you stay fair and resolve the situation with the team?","required":true,"moderatorOnly":true},
+  {"id":"extra","label":"Anything else you would like us to know?","hint":"Optional. You can include questions about the role or anything that affects your availability.","required":false}
+]
