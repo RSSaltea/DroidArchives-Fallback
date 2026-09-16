@@ -2,6 +2,20 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-16-profile-tools",
+      "date": "2026-09-16",
+      "title": "Your next steps, save recovery and sharing",
+      "summary": "A personal homepage, guided setup and more ways to protect and share your progress.",
+      "changes": [
+        "The homepage now shows your next rebirth blockers, potential layout income gains, fusion ingredients and collection progress.",
+        "Guided setup helps you create a separate profile, or explore a sample base without replacing your existing one.",
+        "Preview local and cloud save history, then recover an earlier save as a new profile.",
+        "Download a progress card for Discord or copy a read-only snapshot link. Choose which details to include.",
+        "Updated companion builds can show collection, rebirth, income and fusion hints beside recognised droid cards.",
+        "Planning settings now survive profile reloads consistently, and the Discord button uses discord.gg/droidarchives."
+      ]
+    },
+    {
       "id": "2026-09-15-notification-any-improvement",
       "date": "2026-09-15",
       "title": "Consistent notification improvements",

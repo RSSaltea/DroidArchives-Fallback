@@ -85,3 +85,11 @@ tests/**/*.png
 
 # Private gameplay reference videos and calibration material
 /references/
+
+# Additional local design sources and draft material
+*.psd
+*.pyd
+*.dll
+/proposed-notes.json
+/assets/events/mega-crate-mini.png
+/assets/other/stellar-droid.png

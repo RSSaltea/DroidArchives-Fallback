@@ -39,8 +39,8 @@ those files have been removed from tracking.
   ignore exceptions for app tests, tools, fixtures, or detection templates.
 - Pending staged deletions of these files may be intentional removals from Git
   tracking. Check the local copies; do not restore tracking or delete the copies.
-- `references/` and `research/` stay local and must not be pushed to any repo,
-  including a private backup repository.
+- `references/` and `research/` must never reach either public website repo.
+  They do go to the private backup (`backup.ps1`), so another PC has them.
 - Private app backups are separate from website deployment. Run the local
   `backup.ps1` only when the user requests a private backup; never retarget it
   to either public website repository.
