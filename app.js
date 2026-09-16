@@ -741,7 +741,7 @@ function notificationRecommendations(){
   // The automatic alert covers these names now, including copies useful later.
   // Read the actual next rebirth, independently of notification range settings.
   const alertNames=new Set(rebirthAlert?(state.rebirths[state.cycle]||[]).find(row=>row.to===alertRebirth)?.requiredDroids?.map(req=>req.droidName)||[]:[]);
-  const manual=Boolean(state.rebirthTracker?.notUsingBase),byName=new Map(),cyclePlan=notificationCyclePlan(settings);
+  const manual=Boolean(state.rebirthTracker?.notUsingBase),byName=new Map(),coveredNames=new Set(),cyclePlan=notificationCyclePlan(settings);
   for(const req of cyclePlan.requirements){
     if(alertNames.has(req.droidName))continue;
     const d=state.droids.find(d=>d.name===req.droidName);
@@ -751,11 +751,8 @@ function notificationRecommendations(){
     if(manual&&!req.nextCycle)held.push(rebirthTrackerStatus(req.at,req).selected);
     const have=held.filter(v=>VARIANTS.includes(v)).reduce((best,v)=>!best||variantStep(v)>variantStep(best)?v:best,null);
     // Current inventory and manual readiness are not a stash held by another player.
-    if(!req.nextCycle){
-      if(manual&&rebirthTrackerStatus(req.at,req).ready)continue;
-      if(have&&variantStep(have)>=variantStep(req.variant))continue;
-      if(have&&(!variantWatch||settings.ownedPolicy!=='upgrades'))continue;
-    }
+    if(!req.nextCycle&&((manual&&rebirthTrackerStatus(req.at,req).ready)||
+      (have&&variantStep(have)>=variantStep(req.variant))||(have&&(!variantWatch||settings.ownedPolicy!=='upgrades')))){coveredNames.add(d.name);continue}
     const entry=byName.get(d.name)||{name:d.name,rarity:d.rarity,needs:[],have};
     entry.needs.push({at:req.at,variant:req.variant,cycle:req.cycle,nextCycle:req.nextCycle});byName.set(d.name,entry);
   }
@@ -775,16 +772,25 @@ function notificationRecommendations(){
   const tracked=settings.tracked,trackedNames=new Set(tracked.map(row=>row.name)),availableSlots=Math.max(0,slots-tracked.length);
   const remaining=candidates.filter(row=>!trackedNames.has(row.name));
   const redundantTracked=tracked.filter(row=>alertNames.has(row.name));
-  return {settings,slots,variantWatch,rebirthAlert,alertRebirth,redundantTracked,cyclePlan,candidates:remaining,eligible:candidates,tracked,availableSlots,recommendations:remaining.slice(0,availableSlots)};
+  // Owning a droid only covers the current cycle; a Super Rebirth wipes the Base.
+  const eligibleNames=new Set(candidates.map(row=>row.name));
+  const ownedTracked=tracked.filter(row=>!alertNames.has(row.name)&&coveredNames.has(row.name)&&!eligibleNames.has(row.name));
+  // The droids that would take over once the removable notifications are unmarked.
+  const replacements=remaining.slice(availableSlots,availableSlots+redundantTracked.length+ownedTracked.length);
+  return {settings,slots,variantWatch,rebirthAlert,alertRebirth,redundantTracked,ownedTracked,replacements,cyclePlan,candidates:remaining,eligible:candidates,tracked,availableSlots,recommendations:remaining.slice(0,availableSlots)};
 }
 function toggleNotificationTracking(name,variant){
   if(state.sharedView&&!state.sharedView.canEdit)return toast('This shared profile is read only');
   const model=notificationRecommendations(),settings=model.settings,index=settings.tracked.findIndex(row=>row.name===name);
   if(index>=0)settings.tracked.splice(index,1);
   else{
-    if(!model.availableSlots)return toast('All purchased notification slots are already tracked');
-    if(!model.recommendations.some(row=>row.name===name))return;
+    // With every slot taken, a replacement card swaps out the first removable notification.
+    const swap=!model.availableSlots&&model.replacements.some(row=>row.name===name)?[...model.redundantTracked,...model.ownedTracked][0]:null;
+    if(!model.availableSlots&&!swap)return toast('All purchased notification slots are already tracked');
+    if(!swap&&![...model.recommendations,...model.replacements].some(row=>row.name===name))return;
+    if(swap)settings.tracked.splice(settings.tracked.findIndex(row=>row.name===swap.name),1);
     settings.tracked.push({name,variant:model.variantWatch&&VARIANTS.includes(variant)?variant:null});
+    if(swap)toast(`Replaced ${swap.name} with ${name}. Update both in-game.`);
   }
   state.notificationPreferences=settings;save();route();
   [...document.querySelectorAll('[data-notification-track]')].find(button=>button.dataset.notificationTrack===name)?.focus({preventScroll:true});
@@ -794,8 +800,9 @@ function notificationRecommendationsHtml(){
   const scope=settings.priority==='next'?`Next ${settings.horizon} rebirths`:
     settings.priority==='rare'?'Rarer droids first':'Furthest rebirths first';
   const cycleScope=settings.cycles==='current'?`Current cycle ${Number(state.cycle)+1}`:settings.cycles==='next'?`Next cycle ${model.cyclePlan.nextCycle===null?'unavailable':model.cyclePlan.nextCycle+1}`:`Current cycle ${Number(state.cycle)+1}, then next cycle ${model.cyclePlan.nextCycle===null?'unavailable':model.cyclePlan.nextCycle+1}`;
-  const card=(rec,active)=>{
-    const redundant=active&&model.redundantTracked.some(row=>row.name===rec.name);
+  const removable=[...model.redundantTracked,...model.ownedTracked];
+  const card=(rec,active,replacing=false)=>{
+    const alertCovered=active&&model.redundantTracked.some(row=>row.name===rec.name),ownedCovered=active&&model.ownedTracked.some(row=>row.name===rec.name),redundant=alertCovered||ownedCovered;
     const d=fusionDroid(rec.name),matched=model.eligible.find(row=>row.name===rec.name),need=active?matched:rec;
     const have=need?.have||state.owned.filter(row=>row.name===rec.name&&VARIANTS.includes(row.variant)).reduce((best,row)=>!best||variantStep(row.variant)>variantStep(best)?row.variant:best,null);
     const threshold=variantWatch&&rec.variant?`${variantText(rec.variant)} and above`:'Any variant';
@@ -803,18 +810,21 @@ function notificationRecommendationsHtml(){
       (need?`<small>Rebirth needs: ${need.needs.map(n=>`${settings.cycles!=='current'?`${n.nextCycle?'Next':'Current'} cycle ${n.cycle+1} · `:''}R: ${n.at} · ${variantLabel(n.variant)}`).join('; ')}</small>`:'')+
       (need?.nextCycleOnly?'<small>Collect a copy for a friend or alt to hold for next cycle.</small>':'')+
       (active&&matched&&variantWatch&&rec.variant!==matched.variant?`<small>Now recommended: ${variantText(matched.variant)} and above. Unmark this card, update it in-game, then mark it again.</small>`:'')+
-      (redundant?`<small class="notification-remove-reason">Rebirth Droid Alert covers this droid for R: ${model.alertRebirth}. Remove its Droidex notification in-game, then unmark it here to free a slot.</small>`:'');
-    return `<li><button class="notification-card ${active?'is-tracked':''} ${redundant?'is-redundant':''}" type="button" data-notification-track="${escapeAttr(rec.name)}" data-notification-variant="${rec.variant||''}" aria-pressed="${active}" ${state.sharedView&&!state.sharedView.canEdit?'disabled':''}>${d?picture(d,rec.variant||'DEFAULT'):''}<span><strong>${escapeAttr(rec.name)}</strong>${detail}</span><em>${redundant?'Unmark':active?'✓ Tracking':'+ Track'}</em></button></li>`;
+      (alertCovered?`<small class="notification-remove-reason">Rebirth Droid Alert covers this droid for R: ${model.alertRebirth}. Remove its Droidex notification in-game, then unmark it here to free a slot.</small>`:'')+
+      (ownedCovered&&!alertCovered?`<small class="notification-remove-reason">${have?`You own ${variantText(have)}, which covers`:'Your rebirth tracker already marks'} its current-cycle needs. Remove its Droidex notification in-game, then unmark it here to free a slot.</small>`:'')+
+      (replacing?`<small>Replaces ${escapeAttr(removable[0]?.name||'')}.</small>`:'');
+    return `<li><button class="notification-card ${active?'is-tracked':''} ${redundant?'is-redundant':''}" type="button" data-notification-track="${escapeAttr(rec.name)}" data-notification-variant="${rec.variant||''}" aria-pressed="${active}" ${state.sharedView&&!state.sharedView.canEdit?'disabled':''}>${d?picture(d,rec.variant||'DEFAULT'):''}<span><strong>${escapeAttr(rec.name)}</strong>${detail}</span><em>${redundant?'Unmark':active?'✓ Tracking':replacing?'⇄ Replace':'+ Track'}</em></button></li>`;
   };
   return `<section class="notification-panel"><header><div><p class="eyebrow">Prepare for rebirth</p><h2>Droidex Notifications</h2><p>${cycleScope} · ${scope} · from R: ${settings.startRebirth} through R: ${rebirthGoal()} · ${tracked.length}/${slots} slots tracked · ${availableSlots} free</p></div><button class="btn secondary" type="button" data-notification-settings>Settings</button></header>
     ${settings.cycles!=='current'?notificationNextCycleNotice():''}
     ${settings.cycles!=='current'&&model.cyclePlan.nextCycle===null?'<p>Next-cycle requirements are unavailable. No next-cycle recommendations can be made.</p>':''}
     ${model.rebirthAlert?`<p class="picker-hint">Rebirth Droid Alert is owned. Droids required for your next rebirth (R: ${model.alertRebirth}) are excluded from recommendations because their alerts use no Droidex notification slots.</p>`:''}
-    ${model.redundantTracked.length?`<h3>Recommended to remove</h3><ul class="notification-list notification-tracked notification-redundant">${model.redundantTracked.map(rec=>card(rec,true)).join('')}</ul>`:''}
-    ${tracked.length>model.redundantTracked.length?`<h3>Currently tracking</h3><ul class="notification-list notification-tracked">${tracked.filter(rec=>!model.redundantTracked.includes(rec)).map(rec=>card(rec,true)).join('')}</ul>`:''}
+    ${removable.length?`<h3>Recommended to remove</h3><ul class="notification-list notification-tracked notification-redundant">${removable.map(rec=>card(rec,true)).join('')}</ul>`:''}
+    ${model.replacements.length?`<h3>Track instead</h3><ul class="notification-list notification-recommended">${model.replacements.map(rec=>card(rec,false,!availableSlots)).join('')}</ul>`:''}
+    ${tracked.length>removable.length?`<h3>Currently tracking</h3><ul class="notification-list notification-tracked">${tracked.filter(rec=>!removable.includes(rec)).map(rec=>card(rec,true)).join('')}</ul>`:''}
     ${tracked.length>slots?'<p class="form-error">More notifications are marked than your purchased slots. Unmark any you are no longer tracking, or update your purchases in Settings.</p>':''}
     ${!slots?'<p>No notification slots recorded. Set your purchased level in <a href="#/nova-shop/droidex-notifications">Nova Shop</a> or Settings. Each slot costs 20 Nova Crystals, up to 10.</p>':recommendations.length?`<h3>Recommended for free slots</h3><ul class="notification-list notification-recommended">${recommendations.map(rec=>card(rec,false)).join('')}</ul>`:!availableSlots?'<p>All notification slots are marked as tracked. Unmark one to see another recommendation.</p>':'<p>No missing spawnable droids match these settings. Your owned droids already cover them, or you can widen the rebirth range.</p>'}
-    ${slots?`<p class="picker-hint">${variantWatch?'Variant Watch is owned: select the recommended variant to include it and higher variants.':'Notifications track the droid only. Variant Watch (100 Nova Crystals) adds variant targeting.'} Marking a card records what you set in-game; it does not change the game’s notifications.${model.candidates.length>availableSlots?` ${model.candidates.length-availableSlots} more droids fall outside your free slots.`:''}</p>`:''}</section>`;
+    ${slots?`<p class="picker-hint">${variantWatch?'Variant Watch is owned: select the recommended variant to include it and higher variants.':'Notifications track the droid only. Variant Watch (100 Nova Crystals) adds variant targeting.'} Marking a card records what you set in-game; it does not change the game’s notifications.${model.candidates.length>availableSlots+model.replacements.length?` ${model.candidates.length-availableSlots-model.replacements.length} more droids fall outside your free slots.`:''}</p>`:''}</section>`;
 }
 function notificationNextCycleNotice(){return '<aside class="notification-cycle-notice"><strong>Next-cycle preparation requires a friend or alt.</strong><p>Have them pick up and hold these droids before you Super Rebirth, then return them afterwards. Blueprints left on your floor disappear when you Super Rebirth. Your current Base droids are not counted as saved for next cycle. Marking a notification as tracked only records the alert, not a droid held by someone else.</p></aside>';}
 function closePlanningSettings(root){root.innerHTML='';route();}
@@ -2574,7 +2584,8 @@ function attachRebirthQuickBar(rerender){
   const step=delta=>{
     const next=Math.min(maxRebirth(),Math.max(0,state.rebirth+delta));
     if(next===state.rebirth)return;
-    state.rebirth=next;save();rerender();
+    // Same path as the settings box, so newly eligible slots are auto purchased.
+    changeCurrentRebirth(next,rerender);
   };
   const draw=()=>{
     const goal=rebirthGoal(),next=(state.rebirths[state.cycle]||[]).find(r=>r.to===state.rebirth+1);

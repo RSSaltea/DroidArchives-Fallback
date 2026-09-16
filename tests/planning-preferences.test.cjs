@@ -118,6 +118,26 @@ state.rebirth=35;assert.equal(run('notificationRecommendations().redundantTracke
 Object.assign(state,beforeAlertTests);
 console.log('PASS: rebirth alert exclusions, duplicate future needs, tracked removal suggestions, honest slot counts and rebirth changes');
 
+// A tracked droid you now own for the current cycle is flagged for removal, with
+// the next recommendation offered in its place. Next-cycle needs still count.
+const beforeOwnedTests=JSON.parse(JSON.stringify(state));
+state.cycle=0;state.rebirth=20;state.rebirthTracker=null;state.rebirths={};
+state.novaUpgrades={'droidex-notifications':1,'variant-watch':1};
+state.requirements=[{droidName:'R6',variant:'GOLD',at:21},{droidName:'KX',variant:'GOLD',at:22}];
+state.notificationPreferences={priority:'next',horizon:5,tracked:[{name:'R6',variant:'GOLD'}]};
+state.owned=[{name:'R6',variant:'DIAMOND'}];
+m=run('notificationRecommendations()');
+assert.deepEqual(Array.from(m.ownedTracked,x=>x.name),['R6'],'owning the tracked droid flags it for removal');
+assert.deepEqual(Array.from(m.replacements,x=>x.name),['KX'],'the next droid is offered in its place');
+assert.equal(m.availableSlots,0,'the game slot is not free until it is unmarked');
+state.owned=[{name:'R6',variant:'DEFAULT'}];state.notificationPreferences.ownedPolicy='upgrades';
+m=run('notificationRecommendations()');assert.equal(m.ownedTracked.length,0,'a lower copy still needs the upgrade notification');assert.equal(m.replacements.length,0);
+state.rebirths={1:[{to:11,requiredDroids:[{droidName:'R6',variant:'GOLD'}]}]};state.requirements=[];
+state.notificationPreferences={cycles:'next',priority:'rare',startRebirth:11,tracked:[{name:'R6',variant:'GOLD'}]};state.owned=[{name:'R6',variant:'STELLAR'}];
+m=run('notificationRecommendations()');assert.equal(m.ownedTracked.length,0,'current ownership does not cover next cycle');
+Object.assign(state,beforeOwnedTests);
+console.log('PASS: owned tracked droids flagged for removal with replacements, upgrades and next cycle kept');
+
 state.owned=[];
 const batch=(name,count=3,variant='GALACTIC')=>({name,qty:count,variant});
 function chain(rows,settings){state.fusionPreferences=settings;sb.rows=rows;return run('fusionChainFromSpares(rows,[])');}
