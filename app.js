@@ -390,6 +390,52 @@ function equivalentSlotGroup(position){
 }
 // One occupied-slot simulator for every layout, including Protocol and Build.
 // Candidate routes may group visits, but cannot invent or hide a transfer.
+// A walk that leaves a room and comes back was usually only steering which of
+// several equal slots a droid lands on. Finish the current room first instead:
+// a work landing may change within an equivalent slot group, every other move
+// must still be exact. Returns null unless the result needs fewer stops and
+// leaves every droid in the same place or an equal slot.
+function groupStepsByStop(steps,baseP){
+  if(steps.some(step=>!['sell','move'].includes(step.type)||/temporar/.test(step.text)))return null;
+  const keyOf=x=>`${x.source}:${x.unit}`,where=step=>step.from?.station||'ROSTER';
+  const stops=order=>order.reduce((n,step,i)=>n+(i===0||where(step)!==where(order[i-1])?1:0),0);
+  const simulate=order=>{
+    const current=new Map(baseP.placed.map(x=>[keyOf(x),{...x}])),out=[];
+    for(const step of order){
+      const key=keyOf(step.unit),now=current.get(key);
+      if(step.type==='sell'){current.delete(key);out.push(step);continue}
+      if(step.from&&(now?.station!==step.from.station||now?.slot!==step.from.slot))return null;
+      let to=step.to;
+      if(step.workCommand){
+        const landing=plannedWorkLanding(now||step.unit,[...current.values()]);
+        if(!landing)return null;
+        const exact=landing.station===to.station&&landing.slot===to.slot,equal=equivalentSlotGroup(landing)&&equivalentSlotGroup(landing)===equivalentSlotGroup(to);
+        if(!exact&&!equal)return null;
+        if(!exact)to={...to,station:landing.station,slot:landing.slot,assumed:landing.assumed};
+      }else if([...current.values()].some(x=>keyOf(x)!==key&&x.station===to.station&&x.slot===to.slot))return null;
+      const unit=now||step.unit;
+      current.set(key,{...unit,...to,...(['BUILD','FUSION_BUILD'].includes(to.station)&&!isBuilding(unit)?{built:true}:{})});
+      out.push(to===step.to?step:{...step,to,assumed:Boolean(to.assumed),text:`Tell ${unitName(step.unit)} in ${slotLabel(step.from)} to go to work &mdash; it will take ${slotLabel(to)}.${to.assumed?' If it chooses another region, update Base and regenerate before continuing.':''}`});
+    }
+    return {steps:out,current};
+  };
+  const original=simulate(steps);if(!original)return null;
+  const remaining=[...steps],order=[];let here=null;
+  while(remaining.length){
+    const valid=index=>simulate([...order,remaining[index]]);
+    let pick=remaining.findIndex((step,index)=>where(step)===here&&valid(index));
+    if(pick<0)pick=remaining.findIndex((_,index)=>valid(index));
+    if(pick<0)return null;
+    here=where(remaining[pick]);order.push(...remaining.splice(pick,1));
+  }
+  const result=simulate(order);
+  if(!result||stops(result.steps)>=stops(steps)||result.current.size!==original.current.size)return null;
+  for(const [key,x] of original.current){
+    const y=result.current.get(key);
+    if(!y||y.station!==x.station&&!(equivalentSlotGroup(x)&&equivalentSlotGroup(x)===equivalentSlotGroup(y))||y.station===x.station&&y.slot!==x.slot&&!equivalentSlotGroup(x))return null;
+  }
+  return {steps:result.steps,placed:[...result.current.values()]};
+}
 function protocolStepPlan(baseP,rawProjected,includeFusion=true,batch=true){
   const projected=normaliseProjectedForSteps(baseP,rawProjected);
   const keyOf=x=>`${x.source}:${x.unit}`,current=new Map(baseP.placed.map(x=>[keyOf(x),{...x}])),goals=new Map(projected.placed.map(x=>[keyOf(x),{...x}])),steps=[],stagedWork=new Set();
@@ -478,13 +524,20 @@ function protocolStepPlan(baseP,rawProjected,includeFusion=true,batch=true){
   // ordinary planner groups its own. These steps carried no stop at all, so every
   // one of them landed under a heading reading "undefined". A note belongs to the
   // stop it follows.
+  let finalPlaced=[...current.values()],resolvedGoals=[...goals.values()];
+  const regrouped=batch&&!steps.some(step=>step.type==='note')?groupStepsByStop(steps,baseP):null;
+  if(regrouped){
+    steps.splice(0,steps.length,...regrouped.steps);finalPlaced=regrouped.placed;
+    const landed=new Map(finalPlaced.map(x=>[keyOf(x),x]));
+    resolvedGoals=resolvedGoals.map(goal=>landed.has(keyOf(goal))?{...goal,station:landed.get(keyOf(goal)).station,slot:landed.get(keyOf(goal)).slot}:goal);
+  }
   let visit=0,last;
   for(const step of steps){
     const where=step.at||step.from?.station||(step.type==='note'?last:null)||'ROSTER';
     if(where!==last){visit++;last=where}
     step.at=where;step.visit=`protocol-${visit}`;
   }
-  steps.resolvedGoals=[...goals.values()];steps.finalPlaced=[...current.values()];
+  steps.resolvedGoals=resolvedGoals;steps.finalPlaced=finalPlaced;
   steps.complete=!steps.some(step=>step.type==='note');
   if(batch){
     const baseline=protocolStepPlan(baseP,projected,false,false);
@@ -791,7 +844,11 @@ function notificationRecommendations(){
   const eligibleNames=new Set(candidates.map(row=>row.name));
   const ownedTracked=tracked.filter(row=>!alertNames.has(row.name)&&coveredNames.has(row.name)&&!eligibleNames.has(row.name));
   // No need left inside these settings, e.g. every rebirth that wanted it is done.
-  const staleTracked=tracked.filter(row=>!alertNames.has(row.name)&&!coveredNames.has(row.name)&&!eligibleNames.has(row.name));
+  // Only droids a completed rebirth this cycle asked for and no later rebirth
+  // wants: one tracked by hand, or needed beyond the chosen range, is left alone.
+  const cycleNeeds=(state.rebirths[state.cycle]||[]).flatMap(row=>(row.requiredDroids||[]).map(req=>({name:req.droidName,at:Number(row.to)})));
+  const finished=name=>cycleNeeds.some(need=>need.name===name&&need.at<=Number(state.rebirth))&&!cycleNeeds.some(need=>need.name===name&&need.at>Number(state.rebirth));
+  const staleTracked=tracked.filter(row=>finished(row.name)&&!alertNames.has(row.name)&&!coveredNames.has(row.name)&&!eligibleNames.has(row.name));
   // Current-cycle needs outrank next-cycle preparation: droids still waiting for a
   // slot this cycle displace next-cycle-only notifications, lowest priority first.
   const freed=redundantTracked.length+ownedTracked.length+staleTracked.length;
@@ -846,7 +903,7 @@ function notificationRecommendationsHtml(){
     ${model.rebirthAlert?`<p class="picker-hint">Rebirth Droid Alert is owned. Droids required for your next rebirth (R: ${model.alertRebirth}) are excluded from recommendations because their alerts use no Droidex notification slots.</p>`:''}
     ${removable.length?`<h3>Recommended to remove</h3><ul class="notification-list notification-tracked notification-redundant">${removable.map(rec=>card(rec,true)).join('')}</ul>`:''}
     ${model.upgrades.length?`<h3>Upgrade instead</h3><ul class="notification-list notification-upgrades">${model.upgrades.map(row=>{const d=fusionDroid(row.name);return `<li><div class="notification-card is-upgrade">${d?picture(d,row.variant):''}<span><strong>${escapeAttr(row.name)}</strong><small>Owned: ${variantText(row.have)}</small><small>Upgrade to ${variantText(row.variant)} for ${fmt(row.chips)} chips · R: ${row.at}</small></span></div></li>`}).join('')}</ul>`:''}
-    ${model.replacements.length?`<h3>Track instead</h3><ul class="notification-list notification-recommended">${model.replacements.map(rec=>card(rec,false,!availableSlots)).join('')}</ul>`:''}
+    ${model.replacements.length?`<h3>Track instead</h3><ul class="notification-list notification-replacements">${model.replacements.map(rec=>card(rec,false,!availableSlots)).join('')}</ul>`:''}
     ${tracked.length>removable.length?`<h3>Currently tracking</h3><ul class="notification-list notification-tracked">${tracked.filter(rec=>!removable.includes(rec)).map(rec=>card(rec,true)).join('')}</ul>`:''}
     ${tracked.length>slots?'<p class="form-error">More notifications are marked than your purchased slots. Unmark any you are no longer tracking, or update your purchases in Settings.</p>':''}
     ${!slots?'<p>No notification slots recorded. Set your purchased level in <a href="#/nova-shop/droidex-notifications">Nova Shop</a> or Settings. Each slot costs 20 Nova Crystals, up to 10.</p>':recommendations.length?`<h3>Recommended for free slots</h3><ul class="notification-list notification-recommended">${recommendations.map(rec=>card(rec,false)).join('')}</ul>`:!availableSlots?'<p>All notification slots are marked as tracked. Unmark one to see another recommendation.</p>':'<p>No missing spawnable droids match these settings. Your owned droids already cover them, or you can widen the rebirth range.</p>'}
@@ -2860,7 +2917,7 @@ async function applyOptimisedLayout(preview){
     }
     return
   }
-  save();location.hash='#/base';toast('Optimised layout applied')
+  save();location.hash='#/base';toast(projected.partial?'Steps applied. Open Optimise again for the remaining moves.':'Optimised layout applied')
 }
 const unitName=x=>`${x.name} ${variantText(x.variant)}`;
 // Selling and moving read alike at a glance, and mistaking one for the other
@@ -3194,7 +3251,17 @@ function safeOptimiseStepPlan(baseP,projected){
       steps=[...scheduled.steps,...finalMoves];
       applyFusionProjection(projected,scheduled);
     }
-    if(!finalMoves.complete)return fail('The remaining destinations cannot be reached from this Base. Update the blocked positions and regenerate Optimise.',steps);
+    if(!finalMoves.complete){
+      // The steps shown still run in order and can be done in-game. Keep the
+      // layout they reach, verified the same way, so it can be applied on its
+      // own and Optimise regenerated from there.
+      if(finalMoves.finalPlaced){
+        const partial=structuredClone(projected);resolveOptimiseProjection(partial,finalMoves);
+        const shown=steps.filter(step=>step.type!=='note');
+        if(shown.length&&validateOptimisePlan({initial:baseP,projected:partial,steps:shown,rules:optimiseMovementRules()}).ok)projected.partialApply={...partial,planComplete:true,planIssues:[],partial:true};
+      }
+      return fail('The remaining destinations cannot be reached from this Base. Update the blocked positions and regenerate Optimise.',steps);
+    }
     resolveOptimiseProjection(projected,finalMoves);
     const validation=validateOptimisePlan({initial:baseP,projected,steps,rules:optimiseMovementRules()});
     projected.planComplete=validation.ok;projected.planIssues=validation.issues;
@@ -3369,11 +3436,12 @@ function optimisePage(){
     ${fuseOn?`<ol class="fuse-first-list">${fuseChain.map(fuseStep).join('')}</ol>
     <p class="fuse-first-note">Each step takes three droids out of the Sell list and puts one back, so a later step can spend what an earlier one made. Gains are measured against the weakest droid earning in the layout above; a rarity roll is judged on the middle earner of that rarity and quality.</p>`:'<p class="fuse-first-note">Turn this on and the Sell list is checked for fusions worth making first &mdash; a better droid, or one your Droidex is still missing.</p>'}</section>`;
   const sell=p.sell.map(x=>{const d=state.droids.find(y=>y.name===x.name);const toFusion=fuseTake.has(`${x.source}:${x.unit}`),deferred=fuseDeferred.has(`${x.source}:${x.unit}`);return `<div class="sell-card cycle-unused ${toFusion?'to-fusion':''}"><a href="#/droid/${slug(d.name)}"><div>${picture(d,x.variant)}</div><span><strong>${d.name}</strong><small>${variantText(x.variant)} · From: ${originLabel(x)}</small><em>${toFusion?'&rarr; Fusion room, not sold':deferred?'Waiting for Fusion Build space':(x.sellReason||'No rebirth use')}</em></span></a></div>`}).join('');
-  app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Optimise</div><div class="base-heading"><div><p class="eyebrow">Credit optimiser</p><h1>Optimise</h1><p class="lead">A preview of your Base using your Protocol priority: ${state.protocolPriority==='crafting'?'higher craft speed':'higher credit gain'}.</p></div>${nothingToDo?'<p class="optimise-settled">Already optimal.</p>':`<button class="btn" id="applyOptimised" ${p.planComplete?'':'disabled'}>Apply optimised layout</button>`}</div><div class="base-top optimise-stats"><div class="stat"><small>Current / hour</small><strong>${fmt(currentIncome*3600)}</strong></div><div class="stat"><small>Optimised / hour</small><strong>${fmt(income*3600)}</strong></div><div class="stat"><small>Estimated gain / hour</small><strong>${gain?`${gain>0?'+':''}${fmt(gain*3600)}`:'—'}</strong></div><div class="stat scrap-stat"><small>Optimised scrap / hit</small><strong>${optimisedScrap.hit?fmt(optimisedScrap.hit):'—'}</strong><em>${scrapGain.hit?`+${fmt(scrapGain.hit)} per hit`:'No change'}</em></div><div class="stat scrap-stat"><small>Optimised scrap / break</small><strong>${optimisedScrap.break?fmt(optimisedScrap.break):'—'}</strong><em>${scrapGain.break?`+${fmt(scrapGain.break)} per break`:'No change'}</em></div><div class="stat"><small>Droids owned</small><strong>${state.owned.reduce((s,x)=>s+x.qty,0)}</strong></div></div>${nothingToDo?'':'<div class="notice">This page does not change your Base until you click <strong>Apply optimised layout</strong>. Droids in Sell are excluded from the applied layout.</div>'}${missingPreferredCompanions().length?`<div class="notice companion-wanted"><strong>Buy for a Companion slot:</strong> ${missingPreferredCompanions().map(name=>`<a href="#/droid/${slug(name)}">${name}</a>`).join(', ')} — you picked ${missingPreferredCompanions().length===1?'this':'these'} as a preferred companion but ${missingPreferredCompanions().length===1?'do not':'do not'} own ${missingPreferredCompanions().length===1?'it':'them'} yet.</div>`:''}${novaIconicPurchasesHtml(baseP,p)}${steps.length?`<section class="optimise-steps ${stepsCollapsed?'collapsed':''}"><header><div><p class="eyebrow">${stepsEyebrow}</p><h2>Step-by-step moves</h2></div><div class="optimise-steps-actions">${trackToggle}${stepsStyleToggle}<button class="icon-btn optimise-steps-toggle" id="toggleOptimiseSteps" title="${stepsCollapsed?'Show':'Minimise'} steps">${stepsCollapsed?'+' :'−'}</button></div></header>${stepsList}</section>`:''}${protocolSummaryHtml(p.placed)}<div class="base-layout-v2 optimise-layout"><div class="typed-stations">${['WORKER','ASTROMECH','BATTLE'].map(region=>'<div class="region-stations">'+station(region)+'</div>').join('')}</div><div class="build-side">${station('BUILD')}</div>${overflow?`<section class="roster-wide"><header><div><strong>Unplaced</strong><span>${p.overflow.length} over capacity</span></div></header><div id="rosterCards">${overflow}</div></section>`:''}${fuseFirst}${sell?`<section class="sell-wide"><header><div><strong>Sell</strong><span>${p.sell.length} unused or duplicate rebirth droid${p.sell.length===1?'':'s'}</span></div></header><div class="sell-grid">${sell}</div></section>`:''}</div>`;
+  app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Optimise</div><div class="base-heading"><div><p class="eyebrow">Credit optimiser</p><h1>Optimise</h1><p class="lead">A preview of your Base using your Protocol priority: ${state.protocolPriority==='crafting'?'higher craft speed':'higher credit gain'}.</p></div>${nothingToDo?'<p class="optimise-settled">Already optimal.</p>':`<button class="btn" id="applyOptimised" ${p.planComplete?'':'disabled'}>Apply optimised layout</button>${!p.planComplete&&p.partialApply?'<button class="btn secondary" id="applyOptimisedSteps" title="Update your Base to where the steps shown leave every droid. Regenerate Optimise afterwards for the rest.">Apply the steps shown</button>':''}`}</div><div class="base-top optimise-stats"><div class="stat"><small>Current / hour</small><strong>${fmt(currentIncome*3600)}</strong></div><div class="stat"><small>Optimised / hour</small><strong>${fmt(income*3600)}</strong></div><div class="stat"><small>Estimated gain / hour</small><strong>${gain?`${gain>0?'+':''}${fmt(gain*3600)}`:'—'}</strong></div><div class="stat scrap-stat"><small>Optimised scrap / hit</small><strong>${optimisedScrap.hit?fmt(optimisedScrap.hit):'—'}</strong><em>${scrapGain.hit?`+${fmt(scrapGain.hit)} per hit`:'No change'}</em></div><div class="stat scrap-stat"><small>Optimised scrap / break</small><strong>${optimisedScrap.break?fmt(optimisedScrap.break):'—'}</strong><em>${scrapGain.break?`+${fmt(scrapGain.break)} per break`:'No change'}</em></div><div class="stat"><small>Droids owned</small><strong>${state.owned.reduce((s,x)=>s+x.qty,0)}</strong></div></div>${nothingToDo?'':'<div class="notice">This page does not change your Base until you click <strong>Apply optimised layout</strong>. Droids in Sell are excluded from the applied layout.</div>'}${missingPreferredCompanions().length?`<div class="notice companion-wanted"><strong>Buy for a Companion slot:</strong> ${missingPreferredCompanions().map(name=>`<a href="#/droid/${slug(name)}">${name}</a>`).join(', ')} — you picked ${missingPreferredCompanions().length===1?'this':'these'} as a preferred companion but ${missingPreferredCompanions().length===1?'do not':'do not'} own ${missingPreferredCompanions().length===1?'it':'them'} yet.</div>`:''}${novaIconicPurchasesHtml(baseP,p)}${steps.length?`<section class="optimise-steps ${stepsCollapsed?'collapsed':''}"><header><div><p class="eyebrow">${stepsEyebrow}</p><h2>Step-by-step moves</h2></div><div class="optimise-steps-actions">${trackToggle}${stepsStyleToggle}<button class="icon-btn optimise-steps-toggle" id="toggleOptimiseSteps" title="${stepsCollapsed?'Show':'Minimise'} steps">${stepsCollapsed?'+' :'−'}</button></div></header>${stepsList}</section>`:''}${protocolSummaryHtml(p.placed)}<div class="base-layout-v2 optimise-layout"><div class="typed-stations">${['WORKER','ASTROMECH','BATTLE'].map(region=>'<div class="region-stations">'+station(region)+'</div>').join('')}</div><div class="build-side">${station('BUILD')}</div>${overflow?`<section class="roster-wide"><header><div><strong>Unplaced</strong><span>${p.overflow.length} over capacity</span></div></header><div id="rosterCards">${overflow}</div></section>`:''}${fuseFirst}${sell?`<section class="sell-wide"><header><div><strong>Sell</strong><span>${p.sell.length} unused or duplicate rebirth droid${p.sell.length===1?'':'s'}</span></div></header><div class="sell-grid">${sell}</div></section>`:''}</div>`;
   document.querySelector('.build-side').insertAdjacentHTML('afterend',`<div class="special-stations">${station('LOUNGE')}${station('COMPANION')}${station('UPGRADE_CHIP')}<div class="fusion-panel">${station('FUSION')}${fusionBuildSection(station('FUSION_BUILD'))}</div></div>`);
   document.querySelector('[data-manage-iconic-unlocks]')?.addEventListener('click',()=>localStorage.setItem('droid-archive-nova-category','iconic'));
   document.querySelector('#toggleFuseFirst')?.addEventListener('change',event=>{state.optimiseFuseFirst=event.target.checked;save();optimisePage()});document.querySelector('#toggleOptimiseSteps')?.addEventListener('click',()=>{localStorage.setItem('droid-archive-optimise-steps-collapsed',stepsCollapsed?'0':'1');optimisePage()});
   document.querySelector('#toggleStepStyle')?.addEventListener('click',()=>{localStorage.setItem('droid-archive-optimise-step-style',classicSteps?'route':'classic');optimisePage();toast(classicSteps?'Using the route plan':'Using the classic slot-by-slot plan')});
+  document.querySelector('#applyOptimisedSteps')?.addEventListener('click',async event=>{const button=event.currentTarget;button.disabled=true;try{await applyOptimisedLayout({...preview,projected:p.partialApply})}finally{if(button.isConnected)button.disabled=false}});
   document.querySelector('#applyOptimised')?.addEventListener('click',async event=>{const button=event.currentTarget,label=button.textContent;button.disabled=true;button.textContent='Applying…';try{await applyOptimisedLayout(preview)}finally{if(button.isConnected){button.disabled=!p.planComplete||preview.inputStamp!==optimiseInputStamp();button.textContent=button.disabled?'Regenerate Optimise':label}}});
   // Owner only, and only on your own Base: arm tracking, then every send-to-work
   // step offers a box.

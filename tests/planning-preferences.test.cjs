@@ -150,10 +150,15 @@ assert.equal(run("normaliseNotificationPreferences({upgradeChipLimit:'0'}).upgra
 assert.equal(run("normaliseNotificationPreferences({rangeFromTop:true}).rangeFromTop"),true);
 // A tracked droid with no need left in range is flagged; so is next-cycle-only
 // tracking while a current-cycle droid is still waiting for a slot.
-state.rebirths={};state.owned=[];state.requirements=[{droidName:'KX',variant:'GOLD',at:22}];
+state.rebirths={0:[{to:12,requiredDroids:[{droidName:'R6',variant:'GOLD'}]}]};state.owned=[];state.requirements=[{droidName:'KX',variant:'GOLD',at:22}];
 state.notificationPreferences={priority:'next',horizon:5,tracked:[{name:'R6',variant:null}]};
 m=run('notificationRecommendations()');
 assert.deepEqual(Array.from(m.staleTracked,x=>x.name),['R6'],'no remaining need flags the notification');assert.deepEqual(Array.from(m.replacements,x=>x.name),['KX']);
+state.notificationPreferences.tracked=[{name:'LEP',variant:null}];
+assert.equal(run('notificationRecommendations().staleTracked.length'),0,'a droid tracked by hand for no rebirth is left alone');
+state.rebirths[0].push({to:34,requiredDroids:[{droidName:'R6',variant:'GOLD'}]});state.notificationPreferences.tracked=[{name:'R6',variant:null}];
+assert.equal(run('notificationRecommendations().staleTracked.length'),0,'a later rebirth outside the range still needs it');
+state.rebirths[0].pop();
 state.novaUpgrades['droidex-notifications']=2;
 state.rebirths={0:[],1:[{to:11,requiredDroids:[{droidName:'R6',variant:'GOLD'},{droidName:'LEP',variant:'GOLD'}]}]};
 state.requirements=[{droidName:'KX',variant:'GOLD',at:22}];
