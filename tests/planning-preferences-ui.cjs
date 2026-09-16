@@ -26,7 +26,9 @@ const server=http.createServer((req,res)=>{
       t.state.rebirth=20;t.state.superRebirthGoal=35;t.state.owned=[];
       t.state.rebirths[0]=[{to:22,requiredDroids:[{droidName:'R6',variant:'GALACTIC'}]},{to:34,requiredDroids:[{droidName:'KX',variant:'STELLAR'}]},{to:35,requiredDroids:[{droidName:'R6',variant:'STELLAR'}]}];t.route();
     });
-    await page.locator('[data-notification-settings]').click();
+    assert.equal(await page.locator('.notification-panel').count(),0,'Droidex does not show the notification planner');
+    await page.evaluate(()=>{location.hash='#/base'});
+    await page.locator('.notification-panel [data-notification-settings]').click();
     await page.locator('#notificationSlots').selectOption('2');await page.locator('#notificationVariantWatch').check();
     await page.locator('#notificationPriority').selectOption('rare');await page.locator('#saveNotificationSettings').click();
     assert.equal(await page.locator('.notification-list li').count(),2);
@@ -68,7 +70,7 @@ const server=http.createServer((req,res)=>{
     assert.equal(await other.evaluate(()=>window.plannerTest.state.notificationPreferences.priority),'rare');await other.close();
     await page.evaluate(()=>{const t=window.plannerTest;t.state.patchNotes=[];document.querySelector('#modalRoot').innerHTML='';t.route()});
     await page.locator('.notification-panel').screenshot({path:path.join(root,'research/notification-panel-desktop.png')});
-    await page.setViewportSize({width:390,height:844});await page.locator('[data-notification-settings]').click();
+    await page.setViewportSize({width:390,height:844});await page.locator('.notification-panel [data-notification-settings]').click();
     await page.screenshot({path:path.join(root,'research/notification-settings-mobile.png')});
     assert(await page.locator('.planning-settings-modal').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
     await page.locator('#cancelNotificationSettings').click();
@@ -76,7 +78,7 @@ const server=http.createServer((req,res)=>{
     assert(await page.locator('.planning-settings-modal').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
     await page.locator('#cancelFusionSettings').click();
     await page.setViewportSize({width:1360,height:1000});
-    await page.evaluate(()=>{localStorage.setItem('droid-archive-optimise-settings-open','1');location.hash='#/base'});
+    await page.evaluate(()=>{localStorage.setItem('droid-archive-optimise-settings-open','1');window.plannerTest.route()});
     await page.locator('.modern-base-settings [data-fusion-settings]').click();
     assert.equal(await page.locator('#fusionGoal').inputValue(),'rarity');await page.locator('#cancelFusionSettings').click();
     await page.locator('.modern-base-settings').screenshot({path:path.join(root,'research/planning-base-settings.png')});
@@ -101,8 +103,9 @@ const server=http.createServer((req,res)=>{
     assert.match(await page.locator('.notification-panel .form-error').innerText(),/More notifications/);
     await page.locator('[data-notification-track="MOUSE"]').click();
     assert.equal(await page.locator('.notification-panel .form-error').count(),0);
-    await page.evaluate(()=>{window.plannerTest.state.sharedView={canEdit:false};});
-    await page.locator('.modern-base-settings [data-notification-settings]').click();
+    await page.evaluate(()=>{window.plannerTest.state.sharedView={canEdit:false};window.plannerTest.route()});
+    assert(await page.locator('.modern-base-settings [data-notification-settings]').isDisabled(),'read-only profile disables notification settings');
+    await page.locator('.modern-base-settings [data-notification-settings]').evaluate(button=>button.click());
     assert.equal(await page.locator('#notificationSettingsTitle').count(),0,'read-only profile cannot open editing controls');
     await page.evaluate(()=>window.plannerTest.state.sharedView=null);
     await page.evaluate(()=>{
