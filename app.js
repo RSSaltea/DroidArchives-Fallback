@@ -715,7 +715,14 @@ function normaliseNotificationPreferences(value){
     seen.add(row.name);tracked.push({name:row.name,variant:VARIANTS.includes(row.variant)?row.variant:null});if(tracked.length===10)break;
   }
   return {priority:['next','rare','furthest'].includes(value?.priority)?value.priority:'next',
-    horizon:Math.max(1,Math.min(35,Math.floor(Number(value?.horizon)||3))),startRebirth:Math.max(1,Math.min(35,Math.floor(Number(value?.startRebirth)||1))),cycles:['both','next'].includes(value?.cycles)?value.cycles:'current',ownedPolicy:value?.ownedPolicy==='upgrades'?'upgrades':'missing',upgradeTarget:value?.upgradeTarget==='next'?'next':'required',tracked};
+    horizon:Math.max(1,Math.min(35,Math.floor(Number(value?.horizon)||3))),startRebirth:Math.max(1,Math.min(35,Math.floor(Number(value?.startRebirth)||1))),cycles:['both','next'].includes(value?.cycles)?value.cycles:'current',ownedPolicy:value?.ownedPolicy==='upgrades'?'upgrades':'missing',upgradeTarget:value?.upgradeTarget==='next'?'next':'required',
+    upgradeChipLimit:value?.upgradeChipLimit===''||value?.upgradeChipLimit==null||!(Number(value.upgradeChipLimit)>=0)?null:Math.floor(Number(value.upgradeChipLimit)),rangeFromTop:Boolean(value?.rangeFromTop),tracked};
+}
+// "Default and above" can instead read down from the top variant: "Stellar and below".
+function notificationRangeText(variant,settings){
+  const top=VARIANTS.at(-1);
+  if(!settings.rangeFromTop)return `${variantText(variant)} and above`;
+  return variant===top?`${variantText(top)} only`:variant==='DEFAULT'?`${variantText(top)} and below`:`${variantText(variant)} to ${variantText(top)}`;
 }
 function normaliseFusionPreferences(value){
   return {goal:['balanced','rarity','variant'].includes(value?.goal)?value.goal:'balanced',
@@ -741,7 +748,7 @@ function notificationRecommendations(){
   // The automatic alert covers these names now, including copies useful later.
   // Read the actual next rebirth, independently of notification range settings.
   const alertNames=new Set(rebirthAlert?(state.rebirths[state.cycle]||[]).find(row=>row.to===alertRebirth)?.requiredDroids?.map(req=>req.droidName)||[]:[]);
-  const manual=Boolean(state.rebirthTracker?.notUsingBase),byName=new Map(),coveredNames=new Set(),cyclePlan=notificationCyclePlan(settings);
+  const manual=Boolean(state.rebirthTracker?.notUsingBase),byName=new Map(),coveredNames=new Set(),upgrades=new Map(),cyclePlan=notificationCyclePlan(settings);
   for(const req of cyclePlan.requirements){
     if(alertNames.has(req.droidName))continue;
     const d=state.droids.find(d=>d.name===req.droidName);
@@ -751,6 +758,14 @@ function notificationRecommendations(){
     if(manual&&!req.nextCycle)held.push(rebirthTrackerStatus(req.at,req).selected);
     const have=held.filter(v=>VARIANTS.includes(v)).reduce((best,v)=>!best||variantStep(v)>variantStep(best)?v:best,null);
     // Current inventory and manual readiness are not a stash held by another player.
+    // An owned copy that is cheap enough to upgrade does not need another spawn.
+    const upgradeChips=!req.nextCycle&&have&&settings.upgradeChipLimit!==null&&variantStep(have)<variantStep(req.variant)&&!(manual&&rebirthTrackerStatus(req.at,req).ready)?chipsToVariant(d,have,req.variant):null;
+    if(upgradeChips!==null&&upgradeChips<=settings.upgradeChipLimit){
+      const row=upgrades.get(d.name);
+      if(!row||variantStep(req.variant)>variantStep(row.variant))upgrades.set(d.name,{name:d.name,have,variant:req.variant,chips:upgradeChips,at:Math.min(row?.at??req.at,req.at)});
+      else row.at=Math.min(row.at,req.at);
+      coveredNames.add(d.name);continue;
+    }
     if(!req.nextCycle&&((manual&&rebirthTrackerStatus(req.at,req).ready)||
       (have&&variantStep(have)>=variantStep(req.variant))||(have&&(!variantWatch||settings.ownedPolicy!=='upgrades')))){coveredNames.add(d.name);continue}
     const entry=byName.get(d.name)||{name:d.name,rarity:d.rarity,needs:[],have};
@@ -777,7 +792,7 @@ function notificationRecommendations(){
   const ownedTracked=tracked.filter(row=>!alertNames.has(row.name)&&coveredNames.has(row.name)&&!eligibleNames.has(row.name));
   // The droids that would take over once the removable notifications are unmarked.
   const replacements=remaining.slice(availableSlots,availableSlots+redundantTracked.length+ownedTracked.length);
-  return {settings,slots,variantWatch,rebirthAlert,alertRebirth,redundantTracked,ownedTracked,replacements,cyclePlan,candidates:remaining,eligible:candidates,tracked,availableSlots,recommendations:remaining.slice(0,availableSlots)};
+  return {settings,slots,variantWatch,rebirthAlert,alertRebirth,redundantTracked,ownedTracked,replacements,upgrades:[...upgrades.values()].sort((a,b)=>a.at-b.at||a.name.localeCompare(b.name)),cyclePlan,candidates:remaining,eligible:candidates,tracked,availableSlots,recommendations:remaining.slice(0,availableSlots)};
 }
 function toggleNotificationTracking(name,variant){
   if(state.sharedView&&!state.sharedView.canEdit)return toast('This shared profile is read only');
@@ -805,13 +820,13 @@ function notificationRecommendationsHtml(){
     const alertCovered=active&&model.redundantTracked.some(row=>row.name===rec.name),ownedCovered=active&&model.ownedTracked.some(row=>row.name===rec.name),redundant=alertCovered||ownedCovered;
     const d=fusionDroid(rec.name),matched=model.eligible.find(row=>row.name===rec.name),need=active?matched:rec;
     const have=need?.have||state.owned.filter(row=>row.name===rec.name&&VARIANTS.includes(row.variant)).reduce((best,row)=>!best||variantStep(row.variant)>variantStep(best)?row.variant:best,null);
-    const threshold=variantWatch&&rec.variant?`${variantText(rec.variant)} and above`:'Any variant';
+    const threshold=variantWatch&&rec.variant?notificationRangeText(rec.variant,settings):'Any variant',upgrade=ownedCovered&&model.upgrades.find(row=>row.name===rec.name);
     const detail=`<small>Owned${need?.nextCycleOnly?' this cycle':''}: ${have?variantText(have):'None'}</small><small>${active?'Tracking':'Track'}: ${threshold}</small>`+
       (need?`<small>Rebirth needs: ${need.needs.map(n=>`${settings.cycles!=='current'?`${n.nextCycle?'Next':'Current'} cycle ${n.cycle+1} · `:''}R: ${n.at} · ${variantLabel(n.variant)}`).join('; ')}</small>`:'')+
       (need?.nextCycleOnly?'<small>Collect a copy for a friend or alt to hold for next cycle.</small>':'')+
-      (active&&matched&&variantWatch&&rec.variant!==matched.variant?`<small>Now recommended: ${variantText(matched.variant)} and above. Unmark this card, update it in-game, then mark it again.</small>`:'')+
+      (active&&matched&&variantWatch&&rec.variant!==matched.variant?`<small>Now recommended: ${notificationRangeText(matched.variant,settings)}. Unmark this card, update it in-game, then mark it again.</small>`:'')+
       (alertCovered?`<small class="notification-remove-reason">Rebirth Droid Alert covers this droid for R: ${model.alertRebirth}. Remove its Droidex notification in-game, then unmark it here to free a slot.</small>`:'')+
-      (ownedCovered&&!alertCovered?`<small class="notification-remove-reason">${have?`You own ${variantText(have)}, which covers`:'Your rebirth tracker already marks'} its current-cycle needs. Remove its Droidex notification in-game, then unmark it here to free a slot.</small>`:'')+
+      (ownedCovered&&!alertCovered?`<small class="notification-remove-reason">${upgrade?`Upgrading your ${variantText(upgrade.have)} to ${variantText(upgrade.variant)} costs ${fmt(upgrade.chips)} chips, within your limit.`:have?`You own ${variantText(have)}, which covers its current-cycle needs.`:'Your rebirth tracker already marks its current-cycle needs.'} Remove its Droidex notification in-game, then unmark it here to free a slot.</small>`:'')+
       (replacing?`<small>Replaces ${escapeAttr(removable[0]?.name||'')}.</small>`:'');
     return `<li><button class="notification-card ${active?'is-tracked':''} ${redundant?'is-redundant':''}" type="button" data-notification-track="${escapeAttr(rec.name)}" data-notification-variant="${rec.variant||''}" aria-pressed="${active}" ${state.sharedView&&!state.sharedView.canEdit?'disabled':''}>${d?picture(d,rec.variant||'DEFAULT'):''}<span><strong>${escapeAttr(rec.name)}</strong>${detail}</span><em>${redundant?'Unmark':active?'✓ Tracking':replacing?'⇄ Replace':'+ Track'}</em></button></li>`;
   };
@@ -820,6 +835,7 @@ function notificationRecommendationsHtml(){
     ${settings.cycles!=='current'&&model.cyclePlan.nextCycle===null?'<p>Next-cycle requirements are unavailable. No next-cycle recommendations can be made.</p>':''}
     ${model.rebirthAlert?`<p class="picker-hint">Rebirth Droid Alert is owned. Droids required for your next rebirth (R: ${model.alertRebirth}) are excluded from recommendations because their alerts use no Droidex notification slots.</p>`:''}
     ${removable.length?`<h3>Recommended to remove</h3><ul class="notification-list notification-tracked notification-redundant">${removable.map(rec=>card(rec,true)).join('')}</ul>`:''}
+    ${model.upgrades.length?`<h3>Upgrade instead</h3><ul class="notification-list notification-upgrades">${model.upgrades.map(row=>{const d=fusionDroid(row.name);return `<li><div class="notification-card is-upgrade">${d?picture(d,row.variant):''}<span><strong>${escapeAttr(row.name)}</strong><small>Owned: ${variantText(row.have)}</small><small>Upgrade to ${variantText(row.variant)} for ${fmt(row.chips)} chips · R: ${row.at}</small></span></div></li>`}).join('')}</ul>`:''}
     ${model.replacements.length?`<h3>Track instead</h3><ul class="notification-list notification-recommended">${model.replacements.map(rec=>card(rec,false,!availableSlots)).join('')}</ul>`:''}
     ${tracked.length>removable.length?`<h3>Currently tracking</h3><ul class="notification-list notification-tracked">${tracked.filter(rec=>!removable.includes(rec)).map(rec=>card(rec,true)).join('')}</ul>`:''}
     ${tracked.length>slots?'<p class="form-error">More notifications are marked than your purchased slots. Unmark any you are no longer tracking, or update your purchases in Settings.</p>':''}
@@ -839,6 +855,8 @@ function showNotificationSettings(){
     <label class="field" id="notificationHorizonField" ${settings.priority==='next'?'':'hidden'}>Number of upcoming rebirths<input class="form-control" id="notificationHorizon" type="number" min="1" max="35" value="${settings.horizon}"><small>Counts from the starting rebirth in each cycle, or your next uncompleted rebirth if later. Choose Rarer droids first or Furthest future rebirths first to cover the full range.</small></label>
     <label class="planning-check"><input type="checkbox" id="notificationUpgrades" ${settings.ownedPolicy==='upgrades'?'checked':''} ${variantWatch?'':'disabled'}>Recommend higher variants of owned droids (requires Variant Watch)</label>
     <label class="field">Variant target<select class="form-control" id="notificationUpgradeTarget" ${variantWatch&&settings.ownedPolicy==='upgrades'?'':'disabled'}><option value="required" ${settings.upgradeTarget==='required'?'selected':''}>Rebirth requirement and above</option><option value="next" ${settings.upgradeTarget==='next'?'selected':''}>Any improvement</option></select><small>For this cycle, Any improvement tracks Default and above when you own none, or one variant above your best owned copy. Own Rainbow and need Stellar? Track Beskar and above to reduce future chip costs. Next-cycle preparation targets the rebirth requirement.</small></label>
+    <label class="field">Upgrade instead at or below<input class="form-control" id="notificationUpgradeChips" type="number" min="0" step="1" placeholder="Off" value="${settings.upgradeChipLimit??''}"><small>Chips. When upgrading an owned copy to a current-cycle requirement costs this much or less, recommend the upgrade instead of a notification. Leave blank to turn off.</small></label>
+    <label class="planning-check"><input type="checkbox" id="notificationRangeFromTop" ${settings.rangeFromTop?'checked':''}>Show tracked variants from the top (${variantLabel(VARIANTS.at(-1))} and below)</label>
     <label class="field">Notification slots already bought<select class="form-control" id="notificationSlots">${Array.from({length:11},(_,n)=>`<option value="${n}" ${n===slots?'selected':''}>${n} slot${n===1?'':'s'}${n?` · ${n*20} Nova total`:''}</option>`).join('')}</select></label>
     <label class="planning-check"><input type="checkbox" id="notificationVariantWatch" ${variantWatch?'checked':''}>I own Variant Watch (100 Nova Crystals)</label>
     <label class="planning-check"><input type="checkbox" id="notificationRebirthAlert" ${Number(state.novaUpgrades?.['rebirth-droid-alert'])>0?'checked':''}>I own Rebirth Droid Alert (10 Nova Crystals)</label>
@@ -861,7 +879,7 @@ function showNotificationSettings(){
     select.selectedOptions[0].remove();select.value='';status.textContent=`${settings.tracked.length} marked as tracked. Save settings to keep this change.`;
   };
   root.querySelector('#saveNotificationSettings').onclick=()=>{
-    state.notificationPreferences=normaliseNotificationPreferences({...settings,priority:root.querySelector('#notificationPriority').value,horizon:root.querySelector('#notificationHorizon').value,startRebirth:root.querySelector('#notificationStartRebirth').value,cycles:root.querySelector('#notificationCycles').value,ownedPolicy:root.querySelector('#notificationUpgrades').checked?'upgrades':'missing',upgradeTarget:root.querySelector('#notificationUpgradeTarget').value});
+    state.notificationPreferences=normaliseNotificationPreferences({...settings,priority:root.querySelector('#notificationPriority').value,horizon:root.querySelector('#notificationHorizon').value,startRebirth:root.querySelector('#notificationStartRebirth').value,cycles:root.querySelector('#notificationCycles').value,ownedPolicy:root.querySelector('#notificationUpgrades').checked?'upgrades':'missing',upgradeTarget:root.querySelector('#notificationUpgradeTarget').value,upgradeChipLimit:root.querySelector('#notificationUpgradeChips').value,rangeFromTop:root.querySelector('#notificationRangeFromTop').checked});
     state.novaUpgrades={...state.novaUpgrades,'droidex-notifications':Number(root.querySelector('#notificationSlots').value),'variant-watch':root.querySelector('#notificationVariantWatch').checked?1:0,'rebirth-droid-alert':root.querySelector('#notificationRebirthAlert').checked?1:0};
     save();closePlanningSettings(root);
   };

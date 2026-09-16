@@ -4,8 +4,8 @@ const line=key=>src.split(/\r?\n/).find(s=>s.startsWith(key));
 const fn=key=>{const start=src.indexOf('function '+key+'(');assert(start>=0,key);let depth=0,end=src.indexOf('{',start);for(;end<src.length;end++){if(src[end]==='{')depth++;if(src[end]==='}'&&!--depth)return src.slice(start,end+1);}};
 const state={droids:JSON.parse(fs.readFileSync(path.join(root,'data/droids.json'))),fusion:JSON.parse(fs.readFileSync(path.join(root,'data/fusion.json'))),owned:[],droidex:[],novaUpgrades:{},rebirth:20,rebirths:{},cycle:0,superRebirthGoal:35};
 const sb={state,console,capacity:()=>1,rebirthGoal:()=>state.superRebirthGoal,futureRequirements:()=>state.requirements||[],rebirthTrackerStatus:(at,req)=>({selected:state.manualVariant,ready:state.manualReady})};vm.createContext(sb);
-for(const name of ['VARIANTS','RARITY_LADDER','isIconic','isFusion','fusionDroid','fusionRecipes','fusionRecipeWants','fusionKey','fusionRecipeFor','variantStep','rarityStep','nextVariant','nextRarity','lowestVariant','droidRarity','droidIncomeAt','droidexGapFor','PRODUCTIVE_STATIONS'])vm.runInContext(line('const '+name+'='),sb);
-for(const name of ['normaliseNotificationPreferences','normaliseFusionPreferences','notificationCyclePlan','notificationRecommendations','fusionOutcome','fusionCountFrom','fusionBestVariant','fusionQualitySteps','fusionRaritySteps','fusionSpendFrom','fusionBestFrom','fusionChainFromSpares','typicalIncomeFor','droidexEntry'])vm.runInContext(fn(name),sb);
+for(const name of ['CHIP_COSTS','VARIANTS','RARITY_LADDER','isIconic','isFusion','fusionDroid','fusionRecipes','fusionRecipeWants','fusionKey','fusionRecipeFor','variantStep','rarityStep','nextVariant','nextRarity','lowestVariant','droidRarity','droidIncomeAt','droidexGapFor','PRODUCTIVE_STATIONS'])vm.runInContext(line('const '+name+'='),sb);
+for(const name of ['chipsToVariant','normaliseNotificationPreferences','normaliseFusionPreferences','notificationCyclePlan','notificationRecommendations','fusionOutcome','fusionCountFrom','fusionBestVariant','fusionQualitySteps','fusionRaritySteps','fusionSpendFrom','fusionBestFrom','fusionChainFromSpares','typicalIncomeFor','droidexEntry'])vm.runInContext(fn(name),sb);
 const run=code=>vm.runInContext(code,sb);
 const requirements=[{droidName:'R6',variant:'GALACTIC',at:22},{droidName:'KX',variant:'STELLAR',at:34},{droidName:'RIC',variant:'GALACTIC',at:30},{droidName:'R6',variant:'STELLAR',at:35}];
 state.requirements=requirements;
@@ -135,6 +135,19 @@ m=run('notificationRecommendations()');assert.equal(m.ownedTracked.length,0,'a l
 state.rebirths={1:[{to:11,requiredDroids:[{droidName:'R6',variant:'GOLD'}]}]};state.requirements=[];
 state.notificationPreferences={cycles:'next',priority:'rare',startRebirth:11,tracked:[{name:'R6',variant:'GOLD'}]};state.owned=[{name:'R6',variant:'STELLAR'}];
 m=run('notificationRecommendations()');assert.equal(m.ownedTracked.length,0,'current ownership does not cover next cycle');
+// An owned copy within the chip limit is recommended as an upgrade instead of a notification.
+state.rebirths={};state.requirements=[{droidName:'R6',variant:'DIAMOND',at:21},{droidName:'KX',variant:'GOLD',at:22}];state.owned=[{name:'R6',variant:'GOLD'}];
+const r6Chips=run("chipsToVariant(state.droids.find(d=>d.name==='R6'),'GOLD','DIAMOND')");assert(r6Chips>0);
+state.notificationPreferences={priority:'next',horizon:5,ownedPolicy:'upgrades',upgradeChipLimit:r6Chips,tracked:[{name:'R6',variant:'DIAMOND'}]};
+m=run('notificationRecommendations()');
+assert.deepEqual(Array.from(m.upgrades,x=>[x.name,x.have,x.variant,x.chips]),[['R6','GOLD','DIAMOND',r6Chips]],'a limit equal to the cost recommends the upgrade');
+assert(!m.eligible.some(x=>x.name==='R6'),'the upgrade replaces the notification recommendation');assert.deepEqual(Array.from(m.ownedTracked,x=>x.name),['R6']);
+state.notificationPreferences.upgradeChipLimit=r6Chips-1;m=run('notificationRecommendations()');
+assert.equal(m.upgrades.length,0,'above the limit keeps the notification');assert(m.eligible.some(x=>x.name==='R6'));
+assert.equal(run("normaliseNotificationPreferences({upgradeChipLimit:''}).upgradeChipLimit"),null,'blank turns the limit off');
+assert.equal(run("normaliseNotificationPreferences({upgradeChipLimit:'-5'}).upgradeChipLimit"),null);
+assert.equal(run("normaliseNotificationPreferences({upgradeChipLimit:'0'}).upgradeChipLimit"),0);
+assert.equal(run("normaliseNotificationPreferences({rangeFromTop:true}).rangeFromTop"),true);
 Object.assign(state,beforeOwnedTests);
 console.log('PASS: owned tracked droids flagged for removal with replacements, upgrades and next cycle kept');
 
