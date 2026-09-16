@@ -2,6 +2,18 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-16-progress-cards-rebirth-alerts",
+      "date": "2026-09-16",
+      "title": "Player cards and smarter notification slots",
+      "summary": "New progress card artwork and fewer duplicate rebirth notifications.",
+      "changes": [
+        "Progress cards now include Archives artwork, income panels, rebirth progress and a Droidex completion ring. The downloaded PNG matches the preview, and shared links use the same design.",
+        "When Rebirth Droid Alert is owned, droids required for your next rebirth are excluded from Droidex notification recommendations.",
+        "Already tracked droids covered by Rebirth Droid Alert are flagged for removal. Remove the notification in-game, then unmark it here to free its recorded slot.",
+        "You can record ownership of Rebirth Droid Alert in Notification Settings or Nova Shop."
+      ]
+    },
+    {
       "id": "2026-09-16-profile-tools",
       "date": "2026-09-16",
       "title": "Your next steps, save recovery and sharing",

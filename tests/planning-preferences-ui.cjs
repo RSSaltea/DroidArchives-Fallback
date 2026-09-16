@@ -181,6 +181,40 @@ const server=http.createServer((req,res)=>{
     await page.screenshot({path:path.join(root,'research/notification-next-cycle-settings-mobile.png')});
     assert(await page.locator('.planning-settings-modal').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
     await page.locator('#cancelNotificationSettings').click();
+    // Current rebirth alerts replace a tracked Droidex alert only after unmarking.
+    await page.evaluate(()=>{
+      const t=window.plannerTest;t.state.cycle=0;t.state.rebirth=34;t.state.owned=[];
+      t.state.rebirths[0]=[{to:35,requiredDroids:[{droidName:'CYCLENS',variant:'STELLAR'}]}];
+      t.state.rebirths[1]=[{to:11,requiredDroids:[{droidName:'LEP',variant:'GOLD'},{droidName:'CYCLENS',variant:'STELLAR'}]}];
+      t.state.notificationPreferences={cycles:'both',priority:'rare',tracked:[{name:'CYCLENS',variant:null}]};
+      t.state.novaUpgrades['droidex-notifications']=2;t.route();
+    });
+    await page.locator('.notification-panel [data-notification-settings]').click();
+    await page.locator('#notificationRebirthAlert').check();await page.locator('#saveNotificationSettings').click();
+    assert.equal(await page.evaluate(()=>window.plannerTest.state.novaUpgrades['rebirth-droid-alert']),1);
+    assert.equal(await page.locator('.notification-recommended [data-notification-track="CYCLENS"]').count(),0);
+    const redundant=page.locator('.notification-redundant [data-notification-track="CYCLENS"]');
+    assert.match(await redundant.innerText(),/Rebirth Droid Alert covers this droid for R: 35/);
+    assert.match(await page.locator('.notification-panel header').innerText(),/1\/2 slots tracked/);
+    assert(await redundant.evaluate(el=>el.scrollWidth<=el.clientWidth+1));
+    await page.locator('.notification-panel').screenshot({path:path.join(root,'research/notification-rebirth-alert-mobile.png')});
+    await redundant.click();
+    assert.equal(await page.locator('.notification-redundant').count(),0);
+    assert.equal(await page.locator('[data-notification-track="CYCLENS"]').count(),0);
+    assert.match(await page.locator('.notification-panel header').innerText(),/0\/2 slots tracked/);
+    await page.reload();await page.waitForSelector('.notification-panel');
+    assert.equal(await page.evaluate(()=>window.plannerTest.state.novaUpgrades['rebirth-droid-alert']),1);
+    assert.equal(await page.evaluate(()=>window.plannerTest.state.notificationPreferences.tracked.length),0);
+    // Reload restores bundled rebirth tables; put the deterministic fixture back.
+    await page.evaluate(()=>{
+      const t=window.plannerTest;
+      t.state.rebirths[0]=[{to:35,requiredDroids:[{droidName:'CYCLENS',variant:'STELLAR'}]}];
+      t.state.rebirths[1]=[{to:11,requiredDroids:[{droidName:'LEP',variant:'GOLD'}]}];t.route();
+    });
+    await page.locator('.notification-panel [data-notification-settings]').click();
+    assert(await page.locator('#notificationRebirthAlert').isChecked());
+    await page.locator('#notificationRebirthAlert').uncheck();await page.locator('#saveNotificationSettings').click();
+    assert.equal(await page.locator('.notification-recommended [data-notification-track="CYCLENS"]').count(),1);
     assert.deepEqual(errors,[]);
     console.log('PASS: UI controls, shared profile serialization, profile switching, import/export, refresh, second tab, rebirth protection and mobile layout');
   }finally{await browser.close();server.close()}

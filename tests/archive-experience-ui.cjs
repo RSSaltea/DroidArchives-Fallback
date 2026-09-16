@@ -62,9 +62,12 @@ const server=http.createServer((req,res)=>{
     assert(!('income'in snapshot));assert(!('userId'in snapshot));assert(!('owned'in snapshot));assert(snapshot.layout.length>0);assert.equal(snapshot.title,'Saltea’s <img src=x onerror=alert(1)>');
     const downloadPromise=page.waitForEvent('download');await page.locator('#downloadProgress').click();const download=await downloadPromise;
     const png=fs.readFileSync(await download.path());assert.equal(png.readUInt32BE(16),1200);assert.equal(png.readUInt32BE(20),630);
+    const previewPng=await page.locator('#sharePreview canvas').evaluate(canvas=>canvas.toDataURL('image/png').split(',')[1]);
+    assert(png.equals(Buffer.from(previewPng,'base64')),'download must match the current preview');
     const beforeShare=await page.evaluate(()=>JSON.stringify(window.archiveTest.profileDataFromState()));
     await page.locator('[data-archive-close]').click();
     await page.goto(base+'/'+new URL(url).hash);await page.waitForSelector('.archive-share-card');
+    await page.waitForSelector('.archive-shared-art canvas');
     assert.equal(await page.locator('.archive-share-card img').count(),0);
     assert.equal(await page.evaluate(()=>JSON.stringify(window.archiveTest.profileDataFromState())),beforeShare);
     assert.match(await page.locator('.archive-share-card h2').innerText(),/onerror/);

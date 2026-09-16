@@ -1,3 +1,4 @@
+import { renderProgressCard } from './progress-card.js?v=2026-09-16-card-redesign';
 // Profile tools share the existing planner's calculations and save path.
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -171,37 +172,26 @@ export function createArchiveExperience(api) {
   function snapshotHTML(s) {
     return `<article class="archive-share-card"><p class="eyebrow">Droid Archives · Player snapshot</p><h2>${escape(s.title)}</h2><div class="archive-stats">${s.progress?`<article><small>Progress</small><strong>Cycle ${s.progress.cycle+1} · RB ${s.progress.rebirth}</strong><span>Goal: RB ${s.progress.goal}</span></article>`:''}${s.income!==undefined?`<article><small>Base income</small><strong>${escape(api.fmt(s.income))}/sec</strong></article>`:''}${s.collection?`<article><small>Droidex</small><strong>${s.collection.owned} / ${s.collection.total}</strong></article>`:''}</div>${s.missing?`<h3>Missing for next rebirth</h3><p>${s.missing.length?s.missing.map(d=>`${escape(d.name)} (${escape(d.variant)})`).join(' · '):'No missing droid requirements'}</p>`:''}<small>Snapshot from ${escape(date(s.createdAt))} · droidarchives.co.uk</small></article>${s.layout?`<details class="archive-share-layout"><summary>View recorded layout (${s.layout.length} droids)</summary><ul>${s.layout.map(d=>`<li>${escape(d.station)} ${d.slot+1} — ${escape(d.name)} · ${escape(d.variant)}</li>`).join('')}</ul></details>`:''}`;
   }
-  function drawShareCanvas(s) {
-    const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=630;
-    const ctx=canvas.getContext('2d');
-    ctx.fillStyle='#101c29';ctx.fillRect(0,0,1200,630);ctx.fillStyle='#51dcc1';ctx.fillRect(0,0,12,630);
-    const text=(str,x,y,font,color,maxWidth=1080)=>{ctx.font=font;ctx.fillStyle=color;let t=String(str);while(ctx.measureText(t).width>maxWidth&&t.length)t=t.slice(0,-1);ctx.fillText(t===String(str)?t:t.slice(0,-1)+'…',x,y);};
-    text('DROID ARCHIVES  /  PLAYER SNAPSHOT',60,65,'bold 20px sans-serif','#51dcc1');
-    text(s.title,60,140,'bold 46px sans-serif','#ffffff');
-    let x=60;
-    const stats=[...(s.progress?[['PROGRESS',`Cycle ${s.progress.cycle+1} · RB ${s.progress.rebirth}`]]:[]),...(s.income!==undefined?[['BASE INCOME',`${api.fmt(s.income)}/sec`]]:[]),...(s.collection?[['DROIDEX',`${s.collection.owned} / ${s.collection.total}`]]:[])];
-    for(const [label,value] of stats){text(label,x,230,'bold 16px sans-serif','#a4b7cb',340);text(value,x,280,'bold 30px sans-serif','#ffffff',340);x+=365;}
-    let y=362;
-    if(s.missing){text('MISSING FOR NEXT REBIRTH',60,y,'bold 16px sans-serif','#51dcc1');y+=38;for(const row of s.missing.slice(0,3)){text(`${row.name} · ${row.variant}`,60,y,'22px sans-serif','#e3edf8');y+=31;}if(s.missing.length>3)text(`+ ${s.missing.length-3} more in the snapshot link`,60,y,'18px sans-serif','#a4b7cb');if(!s.missing.length)text('No missing droid requirements',60,y,'22px sans-serif','#e3edf8');}
-    text('droidarchives.co.uk',60,578,'bold 22px sans-serif','#ffffff');
-    text(new Date(s.createdAt).toLocaleDateString(),900,578,'18px sans-serif','#a4b7cb',240);
-    return canvas;
-  }
   function showShare() {
     if(api.shared())return;
     const model=api.overview(), at=new Date().toISOString();
-    modal('Share your progress', `<label class="field">Card title<input class="form-control" id="shareTitle" maxlength="80" value="${escape(model.name)}"></label><div class="archive-share-options">${[['progress','Rebirth progress',true],['income','Base income',true],['collection','Collection totals',true],['missing','Missing rebirth droids',false],['layout','Layout in the link',false]].map(([key,label,on])=>`<label class="archive-check"><input type="checkbox" data-share-field="${key}" ${on?'checked':''}>${label}</label>`).join('')}</div><p class="picker-hint">Anyone with the image or link can see the selected information. Links are fixed snapshots, contain no account details and cannot be revoked. Layout appears in the link, not on the image.</p><div id="sharePreview"></div><textarea class="form-control" id="shareLink" rows="2" readonly aria-label="Snapshot link" hidden></textarea>`, '<div class="modal-actions"><button class="btn" id="downloadProgress">Download PNG</button><button class="btn secondary" id="copyProgressLink">Copy snapshot link</button></div>');
-    let current;
+    modal('Share your progress', `<label class="field">Card title<input class="form-control" id="shareTitle" maxlength="80" value="${escape(model.name)}"></label><div class="archive-share-options">${[['progress','Rebirth progress',true],['income','Base income',true],['collection','Collection totals',true],['missing','Missing rebirth droids',false],['layout','Layout in the link',false]].map(([key,label,on])=>`<label class="archive-check"><input type="checkbox" data-share-field="${key}" ${on?'checked':''}>${label}</label>`).join('')}</div><p class="picker-hint">Anyone with the image or link can see the selected information. Links are fixed snapshots, contain no account details and cannot be revoked. Layout appears in the link, not on the image.</p><div class="archive-preview-label"><span>PLAYER CARD</span><span>1200 &times; 630 &middot; PNG</span></div><div id="sharePreview" aria-busy="true"></div><textarea class="form-control" id="shareLink" rows="2" readonly aria-label="Snapshot link" hidden></textarea>`, '<div class="modal-actions"><button class="btn" id="downloadProgress">Download PNG</button><button class="btn secondary" id="copyProgressLink">Copy snapshot link</button></div>');
+    let current, currentCanvas=null, renderId=0;
     const update=()=>{
       const fields=new Set([...root().querySelectorAll('[data-share-field]:checked')].map(el=>el.dataset.shareField));
       current=validateSharedSnapshot({version:1,title:root().querySelector('#shareTitle').value.trim()||'My Droid Archives progress',createdAt:at,...(fields.has('progress')?{progress:{cycle:model.cycle,rebirth:model.rebirth,goal:model.goal}}:{}),...(fields.has('income')?{income:model.income}:{}),...(fields.has('collection')?{collection:{owned:model.collected,total:model.total}}:{}),...(fields.has('missing')?{missing:model.missing}:{}),...(fields.has('layout')?{layout:model.layout}: {})});
-      const preview=root().querySelector('#sharePreview');preview.replaceChildren(drawShareCanvas(current));
+      const preview=root().querySelector('#sharePreview'),download=root().querySelector('#downloadProgress'),request=++renderId;
+      download.disabled=true;preview.setAttribute('aria-busy','true');
+      renderProgressCard(current,api.fmt).then(canvas=>{
+        if(request!==renderId||!preview.isConnected)return;
+        currentCanvas=canvas;preview.replaceChildren(canvas);preview.setAttribute('aria-busy','false');download.disabled=false;
+      }).catch(error=>{if(request===renderId&&preview.isConnected){preview.setAttribute('aria-busy','false');showError(error);}});
       root().querySelector('#shareLink').hidden=true;
     };
     root().querySelector('#shareTitle').oninput=update;
     root().querySelectorAll('[data-share-field]').forEach(input=>input.onchange=update);
     root().querySelector('#downloadProgress').onclick=()=>{
-      const s=clone(current);drawShareCanvas(s).toBlob(blob=>{if(!blob){showError(Error('The image could not be created.'));return;}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='droid-archives-progress.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);},'image/png');
+      if(!currentCanvas)return;currentCanvas.toBlob(blob=>{if(!blob){showError(Error('The image could not be created.'));return;}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='droid-archives-progress.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);},'image/png');
     };
     root().querySelector('#copyProgressLink').onclick=async()=>{try{
       const url=new URL(api.publicUrl());url.hash='/shared?s='+encodeSharedSnapshot(current);
@@ -213,7 +203,13 @@ export function createArchiveExperience(api) {
   function sharedPage() {
     try{
       const s=decodeSharedSnapshot(new URLSearchParams(location.hash.split('?')[1]||'').get('s'));
-      api.app().innerHTML=`<section class="archive-dashboard"><p class="eyebrow">Shared snapshot · Read only</p><h1>Player progress</h1><p>This is a player-provided snapshot, not a live profile. Opening it does not change your saves.</p>${snapshotHTML(s)}<a class="btn secondary" href="#/">Back to my archive</a></section>`;
+      api.app().innerHTML=`<section class="archive-dashboard"><p class="eyebrow">Shared snapshot · Read only</p><h1>Player progress</h1><p>This is a player-provided snapshot, not a live profile. Opening it does not change your saves.</p><div class="archive-shared-art" aria-busy="true"></div>${snapshotHTML(s)}${s.missing?.length>3?`<details class="archive-share-layout"><summary>View all missing requirements (${s.missing.length})</summary><ul>${s.missing.map(d=>`<li>${escape(d.name)} &middot; ${escape(d.variant)}</li>`).join('')}</ul></details>`:''}<a class="btn secondary" href="#/">Back to my archive</a></section>`;
+      const preview=api.app().querySelector('.archive-shared-art');
+      renderProgressCard(s,api.fmt).then(canvas=>{
+        if(!preview.isConnected)return;
+        preview.replaceChildren(canvas);preview.setAttribute('aria-busy','false');
+        api.app().querySelector('.archive-share-card')?.classList.add('archive-share-summary');
+      }).catch(()=>{if(preview.isConnected)preview.remove();});
     }catch(error){api.app().innerHTML=`<section class="archive-dashboard"><h1>Snapshot unavailable</h1><p>${escape(error.message)}</p><a class="btn" href="#/">Back to my archive</a></section>`;}
   }
   document.addEventListener('click',event=>{

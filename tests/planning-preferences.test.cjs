@@ -92,6 +92,32 @@ state.cycle=cycleFiles.length-1;assert.equal(run('notificationRecommendations().
 state.cycle=0;state.rebirths={};state.rebirthTracker=null;
 console.log('PASS: inclusive rebirth start, cycle selection, future ownership, shared capacity, deduplication, goal limits and cycle wrap');
 
+// Automatic rebirth alerts free recommendation space, but only the player can
+// remove a real game notification. Keep counting it until they unmark it.
+const beforeAlertTests=JSON.parse(JSON.stringify(state));
+state.cycle=0;state.rebirth=20;state.owned=[];state.rebirthTracker=null;
+state.novaUpgrades={'droidex-notifications':2,'rebirth-droid-alert':1,'variant-watch':1};
+state.rebirths={0:[{to:21,requiredDroids:[{droidName:'R6',variant:'GOLD'}]},{to:22,requiredDroids:[{droidName:'KX',variant:'GOLD'}]}],1:[{to:11,requiredDroids:[{droidName:'R6',variant:'STELLAR'},{droidName:'LEP',variant:'GOLD'}]}]};
+state.requirements=[{droidName:'R6',variant:'GOLD',at:21},{droidName:'KX',variant:'GOLD',at:22},{droidName:'R6',variant:'STELLAR',at:30}];
+state.notificationPreferences={cycles:'both',priority:'rare',startRebirth:11,tracked:[{name:'R6',variant:'STELLAR'}]};
+const alertTrackedBefore=JSON.stringify(state.notificationPreferences.tracked);
+m=run('notificationRecommendations()');
+assert(!m.eligible.some(x=>x.name==='R6'),'current alert excludes the name even when needed again later or next cycle');
+assert.deepEqual(Array.from(m.redundantTracked,x=>x.name),['R6']);
+assert.equal(m.availableSlots,1,'a removal suggestion does not pretend the game slot is free');
+assert.equal(JSON.stringify(state.notificationPreferences.tracked),alertTrackedBefore);
+state.notificationPreferences.cycles='next';state.notificationPreferences.startRebirth=11;
+assert(!run('notificationRecommendations().eligible').some(x=>x.name==='R6'),'next-cycle-only planning still respects the current alert');
+state.novaUpgrades['rebirth-droid-alert']=0;
+m=run('notificationRecommendations()');assert(m.eligible.some(x=>x.name==='R6'));assert.equal(m.redundantTracked.length,0);
+state.novaUpgrades['rebirth-droid-alert']=1;state.notificationPreferences.cycles='both';state.notificationPreferences.startRebirth=25;
+assert.equal(run('notificationRecommendations().redundantTracked.length'),1,'range settings do not change which rebirth the alert covers');
+state.rebirth=21;state.notificationPreferences.startRebirth=11;
+m=run('notificationRecommendations()');assert(m.eligible.some(x=>x.name==='R6'),'advancing rebirth restores later R6 recommendations');assert(!m.eligible.some(x=>x.name==='KX'));assert.equal(m.redundantTracked.length,0);
+state.rebirth=35;assert.equal(run('notificationRecommendations().redundantTracked.length'),0,'no phantom alert after the last rebirth');
+Object.assign(state,beforeAlertTests);
+console.log('PASS: rebirth alert exclusions, duplicate future needs, tracked removal suggestions, honest slot counts and rebirth changes');
+
 state.owned=[];
 const batch=(name,count=3,variant='GALACTIC')=>({name,qty:count,variant});
 function chain(rows,settings){state.fusionPreferences=settings;sb.rows=rows;return run('fusionChainFromSpares(rows,[])');}
