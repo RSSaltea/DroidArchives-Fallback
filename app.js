@@ -1,3 +1,4 @@
+import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-09-16-optimise';
 import { createArchiveExperience } from './archive-experience.js?v=2026-09-16-card-redesign';
 let archiveExperience=null;
 const DROID_TYPES=['WORKER','ASTROMECH','BATTLE','PROTOCOL'];
@@ -387,11 +388,15 @@ function equivalentSlotGroup(position){
   if(['LOUNGE','WORKER','BATTLE'].includes(position?.station))return position.station;
   return position?.station==='ASTROMECH'&&!ASTROMECH_MISSION_SLOTS.includes(position.slot)?'ASTROMECH_CREDITS':null;
 }
-function protocolStepPlan(baseP,projected,includeFusion=true,batch=true){
+// One occupied-slot simulator for every layout, including Protocol and Build.
+// Candidate routes may group visits, but cannot invent or hide a transfer.
+function protocolStepPlan(baseP,rawProjected,includeFusion=true,batch=true){
+  const projected=normaliseProjectedForSteps(baseP,rawProjected);
   const keyOf=x=>`${x.source}:${x.unit}`,current=new Map(baseP.placed.map(x=>[keyOf(x),{...x}])),goals=new Map(projected.placed.map(x=>[keyOf(x),{...x}])),steps=[],stagedWork=new Set();
   // Sell in station order, so each place you visit is one stop rather than a
   // zigzag between the Lounge and the stations.
   const whereNow=unit=>current.get(keyOf(unit));
+  const traveller=(key,goal)=>current.get(key)||(baseP.overflow||[]).find(x=>keyOf(x)===key)||{name:goal.name,variant:goal.variant,source:goal.source,unit:goal.unit};
   const sellOrder=[...projected.sell].sort((a,b)=>String(whereNow(a)?.station||'ROSTER').localeCompare(String(whereNow(b)?.station||'ROSTER'))||(whereNow(a)?.slot??0)-(whereNow(b)?.slot??0));
   for(const unit of sellOrder){steps.push({type:'sell',unit,from:current.get(keyOf(unit)),text:`Sell ${unitName(unit)}${current.has(keyOf(unit))?` from ${slotLabel(current.get(keyOf(unit)))}`:''}.`});current.delete(keyOf(unit));}
   const done=(a,b)=>a?.station===b?.station&&a?.slot===b?.slot;
@@ -401,10 +406,11 @@ function protocolStepPlan(baseP,projected,includeFusion=true,batch=true){
   const move=(key,unit,to,temporary=false)=>{
     const from=current.get(key);
     const work=PRODUCTIVE_STATIONS.includes(to.station)||to.station==='UPGRADE_CHIP';
-    steps.push({type:'move',unit,from,to,workCommand:work,assumed:Boolean(to.assumed),text:work?`Tell ${unitName(unit)} in ${slotLabel(from)} to go to work &mdash; it will take ${slotLabel(to)}${temporary?' temporarily, so the next droid can swap into this occupied slot':''}.${to.assumed?' If it chooses another region, update Base and regenerate before continuing.':''}`:`Move ${unitName(unit)} from ${slotLabel(from)} to ${slotLabel(to)}${temporary?' temporarily to clear the destination':''}.`});
-    current.set(key,{...unit,...to});
+    steps.push({type:'move',kind:work?'work':to.station==='LOUNGE'?'lounge':'direct',unit,from,fromSlot:from?.slot,to,workCommand:work,assumed:Boolean(to.assumed),text:work?`Tell ${unitName(unit)} in ${slotLabel(from)} to go to work &mdash; it will take ${slotLabel(to)}${temporary?' temporarily, so the next droid can swap into this occupied slot':''}.${to.assumed?' If it chooses another region, update Base and regenerate before continuing.':''}`:`Move ${unitName(unit)} from ${slotLabel(from)} to ${slotLabel(to)}${temporary?' temporarily to clear the destination':''}.`});
+    current.set(key,completedAt(from||unit,to));
   };
   const seenLayouts=new Set();
+  const completedAt=(unit,to)=>({...unit,...to,...(['BUILD','FUSION_BUILD'].includes(to.station)&&!isBuilding(unit)?{built:true}:{})});
   // Stop if a fallback returns to an earlier layout instead of making progress.
   for(let pass=0;pass<goals.size*6+1;pass++){
     // Worker/Battle slots within one region earn equally, just as Lounge slots
@@ -417,6 +423,8 @@ function protocolStepPlan(baseP,projected,includeFusion=true,batch=true){
       const slots=station=>stationSlotIndices(station).filter(slot=>equivalentSlotGroup({station,slot})===group);
       for(const goal of stabiliseProjectedPlacements({placed:[...current.values()]},groupGoals,slots))goals.set(keyOf(goal),goal);
     }
+    const rebound=normaliseProjectedForSteps({placed:[...current.values()]},{placed:[...goals.values()],sell:[],overflow:[]});
+    goals.clear();for(const goal of rebound.placed)goals.set(keyOf(goal),goal);
     const pending=[...goals].filter(([key,goal])=>!done(current.get(key),goal));if(!pending.length)break;
     const layout=JSON.stringify([...current].map(([key,x])=>[key,x.station,x.slot]));
     if(seenLayouts.has(layout))break;
@@ -427,7 +435,7 @@ function protocolStepPlan(baseP,projected,includeFusion=true,batch=true){
     const reservedBuild=x=>x&&['BUILD','FUSION_BUILD'].includes(x.station)&&[...goals.values()].some(g=>done(g,x));
     // First finish any transfer that needs no swap. In particular, let Lounge
     // residents leave before deciding that storage is full.
-    const free=transfers.find(([key,goal])=>!['BUILD','FUSION_BUILD'].includes(goal.station)&&!reservedBuild(current.get(key))&&(PRODUCTIVE_STATIONS.includes(goal.station)||goal.station==='UPGRADE_CHIP'?canSettleAt(goal,plannedWorkLanding(current.get(key)||goal,[...current.values()])):destinationOpen(goal)));
+    const free=transfers.find(([key,goal])=>canUseStation(state.droids.find(d=>d.name===goal.name),goal.station)&&!['BUILD','FUSION_BUILD'].includes(goal.station)&&!reservedBuild(current.get(key))&&(PRODUCTIVE_STATIONS.includes(goal.station)||goal.station==='UPGRADE_CHIP'?canSettleAt(goal,plannedWorkLanding(traveller(key,goal),[...current.values()])):destinationOpen(goal)));
 
     const blocked=transfers.map(([key,goal])=>({key,goal,occupant:[...current].find(([other,x])=>other!==key&&done(x,goal))})).filter(x=>x.occupant&&movable(x.occupant[1]));
     // Break an occupied cycle through the Lounge before considering a swap.
@@ -443,17 +451,17 @@ function protocolStepPlan(baseP,projected,includeFusion=true,batch=true){
       const buffer=slotFillOrder('LOUNGE',unit).map(slot=>({station:'LOUNGE',slot})).find(destinationOpen);
       if(!buffer)continue;
       const after=[...current.values()].filter(x=>keyOf(x)!==key).concat({...unit,...buffer}),goal=staged.goal;
-      if(!(PRODUCTIVE_STATIONS.includes(goal.station)||goal.station==='UPGRADE_CHIP')||canSettleAt(goal,plannedWorkLanding(current.get(staged.key)||goal,after))){move(key,unit,buffer,true);parked=true;break;}
+      if(!(PRODUCTIVE_STATIONS.includes(goal.station)||goal.station==='UPGRADE_CHIP')||canSettleAt(goal,plannedWorkLanding(traveller(staged.key,goal),after))){move(key,unit,buffer,true);parked=true;break;}
     }
     if(parked)continue;
-    if(free){const landing=PRODUCTIVE_STATIONS.includes(free[1].station)||free[1].station==='UPGRADE_CHIP'?plannedWorkLanding(current.get(free[0])||free[1],[...current.values()]):free[1];move(free[0],free[1],landing);continue;}
+    if(free){const landing=PRODUCTIVE_STATIONS.includes(free[1].station)||free[1].station==='UPGRADE_CHIP'?plannedWorkLanding(traveller(free[0],free[1]),[...current.values()]):free[1];move(free[0],free[1],landing);continue;}
     // Fill a required empty work slot with a reachable droid, then swap. Work
     // always chooses its own type first; an empty target alone is not a move.
-    const filler=transfers.map(([key,goal])=>({key,goal,from:current.get(key),landing:plannedWorkLanding(current.get(key)||goal,[...current.values()])})).find(x=>x.landing&&!reservedBuild(x.from)&&!stagedWork.has(`${x.key}:${x.landing.station}:${x.landing.slot}`)&&transfers.some(([key,goal])=>key!==x.key&&done(goal,x.landing)));
+    const filler=transfers.map(([key,goal])=>({key,goal,from:current.get(key),landing:plannedWorkLanding(traveller(key,goal),[...current.values()])})).find(x=>x.landing&&!reservedBuild(x.from)&&!stagedWork.has(`${x.key}:${x.landing.station}:${x.landing.slot}`)&&transfers.some(([key,goal])=>key!==x.key&&done(goal,x.landing)));
     if(filler){stagedWork.add(`${filler.key}:${filler.landing.station}:${filler.landing.slot}`);move(filler.key,filler.goal,filler.landing,true);continue;}
     const swap=blocked.find(x=>{
       const from=current.get(x.key);
-      return from&&canUseStation(state.droids.find(d=>d.name===x.occupant[1].name),from.station);
+      return from&&(from.name!==x.occupant[1].name||from.variant!==x.occupant[1].variant)&&canUseStation(state.droids.find(d=>d.name===from.name),x.goal.station)&&canUseStation(state.droids.find(d=>d.name===x.occupant[1].name),from.station);
     });
     if(swap){
       const {key,goal,occupant:[other,occupant]}=swap,from=current.get(key);
@@ -461,7 +469,7 @@ function protocolStepPlan(baseP,projected,includeFusion=true,batch=true){
       const after=[...current.values()].filter(x=>keyOf(x)!==other),landing=plannedWorkLanding(from,after);
       const reason=!loungeFree?'The Lounge is full at this step.':reservedBuild(from)||['BUILD','FUSION_BUILD'].includes(goal.station)?'An occupied Build slot needs a swap.':landing?`Lounge space is available, but Work would send ${unitName(goal)} to ${slotLabel(landing)} instead.`:'Lounge space is available, but Work cannot reach this destination yet.';
       steps.push({type:'swap',unit:goal,from,withUnit:occupant,withFrom:occupant,text:`Swap ${unitName(goal)} in ${slotLabel(from)} with ${unitName(occupant)} in ${slotLabel(occupant)}. ${reason}`});
-      current.set(other,{...occupant,station:from.station,slot:from.slot});current.set(key,{...goal});continue;
+      current.set(other,completedAt(occupant,{station:from.station,slot:from.slot}));current.set(key,completedAt(from,{station:goal.station,slot:goal.slot}));continue;
     }
     steps.push({type:'note',text:'Work cannot reach the remaining destinations from this layout. Fill the required region with a matching droid or free a compatible swap, update Base, then regenerate. Do not send a droid to a different region while its own region has space.'});break;
   }
@@ -476,6 +484,8 @@ function protocolStepPlan(baseP,projected,includeFusion=true,batch=true){
     if(where!==last){visit++;last=where}
     step.at=where;step.visit=`protocol-${visit}`;
   }
+  steps.resolvedGoals=[...goals.values()];steps.finalPlaced=[...current.values()];
+  steps.complete=!steps.some(step=>step.type==='note');
   if(batch){
     const baseline=protocolStepPlan(baseP,projected,false,false);
     const stops=plan=>plan.reduce((n,s,i)=>n+(i===0||s.at!==plan[i-1].at?1:0),0);
@@ -2624,7 +2634,7 @@ function stabiliseProjectedPlacements(baseP,placed,slotIndices=stationSlotIndice
 const optimisedRows=(placed,overflow)=>[...placed,...overflow].map(x=>({name:x.name,variant:x.variant,qty:1,...(x.station?{preferred:x.station,preferredSlot:x.slot}:{}),...(x.lockedSlot?{lockedSlot:true}:{}),...(x.built?{built:true}:{})}));
 function optimisedPlacements(baseP,plan){
   const assigned=new Map((plan.assignments||[]).map(x=>[x.key,x])),current=new Map(baseP.placed.map(x=>[`${x.source}:${x.unit}`,x])),occupied=Object.fromEntries(Object.keys(SLOT_RULES).map(type=>[type,new Set()])),placed=[],overflow=[],sell=[],units=expandedOwned();
-  const claim=(unit,station,slot)=>{occupied[station].add(slot);placed.push({...unit,station,slot})},free=(station,origin)=>slotFillOrder(station,origin).find(i=>!occupied[station].has(i))??-1,canKeep=(station,slot)=>station&&stationSlotIndices(station).includes(slot)&&!occupied[station].has(slot);
+  const claim=(unit,station,slot)=>{const origin=current.get(`${unit.source}:${unit.unit}`);occupied[station].add(slot);placed.push({...unit,station,slot,...(origin&&['BUILD','FUSION_BUILD'].includes(station)&&!isBuilding(origin)?{built:true}:{})})},free=(station,origin)=>slotFillOrder(station,origin).find(i=>!occupied[station].has(i))??-1,canKeep=(station,slot)=>station&&stationSlotIndices(station).includes(slot)&&!occupied[station].has(slot);
   const lockedKeys=new Set(baseP.placed.filter(x=>x.lockedSlot||isBuilding(x)).map(x=>`${x.source}:${x.unit}`));
   for(const locked of baseP.placed.filter(x=>lockedKeys.has(`${x.source}:${x.unit}`)))if(canKeep(locked.station,locked.slot))claim(locked,locked.station,locked.slot);
   for(const unit of units){const key=`${unit.source}:${unit.unit}`,target=assigned.get(key);if(target)claim(target.missionPriority?{...unit,missionPriority:true}:unit,target.station,target.slot)}
@@ -2638,7 +2648,7 @@ function optimisedPlacements(baseP,plan){
   const chipRateOf=unit=>upgradeChipRate(state.droids.find(x=>x.name===unit.name),unit.variant),chipPicks=new Set();
   for(const chipSlot of stationSlotIndices('UPGRADE_CHIP')){
     if(occupied.UPGRADE_CHIP.has(chipSlot))continue;
-    const best=units.filter(unit=>{const key=`${unit.source}:${unit.unit}`;return !assigned.has(key)&&!lockedKeys.has(key)&&!chipPicks.has(key)&&chipRateOf(unit)>0}).sort((a,b)=>chipRateOf(b)-chipRateOf(a))[0];
+    const best=units.filter(unit=>{const key=`${unit.source}:${unit.unit}`;return !assigned.has(key)&&!lockedKeys.has(key)&&!chipPicks.has(key)&&chipRateOf(unit)>0}).sort((a,b)=>chipRateOf(b)-chipRateOf(a)||Number(current.get(`${b.source}:${b.unit}`)?.station==='UPGRADE_CHIP')-Number(current.get(`${a.source}:${a.unit}`)?.station==='UPGRADE_CHIP'))[0];
     if(!best)break;
     chipPicks.add(`${best.source}:${best.unit}`);claim(best,'UPGRADE_CHIP',chipSlot);
   }
@@ -2786,19 +2796,16 @@ async function collectOptimiseFusionResults(projected){
   projected.rows=optimisedRows(projected.placed,projected.overflow);
   return true;
 }
-async function applyOptimisedLayout(plan){
+async function applyOptimisedLayout(preview){
   if(state.sharedView&&!state.sharedView.canEdit)return toast('This shared profile is read only');
-  const baseP=placements(),projected=optimisedPlacements(baseP,plan);
-  // The same correction the preview makes. Without it, Apply wrote the guessed
-  // slots and quietly undid what the map had just been showing.
-  const steps=safeOptimiseStepPlan(baseP,projected);
-  annotateLogSlots(steps);
-  if(applyLoggedLandings(projected,steps))projected.rows=optimisedRows(projected.placed,projected.overflow);
-  if(steps.some(step=>step.fusionBlocked))return toast('Free a Fusion Build slot and run Optimise again before applying this layout');
+  const candidate=preview?.projected?preview:createOptimisePreview();
+  if(candidate.inputStamp!==optimiseInputStamp())return toast('Your Base or settings changed. Regenerate Optimise before applying.');
+  const projected=structuredClone(candidate.projected);
+  if(!projected.planComplete)return toast(projected.planIssues?.[0]||'Regenerate Optimise before applying this layout');
   if(projected.sell.length&&!confirm(`Apply this layout and remove ${projected.sell.length} droid${projected.sell.length===1?'':'s'} from Sell?`))return;
   const previousOwned=state.owned;
   if(!await collectOptimiseFusionResults(projected))return;
-  if(state.owned!==previousOwned)return toast('Your Base changed while selecting fusion results. Regenerate Optimise before applying.');
+  if(state.owned!==previousOwned||candidate.inputStamp!==optimiseInputStamp())return toast('Your Base or settings changed while selecting fusion results. Regenerate Optimise before applying.');
   state.owned=projected.rows;
   clearOptimiseMarks();
   if(state.sharedView){
@@ -2841,7 +2848,7 @@ function stepHtml(step,index){
   // send-to-work step can record where the droid actually ended up.
   const free=step.freeSlots||[];
   const options=free.map(spot=>`<option value="${spot.station}:${spot.slot}" ${slotLogSame(step.logged,spot)?'selected':''}>${stationSlotLabel(spot.station,spot.slot)}</option>`).join('');
-  const record=(step.kind==='work'||step.to==='LOUNGE')&&!state.sharedView&&slotLogTracking()&&slotLabAllowed()&&free.length
+  const record=(step.kind==='work'||step.to==='LOUNGE'||step.to?.station==='LOUNGE')&&!state.sharedView&&slotLogTracking()&&slotLabAllowed()&&free.length
     ?`<label class="step-record"><small>Landed in?</small><select data-log-step="${escapeAttr(step.text)}"><option value="">${free.length} it could take…</option>${options}</select></label>`
     :'';
   return `${tick}<span class="step-thumb">${d?picture(d,step.unit.variant):''}</span><span class="step-text${toLounge?' step-to-lounge':''}">${text}${assumed}</span>${record}${skip}${step.type==='sell'&&step.unit?`<button class="step-skip" data-reserve-fusion="${step.unit.source}:${step.unit.unit}" title="Keep all copies of this droid and quality for future fusion">Keep for fusion</button>`:''}${['fuse-in','fuse-held','fuse-deferred'].includes(step.type)&&step.unit?`<button class="step-skip" data-sell-instead="${step.unit.source}:${step.unit.unit}" title="${step.protocolSpare?'Keep this reserved droid instead and recalculate the fusions':'Sell this droid instead and recalculate the fusions'}">${step.protocolSpare?'Keep':'Sell'}</button>`:''}`;
@@ -2849,13 +2856,13 @@ function stepHtml(step,index){
 function normaliseProjectedForSteps(baseP,projected){
   const keyOf=x=>`${x.source}:${x.unit}`,groupOf=x=>`${x.name}:${x.variant}`,cloneRows=rows=>(rows||[]).map(x=>({...x}));
   const placed=cloneRows(projected.placed),sell=cloneRows(projected.sell),overflow=cloneRows(projected.overflow);
-  const fixed=new Set([...baseP.placed,...placed].filter(x=>x.lockedSlot||isBuilding(x)||x.keepReason==='manual').map(keyOf));
+  const fixed=new Set([...baseP.placed.filter(x=>x.lockedSlot||isBuilding(x)),...placed.filter(x=>x.lockedSlot||x.missionPriority||x.keepReason==='manual')].map(keyOf));
   const current=new Map(baseP.placed.map(x=>[keyOf(x),x]));
   for(const group of new Set(placed.map(groupOf))){
     // Identical unlocked copies can fill the same jobs. Keep protected copies
     // fixed, and preserve an existing occupant before choosing a duplicate to sell.
     const targets=placed.filter(x=>groupOf(x)===group&&!fixed.has(keyOf(x))&&current.has(keyOf(x)));
-    const soldCopies=sell.filter(x=>groupOf(x)===group&&!fixed.has(keyOf(x))&&current.has(keyOf(x)));
+    const soldCopies=[...sell,...overflow].filter(x=>groupOf(x)===group&&!fixed.has(keyOf(x))&&current.has(keyOf(x)));
     if(targets.length+soldCopies.length<2)continue;
     const available=new Map([...targets,...soldCopies].map(x=>[keyOf(x),current.get(keyOf(x))])),matches=new Map();
     const match=(target,predicate)=>{const pick=[...available].find(([,x])=>predicate(x));if(pick){matches.set(target,pick[1]);available.delete(pick[0]);}};
@@ -2874,14 +2881,15 @@ function normaliseProjectedForSteps(baseP,projected){
       }
     }
   }
+  for(const target of placed){const origin=current.get(keyOf(target));if(origin&&['BUILD','FUSION_BUILD'].includes(target.station)&&!isBuilding(origin))target.built=true;}
   return{...projected,placed,sell,overflow};
 }
 
 // ─── Route-aware step planner ───────────────────────────────────────────────
 // In game you walk to the DROID and issue a command; the droid then routes
-// itself to a slot. A step's travel cost is therefore where the droid currently
-// stands, not where it ends up — so commands are grouped by source station and
-// the visit order is searched for the fewest trips around the base.
+// itself to a slot. Group commands by where the droid currently stands. The
+// simulator compares a grouped order with an ungrouped order, keeping a complete
+// route with fewer stops; this is not an exhaustive shortest-route search.
 //
 // The command vocabulary is everything the game actually offers:
 //   Work      — auto-routes: own type first, else the nearest credit slot,
@@ -2889,8 +2897,8 @@ function normaliseProjectedForSteps(baseP,projected){
 //   Lounge    — its own option; never an auto-route destination.
 //   Companion — swaps when the companion slots are full.
 //   Sell
-// Build slots are swap-only and optimisedPlacements never routes a droid *into*
-// Build (see the BUILD guard in its fallback loop), so Build is exit-only here.
+// Completed Build occupants can swap with compatible placed droids. An empty
+// Build slot cannot be filled with an ordinary move; unfinished builds stay put.
 const escapeAttr=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 // unitName() is markup for display; this is the same thing as plain text, for
 // tooltips and anywhere else that must not contain tags.
@@ -2909,241 +2917,16 @@ const spareFromSelling=key=>{const list=sparedFromSelling();if(!list.includes(ke
 const soldInsteadOfFusion=()=>readList('droid-archive-optimise-sell-instead');
 const sellInsteadOfFusion=key=>{const list=soldInsteadOfFusion();if(!list.includes(key))list.push(key);writeList('droid-archive-optimise-sell-instead',list)};
 const clearOptimiseMarks=()=>{slotLogSession.clear();writeList('droid-archive-optimise-spared',[]);writeList('droid-archive-optimise-sell-instead',[]);writeList('droid-archive-optimise-ticked',[])};
-const ROSTER='ROSTER',SOLD='SOLD';
+const ROSTER='ROSTER';
 const WORK_STATIONS=[...PRODUCTIVE_STATIONS,'UPGRADE_CHIP'];
-const stagingStations=()=>loungeLikeStations();
 // Where a droid goes when it cannot reach its own type of slot. Measured: a
 // Worker droid took Battle over Astromech all three times it was offered both,
 // whichever slots were free, so this is a station order rather than a per-slot
 // distance. Steps that lean on it are still flagged in the plan.
 const NEAREST_ORDER=['WORKER','BATTLE','ASTROMECH'];
-// What happens when you tell a droid that is already working to work again.
-// Confirmed in game: with its own station full, the droid leaves and takes a
-// slot elsewhere, so the slot it is vacating still counts as occupied while the
-// game picks a destination. That is 'reroute', and it lets a droid move straight
-// between stations instead of being parked in the Lounge first.
-//   'stage' is the opposite reading - the vacated slot frees up in time, so
-// auto-route puts the droid straight back and relocating needs a detour. Kept
-// only as a fallback; it produces longer plans that work under either reading.
-const AUTO_ROUTE_MODEL='reroute';
-// The exact search is worth it for an ordinary tidy-up but has no chance on a
-// wholesale reshuffle, where it would only burn its budget before handing over
-// to greedy() anyway — so past this many droids we skip straight to greedy.
-const ROUTE_SEARCH_LIMIT=60000,ROUTE_SEARCH_MS=60,ROUTE_SEARCH_MAX_DROIDS=16;
-// The middle of each station's slots on the map, used to order the walk. Build
-// is spread across three rooms — slot 1 by the Worker ring, slot 2 in the
-// Astromech room, slot 3 in the Battle room — so its centre sits between them
-// and it is never far from wherever you already are.
-const STATION_CENTRES=(()=>{
-  const out={},add=(station,list)=>{if(!list||!list.length)return;
-    const seen=out[station]||(out[station]=[0,0,0]);
-    for(const[x,y]of list){seen[0]+=x;seen[1]+=y;seen[2]++}};
-  for(const floor of MAP_FLOORS){
-    const spots=MAP_SPOTS[floor]||{};
-    add('WORKER',spots.WORKER);add('ASTROMECH',spots.ASTROMECH);add('BATTLE',spots.BATTLE);
-    add('BUILD',spots.BUILD);add('UPGRADE_CHIP',spots.UPGRADE_CHIP);
-    add('LOUNGE',spots.LOUNGE);add('LOUNGE',spots.LOUNGE_REBIRTH);add('LOUNGE',spots.LOUNGE_NOVA);
-  }
-  // The Companion slots are on you, not on the map, so treat them as reachable
-  // from anywhere rather than pretending they sit somewhere in particular.
-  return Object.fromEntries(Object.entries(out).map(([k,[x,y,n]])=>[k,[x/n,y/n]]));
-})();
-const stationGap=(a,b)=>{
-  const p=STATION_CENTRES[a],q=STATION_CENTRES[b];
-  return p&&q?Math.hypot(p[0]-q[0],p[1]-q[1]):0;
-};
 const placeName=station=>station===ROSTER?'Roster':stationName(station);
 
-function optimiseRoutePlan(baseP,rawProjected){
-  // Sending to work cannot fill Build. These layouts need an occupied-slot swap;
-  // the slot planner still uses Lounge moves wherever they are usable.
-  if(rawProjected.placed.some(g=>g.missionPriority&&!baseP.placed.some(x=>x.source===g.source&&x.unit===g.unit&&x.station===g.station&&x.slot===g.slot)))
-    return protocolStepPlan(baseP,normaliseProjectedForSteps(baseP,rawProjected),false);
-  if(rawProjected.placed.some(g=>g.station==='BUILD'&&!baseP.placed.some(x=>x.source===g.source&&x.unit===g.unit&&x.station==='BUILD')))
-    return protocolStepPlan(baseP,normaliseProjectedForSteps(baseP,rawProjected),false);
-
-  const projected=normaliseProjectedForSteps(baseP,rawProjected),keyOf=x=>`${x.source}:${x.unit}`;
-  const units=new Map([...baseP.placed,...projected.placed,...projected.sell,...projected.overflow].map(x=>[keyOf(x),x]));
-  const startAt=new Map([...units.keys()].map(key=>[key,ROSTER]));
-  for(const x of baseP.placed)startAt.set(keyOf(x),x.station);
-  const goalSlotAt=new Map(projected.placed.map(x=>[keyOf(x),x.slot])),startSlotAt=new Map(baseP.placed.map(x=>[keyOf(x),x.slot]));
-  const goalAt=new Map(projected.placed.map(x=>[keyOf(x),x.station])),sellKeys=new Set(projected.sell.map(keyOf)),lockedKeys=new Set(baseP.placed.filter(x=>x.lockedSlot).map(keyOf));
-  const capacityOf=Object.fromEntries(Object.keys(SLOT_RULES).map(type=>[type,stationSlotIndices(type).length]));
-  // Only droids that actually need a command are tracked. Everything else holds
-  // its slot for the whole plan, so its occupancy is a constant.
-  const tracked=[...units.keys()].filter(key=>{
-    if(lockedKeys.has(key))return false;
-    if(sellKeys.has(key))return true;
-    const goal=goalAt.get(key),start=startAt.get(key);
-    if(goal==='BUILD'&&start!=='BUILD'){console.warn('Optimise: no command can move a droid into Build',key);return false}
-    return Boolean(goal)&&goal!==start;
-  });
-  const trackedSet=new Set(tracked),staticOccupancy={};
-  for(const [key,station] of startAt)if(!trackedSet.has(key)&&station!==ROSTER)staticOccupancy[station]=(staticOccupancy[station]||0)+1;
-  const nativeOf=key=>state.droids.find(d=>d.name===units.get(key)?.name)?.type||'';
-  const natives=tracked.map(nativeOf),goals=tracked.map(key=>goalAt.get(key)),sells=tracked.map(key=>sellKeys.has(key));
-  const startState=tracked.map(key=>startAt.get(key));
-
-  const countsFor=st=>{const counts={...staticOccupancy};for(const pos of st)if(pos&&pos!==SOLD&&pos!==ROSTER)counts[pos]=(counts[pos]||0)+1;return counts};
-  // Whether the slot being vacated frees up in time to be chosen again is the
-  // whole difference between the two auto-route models above.
-  const roomIn=(station,counts,pos)=>((counts[station]||0)-(AUTO_ROUTE_MODEL==='stage'&&pos===station?1:0))<(capacityOf[station]||0);
-  // The game's auto-route: own type first, else nearest credit slot, Upgrade
-  // Chip last. `assumed` marks the case where more than one credit station was
-  // open and NEAREST_ORDER had to break the tie.
-  const landing=(i,st,counts)=>{
-    const native=natives[i],pos=st[i];
-    if(PRODUCTIVE_STATIONS.includes(native)&&roomIn(native,counts,pos))return{to:native,assumed:false};
-    const open=NEAREST_ORDER.filter(station=>roomIn(station,counts,pos));
-    if(open.length)return{to:open[0],assumed:open.length>1};
-    return roomIn('UPGRADE_CHIP',counts,pos)?{to:'UPGRADE_CHIP',assumed:false}:null;
-  };
-  const satisfied=(i,st)=>sells[i]?st[i]===SOLD:st[i]===goals[i];
-  const allDone=st=>{for(let i=0;i<st.length;i++)if(!satisfied(i,st))return false;return true};
-  // Is anyone else still waiting on the slot this droid is sitting in?
-  const wantedByAnother=(self,station,st)=>{
-    for(let j=0;j<st.length;j++)if(j!==self&&goals[j]===station&&st[j]!==station&&!satisfied(j,st))return true;
-    return false;
-  };
-  // Commands you can issue right now, standing at `here`. Roster droids are not
-  // in the base, so they are reachable from anywhere.
-  const actionsFor=(i,st,here,counts,allowPlace)=>{
-    if(satisfied(i,st))return[];
-    const pos=st[i];
-    if(pos!==here&&pos!==ROSTER)return[];
-    if(sells[i])return[{i,kind:'sell',to:SOLD,assumed:false}];
-    const goal=goals[i];
-    if(goal==='LOUNGE')return roomIn('LOUNGE',counts,pos)?[{i,kind:'lounge',to:'LOUNGE',assumed:false}]:[];
-    if(goal==='COMPANION')return roomIn('COMPANION',counts,pos)?[{i,kind:'companion',to:'COMPANION',assumed:false}]:[];
-    if(!WORK_STATIONS.includes(goal))return[];
-    if(AUTO_ROUTE_MODEL==='reroute'||!PRODUCTIVE_STATIONS.includes(pos)){
-      const land=landing(i,st,counts);
-      if(land&&land.to===goal)return[{i,kind:'work',to:goal,assumed:land.assumed}];
-    }
-    // Auto-route would drop it somewhere else. Stepping aside out of a credit slot
-    // is the way round that. Out of a storage slot it only earns its step if
-    // someone else is waiting on that slot — but then it is essential, because two
-    // droids swapping through the Companion and Upgrade Chip slots each hold what
-    // the other one wants, and without this neither may move and the plan gives up.
-    const moves=[];
-    if(pos!==ROSTER&&pos!==SOLD&&(PRODUCTIVE_STATIONS.includes(pos)||wantedByAnother(i,pos,st)))
-      moves.push(...stagingStations().filter(station=>station!==pos&&station!==goal&&roomIn(station,counts,pos)).map(station=>({i,kind:'stage',to:station,assumed:false})));
-    // Nothing auto-route does gets it there. Usually that is because its own type
-    // of station still has a free slot, so "go to work" would only send it back —
-    // and freeing more credit slots makes that worse, not better. Carrying it over
-    // by hand always works, so offer that rather than give up. Second pass only, so
-    // any plan that needs no hand-placing is still found first.
-    if(allowPlace&&roomIn(goal,counts,pos))moves.push({i,kind:'place',to:goal,assumed:false});
-    return moves;
-  };
-  const stationsWithWork=(st,here)=>{const set=new Set();for(let i=0;i<st.length;i++){if(satisfied(i,st))continue;const pos=st[i];if(pos===ROSTER||pos===SOLD||pos===here)continue;set.add(pos)}return set};
-
-  // Trips are the only cost, so this is A* over (droid positions, where you are
-  // standing): issuing a command is free, walking to another station costs one.
-  // The heuristic — how many other stations still hold work — never overshoots,
-  // so the first complete plan found uses the fewest possible trips. Plans that
-  // lean on the NEAREST_ORDER guess are held back behind clean ones at the same
-  // cost. Big shuffles can outrun the budget, in which case greedy() takes over.
-  const search=allowPlace=>{
-    const clean=[],dirty=[],seen=new Map(),started=Date.now();
-    const push=node=>{const f=node.g+stationsWithWork(node.st,node.here).size,into=node.assumed?dirty:clean;(into[f]||(into[f]=[])).push(node)};
-    push({st:startState,here:null,g:0,assumed:0,parent:null,action:null});
-    seen.set(startState.join('|')+'@null',0);
-    let f=0,expansions=0;
-    while(f<Math.max(clean.length,dirty.length)){
-      const bucket=(clean[f]&&clean[f].length)?clean[f]:dirty[f];
-      if(!bucket||!bucket.length){f++;continue}
-      const node=bucket.pop();
-      if(++expansions>ROUTE_SEARCH_LIMIT)return null;
-      if(!(expansions&7)&&Date.now()-started>ROUTE_SEARCH_MS)return null;
-      if(seen.get(node.st.join('|')+'@'+node.here)<node.g)continue;
-      if(allDone(node.st))return node;
-      const counts=countsFor(node.st);
-      for(let i=0;i<node.st.length;i++)for(const action of actionsFor(i,node.st,node.here,counts,allowPlace)){
-        const st=node.st.slice();st[action.i]=action.to;
-        const childKey=st.join('|')+'@'+node.here;
-        if(seen.has(childKey)&&seen.get(childKey)<=node.g)continue;
-        seen.set(childKey,node.g);
-        push({st,here:node.here,g:node.g,assumed:node.assumed+(action.assumed?1:0),parent:node,action});
-      }
-      for(const station of[...stationsWithWork(node.st,node.here)].sort((a,b)=>stationGap(node.here,b)-stationGap(node.here,a))){
-        const childKey=node.st.join('|')+'@'+station;
-        if(seen.has(childKey)&&seen.get(childKey)<=node.g+1)continue;
-        seen.set(childKey,node.g+1);
-        push({st:node.st,here:station,g:node.g+1,assumed:node.assumed,parent:node,action:{kind:'travel',to:station}});
-      }
-    }
-    return null;
-  };
-  // Used when the search outruns its budget on a big shuffle. Same rules, but it
-  // just clears whichever station has the most to do, finishing droids off in
-  // preference to staging more of them so the Lounge cannot silt up.
-  const rank={sell:0,work:1,lounge:2,companion:2,stage:3,place:4};
-  const greedy=allowPlace=>{
-    // Stepping the same droid aside twice never gets it closer to its goal, and
-    // with storage slots able to stage into each other it would let a droid
-    // shuttle between the Lounge and the Companion slot forever. One each.
-    let st=startState.slice(),here=null;const trail=[],staged=new Set();
-    const movesFor=(i,st,at,counts)=>actionsFor(i,st,at,counts,allowPlace).filter(a=>a.kind!=='stage'||!staged.has(a.i));
-    for(let guard=0;guard<800&&!allDone(st);guard++){
-      for(let acted=true;acted;){
-        acted=false;
-        const counts=countsFor(st);let best=null;
-        for(let i=0;i<st.length;i++)for(const action of movesFor(i,st,here,counts))if(!best||rank[action.kind]<rank[best.kind])best=action;
-        if(best){st=st.slice();st[best.i]=best.to;trail.push(best);if(best.kind==='stage')staged.add(best.i);acted=true}
-      }
-      if(allDone(st))break;
-      const options=[...stationsWithWork(st,here)];
-      if(!options.length)break;
-      const workAt=station=>{const counts=countsFor(st);let n=0;for(let i=0;i<st.length;i++)if(movesFor(i,st,station,counts).length)n++;return n};
-      const scored=options.map(station=>[station,workAt(station)]).sort((a,b)=>b[1]-a[1]||stationGap(here,a[0])-stationGap(here,b[0]));
-      here=scored[0][0];
-      trail.push({kind:'travel',to:here});
-    }
-    return{trail,complete:allDone(st)};
-  };
-
-  const trailOf=node=>{const out=[];for(;node&&node.action;node=node.parent)out.unshift(node.action);return out};
-  const plan=allowPlace=>{
-    const node=tracked.length<=ROUTE_SEARCH_MAX_DROIDS?search(allowPlace):null;
-    return node?{trail:trailOf(node),complete:true}:greedy(allowPlace);
-  };
-  // A plan made only of commands the game itself would carry out is the good one,
-  // so that is tried first. Only if no such plan exists is hand-placing allowed.
-  let{trail,complete}=plan(false);
-  if(!complete){const retry=plan(true);if(retry.complete)({trail,complete}=retry)}
-
-  // Battle runs over two floors, so "a Battle slot" is not enough to walk to.
-  const toFloor=action=>floorNote(action.to,goalSlotAt.get(tracked[action.i]));
-  const fromFloor=(action,from)=>floorNote(from,startSlotAt.get(tracked[action.i]));
-  const toSlot=action=>{const slot=goalSlotAt.get(tracked[action.i]);return Number.isInteger(slot)?` ${slot+1}`:''};
-  const describe=(action,unit,from)=>{
-    const name=unitName(unit);
-    if(action.kind==='sell')return{type:'sell',text:from===ROSTER?`Sell ${name}.`:`Sell ${name} from ${placeName(from)}${fromFloor(action,from)}.`};
-    if(action.kind==='work')return{type:'move',text:`Tell ${name} to go to work — it will take a ${placeName(action.to)}${toFloor(action)} slot.`};
-    if(action.kind==='place')return{type:'move',text:`Swap ${name} into ${placeName(action.to)}${toSlot(action)}${toFloor(action)} — make it your companion, then swap it with whoever is in that slot. If the slot is still empty, let it fill first; a swap needs somebody to swap with, and sending ${name} to work would put it somewhere else.`};
-    if(action.kind==='lounge')return{type:'move',text:`Send ${name} to the Lounge.`};
-    if(action.kind==='companion')return{type:'move',text:`Make ${name} your companion.`};
-    if(action.to==='COMPANION')return{type:'move',text:`Make ${name} your companion to free its ${placeName(from)}${fromFloor(action,from)} slot — you will put it to work from there.`};
-    return{type:'move',text:`Send ${name} to the Lounge to free its ${placeName(from)}${fromFloor(action,from)} slot — you will put it to work from there.`};
-  };
-  const steps=[];let st=startState.slice(),here=null,visit=0;
-  for(const action of trail){
-    if(action.kind==='travel'){here=action.to;visit++;continue}
-    const from=st[action.i],unit=units.get(tracked[action.i]);
-    // The log needs to know where this droid started and which station it is
-    // heading for; describe() only produces prose.
-    steps.push({...describe(action,unit,from),unit,at:here??from,visit,assumed:Boolean(action.assumed),
-      kind:action.kind,from,fromSlot:startSlotAt.get(tracked[action.i]),to:action.to});
-    st[action.i]=action.to;
-  }
-  if(!complete){
-    const stuck=tracked.filter((key,i)=>!satisfied(i,st)).map(key=>unitName(units.get(key)));
-    steps.push({type:'note',unit:null,at:here??ROSTER,visit,assumed:false,
-      text:`Could not route ${stuck.slice(0,4).join(', ')}${stuck.length>4?` and ${stuck.length-4} more`:''} automatically — move them by hand and reopen Optimise.`});
-  }
-  return steps;
-}
+function optimiseRoutePlan(baseP,projected){return protocolStepPlan(baseP,projected,false,true)}
 // Consecutive steps issued at the same station are one stop on the walk round.
 function optimiseVisits(steps){
   const visits=[];
@@ -3155,61 +2938,19 @@ function optimiseVisits(steps){
   return visits;
 }
 // ─── Classic slot-by-slot planner ─────────────────────────────────
-// The original planner, kept because some players prefer being told the exact
-// slot to move into rather than being walked round the base. It shares the same
-// target layout as optimiseRoutePlan, so the Upgrade Chip pick applies to both.
+// Both display styles use the canonical simulator. Classic displays the steps
+// as a list; route style groups the same commands into consecutive station visits.
 const stationLabel=station=>station?`${station[0]+station.slice(1).toLowerCase()} station`:'roster';
 const slotLabel=p=>p?`${stationName(p.station)} ${p.slot+1}${floorNote(p.station,p.slot)}`:'Roster';
 const sameDroidVariant=(a,b)=>a?.name===b?.name&&a?.variant===b?.variant;
 const sameSlot=(a,b)=>a?.station===b?.station&&a?.slot===b?.slot;
-function cleanOptimiseSteps(steps){const cleaned=[...steps];const stationOrder=['WORKER','ASTROMECH','BATTLE','BUILD','LOUNGE','COMPANION','UPGRADE_CHIP','BLUEPRINT'];return cleaned.map((step,index)=>({...step,index})).filter(step=>!(step.type==='move'&&step.to?.station==='BUILD')&&!(step.type==='move'&&step.from?.station===step.to?.station)&&!(step.type==='swap'&&step.from?.station===step.withFrom?.station)).sort((a,b)=>a.type==='sell'&&b.type==='sell'?(stationOrder.indexOf(a.from?.station)-stationOrder.indexOf(b.from?.station))||((a.from?.slot??0)-(b.from?.slot??0))||a.index-b.index:a.type==='sell'?-1:b.type==='sell'?1:a.index-b.index)}
-function optimiseStepPlan(baseP,rawProjected){const projected=normaliseProjectedForSteps(baseP,rawProjected),keyOf=x=>`${x.source}:${x.unit}`,slotKey=p=>p?`${p.station}:${p.slot}`:'',all=[...baseP.placed,...projected.placed,...projected.sell,...projected.overflow],units=new Map(all.map(x=>[keyOf(x),x])),positions=new Map(baseP.placed.map(x=>[keyOf(x),{station:x.station,slot:x.slot}])),slotOwner=new Map(baseP.placed.map(x=>[`${x.station}:${x.slot}`,keyOf(x)])),goals=new Map(projected.placed.map(x=>[keyOf(x),{station:x.station,slot:x.slot}])),steps=[];for(const sold of projected.sell){const key=keyOf(sold),pos=positions.get(key);if(pos){steps.push({type:'sell',unit:sold,from:pos,text:`Sell ${unitName(sold)} in ${stationLabel(pos.station)}.`});slotOwner.delete(slotKey(pos));positions.delete(key)}else steps.push({type:'sell',unit:sold,text:`Sell ${unitName(sold)}.`})}
-// You can never pick the slot. You tell a droid to go to work and the game takes
-// the free slot nearest to where it was standing, so a step naming a slot is a
-// prediction rather than an instruction. When the plan needs one exact slot the
-// only way in is fill-then-swap: let the slot fill, make the droid your companion,
-// and swap it with whoever ended up there. Swapping needs an occupant, which is
-// why the slot has to fill first.
-const autoRouteLanding=(station,origin)=>slotFillOrder(station,origin).find(slot=>!slotOwner.has(`${station}:${slot}`));
-const placeText=(unit,pos,goal)=>{
-  const name=unitName(unit),landing=autoRouteLanding(goal.station,pos);
-  if(landing===goal.slot)return `Tell ${name} in ${slotLabel(pos)} to go to work — it will take ${slotLabel(goal)}.`;
-  const instead=landing===undefined?'a slot in another station':slotLabel({station:goal.station,slot:landing});
-  return `Put ${name} in ${slotLabel(goal)}: let that slot fill, then make ${name} your companion and swap the two. Sending it to work from ${slotLabel(pos)} would put it in ${instead} instead.`;
-};
-const swapText=(unit,pos,other,otherPos)=>`Swap ${unitName(unit)} in ${slotLabel(pos)} with ${unitName(other)} in ${slotLabel(otherPos)} — make ${unitName(unit)} your companion, then swap it with ${unitName(other)}. Sending it to work would put it somewhere else.`;
-const correct=(key,pos=positions.get(key),goal=goals.get(key))=>pos&&goal&&pos.station===goal.station&&pos.slot===goal.slot,unitType=key=>state.droids.find(d=>d.name===units.get(key)?.name)?.type,nativeSlotOpen=type=>['WORKER','ASTROMECH','BATTLE'].includes(type)&&stationSlotIndices(type).some(slot=>!slotOwner.has(`${type}:${slot}`)),goalOwner=pos=>pos?[...goals].find(([,goal])=>goal.station===pos.station&&goal.slot===pos.slot)?.[0]:null,autoRouteSafe=(key,goal,pos=positions.get(key))=>{const type=unitType(key);return !goal||!['WORKER','ASTROMECH','BATTLE'].includes(goal.station)||goal.station===type||pos?.station!==type&&!nativeSlotOpen(type)};for(let guard=0;guard<80;guard++){const unsafeSwap=[...goals].find(([key,goal])=>{const pos=positions.get(key);if(!pos||correct(key,pos,goal)||slotOwner.has(slotKey(goal))||autoRouteSafe(key,goal,pos))return false;const blocker=goalOwner(pos);return blocker&&blocker!==key&&positions.has(blocker)&&!correct(blocker)});if(unsafeSwap){const [key]=unsafeSwap,unit=units.get(key),pos=positions.get(key),blockerKey=goalOwner(pos),blocker=units.get(blockerKey),blockerPos=positions.get(blockerKey);if(!sameDroidVariant(unit,blocker))steps.push({type:'swap',unit,from:pos,withUnit:blocker,withFrom:blockerPos,text:swapText(unit,pos,blocker,blockerPos)});slotOwner.set(slotKey(pos),blockerKey);positions.set(blockerKey,pos);slotOwner.set(slotKey(blockerPos),key);positions.set(key,blockerPos);continue}const candidates=[...goals].filter(([key,goal])=>positions.has(key)&&!correct(key)&&!slotOwner.has(slotKey(goal))),movable=candidates.find(([key,goal])=>goal.station===unitType(key))||candidates.find(([key,goal])=>autoRouteSafe(key,goal));if(!movable)break;const [key,goal]=movable,unit=units.get(key),pos=positions.get(key);steps.push({type:'move',unit,from:pos,to:goal,text:placeText(unit,pos,goal)});slotOwner.delete(slotKey(pos));slotOwner.set(slotKey(goal),key);positions.set(key,goal)}for(let guard=0;guard<80;guard++){const start=[...goals].find(([key])=>positions.has(key)&&!correct(key));if(!start)break;let [key]=start;for(let cycleGuard=0;cycleGuard<40&&!correct(key);cycleGuard++){const unit=units.get(key),pos=positions.get(key),goal=goals.get(key),targetKey=slotOwner.get(slotKey(goal));if(!targetKey||targetKey===key)break;const target=units.get(targetKey);if(!sameDroidVariant(unit,target))steps.push({type:'swap',unit,from:pos,withUnit:target,withFrom:goal,text:swapText(unit,pos,target,goal)});slotOwner.set(slotKey(pos),targetKey);positions.set(targetKey,pos);slotOwner.set(slotKey(goal),key);positions.set(key,goal);key=targetKey}}return cleanOptimiseSteps(steps)}
-const slotStationName=station=>`${station[0]+station.slice(1).toLowerCase()} station`;
-const sameOwnedUnit=(a,b)=>a?.source===b?.source&&a?.unit===b?.unit;
-const cleanOptimiseStepsBySlot=cleanOptimiseSteps;
-cleanOptimiseSteps=steps=>{
-  const cleaned=cleanOptimiseStepsBySlot(steps),conversions=[];
-  for(let i=0;i<cleaned.length;i++){
-    const swap=cleaned[i];
-    if(swap.type!=='swap'||!swap.from||!swap.withFrom)continue;
-    const fromBuild=swap.from.station==='BUILD',withBuild=swap.withFrom.station==='BUILD';
-    if(fromBuild===withBuild)continue;
-    const productiveUnit=fromBuild?swap.withUnit:swap.unit;
-    const productiveFrom=fromBuild?swap.withFrom:swap.from;
-    const buildUnit=fromBuild?swap.unit:swap.withUnit;
-    const buildFrom=fromBuild?swap.from:swap.withFrom;
-    const laterIndex=cleaned.findIndex((candidate,index)=>index>i&&candidate.type==='move'&&sameOwnedUnit(candidate.unit,productiveUnit)&&sameSlot(candidate.from,buildFrom)&&candidate.to?.station!=='BUILD');
-    if(laterIndex<0)continue;
-    conversions.push({swapIndex:i,laterIndex,productiveUnit,productiveFrom,buildUnit,buildFrom,target:cleaned[laterIndex].to});
-  }
-  if(!conversions.length)return cleaned;
-  const first=Math.min(...conversions.map(x=>x.swapIndex)),last=Math.max(...conversions.map(x=>x.laterIndex)),used=new Set(conversions.flatMap(x=>[x.swapIndex,x.laterIndex]));
-  if(cleaned.slice(first,last+1).some((_,offset)=>!used.has(first+offset)))return cleaned;
-  const evacuations=conversions.map(x=>({type:'move',unit:x.productiveUnit,from:x.productiveFrom,to:x.target,text:`Put ${unitName(x.productiveUnit)} to work from ${slotStationName(x.productiveFrom.station)}; it will fill an empty ${x.target.station[0]+x.target.station.slice(1).toLowerCase()} slot.`}));
-  const fills=conversions.map(x=>({type:'move',unit:x.buildUnit,from:x.buildFrom,to:x.productiveFrom,text:`Put ${unitName(x.buildUnit)} to work from Build; it will fill an empty ${x.productiveFrom.station[0]+x.productiveFrom.station.slice(1).toLowerCase()} slot.`}));
-  return [...cleaned.slice(0,first),...evacuations,...fills,...cleaned.slice(last+1)];
-};
+// A display preference must not change which moves are physically possible.
+function optimiseStepPlan(baseP,projected){return protocolStepPlan(baseP,projected,false,false)}
 // Which step style to show. Device-local like the other Optimise view prefs, not
 // profile data — it changes how the same plan is presented, not the plan itself.
 const OPTIMISE_STEP_STYLES=["route","classic"];
-// Falls back to the default rather than throwing: without this a blocked or
-// missing localStorage would trip safeOptimiseStepPlan's catch and drop the
-// entire step list instead of just the preference.
+// A missing or blocked localStorage only resets the display preference; it must
+// not prevent the shared plan from being shown.
 const optimiseStepStyle=()=>{try{const saved=localStorage.getItem("droid-archive-optimise-step-style");return OPTIMISE_STEP_STYLES.includes(saved)?saved:"route"}catch(e){return"route"}};
 // Plan batches from individual sell candidates, respecting per-copy Sell choices.
 // Explicit fusion reserves are eligible alongside sell candidates. Accept the
@@ -3268,13 +3009,14 @@ function withFusionSteps(steps,projected,baseP){
   }
   const origin=s=>s.from?.station||s.from||s.unit?.station||s.at;
   const onTable=available.filter(s=>origin(s)==='FUSION');
-  // If the table already holds inputs for different batches, sell the other
-  // spare occupants first. Re-plan without them so none is silently consumed.
+  // Inputs already on the table cannot be ignored while another batch runs.
+  // Keep the original non-fusion plan when the batches cannot honor them. This
+  // preserves explicit Keep choices and never silently consumes a later input.
+  // Retrying only the sell pool left kept table inputs unchanged and could
+  // recurse forever, while dropping baseP lost the table's real occupancy.
   const first=batches.findIndex(b=>b.inputs.some(s=>onTable.includes(s)));
   if(first>0||onTable.some(s=>claimed.has(s)&&!batches[0].inputs.includes(s))){
-    const tableKeys=new Set(onTable.map(s=>`${s.unit.source}:${s.unit.unit}`));
-    const retry={...projected,sell:projected.sell.filter(x=>!tableKeys.has(`${x.source}:${x.unit}`))};
-    return withFusionSteps(steps,retry);
+    return steps;
   }
   const out=steps.filter(s=>s.type==='sell'&&!claimed.has(s));
   batches.forEach(({fusion:step,inputs,results},index)=>{
@@ -3343,7 +3085,7 @@ function scheduleFusionBuildSteps(steps,baseP,projected){
         const result=[...placed.values()].find(x=>x.fusionResult&&x.name===step.unit.name&&x.variant===step.unit.variant);
         if(result)remove(result);
       }
-      out.push({...step,at:'FUSION_BUILD',text:`Wait for ${unitName(step.unit)} to finish in Fusion Build, then put ${step.unit.count} into Fusion for this batch. This frees its Fusion Build slot.`});
+      out.push({...step,waitForBuild:true,at:'FUSION_BUILD',text:`Wait for ${unitName(step.unit)} to finish in Fusion Build, then put ${step.unit.count} into Fusion for this batch. This frees its Fusion Build slot.`});
     }
     if(freeBuild()===undefined)drainBuild(first.visit);
     const slot=freeBuild();
@@ -3354,42 +3096,21 @@ function scheduleFusionBuildSteps(steps,baseP,projected){
         text:`Keep ${unitName(step.unit)} where it is for now - waiting for a free Fusion Build slot.`});
       return{steps:out,remaining:remaining(),blocked:true};
     }
+    const resultUnit={source:`fusion-result-${i}`,unit:0,name:fusion.unit?.name||'Fusion result',variant:fusion.unit?.variant||fusion.fusion.variant,station:'FUSION_BUILD',slot,built:false,lockedSlot:true,fusionResult:true,fusionUnknown:!fusion.unit?.name,rarity:fusion.fusion?.rarity,fusionInputs:batch.filter(s=>['fuse-in','fuse-held','fuse-result'].includes(s.type)).flatMap(s=>Array.from({length:s.type==='fuse-result'?s.unit.count:1},()=>({name:s.unit.name,variant:s.unit.variant})))};
     for(const step of batch){
       if(step.type==='fuse-result')continue;
       if(step.type==='fuse-in'||step.type==='fuse-held')remove(step.unit);
-      out.push(step.type==='fuse'?{...step,to:'FUSION_BUILD',toSlot:slot,
+      out.push(step.type==='fuse'?{...step,to:'FUSION_BUILD',toSlot:slot,resultUnit,
         text:step.text.replace('Collect the result and clear the table before the next batch.',`The result occupies Fusion Build slot ${slot+1} until it finishes building and is moved out.`)}:step);
     }
-    placed.set(`fusion-result-${i}:0`,{source:`fusion-result-${i}`,unit:0,name:fusion.unit?.name||'Fusion result',variant:fusion.unit?.variant||fusion.fusion.variant,
-      station:'FUSION_BUILD',slot,built:false,lockedSlot:true,fusionResult:true,fusionUnknown:!fusion.unit?.name,rarity:fusion.fusion?.rarity,
-      fusionInputs:batch.filter(s=>['fuse-in','fuse-held','fuse-result'].includes(s.type)).flatMap(s=>Array.from({length:s.type==='fuse-result'?s.unit.count:1},()=>({name:s.unit.name,variant:s.unit.variant})))});
+    placed.set(keyOf(resultUnit),resultUnit);
     i=end+1;
   }
   return{steps:out,remaining:remaining(),blocked:false};
 }
 function applyPlannedEquivalentSlots(baseP,projected,steps){
-  // Commit the chosen walkthrough's equivalent regional positions to both the
-  // preview and saved rows. Candidate planners must not alter each other's goals.
-  if(steps.some(step=>step.type==='note'||step.fusionBlocked))return;
-  const keyOf=x=>`${x.source}:${x.unit}`,positions=new Map(baseP.placed.map(x=>[keyOf(x),{station:x.station,slot:x.slot}]));
-  for(const step of steps){
-    if(!step.unit)continue;
-    const key=keyOf(step.unit);
-    if(['sell','fuse-in','fuse-held'].includes(step.type))positions.delete(key);
-    else if(step.type==='move'&&step.to?.station)positions.set(key,{station:step.to.station,slot:step.to.slot});
-    else if(step.type==='swap'&&step.withUnit){
-      positions.set(key,{station:step.withFrom.station,slot:step.withFrom.slot});
-      positions.set(keyOf(step.withUnit),{station:step.from.station,slot:step.from.slot});
-    }
-  }
-  const updates=projected.placed.map(unit=>{
-    const actual=positions.get(keyOf(unit));
-    return equivalentSlotGroup(unit)&&equivalentSlotGroup(unit)===equivalentSlotGroup(actual)&&!unit.lockedSlot&&!unit.missionPriority&&stationSlotIndices(unit.station).includes(actual.slot)?{...unit,slot:actual.slot}:unit;
-  });
-  if(!updates.some((x,i)=>x.slot!==projected.placed[i].slot))return;
-  if(new Set(updates.map(x=>`${x.station}:${x.slot}`)).size!==updates.length)return;
-  projected.placed=updates;
-  projected.rows=optimisedRows(updates,projected.overflow);
+  if(!steps.complete||!steps.finalPlaced)return;
+  resolveOptimiseProjection(projected,steps);
 }
 function applyFusionProjection(projected,scheduled){
   if(scheduled.blocked)return;
@@ -3401,28 +3122,62 @@ function applyFusionProjection(projected,scheduled){
   projected.fusedInputs=consumed.size;
   projected.rows=optimisedRows(projected.placed,projected.overflow);
 }
-function safeOptimiseStepPlan(baseP,projected){try{
-  Object.assign(projected,normaliseProjectedForSteps(baseP,projected));
+function optimiseMovementRules(){return {
+  slots:stationSlotIndices,
+  canUse:(unit,station)=>canUseStation(state.droids.find(d=>d.name===unit.name),station),
+  isBuilding,workLanding:plannedWorkLanding
+};}
+function resolveOptimiseProjection(projected,moves){
+  const keyOf=x=>`${x.source}:${x.unit}`;
+  const details=new Map([...(projected.overflow||[]),...(projected.placed||[]),...(moves.resolvedGoals||[])].map(x=>[keyOf(x),x]));
+  const actual=(moves.finalPlaced||[]).map(unit=>({...details.get(keyOf(unit)),...unit,...(unit.fusionResult?{lockedSlot:false}:{})}));
+  const held=new Set(actual.map(keyOf));
+  projected.placed=actual.filter(x=>!x.fusionUnknown);
+  projected.fusionResults=actual.filter(x=>x.fusionResult);
+  projected.overflow=(projected.overflow||[]).filter(x=>!held.has(keyOf(x)));
   projected.rows=optimisedRows(projected.placed,projected.overflow);
-  const finish=steps=>{applyPlannedEquivalentSlots(baseP,projected,steps);return steps;};
-  // Protocol slots need their own mover - an ordinary droid cannot be swapped
-  // back into a Protocol-only slot - but fusion batches still go through the
-  // same Fusion Build scheduling as any other layout.
-  const protocol=[...baseP.placed,...projected.placed].some(x=>isProtocolStation(x.station));
-  const planner=protocol?protocolStepPlan:optimiseStepStyle()==='classic'?optimiseStepPlan:optimiseRoutePlan;
-  const steps=protocol?planner(baseP,projected):withFusionSteps(planner(baseP,projected),projected,baseP);
-  if(!steps.some(s=>s.type==='fuse'))return finish(steps);
-  const scheduled=scheduleFusionBuildSteps(steps,baseP,projected);
-  if(scheduled.blocked)return scheduled.steps;
-  // Re-route from the simulated layout, including completed droids moved out
-  // of Fusion Build and all result slots reserved by the preceding batches.
-  // A kept Protocol spare that went into a fusion is gone, so the re-plan must not
-  // try to move it to where it would otherwise have been kept.
-  const consumed=new Set(steps.filter(s=>['fuse-in','fuse-held'].includes(s.type)&&s.unit).map(s=>`${s.unit.source}:${s.unit.unit}`));
-  const complete=[...scheduled.steps,...planner(scheduled.remaining,{...projected,sell:[],placed:(projected.placed||[]).filter(x=>!consumed.has(`${x.source}:${x.unit}`))})];
-  applyFusionProjection(projected,scheduled);
-  return finish(complete);
-}catch(e){console.warn('Optimise step plan unavailable',e);return[]}}
+}
+function safeOptimiseStepPlan(baseP,projected){
+  const fail=(message,steps=[])=>{
+    projected.planComplete=false;projected.planIssues=[message];
+    return steps.some(step=>step.type==='note')?steps:[...steps,{type:'note',at:steps.at(-1)?.at||'ROSTER',planBlocked:true,text:message}];
+  };
+  try{
+    Object.assign(projected,normaliseProjectedForSteps(baseP,projected));
+    const moves=protocolStepPlan(baseP,projected,false,true);
+    const prepared=withFusionSteps(moves,projected,baseP);
+    let steps=prepared,finalMoves=moves;
+    if(prepared.some(s=>s.type==='fuse')){
+      const scheduled=scheduleFusionBuildSteps(prepared,baseP,projected);
+      if(scheduled.blocked)return fail('Free a Fusion Build slot and run Optimise again before applying.',scheduled.steps);
+      const consumed=new Set(scheduled.steps.filter(s=>['fuse-in','fuse-held'].includes(s.type)&&s.unit).map(s=>`${s.unit.source}:${s.unit.unit}`));
+      finalMoves=protocolStepPlan(scheduled.remaining,{...projected,sell:[],placed:projected.placed.filter(x=>!consumed.has(`${x.source}:${x.unit}`)),overflow:projected.overflow.filter(x=>!consumed.has(`${x.source}:${x.unit}`))},false,true);
+      steps=[...scheduled.steps,...finalMoves];
+      applyFusionProjection(projected,scheduled);
+    }
+    if(!finalMoves.complete)return fail('The remaining destinations cannot be reached from this Base. Update the blocked positions and regenerate Optimise.',steps);
+    resolveOptimiseProjection(projected,finalMoves);
+    const validation=validateOptimisePlan({initial:baseP,projected,steps,rules:optimiseMovementRules()});
+    projected.planComplete=validation.ok;projected.planIssues=validation.issues;
+    if(!validation.ok){console.warn('Optimise plan validation failed',validation.issues);return fail('These moves could not be verified against your Base. No layout will be applied; update the Base and regenerate Optimise.',steps);}
+    return steps;
+  }catch(error){
+    console.warn('Optimise step plan unavailable',error);
+    return fail('Optimise could not finish a safe move sequence. Your Base has not changed.');
+  }
+}
+function optimiseInputStamp(){return JSON.stringify({profile:state.cloud?.activeProfileId,shared:state.sharedView?.profile?.id,data:profileDataFromState(),spared:sparedFromSelling(),soldInstead:soldInsteadOfFusion(),landings:slotSessionRead().entries});}
+function createOptimisePreview(baseP=placements(),plan=optimiseBase(baseP,incomeForPlaced(baseP.placed))){
+  const projected=optimisedPlacements(baseP,plan),steps=safeOptimiseStepPlan(baseP,projected);
+  annotateLogSlots(steps);
+  // A measured different landing changes the starting state of every later
+  // command. Never silently swap preview occupants to fit a recorded result.
+  if(steps.some(step=>step.logged&&!slotLogSame(step.logged,typeof step.to==='string'?{station:step.to,slot:step.toSlot}:step.to))){
+    projected.planComplete=false;projected.planIssues=['Update Base with the recorded landing, then regenerate Optimise.'];
+    steps.push({type:'note',at:'ROSTER',planBlocked:true,text:projected.planIssues[0]});
+  }
+  return {baseP,plan,projected,steps,inputStamp:optimiseInputStamp(),currentIncome:incomeForPlaced(baseP.placed),income:incomeForPlaced(projected.placed)};
+}
 function critCalcPage(){
   const render=()=>{
     const placed=placements().placed;
@@ -3530,10 +3285,9 @@ function novaIconicPurchasesHtml(baseP,projected){
   </section>`;
 }
 function optimisePage(){
-  const baseP=placements(),currentIncome=incomeForPlaced(baseP.placed),plan=optimiseBase(baseP,currentIncome),p=optimisedPlacements(baseP,plan),steps=safeOptimiseStepPlan(baseP,p),stepsCollapsed=localStorage.getItem('droid-archive-optimise-steps-collapsed')==='1',income=incomeForPlaced(p.placed),gain=income-currentIncome,currentScrap=scrapPayoutsForIncome(currentIncome),optimisedScrap=scrapPayoutsForIncome(income),scrapGain={hit:Math.max(0,(optimisedScrap.hit||0)-(currentScrap.hit||0)),break:Math.max(0,(optimisedScrap.break||0)-(currentScrap.break||0))},rebirthPick=p.placed.reduce((map,x)=>{const previous=map.get(x.name);if(!previous||VARIANTS.indexOf(x.variant)>VARIANTS.indexOf(previous.variant))map.set(x.name,{variant:x.variant,key:`${x.source}:${x.unit}`});return map},new Map()),currentMap=new Map(baseP.placed.map(x=>[`${x.source}:${x.unit}`,x]));
-  const nothingToDo=!steps.filter(x=>x.type!=='note').length&&!p.sell.length&&gain<=1;
-  annotateLogSlots(steps);
-  applyLoggedLandings(p,steps);
+  const preview=createOptimisePreview();
+  const {baseP,plan,projected:p,steps,currentIncome,income}=preview,stepsCollapsed=localStorage.getItem('droid-archive-optimise-steps-collapsed')==='1',gain=income-currentIncome,currentScrap=scrapPayoutsForIncome(currentIncome),optimisedScrap=scrapPayoutsForIncome(income),scrapGain={hit:Math.max(0,(optimisedScrap.hit||0)-(currentScrap.hit||0)),break:Math.max(0,(optimisedScrap.break||0)-(currentScrap.break||0))},rebirthPick=p.placed.reduce((map,x)=>{const previous=map.get(x.name);if(!previous||VARIANTS.indexOf(x.variant)>VARIANTS.indexOf(previous.variant))map.set(x.name,{variant:x.variant,key:`${x.source}:${x.unit}`});return map},new Map()),currentMap=new Map(baseP.placed.map(x=>[`${x.source}:${x.unit}`,x]));
+  const nothingToDo=p.planComplete&&!steps.filter(x=>x.type!=='note').length&&!p.sell.length&&gain<=1;
   const classicSteps=optimiseStepStyle()==='classic',visits=classicSteps?[]:optimiseVisits(steps);
   const stepsEyebrow=classicSteps?'Slot-by-slot order':`Walk round the base · ${visits.length} stop${visits.length===1?'':'s'}`;
   const stepsList=classicSteps
@@ -3576,12 +3330,12 @@ function optimisePage(){
     ${fuseOn?`<ol class="fuse-first-list">${fuseChain.map(fuseStep).join('')}</ol>
     <p class="fuse-first-note">Each step takes three droids out of the Sell list and puts one back, so a later step can spend what an earlier one made. Gains are measured against the weakest droid earning in the layout above; a rarity roll is judged on the middle earner of that rarity and quality.</p>`:'<p class="fuse-first-note">Turn this on and the Sell list is checked for fusions worth making first &mdash; a better droid, or one your Droidex is still missing.</p>'}</section>`;
   const sell=p.sell.map(x=>{const d=state.droids.find(y=>y.name===x.name);const toFusion=fuseTake.has(`${x.source}:${x.unit}`),deferred=fuseDeferred.has(`${x.source}:${x.unit}`);return `<div class="sell-card cycle-unused ${toFusion?'to-fusion':''}"><a href="#/droid/${slug(d.name)}"><div>${picture(d,x.variant)}</div><span><strong>${d.name}</strong><small>${variantText(x.variant)} · From: ${originLabel(x)}</small><em>${toFusion?'&rarr; Fusion room, not sold':deferred?'Waiting for Fusion Build space':(x.sellReason||'No rebirth use')}</em></span></a></div>`}).join('');
-  app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Optimise</div><div class="base-heading"><div><p class="eyebrow">Credit optimiser</p><h1>Optimise</h1><p class="lead">A preview of your Base using your Protocol priority: ${state.protocolPriority==='crafting'?'higher craft speed':'higher credit gain'}.</p></div>${nothingToDo?'<p class="optimise-settled">Already optimal.</p>':'<button class="btn" id="applyOptimised">Apply optimised layout</button>'}</div><div class="base-top optimise-stats"><div class="stat"><small>Current / hour</small><strong>${fmt(currentIncome*3600)}</strong></div><div class="stat"><small>Optimised / hour</small><strong>${fmt(income*3600)}</strong></div><div class="stat"><small>Estimated gain / hour</small><strong>${gain?`${gain>0?'+':''}${fmt(gain*3600)}`:'—'}</strong></div><div class="stat scrap-stat"><small>Optimised scrap / hit</small><strong>${optimisedScrap.hit?fmt(optimisedScrap.hit):'—'}</strong><em>${scrapGain.hit?`+${fmt(scrapGain.hit)} per hit`:'No change'}</em></div><div class="stat scrap-stat"><small>Optimised scrap / break</small><strong>${optimisedScrap.break?fmt(optimisedScrap.break):'—'}</strong><em>${scrapGain.break?`+${fmt(scrapGain.break)} per break`:'No change'}</em></div><div class="stat"><small>Droids owned</small><strong>${state.owned.reduce((s,x)=>s+x.qty,0)}</strong></div></div>${nothingToDo?'':'<div class="notice">This page does not change your Base until you click <strong>Apply optimised layout</strong>. Droids in Sell are excluded from the applied layout.</div>'}${missingPreferredCompanions().length?`<div class="notice companion-wanted"><strong>Buy for a Companion slot:</strong> ${missingPreferredCompanions().map(name=>`<a href="#/droid/${slug(name)}">${name}</a>`).join(', ')} — you picked ${missingPreferredCompanions().length===1?'this':'these'} as a preferred companion but ${missingPreferredCompanions().length===1?'do not':'do not'} own ${missingPreferredCompanions().length===1?'it':'them'} yet.</div>`:''}${novaIconicPurchasesHtml(baseP,p)}${steps.length?`<section class="optimise-steps ${stepsCollapsed?'collapsed':''}"><header><div><p class="eyebrow">${stepsEyebrow}</p><h2>Step-by-step moves</h2></div><div class="optimise-steps-actions">${trackToggle}${stepsStyleToggle}<button class="icon-btn optimise-steps-toggle" id="toggleOptimiseSteps" title="${stepsCollapsed?'Show':'Minimise'} steps">${stepsCollapsed?'+' :'−'}</button></div></header>${stepsList}</section>`:''}${protocolSummaryHtml(p.placed)}<div class="base-layout-v2 optimise-layout"><div class="typed-stations">${['WORKER','ASTROMECH','BATTLE'].map(region=>'<div class="region-stations">'+station(region)+'</div>').join('')}</div><div class="build-side">${station('BUILD')}</div>${overflow?`<section class="roster-wide"><header><div><strong>Unplaced</strong><span>${p.overflow.length} over capacity</span></div></header><div id="rosterCards">${overflow}</div></section>`:''}${fuseFirst}${sell?`<section class="sell-wide"><header><div><strong>Sell</strong><span>${p.sell.length} unused or duplicate rebirth droid${p.sell.length===1?'':'s'}</span></div></header><div class="sell-grid">${sell}</div></section>`:''}</div>`;
+  app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Optimise</div><div class="base-heading"><div><p class="eyebrow">Credit optimiser</p><h1>Optimise</h1><p class="lead">A preview of your Base using your Protocol priority: ${state.protocolPriority==='crafting'?'higher craft speed':'higher credit gain'}.</p></div>${nothingToDo?'<p class="optimise-settled">Already optimal.</p>':`<button class="btn" id="applyOptimised" ${p.planComplete?'':'disabled'}>Apply optimised layout</button>`}</div><div class="base-top optimise-stats"><div class="stat"><small>Current / hour</small><strong>${fmt(currentIncome*3600)}</strong></div><div class="stat"><small>Optimised / hour</small><strong>${fmt(income*3600)}</strong></div><div class="stat"><small>Estimated gain / hour</small><strong>${gain?`${gain>0?'+':''}${fmt(gain*3600)}`:'—'}</strong></div><div class="stat scrap-stat"><small>Optimised scrap / hit</small><strong>${optimisedScrap.hit?fmt(optimisedScrap.hit):'—'}</strong><em>${scrapGain.hit?`+${fmt(scrapGain.hit)} per hit`:'No change'}</em></div><div class="stat scrap-stat"><small>Optimised scrap / break</small><strong>${optimisedScrap.break?fmt(optimisedScrap.break):'—'}</strong><em>${scrapGain.break?`+${fmt(scrapGain.break)} per break`:'No change'}</em></div><div class="stat"><small>Droids owned</small><strong>${state.owned.reduce((s,x)=>s+x.qty,0)}</strong></div></div>${nothingToDo?'':'<div class="notice">This page does not change your Base until you click <strong>Apply optimised layout</strong>. Droids in Sell are excluded from the applied layout.</div>'}${missingPreferredCompanions().length?`<div class="notice companion-wanted"><strong>Buy for a Companion slot:</strong> ${missingPreferredCompanions().map(name=>`<a href="#/droid/${slug(name)}">${name}</a>`).join(', ')} — you picked ${missingPreferredCompanions().length===1?'this':'these'} as a preferred companion but ${missingPreferredCompanions().length===1?'do not':'do not'} own ${missingPreferredCompanions().length===1?'it':'them'} yet.</div>`:''}${novaIconicPurchasesHtml(baseP,p)}${steps.length?`<section class="optimise-steps ${stepsCollapsed?'collapsed':''}"><header><div><p class="eyebrow">${stepsEyebrow}</p><h2>Step-by-step moves</h2></div><div class="optimise-steps-actions">${trackToggle}${stepsStyleToggle}<button class="icon-btn optimise-steps-toggle" id="toggleOptimiseSteps" title="${stepsCollapsed?'Show':'Minimise'} steps">${stepsCollapsed?'+' :'−'}</button></div></header>${stepsList}</section>`:''}${protocolSummaryHtml(p.placed)}<div class="base-layout-v2 optimise-layout"><div class="typed-stations">${['WORKER','ASTROMECH','BATTLE'].map(region=>'<div class="region-stations">'+station(region)+'</div>').join('')}</div><div class="build-side">${station('BUILD')}</div>${overflow?`<section class="roster-wide"><header><div><strong>Unplaced</strong><span>${p.overflow.length} over capacity</span></div></header><div id="rosterCards">${overflow}</div></section>`:''}${fuseFirst}${sell?`<section class="sell-wide"><header><div><strong>Sell</strong><span>${p.sell.length} unused or duplicate rebirth droid${p.sell.length===1?'':'s'}</span></div></header><div class="sell-grid">${sell}</div></section>`:''}</div>`;
   document.querySelector('.build-side').insertAdjacentHTML('afterend',`<div class="special-stations">${station('LOUNGE')}${station('COMPANION')}${station('UPGRADE_CHIP')}<div class="fusion-panel">${station('FUSION')}${fusionBuildSection(station('FUSION_BUILD'))}</div></div>`);
   document.querySelector('[data-manage-iconic-unlocks]')?.addEventListener('click',()=>localStorage.setItem('droid-archive-nova-category','iconic'));
   document.querySelector('#toggleFuseFirst')?.addEventListener('change',event=>{state.optimiseFuseFirst=event.target.checked;save();optimisePage()});document.querySelector('#toggleOptimiseSteps')?.addEventListener('click',()=>{localStorage.setItem('droid-archive-optimise-steps-collapsed',stepsCollapsed?'0':'1');optimisePage()});
   document.querySelector('#toggleStepStyle')?.addEventListener('click',()=>{localStorage.setItem('droid-archive-optimise-step-style',classicSteps?'route':'classic');optimisePage();toast(classicSteps?'Using the route plan':'Using the classic slot-by-slot plan')});
-  document.querySelector('#applyOptimised')?.addEventListener('click',async event=>{const button=event.currentTarget,label=button.textContent;button.disabled=true;button.textContent='Applying…';try{await applyOptimisedLayout(plan)}finally{if(button.isConnected){button.disabled=false;button.textContent=label}}});
+  document.querySelector('#applyOptimised')?.addEventListener('click',async event=>{const button=event.currentTarget,label=button.textContent;button.disabled=true;button.textContent='Applying…';try{await applyOptimisedLayout(preview)}finally{if(button.isConnected){button.disabled=!p.planComplete||preview.inputStamp!==optimiseInputStamp();button.textContent=button.disabled?'Regenerate Optimise':label}}});
   // Owner only, and only on your own Base: arm tracking, then every send-to-work
   // step offers a box.
   const trackHost=document.querySelector('#optimiseTrack');
@@ -3601,8 +3355,8 @@ function optimisePage(){
       const cut=picker.value.indexOf(':');
       const spot={station:picker.value.slice(0,cut),slot:Number(picker.value.slice(cut+1))};
       // The options came from the free set, so this cannot be an occupied slot.
-      slotLogAdd({station:spot.station,fromStation:step.from,fromSlot:step.fromSlot,
-        free:step.freeSlots,landed:spot.slot,plannedStation:step.to,
+      slotLogAdd({station:spot.station,fromStation:typeof step.from==='string'?step.from:step.from?.station,fromSlot:step.fromSlot,
+        free:step.freeSlots,landed:spot.slot,plannedStation:typeof step.to==='string'?step.to:step.to?.station,
         droid:step.unit?.name||'',droidType:state.droids.find(d=>d.name===step.unit?.name)?.type||''});
       slotLogSession.set(step.text,spot);
       toast(`Recorded · ${stationSlotLabel(spot.station,spot.slot)}`);
@@ -3618,8 +3372,9 @@ function optimisePage(){
     // snapshot the current base so the apply can be undone.
     window.__companionApplyOptimise=()=>{
       try{
-        const baseP=placements(),projected=optimisedPlacements(baseP,plan);
-        if(safeOptimiseStepPlan(baseP,projected).some(step=>step.fusionBlocked))return{applied:false,reason:'Free a Fusion Build slot and run Optimise again'};
+        if(preview.inputStamp!==optimiseInputStamp())return{applied:false,reason:'Your Base or settings changed. Regenerate Optimise first'};
+        const projected=structuredClone(preview.projected);
+        if(!projected.planComplete)return{applied:false,reason:projected.planIssues?.[0]||'Regenerate Optimise before applying'};
         if(projected.fusionResults?.some(result=>result.fusionUnknown))return{applied:false,reason:'Use Apply optimised layout on the Base website to select your random fusion results first'};
         window.__companionOptimiseUndo=state.owned.map(r=>({...r}));
         state.owned=projected.rows;save();
@@ -4119,72 +3874,27 @@ function slotLogFree(taken,freed,stations=WORK_STATIONS){
   return out;
 }
 const slotLogSame=(a,b)=>Boolean(a)&&Boolean(b)&&a.station===b.station&&a.slot===b.slot;
-// Each send-to-work step offers the slots free when its droid is sent, which
-// means minus anything an earlier step in the same plan has already been
-// recorded as taking.
-// Move droids to the slots you actually recorded landing in.
-//
-// annotateLogSlots only marks a recorded slot as taken so the NEXT step offers
-// the right choices; it never moved the droid, so the preview and the map went
-// on showing wherever the fill-order rule had guessed. Recording that a droid
-// went to Astromech 7 and then being shown it in Astromech 3 makes the
-// recording look ignored, and the map is the thing you check the plan against.
-//
-// A recorded landing is ground truth about where the droid is, so it wins over
-// the prediction. Whoever the plan had in that slot swaps into the one being
-// vacated, which keeps every droid placed and the slot count unchanged.
-function applyLoggedLandings(projected,steps){
-  const keyOf=x=>`${x.source}:${x.unit}`;
-  let moved=false;
-  for(const step of steps){
-    if(!step.logged||!step.unit)continue;
-    const key=keyOf(step.unit),moving=projected.placed.find(x=>keyOf(x)===key);
-    if(!moving)continue;                                    // sold or unplaced: nothing to move
-    const {station,slot}=step.logged;
-    if(moving.station===station&&moving.slot===slot)continue; // the guess was right
-    const occupant=projected.placed.find(x=>x.station===station&&x.slot===slot&&keyOf(x)!==key);
-    const from={station:moving.station,slot:moving.slot};
-    moving.station=station;moving.slot=slot;
-    if(occupant){occupant.station=from.station;occupant.slot=from.slot}
-    moved=true;
-  }
-  return moved;
-}
+// A landing is a measurement of a command, never permission to rewrite the
+// final layout. A differing recorded landing requires a fresh Base and plan.
 function annotateLogSlots(steps){
   if(state.sharedView||!slotLabAllowed()||!slotLogTracking())return;
-  // Walk the plan in order. Every step empties the slot its droid was in — a
-  // sell for good, a move until it lands somewhere — so by the time you reach a
-  // later step the slots above it have opened up. Landings you have already
-  // recorded close again; ones you have not are still unknown, and fill in as
-  // you work down.
-  const taken=[],freed=[],landedAt=new Map();
-  const keyOf=unit=>unit?`${unit.source}:${unit.unit}`:'';
+  const keyOf=x=>`${x.source}:${x.unit}`,current=new Map(placements().placed.map(x=>[keyOf(x),{...x}]));
   for(const step of steps){
-    const key=keyOf(step.unit);
-    // Where this droid is standing as this step begins. Once a landing has been
-    // recorded that is the recorded slot, not the one the plan predicted — the
-    // whole point of recording it is that the two differ.
-    const standingIn=landedAt.get(key);
-    // Sending a droid to the Lounge is the same measurement as sending it to work:
-    // you pick the droid, the game picks the slot. The station is known there, so
-    // only the Lounge's own slots are offered.
-    const lounge=step.to==='LOUNGE';
-    if((step.kind==='work'||lounge)&&Number.isInteger(step.fromSlot)){
-      step.freeSlots=slotLogFree(taken,freed,lounge?['LOUNGE']:undefined);
+    const key=step.unit?keyOf(step.unit):null;
+    const to=typeof step.to==='string'?{station:step.to,slot:step.toSlot}:step.to;
+    if(step.type==='move'&&(step.workCommand||step.kind==='work'||to?.station==='LOUNGE')){
+      const stations=to.station==='LOUNGE'?['LOUNGE']:[...PRODUCTIVE_STATIONS,'UPGRADE_CHIP'];
+      step.freeSlots=stations.flatMap(station=>stationSlotIndices(station).filter(slot=>![...current.values()].some(x=>x.station===station&&x.slot===slot)).map(slot=>({station,slot})));
       step.logged=slotLogSession.get(step.text)||null;
-      if(step.logged){taken.push(step.logged);landedAt.set(key,step.logged)}
     }
-    // A droid that moves on gives its slot back. Without this, a slot you
-    // recorded a landing in stayed marked occupied for the rest of the plan —
-    // park a droid in Lounge 1, send it to work from there, and Lounge 1 was
-    // still missing from the next Lounge step's choices.
-    if(standingIn){
-      freed.push(standingIn);
-      const held=taken.findIndex(spot=>spot.station===standingIn.station&&spot.slot===standingIn.slot);
-      if(held>=0)taken.splice(held,1);
-      if(landedAt.get(key)===standingIn)landedAt.delete(key);
-    }else if(Number.isInteger(step.fromSlot)&&step.from&&step.from!==ROSTER){
-      freed.push({station:step.from,slot:step.fromSlot});
+    if(['sell','fuse-in','fuse-held'].includes(step.type))current.delete(key);
+    else if(step.type==='move'&&to&&current.has(key))current.set(key,{...current.get(key),...to});
+    else if(step.type==='swap'&&current.has(key)){
+      const other=keyOf(step.withUnit),from=current.get(key),there=current.get(other);
+      if(there){current.set(key,{...from,station:there.station,slot:there.slot});current.set(other,{...there,station:from.station,slot:from.slot});}
+    }else if(step.type==='fuse'&&step.resultUnit)current.set(keyOf(step.resultUnit),{...step.resultUnit});
+    else if(step.type==='fuse-result')for(let i=0;i<step.unit.count;i++){
+      const held=[...current].find(([,u])=>u.fusionResult&&u.name===step.unit.name&&u.variant===step.unit.variant);if(held)current.delete(held[0]);
     }
   }
 }

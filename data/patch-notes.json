@@ -2,6 +2,18 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-16-optimise-plan",
+      "date": "2026-09-16",
+      "title": "Optimise moves and layout checks",
+      "summary": "One movement planner keeps the walkthrough and applied Base in agreement.",
+      "changes": [
+        "Identical copies already doing the right job stay put. Fusion Build swaps keep every displaced droid in its actual position instead of creating phantom overflow.",
+        "Completed droids remain completed when swapped into a Build slot.",
+        "Every plan is replayed and checked before Apply is enabled. Blocked routes and previews made before your Base or settings changed cannot be applied.",
+        "Walkthrough and classic views now show the same move plan. If a recorded landing differs, update Base and regenerate the remaining moves."
+      ]
+    },
+    {
       "id": "2026-09-16-progress-cards-rebirth-alerts",
       "date": "2026-09-16",
       "title": "Player cards and smarter notification slots",

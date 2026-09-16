@@ -5,18 +5,19 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
 const src=fs.readFileSync(path.join(__dirname,'../app.js'),'utf8');
+const validation=fs.readFileSync(path.join(__dirname,'../optimise-plan-validation.js'),'utf8').replace(/^export /gm,'');
 const data=JSON.parse(fs.readFileSync(path.join(__dirname,'../data/droids.json'),'utf8'));
 // Select complete top-level functions by the next top-level declaration.
 function fn(name){const at=src.indexOf(`function ${name}(`);assert(at>=0,name);const tail=src.slice(at);const end=tail.slice(1).search(/\n(?:function |const |let |async function |\/\/)/);return end<0?tail:tail.slice(0,end+1);}
 function setup(){
  const state={droids:structuredClone(data),owned:[],protocolPriority:'credits'};
- const caps={WORKER:1,ASTROMECH:1,BATTLE:1};
+ const caps={WORKER:1,ASTROMECH:1,BATTLE:1,BUILD:3,FUSION_BUILD:3,LOUNGE:1};
  const ctx=vm.createContext({state,console,ASTROMECH_MISSION_SLOTS:[0,2,4,6,8],NEAREST_ORDER:['WORKER','BATTLE','ASTROMECH'],PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
   effectiveMultiplier:()=>1,isIconic:d=>d?.rarity==='ICONIC',iconicIncome:d=>d?.rarity==='ICONIC'?(d.special?.incomePercent??.15):0,
   placedBaseIncome:placed=>placed.reduce((n,x)=>n+(state.droids.find(d=>d.name===x.name)?.variants[x.variant]?.income||0),0),
   expandedOwned:()=>state.owned.flatMap((x,source)=>Array.from({length:x.qty||1},(_,unit)=>({...x,source,unit}))),
-  isBuilding:x=>x.station==='BUILD'&&!x.built,
-  productiveStations:()=>Object.entries(caps).flatMap(([station,n])=>Array.from({length:n},(_,slot)=>({station,slot}))),
+  isBuilding:x=>['BUILD','FUSION_BUILD'].includes(x.station)&&!x.built,
+  productiveStations:()=>Object.entries(caps).filter(([station])=>['WORKER','ASTROMECH','BATTLE'].includes(station)).flatMap(([station,n])=>Array.from({length:n},(_,slot)=>({station,slot}))),
   stationSlotIndices:station=>Array.from({length:caps[station]??(station.startsWith('PROTOCOL_')?1:0)},(_,i)=>i),
   slotFillOrder:station=>Array.from({length:caps[station]||0},(_,i)=>i).reverse(),
   optimiseAssignmentMoves:()=>[],
@@ -28,6 +29,9 @@ function setup(){
  vm.runInContext(fn('stabiliseProjectedPlacements'),ctx);
  vm.runInContext(fn('applyPlannedEquivalentSlots'),ctx);
  vm.runInContext(fn('normaliseProjectedForSteps'),ctx);
+ vm.runInContext(validation,ctx);
+ vm.runInContext(fn('optimiseMovementRules'),ctx);
+ vm.runInContext(fn('resolveOptimiseProjection'),ctx);
  vm.runInContext(fn('safeOptimiseStepPlan'),ctx);
  ctx.isProtocolStation=s=>s.startsWith('PROTOCOL_');ctx.optimiseStepStyle=()=> 'route';
  vm.runInContext('globalThis.optimiseRoutePlan=protocolStepPlan',ctx);
@@ -88,7 +92,9 @@ test('protocol transfers specify regional destinations without auto-route claims
 // a move into an occupied slot or lose a droid during temporary storage.
 function planMoves(positions,targets,lounge=1){
  const {ctx,caps,run}=setup();caps.LOUNGE=lounge;
- const base=positions.map(([station,slot,extra={}],source)=>({name:'LOM',variant:'DEFAULT',source,unit:0,station,slot,...extra}));
+ // Distinct droids make these real transfers; identical copies are deliberately
+ // interchangeable and have their own no-shuffle regressions below.
+ const base=positions.map(([station,slot,extra={}],source)=>({name:['LOM','TDA','PZ','SA-5'][source],variant:'DEFAULT',source,unit:0,station,slot,...extra}));
  const goals=base.map((x,i)=>({...x,station:targets[i][0],slot:targets[i][1]}));
  ctx.base={placed:base};ctx.target={placed:goals,sell:[],overflow:[]};
  const steps=run('protocolStepPlan(base,target)'),current=structuredClone(base);
@@ -99,16 +105,18 @@ function planMoves(positions,targets,lounge=1){
   if(step.type==='swap'){
    const other=current[step.withUnit.source];assert.equal(other.station,step.withFrom.station);assert.equal(other.slot,step.withFrom.slot);
    const from={station:unit.station,slot:unit.slot};Object.assign(unit,{station:other.station,slot:other.slot});Object.assign(other,from);
+   for(const moved of [unit,other])if(['BUILD','FUSION_BUILD'].includes(moved.station))moved.built=true;
   }else{
    assert(!current.some(x=>x!==unit&&x.station===step.to.station&&x.slot===step.to.slot));
    if(step.to.station==='LOUNGE')assert(step.to.slot<lounge);
    Object.assign(unit,{station:step.to.station,slot:step.to.slot});
   }
  }
- ctx.steps=steps;run('applyPlannedEquivalentSlots(base,target,steps)');
+ ctx.steps=steps;run('resolveOptimiseProjection(target,steps)');
  return {steps,current,goals:structuredClone(ctx.target.placed)};
 }
-function finished(plan){assert.deepEqual(plan.current,plan.goals);assert(!plan.steps.some(s=>s.type==='note'));}
+const persistedPlacementRows=units=>units.map(({assumed,...unit})=>unit);
+function finished(plan){assert.deepEqual(persistedPlacementRows(plan.current),persistedPlacementRows(plan.goals));assert(!plan.steps.some(s=>s.type==='note'));}
 test('occupied work cycle uses nearest available Lounge slot then returns to work',()=>{
  const p=planMoves([['WORKER',0],['ASTROMECH',0],['BATTLE',0]],[['ASTROMECH',0],['BATTLE',0],['WORKER',0]],2);
  finished(p);assert(!p.steps.some(s=>s.type==='swap'));assert.equal(p.steps[0].to.station,'LOUNGE');assert.equal(p.steps[0].to.slot,1);
@@ -133,7 +141,7 @@ test('parked droids do not bounce between Lounge buffers while native work slots
   const {ctx,caps,run}=setup();caps.LOUNGE=3;
   const positions=[['R7','ASTROMECH',0],['KX','WORKER',0],['LOM','LOUNGE',2],['R7','LOUNGE',0],['KX','LOUNGE',1]];
   const destinations=[['LOUNGE',0],['LOUNGE',1],['PROTOCOL_WORKER_CREDITS',0],['ASTROMECH',0],['WORKER',0]];
-  const base=positions.map(([name,station,slot],source)=>({name,station,slot,variant:'DEFAULT',source,unit:0}));
+  const base=positions.map(([name,station,slot],source)=>({name,station,slot,variant:source>2?'GOLD':'DEFAULT',source,unit:0}));
   ctx.base={placed:base};ctx.target={placed:base.map((x,i)=>({...x,station:destinations[i][0],slot:destinations[i][1]})),sell:[],overflow:[]};
   const steps=run(`protocolStepPlan(base,target,false,${batch})`),current=structuredClone(base);
   assert(!steps.some(s=>s.type==='note'));assert(steps.length<15);
@@ -155,7 +163,7 @@ test('parked droids do not bounce between Lounge buffers while native work slots
    const layout=JSON.stringify(current);assert(!seen.has(layout),'repeated layout');seen.add(layout);
   }
   ctx.steps=steps;run('applyPlannedEquivalentSlots(base,target,steps)');
-  assert.deepEqual(current,structuredClone(ctx.target.placed));
+  assert.deepEqual(persistedPlacementRows(current),persistedPlacementRows(structuredClone(ctx.target.placed)));
  }
 });
 
@@ -257,7 +265,7 @@ test('independent region exchanges batch through Lounge in three visits',()=>{
   assert(current.filter(x=>x.station==='LOUNGE').length<=3);
  }
  ctx.steps=steps;run('applyPlannedEquivalentSlots(base,target,steps)');
- assert.deepEqual(current,structuredClone(ctx.target.placed));
+ assert.deepEqual(persistedPlacementRows(current),persistedPlacementRows(structuredClone(ctx.target.placed)));
 });
 
 
@@ -288,6 +296,7 @@ test('Astromech role validation defaults invalid and missing preferences to Miss
 
 function replayPlan(ctx,run){
  const steps=run('safeOptimiseStepPlan(base,target)'),key=x=>`${x.source}:${x.unit}`,spot=x=>`${x.station}:${x.slot}`;
+ assert.equal(ctx.target.planComplete,true,JSON.stringify(ctx.target.planIssues));
  assert(!steps.some(s=>s.type==='note'));const current=new Map(ctx.base.placed.map(x=>[key(x),{...x}]));
  for(const step of steps){
   const unit=current.get(key(step.unit));assert(unit);assert.equal(spot(unit),spot(step.from));assert(!unit.lockedSlot);

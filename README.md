@@ -12,6 +12,9 @@ python -m http.server 8000
 
 Then open `http://localhost:8000`. Directly opening `index.html` will not work because the app loads local JSON data with `fetch`.
 
+See [Optimise planning and validation](OPTIMISE.md) for the movement pipeline,
+its safety rules and regression checks.
+
 ## Data
 
 - `data/droids.json` contains droid rarity, type, cost, variant, and income data.
