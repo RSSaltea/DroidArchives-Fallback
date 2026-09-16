@@ -148,6 +148,22 @@ assert.equal(run("normaliseNotificationPreferences({upgradeChipLimit:''}).upgrad
 assert.equal(run("normaliseNotificationPreferences({upgradeChipLimit:'-5'}).upgradeChipLimit"),null);
 assert.equal(run("normaliseNotificationPreferences({upgradeChipLimit:'0'}).upgradeChipLimit"),0);
 assert.equal(run("normaliseNotificationPreferences({rangeFromTop:true}).rangeFromTop"),true);
+// A tracked droid with no need left in range is flagged; so is next-cycle-only
+// tracking while a current-cycle droid is still waiting for a slot.
+state.rebirths={};state.owned=[];state.requirements=[{droidName:'KX',variant:'GOLD',at:22}];
+state.notificationPreferences={priority:'next',horizon:5,tracked:[{name:'R6',variant:null}]};
+m=run('notificationRecommendations()');
+assert.deepEqual(Array.from(m.staleTracked,x=>x.name),['R6'],'no remaining need flags the notification');assert.deepEqual(Array.from(m.replacements,x=>x.name),['KX']);
+state.novaUpgrades['droidex-notifications']=2;
+state.rebirths={0:[],1:[{to:11,requiredDroids:[{droidName:'R6',variant:'GOLD'},{droidName:'LEP',variant:'GOLD'}]}]};
+state.requirements=[{droidName:'KX',variant:'GOLD',at:22}];
+state.notificationPreferences={cycles:'both',priority:'next',horizon:5,startRebirth:11,tracked:[{name:'R6',variant:null},{name:'LEP',variant:null}]};
+m=run('notificationRecommendations()');
+assert.equal(m.staleTracked.length,0);assert.equal(m.deferredTracked.length,1,'one waiting current-cycle droid displaces one next-cycle notification');
+assert.deepEqual(Array.from(m.replacements,x=>x.name),['KX']);assert.equal(m.availableSlots,0);
+state.requirements=[];m=run('notificationRecommendations()');assert.equal(m.deferredTracked.length,0,'next-cycle tracking stays when nothing current is waiting');
+state.notificationPreferences.tracked=[{name:'R6',variant:null}];state.requirements=[{droidName:'KX',variant:'GOLD',at:22}];
+m=run('notificationRecommendations()');assert.equal(m.deferredTracked.length,0,'a free slot takes the current-cycle droid instead');
 Object.assign(state,beforeOwnedTests);
 console.log('PASS: owned tracked droids flagged for removal with replacements, upgrades and next cycle kept');
 
