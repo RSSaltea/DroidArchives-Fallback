@@ -12,7 +12,7 @@ python -m http.server 8000
 
 Then open `http://localhost:8000`. Directly opening `index.html` will not work because the app loads local JSON data with `fetch`.
 
-See [Optimise planning and validation](OPTIMISE.md) for the movement pipeline,
+See [Optimise planning and validation](OPTIMISE.md) for the game command model, the movement pipeline, the schematic Base map,
 its safety rules and regression checks.
 
 ## Data

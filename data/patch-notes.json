@@ -2,6 +2,20 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-17-optimise-rework",
+      "date": "2026-09-17",
+      "title": "Optimise rebuilt around how droids really move",
+      "summary": "Optimise plans the walk with the fewest room visits using only the commands the game offers, and the Base map is new.",
+      "changes": [
+        "Every step is a real command given at the droid: Work, Lounge, Fusion or Sell. Work sends a droid to the nearest free slot of its own type, and its own slot counts as taken, so a full room now empties through the Lounge instead of guessing at swaps.",
+        "Steps are grouped by room in walking order and the plan favours the fewest stops. When a Work command could land in more than one room the step says so; record where it went and regenerate.",
+        "Layouts skip moves worth less than a small share of income (set the threshold in Command Deck). A droid with nowhere to go stays where it is, or is sold when no rebirth needs it.",
+        "Fusion batches whose three inputs are on the Base are part of the walk, one batch on the table at a time.",
+        "New Base map drawn to the real base: platform, Battle building with its upstairs slots, both Lounge rooms, Fusion lab, Worker pod, the Protocol consoles and the Upgrade Chip station, with every droid on its pad.",
+      "Password reset works again: the link from the email opens the new-password form on the home page instead of a missing page, an expired or already used link says so and offers a fresh one, and the code in the reset email can be typed in instead of opening the link. Direct address: droidarchives.co.uk/#/reset-password."
+      ]
+    },
+    {
       "id": "2026-09-16-optimise-plan",
       "date": "2026-09-16",
       "title": "Optimise moves and layout checks",

@@ -401,3 +401,9 @@ html[data-ui-style="modern"] .modern-optimise-settings>.modern-sell-priority{gri
 
 /* Paint the Fusion background once, rather than restarting it at Build. */
 html[data-ui-style="modern"] .fusion-panel{background:linear-gradient(145deg,#121b28,#0e1621)}
+html[data-ui-style="modern"] .modern-min-gain{margin:0}
+html[data-ui-style="modern"] .modern-min-gain-title{display:flex;align-items:center;gap:6px}
+html[data-ui-style="modern"] .modern-min-gain i{display:inline-grid;width:15px;height:15px;place-items:center;margin-left:4px;border:1px solid #315846;border-radius:50%;color:var(--green);font-size:9px;font-style:normal;vertical-align:middle;cursor:help}
+html[data-ui-style="modern"] .modern-min-gain-input{display:flex;align-items:center;gap:8px}
+html[data-ui-style="modern"] .modern-min-gain-input input{width:90px;flex:0 0 auto}
+html[data-ui-style="modern"] .modern-min-gain-input em{font-style:normal;color:#93a5bd;font-size:11px;font-weight:700;text-transform:none;letter-spacing:0}

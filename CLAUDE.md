@@ -21,6 +21,12 @@ only on that public repository's history. It keeps `CNAME` on origin and omits
 it on fallback. Local branch history can contain private app files even after
 those files have been removed from tracking.
 
+The live site is served by Cloudflare Pages (project `droidarchives`,
+`droidarchives.pages.dev`), which builds the public origin repo's `main`
+branch automatically, with no build command, whenever `deploy.ps1` pushes a
+snapshot. Nothing deploys to Cloudflare from this machine directly. The
+fallback repo stays on GitHub Pages as the backup copy.
+
 - Do not push local branches directly to either public repo, including through
   a GUI, GitHub API, alternate remote name, or raw repository URL.
 - Do not use `git push --all`, `--mirror`, `--tags`, force pushes, or merge local

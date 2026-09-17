@@ -1,4 +1,5 @@
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-09-16-optimise';
+import { planOptimiseRoute, predictWorkLanding } from './optimise-route.js?v=2026-09-17-route';
 import { createArchiveExperience } from './archive-experience.js?v=2026-09-16-card-redesign';
 let archiveExperience=null;
 const DROID_TYPES=['WORKER','ASTROMECH','BATTLE','PROTOCOL'];
@@ -9,6 +10,15 @@ const CLOUD_FILE_NAME='droid-archives-cloud-save.json';
 const LOCAL_PROFILES_KEY='droid-archive-local-profiles';
 const SUPABASE_CONFIG_PATH='data/supabase-config.json';
 const PUBLIC_SITE_URL='https://rssaltea.github.io/DroidArchives/';
+// The sites this app is published at. A reset link sends the player back to
+// the one they started from (each must be allowed in Supabase's URL settings).
+const AUTH_SITES=['https://droidarchives.co.uk/','https://rssaltea.github.io/DroidArchives/','https://rssaltea.github.io/DroidArchives-Fallback/'];
+// Reset and confirmation links land with Supabase's tokens, or an error, in the
+// URL. They are read once here, before routing, so the router shows the home
+// page rather than "not found" and the app can act on them once the Supabase
+// client has consumed them.
+const isAuthCallbackHash=hash=>/(^|[#&])(access_token|refresh_token|error|error_code|error_description|type)=/.test(hash);
+const AUTH_CALLBACK=(()=>{const hash=location.hash.replace(/^#/,''),params=new URLSearchParams(isAuthCallbackHash(hash)?hash:''),query=new URLSearchParams(location.search);const get=key=>params.get(key)||query.get(key)||'';return {recovery:get('type')==='recovery',error:get('error_description'),errorCode:get('error_code'),present:isAuthCallbackHash(hash)||query.has('code')||query.has('error')};})();
 const GALACTIC_REPORTS_ENABLED=false;
 function droidAttribute(d,variant='DEFAULT'){
   // Iconics have no rarity/quality scaling, so their attribute is whatever
@@ -30,7 +40,7 @@ const droidGameplayAttribute=(d,variant)=>`${d.name} provides <strong>${droidAtt
 const syncProvider=localStorage.getItem('droid-archive-sync-provider')||'local';
 let supabaseConfig={url:'',anonKey:'',table:'droid_archive_profiles'};
 let supabaseClient=null;
-const state={droids:[],rebirths:{},images:{},events:[],novaShop:null,cantinaShop:null,owned:JSON.parse(localStorage.getItem('droid-archive-owned')||'[]'),blueprints:JSON.parse(localStorage.getItem('droid-archive-blueprints')||'[]'),droidex:JSON.parse(localStorage.getItem('droid-archive-droidex')||'[]'),novaUpgrades:JSON.parse(localStorage.getItem('droid-archive-nova-upgrades')||'{}'),novaIconicUnlocks:JSON.parse(localStorage.getItem('droid-archive-nova-iconic-unlocks')||'[]'),cantinaPurchases:JSON.parse(localStorage.getItem('droid-archive-cantina-purchases')||'{}'),multiplier:Number(localStorage.getItem('droid-archive-multiplier')||1),cycle:Number(localStorage.getItem('droid-archive-cycle')||0),rebirth:Number(localStorage.getItem('droid-archive-rebirth')||0),superRebirthGoal:Number(localStorage.getItem('droid-archive-super-rebirth-goal')||30),astromechIconicRoles:JSON.parse(localStorage.getItem('droid-archive-astromech-iconic-roles')||'{}'),fusionKeepRules:JSON.parse(localStorage.getItem('droid-archive-fusion-keep-rules')||'[]'),fusionPreferences:normaliseFusionPreferences(JSON.parse(localStorage.getItem('droid-archive-fusion-preferences')||'null')),notificationPreferences:normaliseNotificationPreferences(JSON.parse(localStorage.getItem('droid-archive-notification-preferences')||'null')),protocolPriority:localStorage.getItem('droid-archive-protocol-priority')==='crafting'?'crafting':'credits',optimiseFreeBuild:localStorage.getItem('droid-archive-optimise-free-build')==='1',optimiseFuseFirst:localStorage.getItem('droid-archive-optimise-fuse-first')!=='0',fusionAsLounge:localStorage.getItem('droid-archive-fusion-as-lounge')==='1',showRegionalProduction:localStorage.getItem('droid-archive-show-regional-production')!=='0',optimiseFreeBuildMode:localStorage.getItem('droid-archive-optimise-free-build-mode')||'upgrade-cost',optimiseKeepDroidex:localStorage.getItem('droid-archive-optimise-keep-droidex')!=='0',companionGoals:JSON.parse(localStorage.getItem('droid-archive-companion-goals')||'null'),preferredCompanions:JSON.parse(localStorage.getItem('droid-archive-preferred-companions')||'[]'),autoCompleteBuilds:localStorage.getItem('droid-archive-auto-complete-builds')==='1',autoPurchaseSlots:localStorage.getItem('droid-archive-auto-purchase-slots')!=='0',purchasedSlots:JSON.parse(localStorage.getItem('droid-archive-purchased-slots')||'[]'),rebirthTracker:JSON.parse(localStorage.getItem('droid-archive-rebirth-tracker')||'{"notUsingBase":false,"entries":{}}'),loungePurchased:Number(localStorage.getItem('droid-archive-lounge-purchased')||0),novaLevel:Number(localStorage.getItem('droid-archive-nova-level')||0),theme:localStorage.getItem('droid-archive-theme')||'dark',localDoc:null,groups:{workspace:[],loading:false,loaded:false,error:'',loadPromise:null},sharedView:null,cloud:{provider:'supabase',session:null,user:null,doc:null,activeProfileId:localStorage.getItem('droid-archive-active-profile')||'',enabled:syncProvider==='supabase',reconnecting:syncProvider==='supabase',syncing:false,loadPromise:null,initializingNewAccount:false,loadedProfileCount:0,allowProfileCountDecrease:false,status:syncProvider==='supabase'?'Restoring session…':'Local save',token:null,tokenExpiresAt:0,fileId:localStorage.getItem('droid-archive-cloud-file-id')||'',tokenClient:null}};
+const state={droids:[],rebirths:{},images:{},events:[],novaShop:null,cantinaShop:null,owned:JSON.parse(localStorage.getItem('droid-archive-owned')||'[]'),blueprints:JSON.parse(localStorage.getItem('droid-archive-blueprints')||'[]'),droidex:JSON.parse(localStorage.getItem('droid-archive-droidex')||'[]'),novaUpgrades:JSON.parse(localStorage.getItem('droid-archive-nova-upgrades')||'{}'),novaIconicUnlocks:JSON.parse(localStorage.getItem('droid-archive-nova-iconic-unlocks')||'[]'),cantinaPurchases:JSON.parse(localStorage.getItem('droid-archive-cantina-purchases')||'{}'),multiplier:Number(localStorage.getItem('droid-archive-multiplier')||1),cycle:Number(localStorage.getItem('droid-archive-cycle')||0),rebirth:Number(localStorage.getItem('droid-archive-rebirth')||0),superRebirthGoal:Number(localStorage.getItem('droid-archive-super-rebirth-goal')||30),astromechIconicRoles:JSON.parse(localStorage.getItem('droid-archive-astromech-iconic-roles')||'{}'),fusionKeepRules:JSON.parse(localStorage.getItem('droid-archive-fusion-keep-rules')||'[]'),fusionPreferences:normaliseFusionPreferences(JSON.parse(localStorage.getItem('droid-archive-fusion-preferences')||'null')),notificationPreferences:normaliseNotificationPreferences(JSON.parse(localStorage.getItem('droid-archive-notification-preferences')||'null')),protocolPriority:localStorage.getItem('droid-archive-protocol-priority')==='crafting'?'crafting':'credits',optimiseFreeBuild:localStorage.getItem('droid-archive-optimise-free-build')==='1',optimiseFuseFirst:localStorage.getItem('droid-archive-optimise-fuse-first')!=='0',fusionAsLounge:localStorage.getItem('droid-archive-fusion-as-lounge')==='1',showRegionalProduction:localStorage.getItem('droid-archive-show-regional-production')!=='0',optimiseFreeBuildMode:localStorage.getItem('droid-archive-optimise-free-build-mode')||'upgrade-cost',optimiseMinGainPercent:Number(localStorage.getItem('droid-archive-optimise-min-gain')??0.5),optimiseKeepDroidex:localStorage.getItem('droid-archive-optimise-keep-droidex')!=='0',companionGoals:JSON.parse(localStorage.getItem('droid-archive-companion-goals')||'null'),preferredCompanions:JSON.parse(localStorage.getItem('droid-archive-preferred-companions')||'[]'),autoCompleteBuilds:localStorage.getItem('droid-archive-auto-complete-builds')==='1',autoPurchaseSlots:localStorage.getItem('droid-archive-auto-purchase-slots')!=='0',purchasedSlots:JSON.parse(localStorage.getItem('droid-archive-purchased-slots')||'[]'),rebirthTracker:JSON.parse(localStorage.getItem('droid-archive-rebirth-tracker')||'{"notUsingBase":false,"entries":{}}'),loungePurchased:Number(localStorage.getItem('droid-archive-lounge-purchased')||0),novaLevel:Number(localStorage.getItem('droid-archive-nova-level')||0),theme:localStorage.getItem('droid-archive-theme')||'dark',localDoc:null,groups:{workspace:[],loading:false,loaded:false,error:'',loadPromise:null},sharedView:null,cloud:{provider:'supabase',session:null,user:null,doc:null,activeProfileId:localStorage.getItem('droid-archive-active-profile')||'',enabled:syncProvider==='supabase',reconnecting:syncProvider==='supabase',syncing:false,loadPromise:null,initializingNewAccount:false,loadedProfileCount:0,allowProfileCountDecrease:false,status:syncProvider==='supabase'?'Restoring session…':'Local save',token:null,tokenExpiresAt:0,fileId:localStorage.getItem('droid-archive-cloud-file-id')||'',tokenClient:null}};
 if(!localStorage.getItem('droid-archive-super-rebirth-goal'))state.superRebirthGoal=35;
 if(!Array.isArray(state.purchasedSlots))state.purchasedSlots=[];
 function normalizeRebirthTracker(value){const entries={};for(const [key,row] of Object.entries(value?.entries||{})){if(!row||typeof row!=='object')continue;const variant=VARIANTS.includes(row.variant)?row.variant:null;entries[key]={...(variant?{variant}:{}),complete:Boolean(row.complete)}}return{notUsingBase:Boolean(value?.notUsingBase),entries}}
@@ -135,14 +145,14 @@ function mountArchiveTimers(){const path=location.hash.slice(1).split('?')[0]||'
 setInterval(updateArchiveTimers,1000);
 addEventListener('scroll',updateTimerDocking,{passive:true});
 addEventListener('resize',updateTimerDocking);
-function profileDataFromState(){return{owned:state.owned,blueprints:state.blueprints,droidex:state.droidex,novaUpgrades:state.novaUpgrades,novaIconicUnlocks:normaliseNovaIconicUnlocks(state.novaIconicUnlocks),cantinaPurchases:state.cantinaPurchases,multiplier:state.multiplier,cycle:state.cycle,rebirth:state.rebirth,superRebirthGoal:state.superRebirthGoal,astromechIconicRoles:normaliseAstromechIconicRoles(state.astromechIconicRoles),fusionKeepRules:state.fusionKeepRules||[],fusionPreferences:normaliseFusionPreferences(state.fusionPreferences),notificationPreferences:normaliseNotificationPreferences(state.notificationPreferences),protocolPriority:state.protocolPriority,optimiseFreeBuild:state.optimiseFreeBuild,optimiseFuseFirst:state.optimiseFuseFirst,fusionAsLounge:state.fusionAsLounge,showRegionalProduction:state.showRegionalProduction,optimiseFreeBuildMode:state.optimiseFreeBuildMode,optimiseKeepDroidex:state.optimiseKeepDroidex,companionGoals:state.companionGoals,preferredCompanions:state.preferredCompanions,autoCompleteBuilds:state.autoCompleteBuilds,autoPurchaseSlots:state.autoPurchaseSlots,purchasedSlots:state.purchasedSlots,loungePurchased:state.loungePurchased,novaLevel:state.novaLevel,rebirthTracker:state.rebirthTracker}}
+function profileDataFromState(){return{owned:state.owned,blueprints:state.blueprints,droidex:state.droidex,novaUpgrades:state.novaUpgrades,novaIconicUnlocks:normaliseNovaIconicUnlocks(state.novaIconicUnlocks),cantinaPurchases:state.cantinaPurchases,multiplier:state.multiplier,cycle:state.cycle,rebirth:state.rebirth,superRebirthGoal:state.superRebirthGoal,astromechIconicRoles:normaliseAstromechIconicRoles(state.astromechIconicRoles),fusionKeepRules:state.fusionKeepRules||[],fusionPreferences:normaliseFusionPreferences(state.fusionPreferences),notificationPreferences:normaliseNotificationPreferences(state.notificationPreferences),protocolPriority:state.protocolPriority,optimiseFreeBuild:state.optimiseFreeBuild,optimiseFuseFirst:state.optimiseFuseFirst,fusionAsLounge:state.fusionAsLounge,showRegionalProduction:state.showRegionalProduction,optimiseFreeBuildMode:state.optimiseFreeBuildMode,optimiseMinGainPercent:state.optimiseMinGainPercent,optimiseKeepDroidex:state.optimiseKeepDroidex,companionGoals:state.companionGoals,preferredCompanions:state.preferredCompanions,autoCompleteBuilds:state.autoCompleteBuilds,autoPurchaseSlots:state.autoPurchaseSlots,purchasedSlots:state.purchasedSlots,loungePurchased:state.loungePurchased,novaLevel:state.novaLevel,rebirthTracker:state.rebirthTracker}}
 function cloneProfileData(data){return JSON.parse(JSON.stringify(data))}
 function cloneProfileBaseOnly(data){const copy=cloneProfileData(data);copy.droidex=[];return copy}
-function blankProfileData(){return{owned:[],blueprints:[],droidex:[],novaUpgrades:{},novaIconicUnlocks:[],cantinaPurchases:{},multiplier:1,cycle:0,rebirth:0,superRebirthGoal:35,astromechIconicRoles:{},fusionKeepRules:[],fusionPreferences:normaliseFusionPreferences(),notificationPreferences:normaliseNotificationPreferences(),protocolPriority:'credits',optimiseFreeBuild:false,optimiseFuseFirst:true,fusionAsLounge:false,showRegionalProduction:true,optimiseFreeBuildMode:'upgrade-cost',optimiseKeepDroidex:true,autoCompleteBuilds:false,companionGoals:null,preferredCompanions:[],autoPurchaseSlots:true,purchasedSlots:[],loungePurchased:0,novaLevel:0,rebirthTracker:{notUsingBase:false,entries:{}}}}
-function applyProfileData(data){const next=validateBaseImport({base:{owned:normalizeDroidRows(data?.owned||[]),blueprints:normalizeDroidRows(data?.blueprints||[]),droidex:normalizeDroidRows(data?.droidex||[]),novaUpgrades:data?.novaUpgrades||{},novaIconicUnlocks:data?.novaIconicUnlocks,cantinaPurchases:data?.cantinaPurchases||{},multiplier:data?.multiplier,cycle:data?.cycle,rebirth:data?.rebirth,superRebirthGoal:data?.superRebirthGoal,astromechIconicRoles:data?.astromechIconicRoles,fusionKeepRules:data?.fusionKeepRules,fusionPreferences:data?.fusionPreferences,notificationPreferences:data?.notificationPreferences,protocolPriority:data?.protocolPriority,optimiseFreeBuild:data?.optimiseFreeBuild,optimiseFuseFirst:data?.optimiseFuseFirst,fusionAsLounge:data?.fusionAsLounge,showRegionalProduction:data?.showRegionalProduction,optimiseFreeBuildMode:data?.optimiseFreeBuildMode,optimiseKeepDroidex:data?.optimiseKeepDroidex,companionGoals:data?.companionGoals,preferredCompanions:data?.preferredCompanions,autoCompleteBuilds:data?.autoCompleteBuilds,autoPurchaseSlots:data?.autoPurchaseSlots,purchasedSlots:data?.purchasedSlots,loungePurchased:data?.loungePurchased,novaLevel:data?.novaLevel,rebirthTracker:data?.rebirthTracker}});state.owned=next.owned;state.blueprints=next.blueprints;state.droidex=next.droidex;state.novaUpgrades=next.novaUpgrades;state.novaIconicUnlocks=next.novaIconicUnlocks;state.cantinaPurchases=next.cantinaPurchases;state.multiplier=next.multiplier;state.cycle=next.cycle;state.rebirth=next.rebirth;state.superRebirthGoal=next.superRebirthGoal;state.astromechIconicRoles=next.astromechIconicRoles;state.fusionKeepRules=next.fusionKeepRules||[];state.fusionPreferences=normaliseFusionPreferences(next.fusionPreferences);state.notificationPreferences=normaliseNotificationPreferences(next.notificationPreferences);state.protocolPriority=next.protocolPriority;state.optimiseFreeBuild=next.optimiseFreeBuild;state.optimiseFuseFirst=next.optimiseFuseFirst;state.fusionAsLounge=next.fusionAsLounge;state.showRegionalProduction=next.showRegionalProduction;state.optimiseFreeBuildMode=next.optimiseFreeBuildMode;state.optimiseKeepDroidex=next.optimiseKeepDroidex!==false;state.companionGoals=Array.isArray(next.companionGoals)?next.companionGoals:null;state.preferredCompanions=Array.isArray(next.preferredCompanions)?next.preferredCompanions:[];state.autoCompleteBuilds=Boolean(next.autoCompleteBuilds);state.autoPurchaseSlots=next.autoPurchaseSlots;state.purchasedSlots=next.purchasedSlots;state.loungePurchased=next.loungePurchased;state.novaLevel=next.novaLevel;state.rebirthTracker=next.rebirthTracker;syncCantinaPackUpgrades();autoPurchaseEligibleSlots()}
-function saveLocal(){localStorage.setItem('droid-archive-fusion-preferences',JSON.stringify(normaliseFusionPreferences(state.fusionPreferences)));localStorage.setItem('droid-archive-notification-preferences',JSON.stringify(normaliseNotificationPreferences(state.notificationPreferences)));localStorage.setItem('droid-archive-astromech-iconic-roles',JSON.stringify(normaliseAstromechIconicRoles(state.astromechIconicRoles)));localStorage.setItem('droid-archive-fusion-keep-rules',JSON.stringify(state.fusionKeepRules||[]));localStorage.setItem('droid-archive-protocol-priority',state.protocolPriority||'credits');localStorage.setItem('droid-archive-owned',JSON.stringify(state.owned));localStorage.setItem('droid-archive-blueprints',JSON.stringify(state.blueprints));localStorage.setItem('droid-archive-droidex',JSON.stringify(state.droidex));localStorage.setItem('droid-archive-nova-upgrades',JSON.stringify(state.novaUpgrades));localStorage.setItem('droid-archive-nova-iconic-unlocks',JSON.stringify(normaliseNovaIconicUnlocks(state.novaIconicUnlocks)));localStorage.setItem('droid-archive-cantina-purchases',JSON.stringify(state.cantinaPurchases));localStorage.setItem('droid-archive-multiplier',state.multiplier);localStorage.setItem('droid-archive-cycle',state.cycle);localStorage.setItem('droid-archive-rebirth',state.rebirth);localStorage.setItem('droid-archive-super-rebirth-goal',state.superRebirthGoal);localStorage.setItem('droid-archive-optimise-free-build',state.optimiseFreeBuild?'1':'0');localStorage.setItem('droid-archive-optimise-fuse-first',state.optimiseFuseFirst===false?'0':'1');localStorage.setItem('droid-archive-fusion-as-lounge',state.fusionAsLounge?'1':'0');localStorage.setItem('droid-archive-show-regional-production',state.showRegionalProduction===false?'0':'1');localStorage.setItem('droid-archive-optimise-free-build-mode',state.optimiseFreeBuildMode);localStorage.setItem('droid-archive-optimise-keep-droidex',state.optimiseKeepDroidex===false?'0':'1');localStorage.setItem('droid-archive-companion-goals',JSON.stringify(state.companionGoals||null));localStorage.setItem('droid-archive-preferred-companions',JSON.stringify(state.preferredCompanions||[]));localStorage.setItem('droid-archive-auto-complete-builds',state.autoCompleteBuilds?'1':'0');localStorage.setItem('droid-archive-auto-purchase-slots',state.autoPurchaseSlots?'1':'0');localStorage.setItem('droid-archive-purchased-slots',JSON.stringify(state.purchasedSlots));localStorage.setItem('droid-archive-lounge-purchased',state.loungePurchased);localStorage.setItem('droid-archive-nova-level',state.novaLevel);localStorage.setItem('droid-archive-rebirth-tracker',JSON.stringify(state.rebirthTracker));localStorage.setItem('droid-archive-theme',state.theme);localStorage.setItem('droid-archive-active-profile',state.cloud.activeProfileId||'');localStorage.setItem('droid-archive-sync-provider',state.cloud.enabled?'supabase':'local');if(state.cloud.fileId)localStorage.setItem('droid-archive-cloud-file-id',state.cloud.fileId)}
+function blankProfileData(){return{owned:[],blueprints:[],droidex:[],novaUpgrades:{},novaIconicUnlocks:[],cantinaPurchases:{},multiplier:1,cycle:0,rebirth:0,superRebirthGoal:35,astromechIconicRoles:{},fusionKeepRules:[],fusionPreferences:normaliseFusionPreferences(),notificationPreferences:normaliseNotificationPreferences(),protocolPriority:'credits',optimiseFreeBuild:false,optimiseFuseFirst:true,fusionAsLounge:false,showRegionalProduction:true,optimiseFreeBuildMode:'upgrade-cost',optimiseMinGainPercent:0.5,optimiseKeepDroidex:true,autoCompleteBuilds:false,companionGoals:null,preferredCompanions:[],autoPurchaseSlots:true,purchasedSlots:[],loungePurchased:0,novaLevel:0,rebirthTracker:{notUsingBase:false,entries:{}}}}
+function applyProfileData(data){const next=validateBaseImport({base:{owned:normalizeDroidRows(data?.owned||[]),blueprints:normalizeDroidRows(data?.blueprints||[]),droidex:normalizeDroidRows(data?.droidex||[]),novaUpgrades:data?.novaUpgrades||{},novaIconicUnlocks:data?.novaIconicUnlocks,cantinaPurchases:data?.cantinaPurchases||{},multiplier:data?.multiplier,cycle:data?.cycle,rebirth:data?.rebirth,superRebirthGoal:data?.superRebirthGoal,astromechIconicRoles:data?.astromechIconicRoles,fusionKeepRules:data?.fusionKeepRules,fusionPreferences:data?.fusionPreferences,notificationPreferences:data?.notificationPreferences,protocolPriority:data?.protocolPriority,optimiseFreeBuild:data?.optimiseFreeBuild,optimiseFuseFirst:data?.optimiseFuseFirst,fusionAsLounge:data?.fusionAsLounge,showRegionalProduction:data?.showRegionalProduction,optimiseFreeBuildMode:data?.optimiseFreeBuildMode,optimiseMinGainPercent:data?.optimiseMinGainPercent,optimiseKeepDroidex:data?.optimiseKeepDroidex,companionGoals:data?.companionGoals,preferredCompanions:data?.preferredCompanions,autoCompleteBuilds:data?.autoCompleteBuilds,autoPurchaseSlots:data?.autoPurchaseSlots,purchasedSlots:data?.purchasedSlots,loungePurchased:data?.loungePurchased,novaLevel:data?.novaLevel,rebirthTracker:data?.rebirthTracker}});state.owned=next.owned;state.blueprints=next.blueprints;state.droidex=next.droidex;state.novaUpgrades=next.novaUpgrades;state.novaIconicUnlocks=next.novaIconicUnlocks;state.cantinaPurchases=next.cantinaPurchases;state.multiplier=next.multiplier;state.cycle=next.cycle;state.rebirth=next.rebirth;state.superRebirthGoal=next.superRebirthGoal;state.astromechIconicRoles=next.astromechIconicRoles;state.fusionKeepRules=next.fusionKeepRules||[];state.fusionPreferences=normaliseFusionPreferences(next.fusionPreferences);state.notificationPreferences=normaliseNotificationPreferences(next.notificationPreferences);state.protocolPriority=next.protocolPriority;state.optimiseFreeBuild=next.optimiseFreeBuild;state.optimiseFuseFirst=next.optimiseFuseFirst;state.fusionAsLounge=next.fusionAsLounge;state.showRegionalProduction=next.showRegionalProduction;state.optimiseFreeBuildMode=next.optimiseFreeBuildMode;state.optimiseMinGainPercent=Number.isFinite(Number(next.optimiseMinGainPercent))?Number(next.optimiseMinGainPercent):0.5;state.optimiseKeepDroidex=next.optimiseKeepDroidex!==false;state.companionGoals=Array.isArray(next.companionGoals)?next.companionGoals:null;state.preferredCompanions=Array.isArray(next.preferredCompanions)?next.preferredCompanions:[];state.autoCompleteBuilds=Boolean(next.autoCompleteBuilds);state.autoPurchaseSlots=next.autoPurchaseSlots;state.purchasedSlots=next.purchasedSlots;state.loungePurchased=next.loungePurchased;state.novaLevel=next.novaLevel;state.rebirthTracker=next.rebirthTracker;syncCantinaPackUpgrades();autoPurchaseEligibleSlots()}
+function saveLocal(){localStorage.setItem('droid-archive-fusion-preferences',JSON.stringify(normaliseFusionPreferences(state.fusionPreferences)));localStorage.setItem('droid-archive-notification-preferences',JSON.stringify(normaliseNotificationPreferences(state.notificationPreferences)));localStorage.setItem('droid-archive-astromech-iconic-roles',JSON.stringify(normaliseAstromechIconicRoles(state.astromechIconicRoles)));localStorage.setItem('droid-archive-fusion-keep-rules',JSON.stringify(state.fusionKeepRules||[]));localStorage.setItem('droid-archive-protocol-priority',state.protocolPriority||'credits');localStorage.setItem('droid-archive-owned',JSON.stringify(state.owned));localStorage.setItem('droid-archive-blueprints',JSON.stringify(state.blueprints));localStorage.setItem('droid-archive-droidex',JSON.stringify(state.droidex));localStorage.setItem('droid-archive-nova-upgrades',JSON.stringify(state.novaUpgrades));localStorage.setItem('droid-archive-nova-iconic-unlocks',JSON.stringify(normaliseNovaIconicUnlocks(state.novaIconicUnlocks)));localStorage.setItem('droid-archive-cantina-purchases',JSON.stringify(state.cantinaPurchases));localStorage.setItem('droid-archive-multiplier',state.multiplier);localStorage.setItem('droid-archive-cycle',state.cycle);localStorage.setItem('droid-archive-rebirth',state.rebirth);localStorage.setItem('droid-archive-super-rebirth-goal',state.superRebirthGoal);localStorage.setItem('droid-archive-optimise-free-build',state.optimiseFreeBuild?'1':'0');localStorage.setItem('droid-archive-optimise-fuse-first',state.optimiseFuseFirst===false?'0':'1');localStorage.setItem('droid-archive-fusion-as-lounge',state.fusionAsLounge?'1':'0');localStorage.setItem('droid-archive-show-regional-production',state.showRegionalProduction===false?'0':'1');localStorage.setItem('droid-archive-optimise-free-build-mode',state.optimiseFreeBuildMode);localStorage.setItem('droid-archive-optimise-min-gain',String(optimiseMinGainPercent()));localStorage.setItem('droid-archive-optimise-keep-droidex',state.optimiseKeepDroidex===false?'0':'1');localStorage.setItem('droid-archive-companion-goals',JSON.stringify(state.companionGoals||null));localStorage.setItem('droid-archive-preferred-companions',JSON.stringify(state.preferredCompanions||[]));localStorage.setItem('droid-archive-auto-complete-builds',state.autoCompleteBuilds?'1':'0');localStorage.setItem('droid-archive-auto-purchase-slots',state.autoPurchaseSlots?'1':'0');localStorage.setItem('droid-archive-purchased-slots',JSON.stringify(state.purchasedSlots));localStorage.setItem('droid-archive-lounge-purchased',state.loungePurchased);localStorage.setItem('droid-archive-nova-level',state.novaLevel);localStorage.setItem('droid-archive-rebirth-tracker',JSON.stringify(state.rebirthTracker));localStorage.setItem('droid-archive-theme',state.theme);localStorage.setItem('droid-archive-active-profile',state.cloud.activeProfileId||'');localStorage.setItem('droid-archive-sync-provider',state.cloud.enabled?'supabase':'local');if(state.cloud.fileId)localStorage.setItem('droid-archive-cloud-file-id',state.cloud.fileId)}
 function localDocFromCurrent(name='Main'){const id=cloudId();return{app:'Droid Archives',version:1,updatedAt:new Date().toISOString(),activeProfileId:id,profiles:[{id,name,updatedAt:new Date().toISOString(),data:profileDataFromState()}]}}
-function normalizeProfileDoc(doc){if(!doc||!Array.isArray(doc.profiles)||!doc.profiles.length)return localDocFromCurrent();doc.profiles=doc.profiles.map((p,i)=>({id:p.id||`profile-${Date.now()}-${i}`,name:p.name||`Profile ${i+1}`,updatedAt:p.updatedAt||new Date().toISOString(),data:{owned:p.data?.owned||[],blueprints:p.data?.blueprints||[],droidex:p.data?.droidex||[],novaUpgrades:p.data?.novaUpgrades||{},novaIconicUnlocks:normaliseNovaIconicUnlocks(p.data?.novaIconicUnlocks),cantinaPurchases:p.data?.cantinaPurchases||{},multiplier:p.data?.multiplier??1,cycle:p.data?.cycle??0,rebirth:p.data?.rebirth??0,superRebirthGoal:p.data?.superRebirthGoal??30,astromechIconicRoles:normaliseAstromechIconicRoles(p.data?.astromechIconicRoles),fusionKeepRules:normaliseFusionKeepRules(p.data?.fusionKeepRules),fusionPreferences:normaliseFusionPreferences(p.data?.fusionPreferences),notificationPreferences:normaliseNotificationPreferences(p.data?.notificationPreferences),protocolPriority:p.data?.protocolPriority==='crafting'?'crafting':'credits',optimiseFreeBuild:Boolean(p.data?.optimiseFreeBuild),optimiseFuseFirst:p.data?.optimiseFuseFirst!==false,fusionAsLounge:Boolean(p.data?.fusionAsLounge),showRegionalProduction:p.data?.showRegionalProduction!==false,optimiseFreeBuildMode:p.data?.optimiseFreeBuildMode||'upgrade-cost',optimiseKeepDroidex:p.data?.optimiseKeepDroidex!==false,companionGoals:Array.isArray(p.data?.companionGoals)?p.data.companionGoals:null,preferredCompanions:Array.isArray(p.data?.preferredCompanions)?p.data.preferredCompanions:[],autoCompleteBuilds:Boolean(p.data?.autoCompleteBuilds),autoPurchaseSlots:p.data?.autoPurchaseSlots===undefined?true:Boolean(p.data.autoPurchaseSlots),purchasedSlots:Array.isArray(p.data?.purchasedSlots)?p.data.purchasedSlots:[],loungePurchased:p.data?.loungePurchased??0,novaLevel:p.data?.novaLevel??0,rebirthTracker:normalizeRebirthTracker(p.data?.rebirthTracker)}}));doc.activeProfileId=doc.activeProfileId&&doc.profiles.some(p=>p.id===doc.activeProfileId)?doc.activeProfileId:doc.profiles[0].id;doc.updatedAt=doc.updatedAt||new Date().toISOString();return doc}
+function normalizeProfileDoc(doc){if(!doc||!Array.isArray(doc.profiles)||!doc.profiles.length)return localDocFromCurrent();doc.profiles=doc.profiles.map((p,i)=>({id:p.id||`profile-${Date.now()}-${i}`,name:p.name||`Profile ${i+1}`,updatedAt:p.updatedAt||new Date().toISOString(),data:{owned:p.data?.owned||[],blueprints:p.data?.blueprints||[],droidex:p.data?.droidex||[],novaUpgrades:p.data?.novaUpgrades||{},novaIconicUnlocks:normaliseNovaIconicUnlocks(p.data?.novaIconicUnlocks),cantinaPurchases:p.data?.cantinaPurchases||{},multiplier:p.data?.multiplier??1,cycle:p.data?.cycle??0,rebirth:p.data?.rebirth??0,superRebirthGoal:p.data?.superRebirthGoal??30,astromechIconicRoles:normaliseAstromechIconicRoles(p.data?.astromechIconicRoles),fusionKeepRules:normaliseFusionKeepRules(p.data?.fusionKeepRules),fusionPreferences:normaliseFusionPreferences(p.data?.fusionPreferences),notificationPreferences:normaliseNotificationPreferences(p.data?.notificationPreferences),protocolPriority:p.data?.protocolPriority==='crafting'?'crafting':'credits',optimiseFreeBuild:Boolean(p.data?.optimiseFreeBuild),optimiseFuseFirst:p.data?.optimiseFuseFirst!==false,fusionAsLounge:Boolean(p.data?.fusionAsLounge),showRegionalProduction:p.data?.showRegionalProduction!==false,optimiseFreeBuildMode:p.data?.optimiseFreeBuildMode||'upgrade-cost',optimiseMinGainPercent:Number.isFinite(Number(p.data?.optimiseMinGainPercent))?Number(p.data.optimiseMinGainPercent):0.5,optimiseKeepDroidex:p.data?.optimiseKeepDroidex!==false,companionGoals:Array.isArray(p.data?.companionGoals)?p.data.companionGoals:null,preferredCompanions:Array.isArray(p.data?.preferredCompanions)?p.data.preferredCompanions:[],autoCompleteBuilds:Boolean(p.data?.autoCompleteBuilds),autoPurchaseSlots:p.data?.autoPurchaseSlots===undefined?true:Boolean(p.data.autoPurchaseSlots),purchasedSlots:Array.isArray(p.data?.purchasedSlots)?p.data.purchasedSlots:[],loungePurchased:p.data?.loungePurchased??0,novaLevel:p.data?.novaLevel??0,rebirthTracker:normalizeRebirthTracker(p.data?.rebirthTracker)}}));doc.activeProfileId=doc.activeProfileId&&doc.profiles.some(p=>p.id===doc.activeProfileId)?doc.activeProfileId:doc.profiles[0].id;doc.updatedAt=doc.updatedAt||new Date().toISOString();return doc}
 function ensureLocalDoc(){if(!state.localDoc){try{state.localDoc=normalizeProfileDoc(JSON.parse(localStorage.getItem(LOCAL_PROFILES_KEY)||'null'))}catch{state.localDoc=localDocFromCurrent()}if(!state.cloud.activeProfileId||!state.localDoc.profiles.some(p=>p.id===state.cloud.activeProfileId))state.cloud.activeProfileId=state.localDoc.activeProfileId;writeLocalDoc()}return state.localDoc}
 function writeLocalDoc(){if(!state.localDoc)return;state.localDoc.activeProfileId=state.cloud.activeProfileId;state.localDoc.updatedAt=new Date().toISOString();localStorage.setItem(LOCAL_PROFILES_KEY,JSON.stringify(state.localDoc))}
 function cacheCloudDocLocally(){if(!state.cloud.doc)return;state.localDoc=normalizeProfileDoc(cloneProfileData(state.cloud.doc));state.localDoc.activeProfileId=state.cloud.activeProfileId;writeLocalDoc()}
@@ -324,10 +334,10 @@ function optimiseBase(p,currentIncome){
   // a reason to displace one of these assignments for a higher credit earner.
   for(const unit of picks){const old=p.placed.find(x=>keyOf(x)===keyOf(unit));if(old?.station==='ASTROMECH'&&missionSlots.includes(old.slot)&&!used.has(old.slot)){used.add(old.slot);reservations.push({...unit,station:'ASTROMECH',slot:old.slot});}}
   for(const unit of picks)if(!reservations.some(x=>keyOf(x)===keyOf(unit))){const slot=missionSlots.find(x=>!used.has(x));used.add(slot);reservations.push({...unit,station:'ASTROMECH',slot});}
-  if(!reservations.length)return optimiseUnreservedBase(p,currentIncome);
+  if(!reservations.length)return repairReachableLayout(optimiseUnreservedBase(p,currentIncome),p);
   const keys=new Set(reservations.map(keyOf)),spots=new Set(reservations.map(x=>`${x.station}:${x.slot}`));
   const constrained={...p,placed:[...p.placed.filter(x=>!keys.has(keyOf(x))&&!spots.has(`${x.station}:${x.slot}`)),...reservations.map(x=>({...x,lockedSlot:true}))]};
-  const result=optimiseUnreservedBase(constrained,currentIncome);
+  const result=repairReachableLayout(optimiseUnreservedBase(constrained,currentIncome),constrained);
   const assignments=[...result.assignments,...reservations.map(x=>({key:keyOf(x),name:x.name,variant:x.variant,station:x.station,slot:x.slot,missionPriority:true}))];
   return {...result,assignments,moves:optimiseAssignmentMoves(assignments,p)};
 }
@@ -338,13 +348,25 @@ function optimiseUnreservedBase(p,currentIncome){
   const units=expandedOwned().filter(x=>!lockedKeys.has(keyOf(x))).map(x=>({...x,key:keyOf(x),droid:state.droids.find(d=>d.name===x.name)}));
   const slots=[...productiveStations(),...Object.keys(PROTOCOL_SLOTS).flatMap(station=>stationSlotIndices(station).map(slot=>({station,slot})))].filter(x=>!blocked.has(`${x.station}:${x.slot}`));
   const byKey=new Map(units.map((x,i)=>[x.key,i]));
-  let assignment=slots.map(slot=>{const pick=initial.assignments.find(x=>x.station===slot.station&&x.slot===slot.slot);return pick?byKey.get(pick.key)??-1:-1;});
+  const seedFrom=list=>slots.map(slot=>{const pick=list.find(x=>x.station===slot.station&&x.slot===slot.slot);return pick?byKey.get(pick.key)??-1:-1;});
   const allowed=(index,slot)=>index<0||canUseStation(units[index].droid,slot.station)&&(!isProtocolStation(slot.station)||protocolBonus(units[index].droid,units[index].variant,PROTOCOL_SLOTS[slot.station].role)>0);
   const layout=a=>[...locked,...a.flatMap((index,i)=>index<0?[]:[{...units[index],...slots[i]}])];
   const craftSeconds=PROTOCOL_REGIONS.map((_,slot)=>{const build=p.placed.find(x=>x.station==='BUILD'&&x.slot===slot&&isBuilding(x));return state.droids.find(d=>d.name===build?.name)?.variants?.[build?.variant]?.craftingSeconds||0;});
-  const score=a=>{const placed=layout(a),credits=incomeForPlaced(placed),craft=PROTOCOL_REGIONS.reduce((sum,_,i)=>sum+protocolCraftBonus(placed,i),0),saved=craftSeconds.reduce((sum,seconds,i)=>sum+seconds-seconds/(1+protocolCraftBonus(placed,i)),0);return state.protocolPriority==='crafting'?[craft,saved,credits]:[credits,craft,saved];};
+  // Credits net of the move threshold: every droid that changes station has to
+  // pay for its walk, so equal-income reshuffles never win.
+  const lambda=optimiseMoveLambda(currentIncome),currentStation=new Map(p.placed.map(x=>[keyOf(x),x.station]));
+  const moves=a=>a.reduce((sum,index,i)=>sum+(index>=0&&currentStation.get(units[index].key)!==slots[i].station?1:0),0);
+  const score=a=>{const placed=layout(a),credits=incomeForPlaced(placed)-lambda*moves(a),craft=PROTOCOL_REGIONS.reduce((sum,_,i)=>sum+protocolCraftBonus(placed,i),0),saved=craftSeconds.reduce((sum,seconds,i)=>sum+seconds-seconds/(1+protocolCraftBonus(placed,i)),0);return state.protocolPriority==='crafting'?[craft,saved,credits]:[credits,craft,saved];};
   const better=(a,b)=>{for(let i=0;i<a.length;i++){if(a[i]>b[i]+1e-7)return true;if(a[i]<b[i]-1e-7)return false;}return false;};
-  let value=score(assignment);
+  // Two starting points: the credit layout and the base as it stands. A search
+  // that only ever starts from the credit layout can commit to a region flip in
+  // its first step that no later single move undoes.
+  const seeds=[seedFrom(initial.assignments),seedFrom(p.placed.filter(x=>!lockedKeys.has(keyOf(x))).map(x=>({...x,key:keyOf(x)})))];
+  let best=null;
+  for(const seed of seeds){const result=climb(seed);if(!best||better(result.value,best.value))best=result;}
+  const {assignment}=best;
+  function climb(start){
+  let assignment=start,value=score(assignment);
   for(let pass=0;pass<40;pass++){
     let next=null,nextValue=value;
     const used=new Set(assignment.filter(i=>i>=0));
@@ -370,182 +392,38 @@ function optimiseUnreservedBase(p,currentIncome){
     }
     if(!next)break;assignment=next;value=nextValue;
   }
+  return {assignment,value};
+  }
   const assignments=assignment.flatMap((index,i)=>index<0?[]:[{key:units[index].key,name:units[index].name,variant:units[index].variant,...slots[i]}]);
   const income=incomeForPlaced(layout(assignment));
   return {income,gain:income-currentIncome,assignments:stabiliseAssignments(assignments,p),moves:[],protocolPriority:state.protocolPriority||'credits'};
 }
-// Explicit destinations for Protocol layouts: don't predict an undocumented
-// "go to work" auto-route into these new regional slots.
-function plannedWorkLanding(unit,placed){
-  const native=state.droids.find(d=>d.name===unit.name)?.type;
-  const first=station=>slotFillOrder(station,unit).find(slot=>!placed.some(x=>x.station===station&&x.slot===slot));
-  if(PRODUCTIVE_STATIONS.includes(native)){const slot=first(native);if(slot!==undefined)return{station:native,slot,assumed:false};}
-  const open=NEAREST_ORDER.map(station=>({station,slot:first(station)})).filter(x=>x.slot!==undefined);
-  if(open.length)return{...open[0],assumed:open.length>1};
-  const slot=first('UPGRADE_CHIP');return slot===undefined?null:{station:'UPGRADE_CHIP',slot,assumed:false};
-}
-function equivalentSlotGroup(position){
-  if(['LOUNGE','WORKER','BATTLE'].includes(position?.station))return position.station;
-  return position?.station==='ASTROMECH'&&!ASTROMECH_MISSION_SLOTS.includes(position.slot)?'ASTROMECH_CREDITS':null;
-}
-// One occupied-slot simulator for every layout, including Protocol and Build.
-// Candidate routes may group visits, but cannot invent or hide a transfer.
-// A walk that leaves a room and comes back was usually only steering which of
-// several equal slots a droid lands on. Finish the current room first instead:
-// a work landing may change within an equivalent slot group, every other move
-// must still be exact. Returns null unless the result needs fewer stops and
-// leaves every droid in the same place or an equal slot.
-function groupStepsByStop(steps,baseP){
-  if(steps.some(step=>!['sell','move'].includes(step.type)||/temporar/.test(step.text)))return null;
-  const keyOf=x=>`${x.source}:${x.unit}`,where=step=>step.from?.station||'ROSTER';
-  const stops=order=>order.reduce((n,step,i)=>n+(i===0||where(step)!==where(order[i-1])?1:0),0);
-  const simulate=order=>{
-    const current=new Map(baseP.placed.map(x=>[keyOf(x),{...x}])),out=[];
-    for(const step of order){
-      const key=keyOf(step.unit),now=current.get(key);
-      if(step.type==='sell'){current.delete(key);out.push(step);continue}
-      if(step.from&&(now?.station!==step.from.station||now?.slot!==step.from.slot))return null;
-      let to=step.to;
-      if(step.workCommand){
-        const landing=plannedWorkLanding(now||step.unit,[...current.values()]);
-        if(!landing)return null;
-        const exact=landing.station===to.station&&landing.slot===to.slot,equal=equivalentSlotGroup(landing)&&equivalentSlotGroup(landing)===equivalentSlotGroup(to);
-        if(!exact&&!equal)return null;
-        if(!exact)to={...to,station:landing.station,slot:landing.slot,assumed:landing.assumed};
-      }else if([...current.values()].some(x=>keyOf(x)!==key&&x.station===to.station&&x.slot===to.slot))return null;
-      const unit=now||step.unit;
-      current.set(key,{...unit,...to,...(['BUILD','FUSION_BUILD'].includes(to.station)&&!isBuilding(unit)?{built:true}:{})});
-      out.push(to===step.to?step:{...step,to,assumed:Boolean(to.assumed),text:`Tell ${unitName(step.unit)} in ${slotLabel(step.from)} to go to work &mdash; it will take ${slotLabel(to)}.${to.assumed?' If it chooses another region, update Base and regenerate before continuing.':''}`});
+// The game's Work command only sends a droid to another type of room once its
+// own room is full, and only lands on the Upgrade Chip when every room is. A
+// layout that breaks either rule cannot be walked, whatever it would earn, so
+// any such droid goes back to its own room and the empty slots there are filled.
+function repairReachableLayout(result,p){
+  const keyOf=x=>`${x.source}:${x.unit}`,locked=p.placed.filter(x=>x.lockedSlot||isBuilding(x));
+  const typeOf=x=>state.droids.find(d=>d.name===x.name)?.type;
+  const assignments=result.assignments.map(x=>({...x}));
+  for(let guard=0;guard<6;guard++){
+    let changed=false;
+    for(const type of PRODUCTIVE_STATIONS){
+      const capacity=stationSlotIndices(type).length,inRoom=()=>assignments.filter(x=>x.station===type).length+locked.filter(x=>x.station===type).length;
+      const stray=assignments.filter(x=>PRODUCTIVE_STATIONS.includes(x.station)&&x.station!==type&&typeOf(x)===type);
+      if(!stray.length||inRoom()>=capacity)continue;
+      // Bring the least valuable stray home while its room still has space.
+      const value=x=>state.droids.find(d=>d.name===x.name)?.variants?.[x.variant]?.income||0;
+      stray.sort((a,b)=>value(a)-value(b));
+      for(const unit of stray){if(inRoom()>=capacity)break;unit.station=type;unit.slot=-1;changed=true;}
     }
-    return {steps:out,current};
-  };
-  const original=simulate(steps);if(!original)return null;
-  const remaining=[...steps],order=[];let here=null;
-  while(remaining.length){
-    const valid=index=>simulate([...order,remaining[index]]);
-    let pick=remaining.findIndex((step,index)=>where(step)===here&&valid(index));
-    if(pick<0)pick=remaining.findIndex((_,index)=>valid(index));
-    if(pick<0)return null;
-    here=where(remaining[pick]);order.push(...remaining.splice(pick,1));
+    if(!changed)break;
   }
-  const result=simulate(order);
-  if(!result||stops(result.steps)>=stops(steps)||result.current.size!==original.current.size)return null;
-  for(const [key,x] of original.current){
-    const y=result.current.get(key);
-    if(!y||y.station!==x.station&&!(equivalentSlotGroup(x)&&equivalentSlotGroup(x)===equivalentSlotGroup(y))||y.station===x.station&&y.slot!==x.slot&&!equivalentSlotGroup(x))return null;
-  }
-  return {steps:result.steps,placed:[...result.current.values()]};
-}
-function protocolStepPlan(baseP,rawProjected,includeFusion=true,batch=true){
-  const projected=normaliseProjectedForSteps(baseP,rawProjected);
-  const keyOf=x=>`${x.source}:${x.unit}`,current=new Map(baseP.placed.map(x=>[keyOf(x),{...x}])),goals=new Map(projected.placed.map(x=>[keyOf(x),{...x}])),steps=[],stagedWork=new Set();
-  // Sell in station order, so each place you visit is one stop rather than a
-  // zigzag between the Lounge and the stations.
-  const whereNow=unit=>current.get(keyOf(unit));
-  const traveller=(key,goal)=>current.get(key)||(baseP.overflow||[]).find(x=>keyOf(x)===key)||{name:goal.name,variant:goal.variant,source:goal.source,unit:goal.unit};
-  const sellOrder=[...projected.sell].sort((a,b)=>String(whereNow(a)?.station||'ROSTER').localeCompare(String(whereNow(b)?.station||'ROSTER'))||(whereNow(a)?.slot??0)-(whereNow(b)?.slot??0));
-  for(const unit of sellOrder){steps.push({type:'sell',unit,from:current.get(keyOf(unit)),text:`Sell ${unitName(unit)}${current.has(keyOf(unit))?` from ${slotLabel(current.get(keyOf(unit)))}`:''}.`});current.delete(keyOf(unit));}
-  const done=(a,b)=>a?.station===b?.station&&a?.slot===b?.slot;
-  const canSettleAt=(goal,landing)=>landing&&(done(landing,goal)||(equivalentSlotGroup(goal)&&equivalentSlotGroup(goal)===equivalentSlotGroup(landing)&&!goal.lockedSlot&&!goal.missionPriority&&![...goals.values()].some(x=>(x.lockedSlot||x.missionPriority)&&done(x,landing))));
-  const movable=x=>!x||(!x.lockedSlot&&!isBuilding(x));
-  const destinationOpen=goal=>![...current.values()].some(x=>done(x,goal));
-  const move=(key,unit,to,temporary=false)=>{
-    const from=current.get(key);
-    const work=PRODUCTIVE_STATIONS.includes(to.station)||to.station==='UPGRADE_CHIP';
-    steps.push({type:'move',kind:work?'work':to.station==='LOUNGE'?'lounge':'direct',unit,from,fromSlot:from?.slot,to,workCommand:work,assumed:Boolean(to.assumed),text:work?`Tell ${unitName(unit)} in ${slotLabel(from)} to go to work &mdash; it will take ${slotLabel(to)}${temporary?' temporarily, so the next droid can swap into this occupied slot':''}.${to.assumed?' If it chooses another region, update Base and regenerate before continuing.':''}`:`Move ${unitName(unit)} from ${slotLabel(from)} to ${slotLabel(to)}${temporary?' temporarily to clear the destination':''}.`});
-    current.set(key,completedAt(from||unit,to));
-  };
-  const seenLayouts=new Set();
-  const completedAt=(unit,to)=>({...unit,...to,...(['BUILD','FUSION_BUILD'].includes(to.station)&&!isBuilding(unit)?{built:true}:{})});
-  // Stop if a fallback returns to an earlier layout instead of making progress.
-  for(let pass=0;pass<goals.size*6+1;pass++){
-    // Worker/Battle slots within one region earn equally, just as Lounge slots
-    // store equally. Keep a droid where it arrives instead of shuffling it to a
-    // guessed slot number. The same applies to non-mission Astromech positions.
-    // Mission, Protocol, Build and locked goals stay exact.
-    const flexibleGoals=[...goals.values()].filter(equivalentSlotGroup);
-    for(const group of new Set(flexibleGoals.map(equivalentSlotGroup))){
-      const groupGoals=flexibleGoals.filter(x=>equivalentSlotGroup(x)===group);
-      const slots=station=>stationSlotIndices(station).filter(slot=>equivalentSlotGroup({station,slot})===group);
-      for(const goal of stabiliseProjectedPlacements({placed:[...current.values()]},groupGoals,slots))goals.set(keyOf(goal),goal);
-    }
-    const rebound=normaliseProjectedForSteps({placed:[...current.values()]},{placed:[...goals.values()],sell:[],overflow:[]});
-    goals.clear();for(const goal of rebound.placed)goals.set(keyOf(goal),goal);
-    const pending=[...goals].filter(([key,goal])=>!done(current.get(key),goal));if(!pending.length)break;
-    const layout=JSON.stringify([...current].map(([key,x])=>[key,x.station,x.slot]));
-    if(seenLayouts.has(layout))break;
-    seenLayouts.add(layout);
-    const here=steps.at(-1)?.from?.station;
-    const transfers=pending.filter(([key])=>movable(current.get(key)));
-    if(batch)transfers.sort(([a],[b])=>Number(current.get(b)?.station===here)-Number(current.get(a)?.station===here));
-    const reservedBuild=x=>x&&['BUILD','FUSION_BUILD'].includes(x.station)&&[...goals.values()].some(g=>done(g,x));
-    // First finish any transfer that needs no swap. In particular, let Lounge
-    // residents leave before deciding that storage is full.
-    const free=transfers.find(([key,goal])=>canUseStation(state.droids.find(d=>d.name===goal.name),goal.station)&&!['BUILD','FUSION_BUILD'].includes(goal.station)&&!reservedBuild(current.get(key))&&(PRODUCTIVE_STATIONS.includes(goal.station)||goal.station==='UPGRADE_CHIP'?canSettleAt(goal,plannedWorkLanding(traveller(key,goal),[...current.values()])):destinationOpen(goal)));
-
-    const blocked=transfers.map(([key,goal])=>({key,goal,occupant:[...current].find(([other,x])=>other!==key&&done(x,goal))})).filter(x=>x.occupant&&movable(x.occupant[1]));
-    // Break an occupied cycle through the Lounge before considering a swap.
-    // A Lounge resident is already parked. Moving it to another buffer can
-    // block a second goal and bounce it between those two Lounge slots forever.
-    // Let it leave for its destination, or use a compatible occupied-slot swap.
-    const stageOptions=blocked.filter(x=>x.occupant[1].station!=='LOUNGE'&&!reservedBuild(current.get(x.key))&&!reservedBuild(x.occupant[1])&&!['BUILD','FUSION_BUILD'].includes(x.goal.station));
-    if(batch)stageOptions.sort((a,b)=>Number(b.occupant[1].station===here)-Number(a.occupant[1].station===here));
-    let parked=false;
-    for(const staged of stageOptions){
-      if(free&&(!batch||current.get(free[0])?.station===here||staged.occupant[1].station!==here))continue;
-      const [key,unit]=staged.occupant;
-      const buffer=slotFillOrder('LOUNGE',unit).map(slot=>({station:'LOUNGE',slot})).find(destinationOpen);
-      if(!buffer)continue;
-      const after=[...current.values()].filter(x=>keyOf(x)!==key).concat({...unit,...buffer}),goal=staged.goal;
-      if(!(PRODUCTIVE_STATIONS.includes(goal.station)||goal.station==='UPGRADE_CHIP')||canSettleAt(goal,plannedWorkLanding(traveller(staged.key,goal),after))){move(key,unit,buffer,true);parked=true;break;}
-    }
-    if(parked)continue;
-    if(free){const landing=PRODUCTIVE_STATIONS.includes(free[1].station)||free[1].station==='UPGRADE_CHIP'?plannedWorkLanding(traveller(free[0],free[1]),[...current.values()]):free[1];move(free[0],free[1],landing);continue;}
-    // Fill a required empty work slot with a reachable droid, then swap. Work
-    // always chooses its own type first; an empty target alone is not a move.
-    const filler=transfers.map(([key,goal])=>({key,goal,from:current.get(key),landing:plannedWorkLanding(traveller(key,goal),[...current.values()])})).find(x=>x.landing&&!reservedBuild(x.from)&&!stagedWork.has(`${x.key}:${x.landing.station}:${x.landing.slot}`)&&transfers.some(([key,goal])=>key!==x.key&&done(goal,x.landing)));
-    if(filler){stagedWork.add(`${filler.key}:${filler.landing.station}:${filler.landing.slot}`);move(filler.key,filler.goal,filler.landing,true);continue;}
-    const swap=blocked.find(x=>{
-      const from=current.get(x.key);
-      return from&&(from.name!==x.occupant[1].name||from.variant!==x.occupant[1].variant)&&canUseStation(state.droids.find(d=>d.name===from.name),x.goal.station)&&canUseStation(state.droids.find(d=>d.name===x.occupant[1].name),from.station);
-    });
-    if(swap){
-      const {key,goal,occupant:[other,occupant]}=swap,from=current.get(key);
-      const loungeFree=stationSlotIndices('LOUNGE').some(slot=>destinationOpen({station:'LOUNGE',slot}));
-      const after=[...current.values()].filter(x=>keyOf(x)!==other),landing=plannedWorkLanding(from,after);
-      const reason=!loungeFree?'The Lounge is full at this step.':reservedBuild(from)||['BUILD','FUSION_BUILD'].includes(goal.station)?'An occupied Build slot needs a swap.':landing?`Lounge space is available, but Work would send ${unitName(goal)} to ${slotLabel(landing)} instead.`:'Lounge space is available, but Work cannot reach this destination yet.';
-      steps.push({type:'swap',unit:goal,from,withUnit:occupant,withFrom:occupant,text:`Swap ${unitName(goal)} in ${slotLabel(from)} with ${unitName(occupant)} in ${slotLabel(occupant)}. ${reason}`});
-      current.set(other,completedAt(occupant,{station:from.station,slot:from.slot}));current.set(key,completedAt(from,{station:goal.station,slot:goal.slot}));continue;
-    }
-    steps.push({type:'note',text:'Work cannot reach the remaining destinations from this layout. Fill the required region with a matching droid or free a compatible swap, update Base, then regenerate. Do not send a droid to a different region while its own region has space.'});break;
-  }
-  if([...goals].some(([key,goal])=>!done(current.get(key),goal))&&!steps.some(x=>x.type==='note'))steps.push({type:'note',text:'The remaining transfers need a fresh plan. Update Base to match your current positions, then regenerate.'});
-  // The walkthrough is grouped into stops by where each step happens, the way the
-  // ordinary planner groups its own. These steps carried no stop at all, so every
-  // one of them landed under a heading reading "undefined". A note belongs to the
-  // stop it follows.
-  let finalPlaced=[...current.values()],resolvedGoals=[...goals.values()];
-  const regrouped=batch&&!steps.some(step=>step.type==='note')?groupStepsByStop(steps,baseP):null;
-  if(regrouped){
-    steps.splice(0,steps.length,...regrouped.steps);finalPlaced=regrouped.placed;
-    const landed=new Map(finalPlaced.map(x=>[keyOf(x),x]));
-    resolvedGoals=resolvedGoals.map(goal=>landed.has(keyOf(goal))?{...goal,station:landed.get(keyOf(goal)).station,slot:landed.get(keyOf(goal)).slot}:goal);
-  }
-  let visit=0,last;
-  for(const step of steps){
-    const where=step.at||step.from?.station||(step.type==='note'?last:null)||'ROSTER';
-    if(where!==last){visit++;last=where}
-    step.at=where;step.visit=`protocol-${visit}`;
-  }
-  steps.resolvedGoals=resolvedGoals;steps.finalPlaced=finalPlaced;
-  steps.complete=!steps.some(step=>step.type==='note');
-  if(batch){
-    const baseline=protocolStepPlan(baseP,projected,false,false);
-    const stops=plan=>plan.reduce((n,s,i)=>n+(i===0||s.at!==plan[i-1].at?1:0),0);
-    const complete=plan=>!plan.some(s=>s.type==='note');
-    if(complete(baseline)&&(!complete(steps)||stops(baseline)<stops(steps)))return includeFusion?withFusionSteps(baseline,projected,baseP):baseline;
-  }
-  return includeFusion?withFusionSteps(steps,projected,baseP):steps;
+  const stationChanged=assignments.some((x,i)=>x.station!==result.assignments[i].station);
+  if(!stationChanged)return result;
+  const stabilised=stabiliseAssignments(assignments.map(x=>({...x,slot:x.slot<0?0:x.slot})),p);
+  const placed=[...locked,...stabilised.map(x=>({...expandedOwned().find(u=>keyOf(u)===x.key),...x}))];
+  return {...result,assignments:stabilised,income:incomeForPlaced(placed),gain:incomeForPlaced(placed)-(result.income-result.gain)};
 }
 
 const SLOT_RULES={...Object.fromEntries(Object.entries(PROTOCOL_SLOTS).map(([station,slot])=>[station,{initial:0,unlocks:[slot.unlockRebirth],costs:[slot.costCredits]}])),FUSION:{initial:0,unlocks:Array(3).fill(FUSION_REBIRTH)},FUSION_BUILD:{initial:0,unlocks:[FUSION_REBIRTH,99,99]},WORKER:{initial:4,unlocks:[1,4,7,10,12,14,16]},ASTROMECH:{initial:3,unlocks:[2,5,8,11,13,15]},BATTLE:{initial:2,unlocks:[3,6,9,17,18,19,20,21,22]},BUILD:{initial:1,unlocks:[1,2]},LOUNGE:{initial:5,unlocks:Array(8).fill(99)},COMPANION:{initial:2,unlocks:[]},UPGRADE_CHIP:{initial:1,unlocks:[]}};
@@ -1758,56 +1636,139 @@ function chipSellCalculatorHtml(p){
   const goalStats=needed?`<div class="stat"><small>Needed for Rebirth ${next.to}</small><strong>${fmt(needed)}</strong><em>to finish upgrading ${[...held.values()].filter(u=>u.chipsNeeded).map(u=>u.name).join(', ')}</em></div><div class="stat ${shortfall?'chip-sell-short':'chip-sell-covered'}"><small>${shortfall?'Still short after selling':'Covered by selling'}</small><strong>${fmt(shortfall||total-needed)}</strong><em>${shortfall?(shortfallBb8?`${fmt(shortfallBb8)} short with BB-8`:'covered if BB-8 is your companion'):'chips left over'}</em></div>`:'';
   return `<section class="scrap-calculator chip-sell-calculator"><div><p class="eyebrow">Workshop calculator</p><h2>Rebirth preparation</h2><p>Compare selling for Upgrade Chips with fusing towards your next rebirth. The sell totals hold back your required droids, including copies you are still upgrading.</p><small>${sellable} sellable droid${sellable===1?'':'s'}${standard?` · ${standard} Standard or Iconic worth nothing`:''}${next?` · holding back ${held.size} for Rebirth ${next.to}`:' · no next rebirth in this cycle'}</small></div><div class="chip-sell-totals"><div class="stat"><small>Sell everything</small><strong>${fmt(total)}</strong><em>Upgrade Chips</em></div><div class="stat chip-sell-bb8 ${bb8?'active':''}"><small>With BB-8 companion</small><strong>${fmt(total*2)}</strong><em>${bb8?'BB-8 is your companion':'Doubled — needs BB-8 as companion'}</em></div>${goalStats}</div>${breakdown?`<div class="chip-sell-breakdown"><table><thead><tr><th>Rarity</th><th>Droids</th><th>Chips</th><th>With BB-8</th></tr></thead><tbody>${breakdown}</tbody><tfoot><tr><th>Total</th><td>${sellable}</td><td>${fmt(total)}</td><td>${fmt(total*2)}</td></tr></tfoot></table></div>`:'<p class="chip-sell-empty">Nothing on your roster can be sold for Upgrade Chips yet — Standard quality droids are worth nothing.</p>'}${heldCards?`<div class="chip-held"><small>Held back for Rebirth ${next.to}${missing>0?` · ${missing} still missing from your roster`:''}</small><div class="chip-held-grid">${heldCards}</div></div>`:''}${rebirthFusionCalculatorHtml(p,units,held,total)}</section>`
 }
-// Overhead map of the base. Positions are percentages of the artwork, first read
-// off the colour-coded dots in the images rather than measured by eye, then
-// tidied by hand where a row wanted straightening. This list is the source of
-// truth, not the dots — the art can drop them whenever it likes. Slot order
-// within a station is reading order: top to bottom, then left to right.
-// The Battle station spans both floors: the five ground-floor dots are slots 0-4
-// and the six upstairs ones are 5-10, matching the Rebirth 17-22 unlocks.
+// Overhead map of the base, drawn in code to the player's own traced map
+// (assets/map/map numbered *.png): Astromech platform on the left with its five
+// landing pads, the tall Battle building top right with its door at the bottom,
+// the two-circle Lounge on the right, the Worker pod ring bottom right with the
+// Fusion lab circle against its side, the walkway corridor between them and
+// the small circle by the way into the base. Every slot dot the traced map
+// carried keeps its measured position; the Protocol consoles, the Upgrade Chip
+// station (between the stairs up to the platform), the Fusion pads and tanks
+// and the upstairs Battle strip are the additions. Positions are percentages
+// of the drawing, which is 1136 by 992 units like the traced artwork.
+const MAP_SIZE={w:1136,h:992};
 const MAP_SPOTS={
   // Each list is in slot order, not map order — position 0 is the slot you start
-  // with and the rest follow the unlock sequence, so a dot always carries the
-  // Rebirth its slot really needs. Taken from the numbered maps in assets/map.
+  // with and the rest follow the unlock sequence, so a pin always carries the
+  // Rebirth its slot really needs.
   downstairs:{
-    // 1, 2, 3, 4, then rb1 rb4 rb7 rb10 rb12 rb14 rb16
-    WORKER:[[76.24,70.75],[80.09,79.79],[68.97,69.34],[62.82,72.97],[60.46,80.1],[63.26,88.35],[71.49,91.68],[78.51,87.64],[77.79,42.16],[75.96,40.65],[73.52,40.21]],
-    // 1, 2, 3, then rb2 rb5 rb8 rb11 rb13 rb15
+    // 1, 2, 3, 4, then rb1 rb4 rb7 rb10 round the pod; rb12 rb14 rb16 stand on
+    // the walkway between the Battle door and the Lounge.
+    WORKER:[[75.36,66.72],[79.21,75.76],[68.09,65.31],[61.94,68.94],[59.58,76.07],[62.38,84.32],[70.61,87.65],[77.63,83.61],[72.7,33.9],[69.8,34.8],[67,34.2]],
+    // 1, 2, 3, then rb2 rb5 rb8 rb11 rb13 rb15 around the platform edge.
     ASTROMECH:[[20.1,51.32],[29.11,40.2],[20.99,40.2],[34.46,40.2],[39.8,40.2],[36.48,55.17],[45.27,55.17],[30.44,55.17],[26.19,55.17]],
-    // 1, 2, then rb3 rb6 rb9 — the Rebirth 17-22 slots are upstairs
-    BATTLE:[[61.04,22.98],[64.49,24.07],[67.07,22.21],[70.08,23.37],[71.96,21.61]],
-    // 1, then rb1 rb2
-    BUILD:[[70.03,53.47],[41.92,48.32],[67.39,32.37]],
-    BLUEPRINT:[[79.46,55.57],[80.5,56.57],[81.55,57.48]],UPGRADE_CHIP:[[61.83,66.63]],
-    // 1-5, then rb17 rb18 rb19 rb20. The Nova dots are unlabelled on the map, so
-    // they carry on round the same arc past rb20.
-    LOUNGE:[[82.13,51.54],[86.13,56.33],[92.52,56.33],[95.85,44.64],[96.02,51.22]],
-    LOUNGE_REBIRTH:[[94.52,38.31],[95.06,35.42],[94.97,32.44],[93.47,29.94]],
-    LOUNGE_NOVA:[[91.56,27.95],[89,26.97],[86.12,27.12],[83.58,28.62]]
+    // 1, 2, then rb3 rb6 rb9 on the ground floor — rb17-22 are upstairs.
+    BATTLE:[[49.6,22.98],[53.05,24.07],[55.63,22.21],[58.64,23.37],[60.52,21.61]],
+    // Build 1 (the Shipyard) in line east of the platform stairs behind its Craft
+    // console, Build 2 on the platform, Build 3 by the Battle door.
+    BUILD:[[65.1,48],[41.92,48.32],[55.95,32.37]],
+    // The Upgrade Chip station stands between the two stairs up to the platform,
+    // the Worker Craft console directly behind the Shipyard, Worker Credits
+    // by the Rebirth stand; the other consoles in front of their region's Build
+    // slot, Battle Credits at the near end of the Battle row.
+    PROTOCOL_WORKER_CREDITS:[[81.4,60.5]],PROTOCOL_WORKER_CRAFTING:[[60.7,47.6]],
+    PROTOCOL_ASTROMECH_CREDITS:[[47,51]],PROTOCOL_ASTROMECH_CRAFTING:[[37.5,48.5]],
+    PROTOCOL_BATTLE_CREDITS:[[47.04,27.5]],PROTOCOL_BATTLE_CRAFTING:[[55.95,27.8]],
+    UPGRADE_CHIP:[[54.8,47.4]],
+    BLUEPRINT:[[74.8,44.9],[75.9,46.1],[76.9,47.3]],
+    // The two rooms sit corner to corner, the upper one up and to the left. 1-5
+    // round the lower room; in the upper room rb17-20 line the east wall from
+    // the doorway round to the top and the four Nova slots carry on down the
+    // west wall, leaving the doorway to the lower room clear.
+    LOUNGE:[[76.82,42.43],[85.02,45.93],[75.5,36.1],[80,29.8],[88.42,40.73]],
+    LOUNGE_REBIRTH:[[77.8,23.2],[76.7,19.6],[74.2,17.2],[70.9,16.6]],
+    LOUNGE_NOVA:[[67.8,17.8],[65.7,20.7],[65.2,24.4],[66.3,28]],
+    // Three Place Droid pads on the table, the build tanks behind them.
+    FUSION:[[49.9,68.3],[53.2,68.3],[56.6,68.3]],FUSION_BUILD:[[49.4,72.7],[53.2,73.9],[57.1,72.7]]
   },
-  // rb17 down to rb22, top to bottom.
-  upstairs:{BATTLE:[[65.13,11.47],[65.48,14.69],[65.74,17.71],[66.09,20.83],[66.27,24.16],[66.53,27.68]]}
+  // rb17 down to rb22 on the mezzanine, drawn as a strip beside the Battle
+  // building so the whole base is one view.
+  upstairs:{BATTLE:[[43,10.1],[43,14.6],[43,19.1],[43,23.6],[43,28.1],[43,32.6]]}
 };
 const MAP_FLOORS=['downstairs','upstairs'];
 const baseViewIsMap=()=>localStorage.getItem('droid-archive-base-view')==='map';
-const mapFloor=()=>MAP_FLOORS.includes(localStorage.getItem('droid-archive-map-floor'))?localStorage.getItem('droid-archive-map-floor'):'downstairs';
-// Flattens a floor's dots into slots the Base already understands. Lounge runs
-// base slots first then the Nova ones, which is the order the game unlocks them.
-// Markers carry the same data attributes the list view uses, so the Base page's
-// existing handlers wire them up untouched: an empty slot opens the picker, an
-// occupied one opens the swap, blueprints open the blueprint picker.
-// One piece of artwork serves both floors — the building is the same shape
-// upstairs, so only the markers change. The floor toggle still matters: it swaps
-// the five ground-floor Battle slots for the six above them.
+const mapPinStyle=(x,y)=>`left:${x}%;top:${y}%`;
+const mapPx=([x,y])=>[x*MAP_SIZE.w/100,y*MAP_SIZE.h/100];
+// The drawing, shape for shape from the traced map, in the game's own colours:
+// the slate deck of the platform with its grated squares and round landing
+// pads, teal stairs, the rusted red Battle building, the banded sand domes of
+// the Lounge and the Fusion lab, the double ring of the Worker pod round its
+// green machine, the walkways, and a coloured floor pad under every slot.
+function baseMapSvg(){
+  const spots=MAP_SPOTS.downstairs;
+  const stair=(x,y,rot=0,len=44)=>`<g class="map-stair" transform="translate(${x} ${y}) rotate(${rot})"><rect x="${-len/2}" y="-12" width="${len}" height="24" rx="3"/><path d="M${-len/2+6} -6H${len/2-6}M${-len/2+6} 0H${len/2-6}M${-len/2+6} 6H${len/2-6}"/></g>`;
+  const ship='M0 -34L6 -9L30 -22L33 -14L10 1L10 13L27 28L21 32L4 19L0 34L-4 19L-21 32L-27 28L-10 13L-10 1L-33 -14L-30 -22L-6 -9Z';
+  const pad=(cx,cy,r,rot)=>`<g class="map-pad"><circle filter="url(#mapShadow)" cx="${cx}" cy="${cy}" r="${r}"/><circle class="map-grate" cx="${cx}" cy="${cy}" r="${r*.72}"/>${rot===undefined?'':`<path class="map-ship" transform="translate(${cx} ${cy}) rotate(${rot})" d="${ship}"/>`}</g>`;
+  const dome=(cx,cy,r,cls='')=>`<g class="map-dome ${cls}"><circle filter="url(#mapShadow)" cx="${cx}" cy="${cy}" r="${r}"/><circle class="map-dome-band" cx="${cx}" cy="${cy}" r="${r-11}"/><circle class="map-dome-band" cx="${cx}" cy="${cy}" r="${r*.55}"/><circle class="map-dome-top" cx="${cx-r*.18}" cy="${cy-r*.18}" r="${r*.5}"/></g>`;
+  const fan=(cx,cy)=>`<g class="map-fan"><circle cx="${cx}" cy="${cy}" r="12"/><path class="map-fan-blade" d="M${cx-7} ${cy-7}L${cx+7} ${cy+7}M${cx+7} ${cy-7}L${cx-7} ${cy+7}"/><circle class="map-fan-hub" cx="${cx}" cy="${cy}" r="3"/></g>`;
+  // Floor pads under every slot, in the colours the game paints them.
+  const slotPads=[
+    ...spots.ASTROMECH.map(p=>['astromech','rect',p]),...spots.WORKER.map(p=>['worker','circle',p]),...spots.BATTLE.map(p=>['battle','rect',p]),
+    ...MAP_SPOTS.upstairs.BATTLE.map(p=>['battle','rect',p]),
+    ...[...spots.LOUNGE,...spots.LOUNGE_REBIRTH,...spots.LOUNGE_NOVA].map(p=>['lounge','circle',p]),
+    ...spots.BUILD.map(p=>['build','rect',p]),...spots.FUSION.map(p=>['fusion','circle',p]),...spots.FUSION_BUILD.map(p=>['build','rect',p]),
+    ...spots.BLUEPRINT.map(p=>['build','rect',p]),...spots.UPGRADE_CHIP.map(p=>['chip','rect',p]),
+    ...Object.keys(PROTOCOL_SLOTS).flatMap(station=>(spots[station]||[]).map(p=>['protocol','rect',p]))
+  ].map(([cls,shape,p])=>{const [x,y]=mapPx(p);return shape==='circle'?`<circle class="map-slot map-slot-${cls}" cx="${x}" cy="${y}" r="22"/>`:`<rect class="map-slot map-slot-${cls}" x="${x-21}" y="${y-21}" width="42" height="42" rx="7"/>`}).join('');
+  return `<svg class="base-map-svg" viewBox="0 0 ${MAP_SIZE.w} ${MAP_SIZE.h}" role="img" aria-label="Overhead map of the base">
+<defs>
+<pattern id="mapGrate" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#2e343d"/><rect x="2" y="2" width="10" height="10" fill="#171b21"/></pattern>
+<radialGradient id="mapDome" cx=".42" cy=".38" r=".7"><stop offset="0" stop-color="#e6d6b6"/><stop offset=".7" stop-color="#c2ac89"/><stop offset="1" stop-color="#9c8767"/></radialGradient>
+<linearGradient id="mapRust" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c24a40"/><stop offset=".55" stop-color="#a3372f"/><stop offset="1" stop-color="#7f2a24"/></linearGradient>
+<filter id="mapShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="7" stdDeviation="6" flood-color="#3b2a12" flood-opacity=".38"/></filter>
+<linearGradient id="mapDeck" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#66768e"/><stop offset="1" stop-color="#48576c"/></linearGradient>
+<linearGradient id="mapMetal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0f3f7"/><stop offset=".5" stop-color="#c3cad3"/><stop offset="1" stop-color="#8f98a4"/></linearGradient>
+<radialGradient id="mapRing" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#e2dccd"/><stop offset="1" stop-color="#b3ab9a"/></radialGradient>
+</defs>
+<g class="map-stubs" filter="url(#mapShadow)"><rect x="262" y="300" width="16" height="60"/><rect x="472" y="300" width="16" height="60"/><rect x="262" y="600" width="16" height="60"/><rect x="472" y="600" width="16" height="60"/><rect x="140" y="462" width="60" height="16"/></g>
+<rect class="map-platform" filter="url(#mapShadow)" x="185" y="350" width="405" height="250" rx="20"/>
+<rect class="map-platform-inner" x="203" y="368" width="369" height="214" rx="12"/>
+<rect class="map-grate" x="300" y="430" width="52" height="52"/><rect class="map-grate" x="362" y="430" width="52" height="52"/><rect class="map-grate" x="424" y="482" width="52" height="52"/><rect class="map-grate" x="300" y="510" width="52" height="52"/>
+${pad(270,265,78,10)}${pad(480,265,78,-15)}${pad(270,690,78,170)}${pad(480,690,78,200)}${pad(100,470,88)}
+${stair(590,438,90)}${stair(590,502,90)}
+
+<g class="map-hangar-group" transform="rotate(-4 620 197)">
+<rect class="map-hangar" filter="url(#mapShadow)" x="525" y="22" width="190" height="350" rx="60"/>
+<rect class="map-hangar-inner" x="542" y="39" width="156" height="316" rx="46"/>
+${fan(570,66)}${fan(603,56)}${fan(637,56)}${fan(670,66)}
+</g>
+
+<g class="map-mezzanine" filter="url(#mapShadow)"><rect x="462" y="72" width="54" height="276" rx="27"/></g>
+<rect class="map-lounge-join" x="835" y="265" width="72" height="92" rx="24" transform="rotate(-38 871 311)"/>
+${dome(812,236,84,'map-lounge')}${dome(930,386,95,'map-lounge')}
+
+<g class="map-ring-group"><circle class="map-ring" filter="url(#mapShadow)" cx="800" cy="760" r="172"/><circle class="map-ring-gap" cx="800" cy="760" r="140"/><circle class="map-ring" cx="800" cy="760" r="95"/><circle class="map-pit" cx="800" cy="760" r="62"/><circle class="map-machine" cx="800" cy="760" r="30"/><circle class="map-machine-hub" cx="800" cy="760" r="9"/></g>
+
+${dome(605,695,87,'map-fusion')}
+
+<g class="map-slots">${slotPads}</g>
+${mapGridOverlay()}
+</svg>`;
+}
+// A lettered grid over the map (add ?mapgrid=1 to the address) so a position
+// can be named as a cell, e.g. "the Lounge belongs at H4".
+function mapGridOverlay(){
+  if(!/[?&]mapgrid=1/.test(location.search))return '';
+  const cols=12,rows=10,cw=MAP_SIZE.w/cols,rh=MAP_SIZE.h/rows,parts=[];
+  for(let c=0;c<=cols;c++)parts.push(`<line x1="${c*cw}" y1="0" x2="${c*cw}" y2="${MAP_SIZE.h}"/>`);
+  for(let r=0;r<=rows;r++)parts.push(`<line x1="0" y1="${r*rh}" x2="${MAP_SIZE.w}" y2="${r*rh}"/>`);
+  for(let c=0;c<cols;c++)for(let r=0;r<rows;r++)parts.push(`<text x="${c*cw+6}" y="${r*rh+22}">${String.fromCharCode(65+c)}${r+1}</text>`);
+  return `<g class="map-grid">${parts.join('')}</g>`;
+}
+// Flattens a floor's pins into slots the Base already understands. Lounge runs
+// base slots first then the Rebirth and Nova ones, which is the order the game
+// unlocks them. Markers carry the same data attributes the list view uses, so
+// the Base page's existing handlers wire them up untouched: an empty slot opens
+// the picker, an occupied one opens the swap, blueprints open the blueprint
+// picker. The six mezzanine Battle slots sit on the same map as the rest.
 function baseMapHtml(p){
-  const floor=mapFloor(),other=floor==='downstairs'?'upstairs':'downstairs';
-  const spots=mapFloorSlots(floor);
+  const spots=mapSlots();
   // A spot you have not unlocked yet is not a spot. These decide what the header
   // counts, so "spots filled" is out of the slots this Base actually has.
   const available=s=>s.station==='BLUEPRINT_STORAGE'?s.index<capacity('BLUEPRINT_STORAGE'):isSlotEligible(s.station,s.index)&&isSlotPurchased(s.station,s.index);
   const filledAt=s=>s.station==='BLUEPRINT_STORAGE'?state.blueprints.some(b=>Number(b.slot)===s.index):p.placed.some(x=>x.station===s.station&&x.slot===s.index);
   const markers=spots.map(spot=>{
-    const {station,index,x,y}=spot,pos=`left:${x}%;top:${y}%`;
+    const {station,index,x,y}=spot,pos=mapPinStyle(x,y);
     if(station==='BLUEPRINT_STORAGE'){
       const bp=state.blueprints.find(b=>Number(b.slot)===index),locked=index>=capacity('BLUEPRINT_STORAGE');
       if(bp){const d=state.droids.find(x=>x.name===bp.name),i=state.blueprints.indexOf(bp);
@@ -1816,7 +1777,7 @@ function baseMapHtml(p){
     }
     const occupant=p.placed.find(x=>x.station===station&&x.slot===index);
     if(occupant){
-      const d=state.droids.find(x=>x.name===occupant.name),match=!isIconic(d)&&station===d.type,building=isBuilding(occupant),locked=Boolean(occupant.lockedSlot);
+      const d=state.droids.find(x=>x.name===occupant.name),match=!isIconic(d)&&(station===d.type||isProtocolStation(station)&&d.type==='PROTOCOL'),building=isBuilding(occupant),locked=Boolean(occupant.lockedSlot);
       // Same controls as the list view, stacked above the portrait so they never
       // sit on top of it or of the neighbouring slot's card.
       const actions=[
@@ -1840,17 +1801,17 @@ function baseMapHtml(p){
   }).join('');
   const usable=spots.filter(available),locked=spots.length-usable.length;
   const counts=usable.reduce((n,s)=>n+(filledAt(s)?1:0),0);
-  return `<section class="base-map"><header><div><strong>${floor==='upstairs'?'Upstairs':'Downstairs'}</strong><span>${counts} of ${usable.length} spots filled${locked?` · ${locked} still locked`:''}</span></div><button class="btn secondary" id="toggleMapFloor">Go ${other}</button></header><div class="base-map-art"><img src="assets/map/map.png" alt="Overhead map of the base, ${floor}">${markers}</div></section>`;
+  return `<section class="base-map"><header><div><strong>Base map</strong><span>${counts} of ${usable.length} spots filled${locked?` · ${locked} still locked`:''}</span></div></header><div class="base-map-art">${baseMapSvg()}${markers}</div></section>`;
 }
-function mapFloorSlots(floor){
-  const spots=MAP_SPOTS[floor]||{},out=[];
+function mapSlots(){
+  const spots=MAP_SPOTS.downstairs,out=[];
   const add=(station,list,offset=0)=>(list||[]).forEach(([x,y],i)=>out.push({station,index:i+offset,x,y}));
-  if(floor==='upstairs'){add('BATTLE',spots.BATTLE,5);return out}
-  add('WORKER',spots.WORKER);add('ASTROMECH',spots.ASTROMECH);add('BATTLE',spots.BATTLE);
+  add('WORKER',spots.WORKER);add('ASTROMECH',spots.ASTROMECH);add('BATTLE',spots.BATTLE);add('BATTLE',MAP_SPOTS.upstairs.BATTLE,BATTLE_UPSTAIRS_FROM);
   add('BUILD',spots.BUILD);add('UPGRADE_CHIP',spots.UPGRADE_CHIP);
+  for(const station of Object.keys(PROTOCOL_SLOTS))add(station,spots[station]);
+  add('FUSION',spots.FUSION);add('FUSION_BUILD',spots.FUSION_BUILD);
   // loungeSlotMeta splits the Lounge three ways: 0-4 base, 5-8 unlocked by
-  // Rebirth, 9-12 bought in the Nova Shop. The four Nova ones are the
-  // northernmost dots on the map.
+  // Rebirth, 9-12 bought in the Nova Shop.
   add('LOUNGE',spots.LOUNGE);add('LOUNGE',spots.LOUNGE_REBIRTH,5);add('LOUNGE',spots.LOUNGE_NOVA,9);
   add('BLUEPRINT_STORAGE',spots.BLUEPRINT);
   return out;
@@ -2313,7 +2274,7 @@ function normalizeCloudDoc(doc){doc=normalizeProfileDoc(doc);doc.ui=doc.ui||{};r
 function cloudDocFromLocalProfiles(){updateActiveLocalProfile();const local=ensureLocalDoc();return normalizeCloudDoc({...local,ui:{theme:state.theme}})}
 const supabaseReady=()=>Boolean(supabaseConfig.url&&supabaseConfig.anonKey&&window.supabase);
 const supabaseTable=()=>supabaseConfig.table||'droid_archive_profiles';
-const authRedirectUrl=()=>PUBLIC_SITE_URL;
+const authRedirectUrl=()=>{const here=location.origin+location.pathname.replace(/[^/]*$/,'');return AUTH_SITES.includes(here)?here:PUBLIC_SITE_URL};
 function rowToCloudDoc(row){if(!Array.isArray(row?.profiles)||!row.profiles.length)throw Error('Cloud profile data is empty. Sync has been stopped to protect your profiles.');const doc=normalizeCloudDoc({app:'Droid Archives',version:1,updatedAt:row.updated_at,activeProfileId:row.active_profile_id,ui:row.ui||{},profiles:row.profiles});doc._revision=Math.max(1,Number(row.revision)||1);return doc}
 function cloudDocToRow(revision=state.cloud.doc?._revision){return{user_id:state.cloud.user.id,email:state.cloud.user.email||'',profiles:state.cloud.doc.profiles,active_profile_id:state.cloud.doc.activeProfileId,ui:{theme:state.theme},revision,updated_at:new Date().toISOString()}}
 async function loadSupabaseConfig(){try{const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),3500);const response=await fetch(`${SUPABASE_CONFIG_PATH}?${Date.now()}`,{signal:controller.signal});clearTimeout(timer);if(response.ok){const config=await response.json();supabaseConfig={...supabaseConfig,url:config.url||'',anonKey:config.anonKey||config.anon_key||'',table:config.table||supabaseConfig.table}}}catch{}}
@@ -2435,8 +2396,61 @@ async function exitSharedProfile(goToGroups=true){if(!state.sharedView)return;le
 function decorateSharedView(){const view=state.sharedView;if(!view)return;let banner=app.querySelector('.shared-profile-banner');if(!banner){app.insertAdjacentHTML('afterbegin',`<section class="shared-profile-banner ${view.canEdit?'editable':'readonly'}"><div><small>${view.canEdit?'Shared editing enabled':'Read-only shared profile'}</small><strong>${escapeAttr(view.ownerName)} · ${escapeAttr(view.profileName)}</strong><span>${view.canEdit?'Changes sync to the owner’s profile.':'The owner has not allowed changes.'}</span></div><button class="btn secondary" data-shared-exit>Return to my profiles</button></section>`);banner=app.querySelector('.shared-profile-banner')}const status=banner.querySelector('small'),statusText=view.saving?'Saving shared profile…':view.canEdit?'Shared editing enabled':'Read-only shared profile';if(status&&status.textContent!==statusText)status.textContent=statusText;banner.querySelector('[data-shared-exit]').onclick=()=>exitSharedProfile().catch(error=>toast(error.message));if(!view.canEdit){app.querySelectorAll('button:not([data-shared-exit]),input,select,textarea').forEach(control=>control.disabled=true);document.querySelectorAll('#baseSidebarControls input,#baseSidebarControls select:not(#cloudProfileSelect),#baseSidebarControls button:not([data-shared-exit])').forEach(control=>control.disabled=true)}}
 function connectCloud(){showAuthModal('signin')}
 async function signOutCloud(){if(state.sharedView)await exitSharedProfile(false);if(supabaseClient)await supabaseClient.auth.signOut();state.cloud.session=null;state.cloud.user=null;state.cloud.doc=null;state.groups={workspace:[],loading:false,loaded:false,error:'',loadPromise:null};state.sharedView=null;state.cloud.enabled=false;state.cloud.reconnecting=false;state.cloud.status='Local save';localStorage.setItem('droid-archive-sync-provider','local');toast('Signed out');route();renderCloudHeader()}
-function showAuthModal(mode='signin'){const root=document.querySelector('#modalRoot');if(!supabaseReady()){root.innerHTML=`<div class="modal-backdrop"><section class="modal"><p class="eyebrow">Supabase setup</p><h2>Cloud save is not configured</h2><p>Add your Supabase URL and anon key to <code>data/supabase-config.json</code>, then refresh.</p><button class="btn ghost" id="closeAuth">Close</button></section></div>`;root.querySelector('#closeAuth').onclick=()=>root.innerHTML='';return}const isSignUp=mode==='signup',isReset=mode==='reset';root.innerHTML=`<div class="modal-backdrop"><section class="modal auth-modal"><p class="eyebrow">Supabase cloud save</p><h2>${isSignUp?'Create account':isReset?'Reset password':'Sign in'}</h2><p class="picker-hint">${isReset?'Enter your email and Supabase will send a password reset link.':'Your Droid Archives profiles sync to one row in Supabase.'}</p><label class="field">Email<input id="authEmail" class="form-control" type="email" autocomplete="email"></label>${isReset?'':`<label class="field">Password<input id="authPassword" class="form-control" type="password" autocomplete="${isSignUp?'new-password':'current-password'}"></label>`}<div class="modal-actions"><button class="btn" id="authSubmit">${isSignUp?'Create account':isReset?'Send reset email':'Sign in'}</button><button class="btn ghost" id="authCancel">Cancel</button></div><div class="auth-links">${isSignUp?'<button id="authSignin">Already have an account?</button>':'<button id="authSignup">Create account</button>'}${isReset?'':'<button id="authReset">Forgot password?</button>'}</div><p class="form-error" id="authError"></p></section></div>`;const error=root.querySelector('#authError'),submit=root.querySelector('#authSubmit');root.querySelector('#authCancel').onclick=()=>root.innerHTML='';root.querySelector('#authSignin')?.addEventListener('click',()=>showAuthModal('signin'));root.querySelector('#authSignup')?.addEventListener('click',()=>showAuthModal('signup'));root.querySelector('#authReset')?.addEventListener('click',()=>showAuthModal('reset'));submit.onclick=async()=>{try{submit.disabled=true;submit.textContent=isSignUp?'Creating…':isReset?'Sending…':'Signing in…';error.textContent='';const email=root.querySelector('#authEmail').value.trim(),password=root.querySelector('#authPassword')?.value||'';if(!email)throw Error('Email is required');state.cloud.status=isReset?'Sending reset…':'Signing in…';renderCloudHeader();if(isReset){const {error:e}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:authRedirectUrl()});if(e)throw e;toast('Password reset email sent');root.innerHTML='';return}state.cloud.initializingNewAccount=isSignUp;const result=isSignUp?await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:authRedirectUrl()}}):await supabaseClient.auth.signInWithPassword({email,password});if(result.error)throw result.error;state.cloud.session=result.data.session;state.cloud.user=result.data.user;if(!state.cloud.session&&isSignUp){toast('Account created. Check your email to confirm it.');root.innerHTML='';return}await loadSupabaseProfiles(true,{initializeIfMissing:isSignUp});state.cloud.initializingNewAccount=false;root.innerHTML='';toast(isSignUp?'Account ready':'Signed in')}catch(e){state.cloud.initializingNewAccount=false;error.textContent=e.message;state.cloud.status=e.message;renderCloudHeader();submit.disabled=false;submit.textContent=isSignUp?'Create account':isReset?'Send reset email':'Sign in'}}}
-function showPasswordUpdateModal(){const root=document.querySelector('#modalRoot');root.innerHTML=`<div class="modal-backdrop"><section class="modal auth-modal"><p class="eyebrow">Password reset</p><h2>Choose a new password</h2><label class="field">New password<input id="newPassword" class="form-control" type="password" autocomplete="new-password"></label><div class="modal-actions"><button class="btn" id="saveNewPassword">Update password</button><button class="btn ghost" id="cancelNewPassword">Cancel</button></div><p class="form-error" id="passwordError"></p></section></div>`;root.querySelector('#cancelNewPassword').onclick=()=>root.innerHTML='';root.querySelector('#saveNewPassword').onclick=async()=>{const password=root.querySelector('#newPassword').value,error=root.querySelector('#passwordError');try{if(password.length<6)throw Error('Use at least 6 characters');const {error:e}=await supabaseClient.auth.updateUser({password});if(e)throw e;root.innerHTML='';toast('Password updated')}catch(e){error.textContent=e.message}}}
+function showAuthModal(mode='signin'){const root=document.querySelector('#modalRoot');if(!supabaseReady()){root.innerHTML=`<div class="modal-backdrop"><section class="modal"><p class="eyebrow">Supabase setup</p><h2>Cloud save is not configured</h2><p>Add your Supabase URL and anon key to <code>data/supabase-config.json</code>, then refresh.</p><button class="btn ghost" id="closeAuth">Close</button></section></div>`;root.querySelector('#closeAuth').onclick=()=>root.innerHTML='';return}const isSignUp=mode==='signup',isReset=mode==='reset';root.innerHTML=`<div class="modal-backdrop"><section class="modal auth-modal"><p class="eyebrow">Supabase cloud save</p><h2>${isSignUp?'Create account':isReset?'Reset password':'Sign in'}</h2><p class="picker-hint">${isReset?'Enter the email you signed up with. The reset email has a link and, on this site, a code you can type instead.':'Your Droid Archives profiles sync to one row in Supabase.'}</p><label class="field">Email<input id="authEmail" class="form-control" type="email" autocomplete="email"></label>${isReset?'':`<label class="field">Password<input id="authPassword" class="form-control" type="password" autocomplete="${isSignUp?'new-password':'current-password'}"></label>`}<div class="modal-actions"><button class="btn" id="authSubmit">${isSignUp?'Create account':isReset?'Send reset email':'Sign in'}</button><button class="btn ghost" id="authCancel">Cancel</button></div><div class="auth-links">${isSignUp?'<button id="authSignin">Already have an account?</button>':'<button id="authSignup">Create account</button>'}${isReset?'':'<button id="authReset">Forgot password?</button>'}</div><p class="form-error" id="authError"></p></section></div>`;const error=root.querySelector('#authError'),submit=root.querySelector('#authSubmit');root.querySelector('#authCancel').onclick=()=>root.innerHTML='';root.querySelector('#authSignin')?.addEventListener('click',()=>showAuthModal('signin'));root.querySelector('#authSignup')?.addEventListener('click',()=>showAuthModal('signup'));root.querySelector('#authReset')?.addEventListener('click',()=>showAuthModal('reset'));submit.onclick=async()=>{try{submit.disabled=true;submit.textContent=isSignUp?'Creating…':isReset?'Sending…':'Signing in…';error.textContent='';const email=root.querySelector('#authEmail').value.trim(),password=root.querySelector('#authPassword')?.value||'';if(!email)throw Error('Email is required');state.cloud.status=isReset?'Sending reset…':'Signing in…';renderCloudHeader();if(isReset){const {error:e}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:authRedirectUrl()});if(e)throw e;showResetCodeModal(email);return}state.cloud.initializingNewAccount=isSignUp;const result=isSignUp?await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:authRedirectUrl()}}):await supabaseClient.auth.signInWithPassword({email,password});if(result.error)throw result.error;state.cloud.session=result.data.session;state.cloud.user=result.data.user;if(!state.cloud.session&&isSignUp){toast('Account created. Check your email to confirm it.');root.innerHTML='';return}await loadSupabaseProfiles(true,{initializeIfMissing:isSignUp});state.cloud.initializingNewAccount=false;root.innerHTML='';toast(isSignUp?'Account ready':'Signed in')}catch(e){state.cloud.initializingNewAccount=false;error.textContent=e.message;state.cloud.status=e.message;renderCloudHeader();submit.disabled=false;submit.textContent=isSignUp?'Create account':isReset?'Send reset email':'Sign in'}}}
+// After the Supabase client has read a reset link: open the new-password form
+// in case the auth event was missed, or explain a dead link. The tokens are
+// cleared from the address bar either way.
+function finishAuthCallback(){
+  if(!AUTH_CALLBACK.present)return;
+  try{history.replaceState(history.state,'',location.pathname+'#/')}catch{}
+  if(AUTH_CALLBACK.error||AUTH_CALLBACK.errorCode){showAuthLinkProblem(AUTH_CALLBACK.error||AUTH_CALLBACK.errorCode);return}
+  if(AUTH_CALLBACK.recovery&&!document.querySelector('#newPassword'))showPasswordUpdateModal();
+}
+function showAuthLinkProblem(reason){
+  const root=document.querySelector('#modalRoot'),expired=/expired|invalid|otp/i.test(reason);
+  root.innerHTML=`<div class="modal-backdrop"><section class="modal auth-modal"><p class="eyebrow">Password reset</p><h2>${expired?'That reset link has expired':'That link did not work'}</h2><p class="picker-hint">${expired?'Reset links work once and only for an hour. Some email apps open links in the background, which uses them up.':escapeAttr(reason)}</p><p class="picker-hint">Request a new one and use it straight away. If the email shows a code, you can type that here instead of opening the link.</p><div class="modal-actions"><button class="btn" id="authLinkRetry">Send a new reset email</button><button class="btn ghost" id="authLinkClose">Close</button></div></section></div>`;
+  root.querySelector('#authLinkClose').onclick=()=>root.innerHTML='';
+  root.querySelector('#authLinkRetry').onclick=()=>showAuthModal('reset');
+}
+// Second step of a reset. The email carries a link and, when the project's
+// email template includes {{ .Token }}, a code. Either gets the account a
+// session; the code never leaves this page, so it also works when the link was
+// opened on another device or used up by an email scanner.
+function showResetCodeModal(email){
+  const root=document.querySelector('#modalRoot');
+  root.innerHTML=`<div class="modal-backdrop"><section class="modal auth-modal"><p class="eyebrow">Password reset</p><h2>Check your email</h2><p class="picker-hint">A reset email is on its way to ${escapeAttr(email)}. Check spam if nothing arrives within a minute. Open the link in it, or if it shows a code, enter the code here with your new password.</p><label class="field">Code from the email<input id="resetCode" class="form-control" inputmode="numeric" autocomplete="one-time-code"></label><label class="field">New password<input id="resetPassword" class="form-control" type="password" autocomplete="new-password"></label><label class="field">Repeat it<input id="resetPasswordAgain" class="form-control" type="password" autocomplete="new-password"></label><div class="modal-actions"><button class="btn" id="resetSubmit">Set new password</button><button class="btn ghost" id="resetClose">Close</button></div><div class="auth-links"><button id="resetResend">Send the email again</button></div><p class="form-error" id="resetError"></p></section></div>`;
+  root.querySelector('#resetClose').onclick=()=>root.innerHTML='';
+  root.querySelector('#resetResend').onclick=()=>showAuthModal('reset');
+  const submit=root.querySelector('#resetSubmit'),error=root.querySelector('#resetError');
+  submit.onclick=async()=>{
+    const code=root.querySelector('#resetCode').value.replace(/\D/g,''),password=root.querySelector('#resetPassword').value,again=root.querySelector('#resetPasswordAgain').value;
+    try{
+      if(!code)throw Error('Enter the code from the email, or open the link in it');
+      if(password.length<6)throw Error('Use at least 6 characters');
+      if(password!==again)throw Error('The two passwords do not match');
+      submit.disabled=true;submit.textContent='Checking…';
+      const verified=await supabaseClient.auth.verifyOtp({email,token:code,type:'recovery'});if(verified.error)throw verified.error;
+      const updated=await supabaseClient.auth.updateUser({password});if(updated.error)throw updated.error;
+      root.innerHTML='';toast('Password updated. You are signed in.');
+    }catch(e){submit.disabled=false;submit.textContent='Set new password';error.textContent=/expired|invalid|otp/i.test(e.message)?'That code is wrong or has expired. Codes last an hour; send the email again for a fresh one.':e.message}
+  };
+}
+function showPasswordUpdateModal(){
+  const root=document.querySelector('#modalRoot'),email=state.cloud.user?.email||'';
+  root.innerHTML=`<div class="modal-backdrop"><section class="modal auth-modal"><p class="eyebrow">Password reset</p><h2>Choose a new password</h2><p class="picker-hint">${email?`For ${escapeAttr(email)}. `:''}At least 6 characters.</p><label class="field">New password<input id="newPassword" class="form-control" type="password" autocomplete="new-password"></label><label class="field">Repeat it<input id="newPasswordAgain" class="form-control" type="password" autocomplete="new-password"></label><div class="modal-actions"><button class="btn" id="saveNewPassword">Update password</button><button class="btn ghost" id="cancelNewPassword">Cancel</button></div><p class="form-error" id="passwordError"></p></section></div>`;
+  root.querySelector('#cancelNewPassword').onclick=()=>root.innerHTML='';
+  const save=root.querySelector('#saveNewPassword');
+  save.onclick=async()=>{
+    const password=root.querySelector('#newPassword').value,again=root.querySelector('#newPasswordAgain').value,error=root.querySelector('#passwordError');
+    try{
+      if(password.length<6)throw Error('Use at least 6 characters');
+      if(password!==again)throw Error('The two passwords do not match');
+      save.disabled=true;save.textContent='Updating…';
+      const {error:e}=await supabaseClient.auth.updateUser({password});if(e)throw e;
+      root.innerHTML='';toast('Password updated. You are signed in.');state.cloud.status='Signed in';renderCloudHeader();
+    }catch(e){save.disabled=false;save.textContent='Update password';error.textContent=/session missing|not logged in|jwt/i.test(e.message)?'This reset link has expired or was already used. Request a new one and open it straight away.':e.message}
+  };
+}
 async function waitForGoogle(){for(let i=0;i<40;i++){if(window.google?.accounts?.oauth2)return;if(i===0&&!document.querySelector('script[src*="accounts.google.com/gsi/client"]')){const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;s.defer=true;document.head.appendChild(s)}await new Promise(r=>setTimeout(r,125))}throw Error('Google sign-in did not load.')}
 async function cloudAuth(promptMode,timeoutMs=12000){await waitForGoogle();return new Promise((resolve,reject)=>{let settled=false;let timer;const finish=(fn,value)=>{if(settled)return;settled=true;clearTimeout(timer);fn(value)};state.cloud.tokenClient ||= google.accounts.oauth2.initTokenClient({client_id:GOOGLE_CLIENT_ID,scope:DRIVE_SCOPE,include_granted_scopes:true,callback:res=>{if(res.error){finish(reject,Error(res.error));return}state.cloud.token=res.access_token;state.cloud.tokenExpiresAt=Date.now()+((Number(res.expires_in)||3600)-60)*1000;finish(resolve,res.access_token)}});timer=setTimeout(()=>finish(reject,Error('Google Drive import could not connect')),timeoutMs);state.cloud.tokenClient.requestAccessToken({prompt:promptMode??'consent'})})}
 async function driveFetch(path,options={}){const response=await fetch(`https://www.googleapis.com/drive/v3/${path}`,{...options,headers:{Authorization:`Bearer ${state.cloud.token}`,...(options.headers||{})}});if(!response.ok)throw Error(`Google Drive import failed (${response.status})`);return response}
@@ -2509,7 +2523,7 @@ function showPreferredCompanionPicker(onDone){
 }
 const optimiseSettingsOpen=()=>localStorage.getItem('droid-archive-optimise-settings-open')==='1';
 const optimiseSettingsSummary=()=>{const boosts=companionGoals().length,preferred=preferredCompanions().length;return `${boosts} boost${boosts===1?'':'s'}${preferred?` · ${preferred} preferred`:''}`};
-function renderBaseSidebar(rerender){const host=document.querySelector('#baseSidebarControls');host.innerHTML=`${cloudSidebarHtml()}<p class="side-title">Base settings</p><label class="side-field">Base multiplier<input id="sideMultiplier" type="number" min="0" step="0.1" value="${state.multiplier}"><small class="flawless-bonus">${flawlessCount()} flawless tracked · ${effectiveMultiplier().toFixed(2)}× total</small></label><label class="side-field">Super rebirth<select id="sideCycle">${Object.keys(state.rebirths).map(c=>`<option value="${c}" ${Number(c)===state.cycle?'selected':''}>Cycle ${Number(c)+1}</option>`).join('')}</select></label><label class="side-field">Current rebirth<select id="sideRebirth">${Array.from({length:maxRebirth()+1},(_,n)=>`<option ${n===state.rebirth?'selected':''}>${n}</option>`).join('')}</select></label><label class="side-field">Super rebirth goal<select id="sideRebirthGoal">${Array.from({length:Math.max(0,maxRebirth()-11)},(_,i)=>i+12).map(n=>`<option value="${n}" ${n===rebirthGoal()?'selected':''}>Rebirth ${n}</option>`).join('')}</select><small class="flawless-bonus">Base recommendations stop after this rebirth.</small></label><details class="side-group" ${optimiseSettingsOpen()?'open':''}><summary>Advanced settings<em>${optimiseSettingsSummary()}</em></summary><div class="side-group-body">${protocolPrioritySetting()}${fusionKeepSettings()}<div class="side-field side-pillfield">Companion boosts<div class="side-pills">${COMPANION_GOALS.map(g=>`<label class="side-pill"><input type="checkbox" data-companion-goal="${g.id}" ${companionGoals().includes(g.id)?'checked':''}><span>${g.short}</span></label>`).join('')}</div><small class="flawless-bonus">A Companion slot is stocked for each boost picked.</small></div><div class="side-field">Preferred companions<div class="side-companions">${preferredCompanions().map(name=>{const d=state.droids.find(x=>x.name===name);return `<span class="side-companion" title="${name}">${picture(d,'DEFAULT')}<b>${name}</b><button class="side-companion-remove" data-remove-companion="${name}" title="Remove ${name}" aria-label="Remove ${name}">×</button></span>`}).join('')}${preferredCompanionsFull()?'':`<button class="side-companion-add" id="addPreferredCompanion" title="Add a preferred companion" aria-label="Add a preferred companion"><span class="slot-icon">${stationIcon('COMPANION')}</span><small>${preferredCompanions().length?'Add':'Add preferred companion'}</small></button>`}</div><small class="flawless-bonus">Taken ahead of any boost.</small></div><label class="side-check"><input id="sideKeepDroidex" type="checkbox" ${state.optimiseKeepDroidex===false?'':'checked'}> Keep droids that can fill the Droidex</label><label class="side-check"><input id="sideAutoCompleteBuilds" type="checkbox" ${state.autoCompleteBuilds?'checked':''}> Auto complete Build droids</label><label class="side-check"><input id="sideOptimiseFreeBuild" type="checkbox" ${state.optimiseFreeBuild?'checked':''}> Keep Build slots open in Optimise</label><label class="side-check"><input id="sideFusionHints" type="checkbox" ${fusionHintsEnabled()?'checked':''}> Show fusion uses in the droid picker</label><label class="side-check" title="Lets Optimise park spare droids in Fusion slots. Anything left there is what a Fuse consumes."><input id="sideFusionAsLounge" type="checkbox" ${state.fusionAsLounge?'checked':''}> Use Fusion as Lounge slots</label><label class="side-check" title="Shows each region's credits and Protocol bonuses above your stations."><input id="sideShowRegionalProduction" type="checkbox" ${state.showRegionalProduction===false?'':'checked'}> Show Regional production</label><label class="side-field optimise-free-build-mode" ${state.optimiseFreeBuild?'':'hidden'}>Sell priority<select id="sideOptimiseFreeBuildMode"><option value="upgrade-cost" ${optimiseFreeBuildMode()==='upgrade-cost'?'selected':''}>Highest upgrade cost</option><option value="rarity-income" ${optimiseFreeBuildMode()==='rarity-income'?'selected':''}>Lowest rarity + earnings</option></select><small class="flawless-bonus">Used when Optimise must sell stored future-use droids.</small></label></div></details><button class="btn danger super-rebirth-button" id="superRebirthButton">Super rebirth</button><div class="side-rule"></div>`;attachCloudSidebarHandlers(host);host.querySelector('#protocolPriority').onchange=e=>{state.protocolPriority=e.target.value;save();rerender()};host.querySelector('#sideMultiplier').onchange=e=>{state.multiplier=Number(e.target.value)||0;save();rerender()};host.querySelector('#sideCycle').onchange=e=>{state.cycle=Number(e.target.value);save();rerender()};host.querySelector('#sideRebirth').onchange=e=>{state.rebirth=Number(e.target.value);save();rerender()};host.querySelector('#sideRebirthGoal').onchange=e=>{state.superRebirthGoal=Number(e.target.value)||maxRebirth();save();rerender()};host.querySelector('details.side-group')?.addEventListener('toggle',e=>localStorage.setItem('droid-archive-optimise-settings-open',e.target.open?'1':'0'));host.querySelectorAll('[data-companion-goal]').forEach(box=>box.onchange=()=>{state.companionGoals=[...host.querySelectorAll('[data-companion-goal]')].filter(x=>x.checked).map(x=>x.dataset.companionGoal);save();rerender()});host.querySelectorAll('[data-remove-companion]').forEach(button=>button.onclick=()=>{state.preferredCompanions=preferredCompanions().filter(name=>name!==button.dataset.removeCompanion);save();rerender()});const addCompanion=host.querySelector('#addPreferredCompanion');if(addCompanion)addCompanion.onclick=()=>showPreferredCompanionPicker(rerender);host.querySelector('#sideKeepDroidex').onchange=e=>{state.optimiseKeepDroidex=e.target.checked;save();rerender()};host.querySelector('#sideAutoCompleteBuilds').onchange=e=>{state.autoCompleteBuilds=e.target.checked;save();rerender()};host.querySelector('#sideFusionHints').onchange=e=>localStorage.setItem('droid-archive-picker-fusion-hints',e.target.checked?'1':'0');host.querySelector('#sideFusionAsLounge').onchange=e=>{state.fusionAsLounge=e.target.checked;save();rerender()};host.querySelector('#sideShowRegionalProduction').onchange=e=>{state.showRegionalProduction=e.target.checked;save();rerender()};host.querySelector('#sideOptimiseFreeBuild').onchange=e=>{state.optimiseFreeBuild=e.target.checked;save();rerender()};host.querySelector('#sideOptimiseFreeBuildMode').onchange=e=>{state.optimiseFreeBuildMode=e.target.value;save();rerender()};host.querySelector('#superRebirthButton').onclick=()=>showSuperRebirthConfirm(rerender)}
+function renderBaseSidebar(rerender){const host=document.querySelector('#baseSidebarControls');host.innerHTML=`${cloudSidebarHtml()}<p class="side-title">Base settings</p><label class="side-field">Base multiplier<input id="sideMultiplier" type="number" min="0" step="0.1" value="${state.multiplier}"><small class="flawless-bonus">${flawlessCount()} flawless tracked · ${effectiveMultiplier().toFixed(2)}× total</small></label><label class="side-field">Super rebirth<select id="sideCycle">${Object.keys(state.rebirths).map(c=>`<option value="${c}" ${Number(c)===state.cycle?'selected':''}>Cycle ${Number(c)+1}</option>`).join('')}</select></label><label class="side-field">Current rebirth<select id="sideRebirth">${Array.from({length:maxRebirth()+1},(_,n)=>`<option ${n===state.rebirth?'selected':''}>${n}</option>`).join('')}</select></label><label class="side-field">Super rebirth goal<select id="sideRebirthGoal">${Array.from({length:Math.max(0,maxRebirth()-11)},(_,i)=>i+12).map(n=>`<option value="${n}" ${n===rebirthGoal()?'selected':''}>Rebirth ${n}</option>`).join('')}</select><small class="flawless-bonus">Base recommendations stop after this rebirth.</small></label><details class="side-group" ${optimiseSettingsOpen()?'open':''}><summary>Advanced settings<em>${optimiseSettingsSummary()}</em></summary><div class="side-group-body">${protocolPrioritySetting()}${fusionKeepSettings()}<label class="side-field side-min-gain">Skip Optimise moves under<span class="side-min-gain-input"><input id="sideOptimiseMinGain" type="number" min="0" max="20" step="0.1" value="${optimiseMinGainPercent()}"><em>% of income</em></span><small class="flawless-bonus">A droid only changes room when the optimised layout earns at least this much more for it. 0 plans every gain, however small.</small></label><div class="side-field side-pillfield">Companion boosts<div class="side-pills">${COMPANION_GOALS.map(g=>`<label class="side-pill"><input type="checkbox" data-companion-goal="${g.id}" ${companionGoals().includes(g.id)?'checked':''}><span>${g.short}</span></label>`).join('')}</div><small class="flawless-bonus">A Companion slot is stocked for each boost picked.</small></div><div class="side-field">Preferred companions<div class="side-companions">${preferredCompanions().map(name=>{const d=state.droids.find(x=>x.name===name);return `<span class="side-companion" title="${name}">${picture(d,'DEFAULT')}<b>${name}</b><button class="side-companion-remove" data-remove-companion="${name}" title="Remove ${name}" aria-label="Remove ${name}">×</button></span>`}).join('')}${preferredCompanionsFull()?'':`<button class="side-companion-add" id="addPreferredCompanion" title="Add a preferred companion" aria-label="Add a preferred companion"><span class="slot-icon">${stationIcon('COMPANION')}</span><small>${preferredCompanions().length?'Add':'Add preferred companion'}</small></button>`}</div><small class="flawless-bonus">Taken ahead of any boost.</small></div><label class="side-check"><input id="sideKeepDroidex" type="checkbox" ${state.optimiseKeepDroidex===false?'':'checked'}> Keep droids that can fill the Droidex</label><label class="side-check"><input id="sideAutoCompleteBuilds" type="checkbox" ${state.autoCompleteBuilds?'checked':''}> Auto complete Build droids</label><label class="side-check"><input id="sideOptimiseFreeBuild" type="checkbox" ${state.optimiseFreeBuild?'checked':''}> Keep Build slots open in Optimise</label><label class="side-check"><input id="sideFusionHints" type="checkbox" ${fusionHintsEnabled()?'checked':''}> Show fusion uses in the droid picker</label><label class="side-check" title="Lets Optimise park spare droids in Fusion slots. Anything left there is what a Fuse consumes."><input id="sideFusionAsLounge" type="checkbox" ${state.fusionAsLounge?'checked':''}> Use Fusion as Lounge slots</label><label class="side-check" title="Shows each region's credits and Protocol bonuses above your stations."><input id="sideShowRegionalProduction" type="checkbox" ${state.showRegionalProduction===false?'':'checked'}> Show Regional production</label><label class="side-field optimise-free-build-mode" ${state.optimiseFreeBuild?'':'hidden'}>Sell priority<select id="sideOptimiseFreeBuildMode"><option value="upgrade-cost" ${optimiseFreeBuildMode()==='upgrade-cost'?'selected':''}>Highest upgrade cost</option><option value="rarity-income" ${optimiseFreeBuildMode()==='rarity-income'?'selected':''}>Lowest rarity + earnings</option></select><small class="flawless-bonus">Used when Optimise must sell stored future-use droids.</small></label></div></details><button class="btn danger super-rebirth-button" id="superRebirthButton">Super rebirth</button><div class="side-rule"></div>`;attachCloudSidebarHandlers(host);host.querySelector('#protocolPriority').onchange=e=>{state.protocolPriority=e.target.value;save();rerender()};host.querySelector('#sideMultiplier').onchange=e=>{state.multiplier=Number(e.target.value)||0;save();rerender()};host.querySelector('#sideCycle').onchange=e=>{state.cycle=Number(e.target.value);save();rerender()};host.querySelector('#sideRebirth').onchange=e=>{state.rebirth=Number(e.target.value);save();rerender()};host.querySelector('#sideRebirthGoal').onchange=e=>{state.superRebirthGoal=Number(e.target.value)||maxRebirth();save();rerender()};host.querySelector('details.side-group')?.addEventListener('toggle',e=>localStorage.setItem('droid-archive-optimise-settings-open',e.target.open?'1':'0'));host.querySelectorAll('[data-companion-goal]').forEach(box=>box.onchange=()=>{state.companionGoals=[...host.querySelectorAll('[data-companion-goal]')].filter(x=>x.checked).map(x=>x.dataset.companionGoal);save();rerender()});host.querySelectorAll('[data-remove-companion]').forEach(button=>button.onclick=()=>{state.preferredCompanions=preferredCompanions().filter(name=>name!==button.dataset.removeCompanion);save();rerender()});const addCompanion=host.querySelector('#addPreferredCompanion');if(addCompanion)addCompanion.onclick=()=>showPreferredCompanionPicker(rerender);host.querySelector('#sideOptimiseMinGain').onchange=e=>{state.optimiseMinGainPercent=Math.max(0,Math.min(20,Number(e.target.value)||0));localStorage.setItem('droid-archive-optimise-min-gain',String(state.optimiseMinGainPercent));save();rerender()};host.querySelector('#sideKeepDroidex').onchange=e=>{state.optimiseKeepDroidex=e.target.checked;save();rerender()};host.querySelector('#sideAutoCompleteBuilds').onchange=e=>{state.autoCompleteBuilds=e.target.checked;save();rerender()};host.querySelector('#sideFusionHints').onchange=e=>localStorage.setItem('droid-archive-picker-fusion-hints',e.target.checked?'1':'0');host.querySelector('#sideFusionAsLounge').onchange=e=>{state.fusionAsLounge=e.target.checked;save();rerender()};host.querySelector('#sideShowRegionalProduction').onchange=e=>{state.showRegionalProduction=e.target.checked;save();rerender()};host.querySelector('#sideOptimiseFreeBuild').onchange=e=>{state.optimiseFreeBuild=e.target.checked;save();rerender()};host.querySelector('#sideOptimiseFreeBuildMode').onchange=e=>{state.optimiseFreeBuildMode=e.target.value;save();rerender()};host.querySelector('#superRebirthButton').onclick=()=>showSuperRebirthConfirm(rerender)}
 const renderBaseSidebarWithoutOptimiseHelp=renderBaseSidebar;
 const changeCurrentRebirth=(value,rerender)=>{state.rebirth=Math.max(0,Math.min(maxRebirth(),Number(value)||0));const changed=autoPurchaseEligibleSlots();save();if(changed)toast('Newly eligible slots purchased');rerender()};
 renderBaseSidebar=rerender=>{
@@ -2564,14 +2578,14 @@ function afterDroidAdded(station,onDone){onDone?.();if(!pickerMultiAddEnabled())
 function showVariantChoice(name,station,onDone,slot){const root=document.querySelector('#modalRoot'),d=state.droids.find(x=>x.name===name);if(isIconic(d)){commitOwned(name,'DEFAULT',1,station,slot);root.innerHTML='';afterDroidAdded(station,onDone);return}root.innerHTML=`<div class="modal-backdrop"><section class="modal"><p class="eyebrow">${station} slot</p><h2>Add ${name}</h2><div class="variant-choice">${VARIANTS.map(v=>`<button data-variant="${v}">${picture(d,v)}<strong>${variantText(v)}</strong><small>${isProtocolStation(station)?protocolVariantText(d,v,station):station==='UPGRADE_CHIP'?`${fmt(upgradeChipRate(d,v))} chips/min`:variantIncomeText(d,v)}</small></button>`).join('')}</div><button class="btn ghost" id="backToPicker">Back</button></section></div>`;root.querySelectorAll('[data-variant]').forEach(b=>b.onclick=()=>{commitOwned(name,b.dataset.variant,1,station,slot);root.innerHTML='';afterDroidAdded(station,onDone)});root.querySelector('#backToPicker').onclick=()=>showSlotPicker(station,onDone,slot)}
 function showBlueprintPicker(slot,onDone){const root=document.querySelector('#modalRoot');root.innerHTML=`<div class="modal-backdrop"><section class="modal slot-picker"><p class="eyebrow">Blueprint Storage</p><h2>Store a blueprint</h2><p class="picker-hint">Blueprints live here until you craft them into an open Build slot.</p><input id="blueprintSearch" class="form-control picker-search" placeholder="Search droids…" autofocus><div id="blueprintResults" class="picker-results"></div><button class="btn ghost" id="cancelBlueprint">Cancel</button></section></div>`;const draw=()=>{const q=root.querySelector('#blueprintSearch').value.toLowerCase();root.querySelector('#blueprintResults').innerHTML=state.droids.filter(d=>d.name.toLowerCase().includes(q)).map(d=>`<button class="picker-droid" data-name="${d.name}"><span>${picture(d)}</span><b>${d.name}</b><small>${rarityText(d.rarity)} &middot; blueprint</small></button>`).join('')||'<p class="roster-empty">No matching droids.</p>';root.querySelectorAll('.picker-droid').forEach(b=>b.onclick=()=>showBlueprintVariantChoice(b.dataset.name,slot,onDone))};root.querySelector('#blueprintSearch').oninput=draw;root.querySelector('#cancelBlueprint').onclick=()=>root.innerHTML='';draw()}
 function showBlueprintVariantChoice(name,slot,onDone){const root=document.querySelector('#modalRoot'),d=state.droids.find(x=>x.name===name);if(isIconic(d)){addBlueprint(name,'DEFAULT',slot);root.innerHTML='';onDone();return}root.innerHTML=`<div class="modal-backdrop"><section class="modal"><p class="eyebrow">Blueprint Storage</p><h2>Store ${name} blueprint</h2><div class="variant-choice">${VARIANTS.map(v=>`<button data-variant="${v}">${picture(d,v)}<strong>${variantText(v)}</strong><small>Blueprint</small></button>`).join('')}</div><button class="btn ghost" id="backToBlueprintPicker">Back</button></section></div>`;root.querySelectorAll('[data-variant]').forEach(b=>b.onclick=()=>{addBlueprint(name,b.dataset.variant,slot);root.innerHTML='';onDone()});root.querySelector('#backToBlueprintPicker').onclick=()=>showBlueprintPicker(slot,onDone)}
-function baseExport(){return{app:'Droid Archives',version:5,exportedAt:new Date().toISOString(),base:{owned:state.owned,blueprints:state.blueprints,droidex:state.droidex,novaUpgrades:state.novaUpgrades,novaIconicUnlocks:normaliseNovaIconicUnlocks(state.novaIconicUnlocks),cantinaPurchases:state.cantinaPurchases,multiplier:state.multiplier,cycle:state.cycle,rebirth:state.rebirth,superRebirthGoal:state.superRebirthGoal,astromechIconicRoles:normaliseAstromechIconicRoles(state.astromechIconicRoles),fusionKeepRules:state.fusionKeepRules||[],fusionPreferences:normaliseFusionPreferences(state.fusionPreferences),notificationPreferences:normaliseNotificationPreferences(state.notificationPreferences),protocolPriority:state.protocolPriority,optimiseFreeBuild:state.optimiseFreeBuild,optimiseFreeBuildMode:state.optimiseFreeBuildMode,optimiseKeepDroidex:state.optimiseKeepDroidex,companionGoals:state.companionGoals,preferredCompanions:state.preferredCompanions,autoCompleteBuilds:state.autoCompleteBuilds,autoPurchaseSlots:state.autoPurchaseSlots,purchasedSlots:state.purchasedSlots,loungePurchased:state.loungePurchased,novaLevel:state.novaLevel,rebirthTracker:state.rebirthTracker}}}
+function baseExport(){return{app:'Droid Archives',version:5,exportedAt:new Date().toISOString(),base:{owned:state.owned,blueprints:state.blueprints,droidex:state.droidex,novaUpgrades:state.novaUpgrades,novaIconicUnlocks:normaliseNovaIconicUnlocks(state.novaIconicUnlocks),cantinaPurchases:state.cantinaPurchases,multiplier:state.multiplier,cycle:state.cycle,rebirth:state.rebirth,superRebirthGoal:state.superRebirthGoal,astromechIconicRoles:normaliseAstromechIconicRoles(state.astromechIconicRoles),fusionKeepRules:state.fusionKeepRules||[],fusionPreferences:normaliseFusionPreferences(state.fusionPreferences),notificationPreferences:normaliseNotificationPreferences(state.notificationPreferences),protocolPriority:state.protocolPriority,optimiseFreeBuild:state.optimiseFreeBuild,optimiseFreeBuildMode:state.optimiseFreeBuildMode,optimiseMinGainPercent:state.optimiseMinGainPercent,optimiseKeepDroidex:state.optimiseKeepDroidex,companionGoals:state.companionGoals,preferredCompanions:state.preferredCompanions,autoCompleteBuilds:state.autoCompleteBuilds,autoPurchaseSlots:state.autoPurchaseSlots,purchasedSlots:state.purchasedSlots,loungePurchased:state.loungePurchased,novaLevel:state.novaLevel,rebirthTracker:state.rebirthTracker}}}
 function droidexExport(){return{app:'Droid Archives',version:3,exportedAt:new Date().toISOString(),droidex:state.droidex}}
 function validateDroidexImport(value){const rows=normalizeDroidRows(value?.droidex??value?.base?.droidex??value);if(!Array.isArray(rows))throw Error('This file does not contain a valid Droidex.');const validNames=new Set(state.droids.map(d=>d.name)),flawlessNames=new Set(rows.filter(x=>x?.flawless).map(x=>x.name)),entries=new Map();for(const row of rows){const d=state.droids.find(x=>x.name===row?.name);if(!validNames.has(row?.name)||!VARIANTS.includes(row?.variant)||isIconic(d)&&row.variant!=='DEFAULT')throw Error(`Invalid Droidex entry: ${row?.name||'unknown'}.`);entries.set(`${row.name}:${row.variant}`,{name:row.name,variant:row.variant,flawless:!isIconic(d)&&flawlessNames.has(row.name)})}return[...entries.values()]}
 function showDroidexTransferModal(onDone){const root=document.querySelector('#modalRoot'),json=JSON.stringify(droidexExport(),null,2);root.innerHTML=`<div class="modal-backdrop"><section class="modal transfer-modal" role="dialog" aria-modal="true"><p class="eyebrow">Collection save</p><h2>Droidex Import / Export</h2><p class="picker-hint">Download your collected variants and flawless progress, or replace them from a Droidex or full Base export.</p><textarea id="droidexTransferJson" class="form-control transfer-json" spellcheck="false">${json}</textarea><label class="file-picker">Choose import file<input id="droidexImportFile" type="file" accept="application/json,.json"></label><p id="droidexTransferError" class="form-error" role="alert"></p><div class="modal-actions"><button class="btn" id="downloadDroidex">Download Droidex</button><button class="btn secondary" id="importDroidex">Import Droidex</button><button class="btn ghost" id="cancelDroidexTransfer">Close</button></div></section></div>`;const textarea=root.querySelector('#droidexTransferJson'),error=root.querySelector('#droidexTransferError');root.querySelector('#droidexImportFile').onchange=async e=>{const file=e.target.files[0];if(file)textarea.value=await file.text()};root.querySelector('#downloadDroidex').onclick=()=>{const blob=new Blob([JSON.stringify(droidexExport(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`droid-archives-droidex-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);toast('Droidex exported')};root.querySelector('#importDroidex').onclick=()=>{try{state.droidex=validateDroidexImport(JSON.parse(textarea.value));save();root.innerHTML='';toast('Droidex imported');onDone()}catch(e){error.textContent=e instanceof SyntaxError?'The import is not valid JSON.':e.message}};root.querySelector('#cancelDroidexTransfer').onclick=()=>root.innerHTML=''}
 function validateBaseImport(value){const data=value?.base??value;if(!data||!Array.isArray(data.owned))throw Error('This file does not contain a valid Base.');data.owned=normalizeDroidRows(data.owned);data.droidex=normalizeDroidRows(data.droidex);data.blueprints=normalizeDroidRows(data.blueprints);const validNames=new Set(state.droids.map(d=>d.name));for(const row of data.owned){if(!validNames.has(row.name)||!VARIANTS.includes(row.variant)||!Number.isFinite(Number(row.qty))||Number(row.qty)<1)throw Error(`Invalid droid entry: ${row?.name||'unknown'}.`)}const droidex=Array.isArray(data.droidex)?data.droidex.filter(x=>validNames.has(x.name)&&VARIANTS.includes(x.variant)).map(x=>({name:x.name,variant:x.variant,flawless:Boolean(x.flawless)})):[],blueprints=Array.isArray(data.blueprints)?data.blueprints.filter(x=>validNames.has(x.name)&&VARIANTS.includes(x.variant)).map((x,i)=>({name:x.name,variant:x.variant,...(Number.isInteger(Number(x.slot))?{slot:Number(x.slot)}:{slot:i})})):[],upgradeIds=new Set((state.novaShop?.upgrades||[]).map(x=>x.id)),novaUpgrades={};for(const [id,level] of Object.entries(data.novaUpgrades||{}))if(!upgradeIds.size||upgradeIds.has(id))novaUpgrades[id]=Math.max(0,Math.floor(Number(level)||0));const cantinaPurchases=Object.fromEntries(Object.entries(data.cantinaPurchases||{}).filter(([,owned])=>Boolean(owned)).map(([id])=>[id,true]));return{owned:data.owned.map(x=>({name:x.name,variant:x.variant,qty:Math.floor(Number(x.qty)),...(SLOT_RULES[x.preferred]?{preferred:x.preferred,...(Number.isInteger(Number(x.preferredSlot))?{preferredSlot:Number(x.preferredSlot)}:{})}:{}),...(x.lockedSlot||x.lockedCompanion?{lockedSlot:true}:{}),...(x.built?{built:true}:{})})),blueprints,droidex,novaUpgrades,novaIconicUnlocks:normaliseNovaIconicUnlocks(data.novaIconicUnlocks),cantinaPurchases,multiplier:Number.isFinite(Number(data.multiplier))?Number(data.multiplier):1,cycle:Object.hasOwn(state.rebirths,String(Number(data.cycle)))?Number(data.cycle):0,rebirth:Math.max(0,Math.min(maxRebirth(),Math.floor(Number(data.rebirth)||0))),superRebirthGoal:Math.max(12,Math.min(maxRebirth(),Math.floor(Number(data.superRebirthGoal)||maxRebirth()))),astromechIconicRoles:normaliseAstromechIconicRoles(data.astromechIconicRoles),fusionKeepRules:normaliseFusionKeepRules(data.fusionKeepRules),fusionPreferences:normaliseFusionPreferences(data.fusionPreferences),notificationPreferences:normaliseNotificationPreferences(data.notificationPreferences),protocolPriority:data.protocolPriority==='crafting'?'crafting':'credits',optimiseFreeBuild:Boolean(data.optimiseFreeBuild),optimiseFuseFirst:data.optimiseFuseFirst!==false,fusionAsLounge:Boolean(data.fusionAsLounge),showRegionalProduction:data.showRegionalProduction!==false,optimiseFreeBuildMode:['upgrade-cost','rarity-income'].includes(data.optimiseFreeBuildMode)?data.optimiseFreeBuildMode:'upgrade-cost',optimiseKeepDroidex:data.optimiseKeepDroidex!==false,companionGoals:Array.isArray(data.companionGoals)?data.companionGoals:null,preferredCompanions:Array.isArray(data.preferredCompanions)?data.preferredCompanions:[],autoCompleteBuilds:Boolean(data.autoCompleteBuilds),loungePurchased:Math.max(0,Math.min(4,Math.floor(Number(data.loungePurchased)||0))),novaLevel:Math.max(0,Math.min(4,Math.floor(Number(data.novaLevel)||0)))}}
 const validateBaseImportWithoutUnusedMode=validateBaseImport;
 validateBaseImport=value=>{const result=validateBaseImportWithoutUnusedMode(value),data=value?.base??value;if(OPTIMISE_FREE_BUILD_MODES.includes(data?.optimiseFreeBuildMode))result.optimiseFreeBuildMode=data.optimiseFreeBuildMode;const validSlotKeys=new Set(eligibleRebirthSlots(maxRebirth()).map(x=>slotPurchaseKey(x.type,x.index)));result.autoPurchaseSlots=data?.autoPurchaseSlots===undefined?true:Boolean(data.autoPurchaseSlots);result.purchasedSlots=[...new Set(Array.isArray(data?.purchasedSlots)?data.purchasedSlots.filter(key=>validSlotKeys.has(key)):[])];result.rebirthTracker=normalizeRebirthTracker(data?.rebirthTracker);state.rebirthTracker=result.rebirthTracker;return result};
-function showTransferModal(onDone){const root=document.querySelector('#modalRoot'),json=JSON.stringify(baseExport(),null,2);root.innerHTML=`<div class="modal-backdrop"><section class="modal transfer-modal" role="dialog" aria-modal="true"><p class="eyebrow">Base save</p><h2>Import / Export</h2><p class="picker-hint">Download this Base and Droidex as a JSON file, or replace them by selecting or pasting another save.</p><textarea id="transferJson" class="form-control transfer-json" spellcheck="false">${json}</textarea><label class="file-picker">Choose import file<input id="importFile" type="file" accept="application/json,.json"></label><p id="transferError" class="form-error" role="alert"></p><div class="modal-actions"><button class="btn" id="downloadExport">Download export</button><button class="btn secondary" id="importSave">Import save</button><button class="btn ghost" id="cancelTransfer">Close</button></div></section></div>`;const textarea=root.querySelector('#transferJson'),error=root.querySelector('#transferError');root.querySelector('#importFile').onchange=async e=>{const file=e.target.files[0];if(file)textarea.value=await file.text()};root.querySelector('#downloadExport').onclick=()=>{const blob=new Blob([JSON.stringify(baseExport(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`droid-archives-base-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);toast('Base exported')};root.querySelector('#importSave').onclick=()=>{try{const next=validateBaseImport(JSON.parse(textarea.value));state.owned=next.owned;state.blueprints=next.blueprints;state.droidex=next.droidex;state.novaUpgrades=next.novaUpgrades;state.novaIconicUnlocks=next.novaIconicUnlocks;state.cantinaPurchases=next.cantinaPurchases;state.multiplier=next.multiplier;state.cycle=next.cycle;state.rebirth=next.rebirth;state.superRebirthGoal=next.superRebirthGoal;state.astromechIconicRoles=next.astromechIconicRoles;state.fusionKeepRules=next.fusionKeepRules||[];state.fusionPreferences=normaliseFusionPreferences(next.fusionPreferences);state.notificationPreferences=normaliseNotificationPreferences(next.notificationPreferences);state.protocolPriority=next.protocolPriority;state.optimiseFreeBuild=next.optimiseFreeBuild;state.optimiseFuseFirst=next.optimiseFuseFirst;state.fusionAsLounge=next.fusionAsLounge;state.showRegionalProduction=next.showRegionalProduction;state.optimiseFreeBuildMode=next.optimiseFreeBuildMode;state.optimiseKeepDroidex=next.optimiseKeepDroidex!==false;state.companionGoals=Array.isArray(next.companionGoals)?next.companionGoals:null;state.preferredCompanions=Array.isArray(next.preferredCompanions)?next.preferredCompanions:[];state.autoCompleteBuilds=Boolean(next.autoCompleteBuilds);state.autoPurchaseSlots=next.autoPurchaseSlots;state.purchasedSlots=next.purchasedSlots;state.loungePurchased=next.loungePurchased;state.novaLevel=next.novaLevel;syncCantinaPackUpgrades();autoPurchaseEligibleSlots();save();root.innerHTML='';toast('Base imported');onDone()}catch(e){error.textContent=e instanceof SyntaxError?'The import is not valid JSON.':e.message}};root.querySelector('#cancelTransfer').onclick=()=>root.innerHTML=''}
+function showTransferModal(onDone){const root=document.querySelector('#modalRoot'),json=JSON.stringify(baseExport(),null,2);root.innerHTML=`<div class="modal-backdrop"><section class="modal transfer-modal" role="dialog" aria-modal="true"><p class="eyebrow">Base save</p><h2>Import / Export</h2><p class="picker-hint">Download this Base and Droidex as a JSON file, or replace them by selecting or pasting another save.</p><textarea id="transferJson" class="form-control transfer-json" spellcheck="false">${json}</textarea><label class="file-picker">Choose import file<input id="importFile" type="file" accept="application/json,.json"></label><p id="transferError" class="form-error" role="alert"></p><div class="modal-actions"><button class="btn" id="downloadExport">Download export</button><button class="btn secondary" id="importSave">Import save</button><button class="btn ghost" id="cancelTransfer">Close</button></div></section></div>`;const textarea=root.querySelector('#transferJson'),error=root.querySelector('#transferError');root.querySelector('#importFile').onchange=async e=>{const file=e.target.files[0];if(file)textarea.value=await file.text()};root.querySelector('#downloadExport').onclick=()=>{const blob=new Blob([JSON.stringify(baseExport(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`droid-archives-base-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);toast('Base exported')};root.querySelector('#importSave').onclick=()=>{try{const next=validateBaseImport(JSON.parse(textarea.value));state.owned=next.owned;state.blueprints=next.blueprints;state.droidex=next.droidex;state.novaUpgrades=next.novaUpgrades;state.novaIconicUnlocks=next.novaIconicUnlocks;state.cantinaPurchases=next.cantinaPurchases;state.multiplier=next.multiplier;state.cycle=next.cycle;state.rebirth=next.rebirth;state.superRebirthGoal=next.superRebirthGoal;state.astromechIconicRoles=next.astromechIconicRoles;state.fusionKeepRules=next.fusionKeepRules||[];state.fusionPreferences=normaliseFusionPreferences(next.fusionPreferences);state.notificationPreferences=normaliseNotificationPreferences(next.notificationPreferences);state.protocolPriority=next.protocolPriority;state.optimiseFreeBuild=next.optimiseFreeBuild;state.optimiseFuseFirst=next.optimiseFuseFirst;state.fusionAsLounge=next.fusionAsLounge;state.showRegionalProduction=next.showRegionalProduction;state.optimiseFreeBuildMode=next.optimiseFreeBuildMode;state.optimiseMinGainPercent=Number.isFinite(Number(next.optimiseMinGainPercent))?Number(next.optimiseMinGainPercent):0.5;state.optimiseKeepDroidex=next.optimiseKeepDroidex!==false;state.companionGoals=Array.isArray(next.companionGoals)?next.companionGoals:null;state.preferredCompanions=Array.isArray(next.preferredCompanions)?next.preferredCompanions:[];state.autoCompleteBuilds=Boolean(next.autoCompleteBuilds);state.autoPurchaseSlots=next.autoPurchaseSlots;state.purchasedSlots=next.purchasedSlots;state.loungePurchased=next.loungePurchased;state.novaLevel=next.novaLevel;syncCantinaPackUpgrades();autoPurchaseEligibleSlots();save();root.innerHTML='';toast('Base imported');onDone()}catch(e){error.textContent=e instanceof SyntaxError?'The import is not valid JSON.':e.message}};root.querySelector('#cancelTransfer').onclick=()=>root.innerHTML=''}
 const productiveStations=()=>['WORKER','ASTROMECH','BATTLE'].flatMap(station=>stationSlotIndices(station).map(slot=>({station,slot})));
 function stabiliseAssignments(assignments,p){const current=new Map(p.placed.map(x=>[`${x.source}:${x.unit}`,x])),reserved=new Set(p.placed.filter(x=>x.lockedSlot).map(x=>`${x.station}:${x.slot}`)),byStation=new Map();for(const assignment of assignments){if(!byStation.has(assignment.station))byStation.set(assignment.station,[]);byStation.get(assignment.station).push(assignment)}return[...byStation].flatMap(([station,list])=>{const slots=stationSlotIndices(station).filter(slot=>!reserved.has(`${station}:${slot}`)),used=new Set(),kept=[],floating=[];for(const assignment of list){const old=current.get(assignment.key);if(old?.station===station&&slots.includes(old.slot)&&!used.has(old.slot)){used.add(old.slot);kept.push({...assignment,slot:old.slot})}else floating.push(assignment)}const open=slots.filter(slot=>!used.has(slot));return[...kept,...floating.map((assignment,index)=>({...assignment,slot:open[index]??assignment.slot}))]})}
 function scrapIncomeForPlaced(placed){return incomeForPlaced(placed)}
@@ -2586,39 +2600,56 @@ function slotProductionHtml(d,variant,station,baseIncome,placed=[]){
   return earns?`<span>${variantText(variant)} · Base ${fmt(baseRate)}/s</span><span class="adjusted-production">Adjusted ${fmt(adjustedRate)}/s</span><span class="production-breakdown">×${effectiveMultiplier().toFixed(2)} base multiplier${match?` · ×${adjustment.toFixed(2)} station match`:''}${protocolRegionMultiplier(placed,station)>1?` · ×${protocolRegionMultiplier(placed,station).toFixed(2)} Protocol`:''}</span>`:`<span>${variantText(variant)} · Base ${fmt(baseRate)}/s</span><span class="adjusted-production">Would earn ${fmt(potentialRate)}/s</span><span class="production-breakdown">No contribution here</span>`
 }
 function optimiseAssignmentMoves(assignments,p){const current=new Map(p.placed.map(x=>[`${x.source}:${x.unit}`,x])),wanted=new Map(assignments.map(x=>[x.key,x])),firstOpen=(station,origin)=>slotFillOrder(station,origin).find(i=>!p.placed.some(x=>x.station===station&&x.slot===i))??-1;return assignments.filter(x=>current.get(x.key)?.station!==x.station).map(x=>{const old=current.get(x.key),sourceLabel=old?old.station:'Roster',displaced=p.placed.find(y=>y.station===x.station&&`${y.source}:${y.unit}`!==x.key&&wanted.get(`${y.source}:${y.unit}`)?.station!==x.station),open=firstOpen(x.station,old),targetSlot=displaced?displaced.slot:open>=0?open:x.slot,targetLabel=displaced?`${x.station} slot holding ${displaced.name} ${variantText(displaced.variant)}`:`empty ${x.station} slot`;return{unit:{...x,slot:targetSlot},current:sourceLabel,targetStation:x.station,targetSlot,targetLabel,displaced:displaced?{key:`${displaced.source}:${displaced.unit}`,name:displaced.name,variant:displaced.variant,target:sourceLabel}:null}});}
+// How much a single station change has to earn before Optimise asks for it.
+// Walking a droid to another room for a fraction of a percent is not worth
+// the trip, so the layout search treats staying put as worth this much.
+const optimiseMinGainPercent=()=>{const value=Number(state.optimiseMinGainPercent);return Number.isFinite(value)&&value>=0?Math.min(20,value):0.5};
+const optimiseMoveLambda=currentIncome=>Math.max(0,currentIncome||0)*optimiseMinGainPercent()/100;
 function optimiseCreditBase(p,currentIncome){
+  const lambda=optimiseMoveLambda(currentIncome);
   // A droid still being built cannot be picked up, so it is pinned exactly like
   // a locked one and never offered a productive slot.
   const locked=p.placed.filter(x=>x.lockedSlot||isBuilding(x)),lockedKeys=new Set(locked.map(x=>`${x.source}:${x.unit}`)),lockedSlots=new Set(locked.filter(x=>PRODUCTIVE_STATIONS.includes(x.station)).map(x=>`${x.station}:${x.slot}`)),slots=productiveStations().filter(slot=>!lockedSlots.has(`${slot.station}:${slot.slot}`)),currentPosition=new Map(p.placed.map(x=>[`${x.source}:${x.unit}`,x])),units=expandedOwned().map(x=>({...x,key:`${x.source}:${x.unit}`,droid:state.droids.find(d=>d.name===x.name)})).filter(x=>x.droid&&!lockedKeys.has(x.key)),iconics=units.filter(x=>iconicIncome(x.droid)>0).sort((a,b)=>iconicIncome(b.droid)-iconicIncome(a.droid)),regular=units.filter(x=>!iconicIncome(x.droid)),lockedProductive=locked.map(x=>({...x,droid:state.droids.find(d=>d.name===x.name)})).filter(x=>x.droid&&PRODUCTIVE_STATIONS.includes(x.station)),lockedIconicRate=[...new Set(lockedProductive.filter(x=>iconicIncome(x.droid)>0).map(x=>x.name))].reduce((sum,name)=>sum+iconicIncome(state.droids.find(d=>d.name===name)),0),lockedRegular=lockedProductive.filter(x=>!iconicIncome(x.droid));
   let best={income:0,assignments:[]};
-  for(let mask=0;mask<(1<<iconics.length);mask++){
-    const usedUnits=new Set(),usedSlots=new Set(),assignments=[],selected=iconics.filter((_,i)=>mask&(1<<i));
+  // An Iconic earns its share wherever it works, so with the Iconics sorted by
+  // share the only subsets worth trying are the strongest k of them: swapping a
+  // weaker one in for a stronger one costs the same slot for less income.
+  for(let count=0;count<=iconics.length;count++){
+    const usedUnits=new Set(),usedSlots=new Set(),assignments=[],selected=iconics.slice(0,count);
     let valid=true;
     for(const icon of selected){
-      const open=slots.find(slot=>(slot.station===icon.droid.type||icon.droid.type==='PROTOCOL')&&!usedSlots.has(`${slot.station}:${slot.slot}`));
+      // An Iconic earns the same share wherever it works, so it stays where it
+      // is when it can, then takes its own type's room, then anywhere with space.
+      const prefer=[currentPosition.get(icon.key)?.station,icon.droid.type,...PRODUCTIVE_STATIONS].filter(Boolean);
+      const open=prefer.map(station=>slots.find(slot=>slot.station===station&&!usedSlots.has(`${slot.station}:${slot.slot}`))).find(Boolean);
       if(!open){valid=false;break}
       usedUnits.add(icon.key);usedSlots.add(`${open.station}:${open.slot}`);assignments.push({key:icon.key,name:icon.name,variant:icon.variant,station:open.station,slot:open.slot,value:0,iconic:true})
     }
     if(!valid)continue;
     const iconicRate=lockedIconicRate+assignments.reduce((sum,x)=>sum+iconicIncome(state.droids.find(d=>d.name===x.name)),0),lockedIncome=lockedRegular.reduce((sum,unit)=>{const base=unit.droid.variants[unit.variant]?.income||0;return sum+base*((unit.droid.type===unit.station?1.1:1)+iconicRate)*effectiveMultiplier()},0),stations=['WORKER','ASTROMECH','BATTLE'],available=Object.fromEntries(stations.map(station=>[station,slots.filter(slot=>slot.station===station&&!usedSlots.has(`${slot.station}:${slot.slot}`))])),caps=Object.fromEntries(stations.map(station=>[station,available[station].length])),keyFor=counts=>`${counts.WORKER},${counts.ASTROMECH},${counts.BATTLE}`;
+    // Staying put is worth the move threshold: a droid only changes station when
+    // the layout earns at least that much more for it. Ties still prefer its
+    // own type of room.
     const tieScore=(unit,station)=>{const old=currentPosition.get(unit.key);return(old?.station===station?10000:0)+(unit.droid.type===station?1000:0)+(old&&['WORKER','ASTROMECH','BATTLE'].includes(old.station)&&station!==old.station?-10:0)};
-    let dp=new Map([[keyFor({WORKER:0,ASTROMECH:0,BATTLE:0}),{value:0,stability:0,counts:{WORKER:0,ASTROMECH:0,BATTLE:0},picks:[]}]]);
+    const stayBonus=(unit,station)=>currentPosition.get(unit.key)?.station===station?lambda:0;
+    let dp=new Map([[keyFor({WORKER:0,ASTROMECH:0,BATTLE:0}),{value:0,stay:0,stability:0,counts:{WORKER:0,ASTROMECH:0,BATTLE:0},picks:[]}]]);
     for(const unit of regular.filter(unit=>!usedUnits.has(unit.key))){
       const next=new Map(dp);
       for(const state of dp.values()){
         for(const station of stations){
           if(state.counts[station]>=caps[station])continue;
-          const base=unit.droid.variants[unit.variant]?.income||0,value=base*((unit.droid.type===station?1.1:1)+iconicRate)*effectiveMultiplier(),counts={...state.counts,[station]:state.counts[station]+1},key=keyFor(counts),candidate={value:state.value+value,stability:state.stability+tieScore(unit,station),counts,picks:[...state.picks,{unit,station,value}]},previous=next.get(key);
-          if(!previous||candidate.value>previous.value+1e-6||Math.abs(candidate.value-previous.value)<=1e-6&&candidate.stability>previous.stability)next.set(key,candidate)
+          const base=unit.droid.variants[unit.variant]?.income||0,value=base*((unit.droid.type===station?1.1:1)+iconicRate)*effectiveMultiplier(),counts={...state.counts,[station]:state.counts[station]+1},key=keyFor(counts),candidate={value:state.value+value,stay:state.stay+stayBonus(unit,station),stability:state.stability+tieScore(unit,station),counts,picks:[...state.picks,{unit,station,value}]},previous=next.get(key);
+          if(!previous||candidate.value+candidate.stay>previous.value+previous.stay+1e-6||Math.abs(candidate.value+candidate.stay-previous.value-previous.stay)<=1e-6&&candidate.stability>previous.stability)next.set(key,candidate)
         }
       }
       dp=next
     }
-    const chosen=[...dp.values()].sort((a,b)=>(b.value-a.value)||(b.stability-a.stability))[0],stationUse={WORKER:0,ASTROMECH:0,BATTLE:0};
+    const chosen=[...dp.values()].sort((a,b)=>(b.value+b.stay-a.value-a.stay)||(b.stability-a.stability))[0],stationUse={WORKER:0,ASTROMECH:0,BATTLE:0};
     for(const pick of chosen.picks){const slot=available[pick.station][stationUse[pick.station]++],slotKey=`${slot.station}:${slot.slot}`;usedUnits.add(pick.unit.key);usedSlots.add(slotKey);assignments.push({key:pick.unit.key,name:pick.unit.name,variant:pick.unit.variant,station:slot.station,slot:slot.slot,value:pick.value})}
     const income=lockedIncome+assignments.reduce((sum,x)=>sum+x.value,0);
+    const stay=assignments.reduce((sum,x)=>sum+(currentPosition.get(x.key)?.station===x.station?lambda:0),0);
     const stability=chosen.stability+assignments.reduce((sum,x)=>{const old=currentPosition.get(x.key);return sum+(old?.station===x.station?10000:0)+(old?.station===x.station&&old?.slot===x.slot?1000:0)},0);
-    if(income>best.income+1e-6||Math.abs(income-best.income)<=1e-6&&stability>(best.stability||0))best={income,stability,assignments}
+    if(income+stay>best.income+(best.stay||0)+1e-6||Math.abs(income+stay-best.income-(best.stay||0))<=1e-6&&stability>(best.stability||0))best={income,stay,stability,assignments}
   }
   best.assignments=stabiliseAssignments(best.assignments,p);
   const moves=optimiseAssignmentMoves(best.assignments,p);
@@ -2709,7 +2740,7 @@ function basePageV2(){
   const needed=[...new Set(future.map(x=>x.at))].map(rebirth=>{const rebirthInfo=(state.rebirths[state.cycle]||[]).find(r=>r.to===rebirth);return `<section class="rebirth-group" data-rebirth="${rebirth}"><h3><span>Rebirth: ${rebirth}</span><span class="rebirth-group-rewards">${rebirthRewardHtml(rebirth)}${rebirthInfo?creditAmount(rebirthInfo.creditsCost):''}</span></h3><div class="needed-grid">${future.filter(x=>x.at===rebirth).map(req=>neededCardHtml(req,{located,units,rebirth})).join('')}</div></section>`}).join('');
   const blueprintTotal=Math.max(3,capacity('BLUEPRINT_STORAGE')),blueprintSlots=Array.from({length:blueprintTotal},(_,i)=>{const bp=state.blueprints.find(x=>Number(x.slot)===i),locked=i>=capacity('BLUEPRINT_STORAGE');if(bp){const d=state.droids.find(x=>x.name===bp.name),index=state.blueprints.indexOf(bp);return `<div class="base-slot occupied blueprint-card ${locked?'locked-blueprint':''}"><a href="#/droid/${slug(d.name)}"><div>${picture(d,bp.variant)}</div><strong>${d.name}</strong><small>${variantText(bp.variant)} blueprint</small></a><button class="slot-swap craft-blueprint" data-blueprint="${index}" title="Craft into Build" aria-label="Craft ${d.name} into Build">⚒</button><button class="slot-delete delete-blueprint" data-blueprint="${index}" title="Remove blueprint" aria-label="Remove ${d.name} blueprint">×</button></div>`}return `<button class="base-slot ${locked?'locked':'open'} blueprint-open" ${locked?'disabled':''} data-blueprint-slot="${i}"><span class="slot-icon">${stationIcon('BLUEPRINT_STORAGE')}</span><small>${locked?`Unlock Blueprint Storage ${i+1} in Nova Shop`:'Add blueprint'}</small></button>`}).join('');
   app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Base</div><div class="base-heading"><div><p class="eyebrow">${state.sharedView?'Shared base':'Personal base'}</p><h1>${state.sharedView?`${escapeAttr(state.sharedView.ownerName)} · ${escapeAttr(state.sharedView.profileName)}`:'Base'}</h1></div><div class="base-actions"><button class="btn secondary base-panel-toggle" id="toggleScrapPanel">Hide Scrap</button><button class="btn secondary base-panel-toggle" id="toggleReplacementPanel">Hide Replacements</button><button class="btn secondary base-panel-toggle" id="toggleOutlookPanel">Hide Outlook</button><button class="btn secondary" id="transferBase">Import / Export</button></div></div><div class="base-top"><div class="stat"><small>Credits / second</small><strong>${fmt(income)}</strong></div><div class="stat"><small>Credits / minute</small><strong>${fmt(income*60)}</strong></div><div class="stat"><small>Credits / hour</small><strong>${fmt(income*3600)}</strong></div><div class="stat"><small>Droids owned</small><strong>${state.owned.reduce((s,x)=>s+x.qty,0)}</strong></div></div>${baseHealthCheckHtml(p)}${scrapCalculatorHtml(p.placed)}${chipSellCalculatorHtml(p)}${replacementCalculatorHtml(p)}${baseRebirthSummaryHtml()}${baseViewIsMap()?baseMapHtml(p):''}${protocolSummaryHtml(p.placed)}<div class="base-layout-v2 ${baseViewIsMap()?'map-mode':''}"><div class="typed-stations">${['WORKER','ASTROMECH','BATTLE'].map(region=>'<div class="region-stations">'+station(region)+'</div>').join('')}</div><div class="build-side">${station('BUILD')}</div><section class="roster-wide"><header><div><strong>Roster</strong><span>${state.owned.reduce((s,x)=>s+x.qty,0)} droids${p.overflow.length?` · ${p.overflow.length} over capacity`:''}</span></div><input id="rosterSearch" class="form-control" placeholder="Search roster…"></header><div id="rosterCards">${roster||'<p class="roster-empty">No droids yet. Click any empty slot to add one.</p>'}</div></section></div><div class="needed-heading"><h2>Needed later in this cycle</h2><input id="neededSearch" class="form-control" placeholder="Search needed droids…"></div>${outstandingDroidsHtml(p)}<div id="neededGroups">${needed||'<div class="empty">Nothing else is required in this cycle.</div>'}</div><p id="neededEmpty" class="empty" hidden>No requirements match that search.</p>`;
-  document.querySelector('.build-side').insertAdjacentHTML('afterend',`<div class="blueprint-side"><section class="station station-blueprint"><header><span>${stationIcon('BLUEPRINT_STORAGE')}<strong>Blueprint Storage</strong></span><small>${state.blueprints.length}/${capacity('BLUEPRINT_STORAGE')} slots</small></header><div class="slot-grid">${blueprintSlots}</div></section></div><div class="special-stations">${station('LOUNGE')}${station('COMPANION')}${station('UPGRADE_CHIP')}<div class="fusion-panel">${station('FUSION')}${fusionBuildSection(station('FUSION_BUILD'))}</div></div>`);attachCollapsiblePanels();attachReplacementCalculator(render);renderBaseSidebar(render);attachSlotDragAndDrop(p,render);attachNeededCardHandlers(render);attachRebirthQuickBar(render);document.querySelectorAll('[data-station]').forEach(b=>b.onclick=()=>showSlotPicker(b.dataset.station,render,Number(b.dataset.slotIndex)));document.querySelectorAll('[data-blueprint-slot]').forEach(b=>b.onclick=()=>showBlueprintPicker(Number(b.dataset.blueprintSlot),render));document.querySelectorAll('.craft-blueprint').forEach(b=>b.onclick=()=>craftBlueprint(Number(b.dataset.blueprint),render));document.querySelectorAll('.delete-blueprint').forEach(b=>b.onclick=()=>{state.blueprints.splice(Number(b.dataset.blueprint),1);save();render()});document.querySelectorAll('.slot-delete:not(.delete-blueprint)').forEach(b=>b.onclick=()=>{removeOwnedUnit(Number(b.dataset.source));render()});document.querySelectorAll('.slot-variant').forEach(b=>b.onclick=()=>showCardVariantModal({source:Number(b.dataset.source),name:b.dataset.name,variant:b.dataset.variant,station:b.dataset.station,slot:Number(b.dataset.slot)},render));document.querySelectorAll('.slot-replacement-target').forEach(b=>b.onclick=()=>{localStorage.setItem('droid-archive-replacement-target',b.dataset.replacementKey);localStorage.setItem('droid-archive-replacement-collapsed','0');render();requestAnimationFrame(()=>document.querySelector('.replacement-calculator')?.scrollIntoView({behavior:'smooth',block:'start'}))});document.querySelectorAll('.slot-lock').forEach(b=>b.onclick=()=>{toggleSlotLock(Number(b.dataset.source),Number(b.dataset.unit));render()});document.querySelectorAll('.slot-complete').forEach(b=>b.onclick=()=>{completeBuild(Number(b.dataset.completeSource),Number(b.dataset.completeUnit));render()});document.querySelector('#runFusion')?.addEventListener('click',()=>runFusion(render));document.querySelector('#toggleBaseMap')?.addEventListener('click',()=>{localStorage.setItem('droid-archive-base-view',baseViewIsMap()?'slots':'map');render()});document.querySelector('#toggleMapFloor')?.addEventListener('click',()=>{localStorage.setItem('droid-archive-map-floor',mapFloor()==='downstairs'?'upstairs':'downstairs');render()});document.querySelectorAll('.slot-swap:not(.craft-blueprint)').forEach(b=>b.onclick=()=>showSwapModal({source:Number(b.dataset.source),unit:Number(b.dataset.unit)},render));document.querySelectorAll('.roster-remove').forEach(b=>b.onclick=()=>{removeOwnedUnit(Number(b.dataset.i));render()});document.querySelector('#rosterSearch').oninput=e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('.roster-card').forEach(c=>c.hidden=!c.dataset.rosterName.includes(q))};document.querySelector('#neededSearch').oninput=e=>{const q=e.target.value.toLowerCase();let shown=0;document.querySelectorAll('.rebirth-group').forEach(group=>{let groupShown=0;group.querySelectorAll('.needed-card').forEach(card=>{const match=card.dataset.neededName.includes(q);card.hidden=!match;if(match){shown++;groupShown++}});group.hidden=groupShown===0});document.querySelector('#neededEmpty').hidden=shown!==0};document.querySelector('#outstandingPanel')?.addEventListener('toggle',e=>localStorage.setItem('droid-archive-outstanding-open',e.target.open?'1':'0'));document.querySelector('#transferBase').onclick=()=>showTransferModal(render)
+  document.querySelector('.build-side').insertAdjacentHTML('afterend',`<div class="blueprint-side"><section class="station station-blueprint"><header><span>${stationIcon('BLUEPRINT_STORAGE')}<strong>Blueprint Storage</strong></span><small>${state.blueprints.length}/${capacity('BLUEPRINT_STORAGE')} slots</small></header><div class="slot-grid">${blueprintSlots}</div></section></div><div class="special-stations">${station('LOUNGE')}${station('COMPANION')}${station('UPGRADE_CHIP')}<div class="fusion-panel">${station('FUSION')}${fusionBuildSection(station('FUSION_BUILD'))}</div></div>`);attachCollapsiblePanels();attachReplacementCalculator(render);renderBaseSidebar(render);attachSlotDragAndDrop(p,render);attachNeededCardHandlers(render);attachRebirthQuickBar(render);document.querySelectorAll('[data-station]').forEach(b=>b.onclick=()=>showSlotPicker(b.dataset.station,render,Number(b.dataset.slotIndex)));document.querySelectorAll('[data-blueprint-slot]').forEach(b=>b.onclick=()=>showBlueprintPicker(Number(b.dataset.blueprintSlot),render));document.querySelectorAll('.craft-blueprint').forEach(b=>b.onclick=()=>craftBlueprint(Number(b.dataset.blueprint),render));document.querySelectorAll('.delete-blueprint').forEach(b=>b.onclick=()=>{state.blueprints.splice(Number(b.dataset.blueprint),1);save();render()});document.querySelectorAll('.slot-delete:not(.delete-blueprint)').forEach(b=>b.onclick=()=>{removeOwnedUnit(Number(b.dataset.source));render()});document.querySelectorAll('.slot-variant').forEach(b=>b.onclick=()=>showCardVariantModal({source:Number(b.dataset.source),name:b.dataset.name,variant:b.dataset.variant,station:b.dataset.station,slot:Number(b.dataset.slot)},render));document.querySelectorAll('.slot-replacement-target').forEach(b=>b.onclick=()=>{localStorage.setItem('droid-archive-replacement-target',b.dataset.replacementKey);localStorage.setItem('droid-archive-replacement-collapsed','0');render();requestAnimationFrame(()=>document.querySelector('.replacement-calculator')?.scrollIntoView({behavior:'smooth',block:'start'}))});document.querySelectorAll('.slot-lock').forEach(b=>b.onclick=()=>{toggleSlotLock(Number(b.dataset.source),Number(b.dataset.unit));render()});document.querySelectorAll('.slot-complete').forEach(b=>b.onclick=()=>{completeBuild(Number(b.dataset.completeSource),Number(b.dataset.completeUnit));render()});document.querySelector('#runFusion')?.addEventListener('click',()=>runFusion(render));document.querySelector('#toggleBaseMap')?.addEventListener('click',()=>{localStorage.setItem('droid-archive-base-view',baseViewIsMap()?'slots':'map');render()});document.querySelectorAll('.slot-swap:not(.craft-blueprint)').forEach(b=>b.onclick=()=>showSwapModal({source:Number(b.dataset.source),unit:Number(b.dataset.unit)},render));document.querySelectorAll('.roster-remove').forEach(b=>b.onclick=()=>{removeOwnedUnit(Number(b.dataset.i));render()});document.querySelector('#rosterSearch').oninput=e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('.roster-card').forEach(c=>c.hidden=!c.dataset.rosterName.includes(q))};document.querySelector('#neededSearch').oninput=e=>{const q=e.target.value.toLowerCase();let shown=0;document.querySelectorAll('.rebirth-group').forEach(group=>{let groupShown=0;group.querySelectorAll('.needed-card').forEach(card=>{const match=card.dataset.neededName.includes(q);card.hidden=!match;if(match){shown++;groupShown++}});group.hidden=groupShown===0});document.querySelector('#neededEmpty').hidden=shown!==0};document.querySelector('#outstandingPanel')?.addEventListener('toggle',e=>localStorage.setItem('droid-archive-outstanding-open',e.target.open?'1':'0'));document.querySelector('#transferBase').onclick=()=>showTransferModal(render)
   document.querySelectorAll('[data-purchase-station]').forEach(button=>button.onclick=()=>purchaseRebirthSlot(button.dataset.purchaseStation,Number(button.dataset.purchaseSlot),render));
   requestAnimationFrame(()=>decorateCommandDeck('/base'));
  };render()}
@@ -2846,16 +2877,26 @@ function optimisedPlacements(baseP,plan){
     for(const fallback of fallbacks){if(fallback==='BUILD'&&old?.station!=='BUILD')continue;slot=free(fallback,old);if(slot>=0){claim(unit,fallback,slot);station=fallback;break}}
     if(!station){const d=state.droids.find(x=>x.name===unit.name);if(item.spared)overflow.push(item.keepReason?{...unit,keepReason:item.keepReason}:unit);else if(strictKeepBuild&&!isIconic(d))sell.push({...unit,sellReason:`Sold to keep Build slots open · ${optimiseFreeBuildModeLabel(optimiseFreeBuildMode()).toLowerCase()} priority`});else overflow.push(unit)}
   }
-  // A completed, occupied Build slot can receive the displaced droid by swap.
-  // Empty Build slots cannot be filled this way. Keep these replacements in the
-  // target layout instead of stranding their current work/Companion slots.
-  if(!keepBuildOpen){
-    const vacatedBuild=baseP.placed.filter(x=>x.station==='BUILD'&&!x.lockedSlot&&!isBuilding(x)&&!occupied.BUILD.has(x.slot)&&placed.some(g=>g.source===x.source&&g.unit===x.unit&&g.station!=='BUILD'));
-    for(const spot of vacatedBuild){
-      const index=overflow.findIndex(x=>current.has(`${x.source}:${x.unit}`));
-      if(index<0)break;
-      const [unit]=overflow.splice(index,1);claim(unit,'BUILD',spot.slot);
+  // The game cannot hold a droid in mid-air. One with nowhere to go stays in
+  // its slot, and the newcomer that had taken that slot goes back to its own
+  // old slot while that is still free.
+  for(const item of candidates){
+    const key=`${item.unit.source}:${item.unit.unit}`,index=overflow.findIndex(x=>`${x.source}:${x.unit}`===key),old=item.old;
+    if(index<0||!old)continue;
+    // A droid with no rebirth use and nothing protecting it is sold rather
+    // than kept in a slot a better earner wants.
+    const d=state.droids.find(x=>x.name===item.unit.name),bestCopy=!units.some(x=>x.name===item.unit.name&&VARIANTS.indexOf(x.variant)>VARIANTS.indexOf(item.unit.variant));
+    if(!item.spared&&!item.keepReason&&!isIconic(d)&&!item.unit.lockedSlot&&item.unit.keepReason!=='fusion'&&!keepForFusion(item.unit)&&!isBuilding(old)&&droidCycleStatus(d,item.unit.variant,bestCopy).kind==='unused'){
+      overflow.splice(index,1);sell.push({...item.unit,sellReason:'No free slot to keep it'});continue;
     }
+    const holder=placed.find(x=>x.station===old.station&&x.slot===old.slot);
+    if(!holder){if(canKeep(old.station,old.slot)){overflow.splice(index,1);claim(item.unit,old.station,old.slot)}continue}
+    const holderKey=`${holder.source}:${holder.unit}`,holderOld=current.get(holderKey);
+    if(!holderOld||lockedKeys.has(holderKey)||holder.missionPriority||holderOld.station===old.station&&holderOld.slot===old.slot||!canKeep(holderOld.station,holderOld.slot))continue;
+    placed.splice(placed.indexOf(holder),1);occupied[old.station].delete(old.slot);
+    const {station:_station,slot:_slot,built:_built,...holderUnit}=holder;
+    claim(holderUnit,holderOld.station,holderOld.slot);
+    overflow.splice(index,1);claim(item.unit,old.station,old.slot);
   }
   const stablePlaced=stabiliseProjectedPlacements(baseP,placed),rebirthPick=stablePlaced.reduce((map,x)=>{const previous=map.get(x.name),key=`${x.source}:${x.unit}`;if(!previous||VARIANTS.indexOf(x.variant)>VARIANTS.indexOf(previous.variant))map.set(x.name,{variant:x.variant,key});return map},new Map()),finalPlaced=[],finalSell=[...sell];
   // Upgrade Chip counts as producing here: a droid making chips is earning its
@@ -2898,6 +2939,7 @@ async function applyOptimisedLayout(preview){
   if(candidate.inputStamp!==optimiseInputStamp())return toast('Your Base or settings changed. Regenerate Optimise before applying.');
   const projected=structuredClone(candidate.projected);
   if(!projected.planComplete)return toast(projected.planIssues?.[0]||'Regenerate Optimise before applying this layout');
+  if(projected.partial&&!confirm(projected.partialMessage))return;
   if(projected.sell.length&&!confirm(`Apply this layout and remove ${projected.sell.length} droid${projected.sell.length===1?'':'s'} from Sell?`))return;
   const previousOwned=state.owned;
   if(!await collectOptimiseFusionResults(projected))return;
@@ -2934,8 +2976,8 @@ function stepHtml(step,index){
   const toLounge=step.type==='move'&&(step.to==='LOUNGE'||step.to?.station==='LOUNGE');
   const tone=FUSION_STEP_TYPES.includes(step.type)?'fusion':toLounge?'lounge':STEP_VERB_TONE[String(step.text||'').split(' ')[0]];
   const text=tone?String(step.text).replace(/^(\S+)/,`<b class="step-verb verb-${tone}">$1</b>`):step.text;
-  const ticked=stepTicked(step.text);
-  const tick=step.type==='note'?'':`<label class="step-tick" title="Mark this step as done"><input type="checkbox" data-step-tick="${escapeAttr(step.text)}" ${ticked?'checked':''}><span></span></label>`;
+  const ticked=stepTicked(optimiseStepKey(step));
+  const tick=step.type==='note'?'':`<label class="step-tick" title="Mark this step as done"><input type="checkbox" data-step-tick="${escapeAttr(optimiseStepKey(step))}" ${ticked?'checked':''}><span></span></label>`;
   // Sell steps can be waved off: the droid is spared and the plan recomputed.
   // unitName() returns markup, so it cannot go in an attribute — its quotes end
   // the attribute early and the rest spills onto the page as text.
@@ -3005,7 +3047,10 @@ const plainUnitName=x=>`${x.name} ${variantLabel(x.variant)}`;
 const readList=key=>{try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}};
 const writeList=(key,list)=>{try{localStorage.setItem(key,JSON.stringify(list))}catch(e){}};
 const optimiseTickedSteps=()=>readList('droid-archive-optimise-ticked');
-const toggleTickedStep=text=>{const list=optimiseTickedSteps(),i=list.indexOf(text);i>=0?list.splice(i,1):list.push(text);writeList('droid-archive-optimise-ticked',list)};
+const toggleTickedStep=key=>{const list=optimiseTickedSteps(),i=list.indexOf(key);i>=0?list.splice(i,1):list.push(key);writeList('droid-archive-optimise-ticked',list)};
+// A step is the same step whatever its wording: the droid, the command and
+// where it starts and ends.
+const optimiseStepKey=step=>{const place=x=>x?typeof x==='string'?x:`${x.station}:${x.slot}`:'-';return `${step.type}|${step.unit?`${step.unit.source}:${step.unit.unit}`:'-'}|${place(step.from)}|${place(step.to)}`};
 // Droids you have told Optimise to spare. Cleared when a layout is applied,
 // since the keys are positions in the roster and those shift.
 const sparedFromSelling=()=>readList('droid-archive-optimise-spared');
@@ -3015,14 +3060,8 @@ const sellInsteadOfFusion=key=>{const list=soldInsteadOfFusion();if(!list.includ
 const clearOptimiseMarks=()=>{slotLogSession.clear();writeList('droid-archive-optimise-spared',[]);writeList('droid-archive-optimise-sell-instead',[]);writeList('droid-archive-optimise-ticked',[])};
 const ROSTER='ROSTER';
 const WORK_STATIONS=[...PRODUCTIVE_STATIONS,'UPGRADE_CHIP'];
-// Where a droid goes when it cannot reach its own type of slot. Measured: a
-// Worker droid took Battle over Astromech all three times it was offered both,
-// whichever slots were free, so this is a station order rather than a per-slot
-// distance. Steps that lean on it are still flagged in the plan.
-const NEAREST_ORDER=['WORKER','BATTLE','ASTROMECH'];
 const placeName=station=>station===ROSTER?'Roster':stationName(station);
 
-function optimiseRoutePlan(baseP,projected){return protocolStepPlan(baseP,projected,false,true)}
 // Consecutive steps issued at the same station are one stop on the walk round.
 function optimiseVisits(steps){
   const visits=[];
@@ -3036,12 +3075,7 @@ function optimiseVisits(steps){
 // ─── Classic slot-by-slot planner ─────────────────────────────────
 // Both display styles use the canonical simulator. Classic displays the steps
 // as a list; route style groups the same commands into consecutive station visits.
-const stationLabel=station=>station?`${station[0]+station.slice(1).toLowerCase()} station`:'roster';
 const slotLabel=p=>p?`${stationName(p.station)} ${p.slot+1}${floorNote(p.station,p.slot)}`:'Roster';
-const sameDroidVariant=(a,b)=>a?.name===b?.name&&a?.variant===b?.variant;
-const sameSlot=(a,b)=>a?.station===b?.station&&a?.slot===b?.slot;
-// A display preference must not change which moves are physically possible.
-function optimiseStepPlan(baseP,projected){return protocolStepPlan(baseP,projected,false,false)}
 // Which step style to show. Device-local like the other Optimise view prefs, not
 // profile data — it changes how the same plan is presented, not the plan itself.
 const OPTIMISE_STEP_STYLES=["route","classic"];
@@ -3139,90 +3173,77 @@ function withFusionSteps(steps,projected,baseP){
   });
   return [...out,...steps.filter(s=>s.type!=='sell')];
 }
-// Simulate the result slots as well as the three inputs. A fusion result stays
-// in Fusion Build until an explicit move consumes or removes it.
-function scheduleFusionBuildSteps(steps,baseP,projected){
-  const keyOf=x=>`${x.source}:${x.unit}`,placed=new Map(baseP.placed.map(x=>[keyOf(x),{...x}]));
-  const out=[],prefix=steps.filter(s=>['sell','fuse-in','fuse-held','fuse-result','fuse'].includes(s.type));
-  const buildSlots=stationSlotIndices('FUSION_BUILD');
-  const freeSlot=station=>slotFillOrder(station).find(slot=>![...placed.values()].some(x=>x.station===station&&x.slot===slot));
-  const freeBuild=()=>buildSlots.find(slot=>![...placed.values()].some(x=>x.station==='FUSION_BUILD'&&x.slot===slot));
-  const remaining=()=>({...baseP,placed:[...placed.values()],overflow:(baseP.overflow||[]).filter(x=>!removed.has(keyOf(x)))});
-  const removed=new Set();
-  const remove=unit=>{placed.delete(keyOf(unit));removed.add(keyOf(unit))};
-  const drainBuild=visit=>{
-    for(const unit of placed.values()){
-      if(unit.station!=='FUSION_BUILD'||!unit.built||unit.lockedSlot)continue;
-      const native=state.droids.find(d=>d.name===unit.name)?.type;
-      const destinations=[native,...NEAREST_ORDER.filter(type=>type!==native)].filter(type=>PRODUCTIVE_STATIONS.includes(type));
-      // A full work floor must not block fusion when storage can hold a ready droid.
-      const to=destinations.find(type=>freeSlot(type)!==undefined)||(freeSlot('LOUNGE')!==undefined?'LOUNGE':null);
-      if(!to)continue;
-      const slot=slotFillOrder(to,{station:unit.station,slot:unit.slot}).find(slot=>![...placed.values()].some(x=>x.station===to&&x.slot===slot));
-      const fromSlot=unit.slot;
-      out.push({type:'move',kind:to==='LOUNGE'?'lounge':'work',unit:{...unit},at:'FUSION_BUILD',from:'FUSION_BUILD',fromSlot,to,toSlot:slot,visit,
-        assumed:to!=='LOUNGE'&&to!==native&&destinations.filter(type=>freeSlot(type)!==undefined).length>1,
-        text:to==='LOUNGE'?`Move ${unitName(unit)} from Fusion Build ${fromSlot+1} to Lounge ${slot+1} to free a Fusion Build slot before the next batch.`:
-          `Tell ${unitName(unit)} to go to work from Fusion Build - it will take a ${placeName(to)} slot and free a Fusion Build slot before the next batch.`});
-      placed.set(keyOf(unit),{...unit,station:to,slot});
-      return true;
-    }
-    return false;
+// ─── Walking the base ──────────────────────────────────────────────────────
+// The rooms a player walks between. Build slots and Protocol consoles stand in
+// the region they serve, the Upgrade Chip pad is behind the Worker Build slot,
+// and the Battle upstairs floor is a stop of its own.
+const OPTIMISE_REGION_NAMES={WORKER:'Worker room',ASTROMECH:'Astromech room',BATTLE:'Battle (downstairs)',BATTLE_UP:'Battle (upstairs)',LOUNGE:'Lounge',FUSION:'Fusion room',ANY:'Anywhere',ROSTER:'Roster'};
+const optimiseRegion=(station,slot)=>station==='BATTLE'?(slot>=BATTLE_UPSTAIRS_FROM?'BATTLE_UP':'BATTLE'):station==='FUSION'||station==='FUSION_BUILD'?'FUSION':station==='UPGRADE_CHIP'?'WORKER':station==='BUILD'?PROTOCOL_REGIONS[slot]||'WORKER':station==='COMPANION'?null:PROTOCOL_SLOTS[station]?PROTOCOL_SLOTS[station].region:station;
+const optimiseRegionName=region=>OPTIMISE_REGION_NAMES[region]||placeName(region);
+// Rough map positions of each room (percent of the map width), only used to
+// break ties the game decides by distance; every such landing is flagged.
+const OPTIMISE_REGION_XY={WORKER:[70,66],ASTROMECH:[34,42],BATTLE:[55,17],BATTLE_UP:[55,17],LOUNGE:[77,27],FUSION:[53,61]};
+// Where a droid overflows to when its own room is full, measured in-game from
+// each room. A Worker droid took Battle over Astromech every time it was offered both.
+const MEASURED_OVERFLOW_ORDER={WORKER:['BATTLE','ASTROMECH']};
+const optimiseRegionDistance=(a,b)=>{if(a===b)return 0;const p=OPTIMISE_REGION_XY[a],q=OPTIMISE_REGION_XY[b];if(!p||!q)return 50;const stairs=(a==='BATTLE_UP')!==(b==='BATTLE_UP')&&a!=='BATTLE'&&b!=='BATTLE'?15:0;return Math.hypot(p[0]-q[0],p[1]-q[1])+stairs};
+function optimiseRouteRules(){
+  const droidOf=unit=>state.droids.find(d=>d.name===unit?.name);
+  const rules={
+    slots:station=>stationSlotIndices(station),
+    canUse:(unit,station)=>canUseStation(droidOf(unit),station),
+    isBuilding,
+    typeOf:unit=>droidOf(unit)?.type||null,
+    isMissionSlot:(station,slot)=>station==='ASTROMECH'&&ASTROMECH_MISSION_SLOTS.includes(slot),
+    regionOf:optimiseRegion,
+    distance:optimiseRegionDistance,
+    nearestOrder:region=>MEASURED_OVERFLOW_ORDER[region]||null,
+    protocolStations:()=>Object.keys(PROTOCOL_SLOTS).filter(station=>stationSlotIndices(station).length)
   };
-  for(let i=0;i<prefix.length;){
-    const first=prefix[i];
-    if(first.type==='sell'){out.push(first);remove(first.unit);i++;continue}
-    const end=prefix.findIndex((s,j)=>j>=i&&s.type==='fuse');
-    if(end<0)break;
-    const batch=prefix.slice(i,end+1),fusion=prefix[end];
-    // Chained results must finish building before they can leave their slots.
-    for(const step of batch.filter(s=>s.type==='fuse-result')){
-      for(let n=0;n<step.unit.count;n++){
-        const result=[...placed.values()].find(x=>x.fusionResult&&x.name===step.unit.name&&x.variant===step.unit.variant);
-        if(result)remove(result);
-      }
-      out.push({...step,waitForBuild:true,at:'FUSION_BUILD',text:`Wait for ${unitName(step.unit)} to finish in Fusion Build, then put ${step.unit.count} into Fusion for this batch. This frees its Fusion Build slot.`});
+  rules.workLanding=(unit,placed)=>{const landing=predictWorkLanding(unit,placed,rules);return landing&&{station:landing.station,slot:landing.slot,assumed:landing.assumed,options:landing.options}};
+  return rules;
+}
+// Fusion batches the walk can perform now (all three inputs on the base and a
+// Fusion Build slot to receive the result), and the ones that come afterwards.
+function optimiseFusionBatches(baseP,projected){
+  const keyOf=x=>`${x.source}:${x.unit}`,now=unit=>baseP.placed.find(x=>keyOf(x)===keyOf(unit));
+  const sellSteps=projected.sell.map(unit=>{const here=now(unit);return {type:'sell',unit,from:here?{station:here.station,slot:here.slot}:undefined,at:here?.station||'ROSTER',text:`Sell ${unit.name} ${variantLabel(unit.variant)}${here?` from ${slotLabel(here)}`:''}.`}});
+  const batches=[],later=[],claimed=new Set();
+  let inputs=[],chained=false,index=0;
+  for(const step of withFusionSteps(sellSteps,projected,baseP)){
+    if(step.type==='fuse-in'||step.type==='fuse-held'){inputs.push(step.unit);claimed.add(keyOf(step.unit));}
+    else if(step.type==='fuse-result')chained=true;
+    else if(step.type==='fuse'){
+      const out=step.fusion?.out;
+      const resultUnit={source:`fusion-result-${index}`,unit:0,name:out?.name||'Fusion result',variant:out?.variant||step.fusion?.variant,fusionUnknown:!out,rarity:step.fusion?.rarity,fusionResult:true,fusionInputs:(step.fusion?.spend||[]).flatMap(part=>Array.from({length:part.count},()=>({name:part.name,variant:part.variant}))),built:false};
+      (chained?later:batches).push({index,inputs,fusion:step.fusion,unit:step.unit,text:step.text,resultUnit});
+      inputs=[];chained=false;index++;
     }
-    if(freeBuild()===undefined)drainBuild(first.visit);
-    const slot=freeBuild();
-    if(slot===undefined){
-      out.push({type:'note',at:'FUSION_BUILD',visit:first.visit,fusionBlocked:true,
-        text:`Fusion Build is full (${buildSlots.length}/${buildSlots.length}). Finish building and move a completed droid out, then update your Base and run Optimise again. Keep the next batch where it is until a slot is free.`});
-      for(const step of prefix.slice(i).filter(s=>['fuse-in','fuse-held'].includes(s.type)))out.push({...step,type:'fuse-deferred',kind:'fuse-deferred',
-        text:`Keep ${unitName(step.unit)} where it is for now - waiting for a free Fusion Build slot.`});
-      return{steps:out,remaining:remaining(),blocked:true};
-    }
-    const resultUnit={source:`fusion-result-${i}`,unit:0,name:fusion.unit?.name||'Fusion result',variant:fusion.unit?.variant||fusion.fusion.variant,station:'FUSION_BUILD',slot,built:false,lockedSlot:true,fusionResult:true,fusionUnknown:!fusion.unit?.name,rarity:fusion.fusion?.rarity,fusionInputs:batch.filter(s=>['fuse-in','fuse-held','fuse-result'].includes(s.type)).flatMap(s=>Array.from({length:s.type==='fuse-result'?s.unit.count:1},()=>({name:s.unit.name,variant:s.unit.variant})))};
-    for(const step of batch){
-      if(step.type==='fuse-result')continue;
-      if(step.type==='fuse-in'||step.type==='fuse-held')remove(step.unit);
-      out.push(step.type==='fuse'?{...step,to:'FUSION_BUILD',toSlot:slot,resultUnit,
-        text:step.text.replace('Collect the result and clear the table before the next batch.',`The result occupies Fusion Build slot ${slot+1} until it finishes building and is moved out.`)}:step);
-    }
-    placed.set(keyOf(resultUnit),resultUnit);
-    i=end+1;
   }
-  return{steps:out,remaining:remaining(),blocked:false};
+  // A result needs a Fusion Build slot: free now, or holding a finished droid
+  // the walk can send to work first.
+  const capacity=stationSlotIndices('FUSION_BUILD').filter(slot=>{const occupant=baseP.placed.find(x=>x.station==='FUSION_BUILD'&&x.slot===slot);return !occupant||occupant.built&&!occupant.lockedSlot}).length;
+  while(batches.length>capacity)later.unshift(batches.pop());
+  return {batches,later,claimed};
 }
-function applyPlannedEquivalentSlots(baseP,projected,steps){
-  if(!steps.complete||!steps.finalPlaced)return;
-  resolveOptimiseProjection(projected,steps);
+// The sentence the player reads for one command of the walk.
+function routeStepText(step){
+  const who=step.unit?`${unitName(step.unit)}${step.from?` in ${slotLabel(step.from)}`:''}`:'';
+  if(step.type==='sell')return `Sell ${who}.`;
+  if(step.type==='fuse-in')return `Send ${who} to the Fusion room.`;
+  if(step.type==='fuse-held')return `Leave ${unitName(step.unit)} in Fusion for this batch.`;
+  if(step.type==='fuse')return String(step.text||'').replace(/\s*Collect the result and clear the table before the next batch\.?\s*$/,'')+` The result builds in Fusion Build ${Number(step.toSlot)+1} until it finishes.`;
+  if(step.type==='move'){
+    const to=step.to||{};
+    if(to.station==='LOUNGE')return step.buffer?`Send ${who} to the Lounge for now; later in this walk it goes to work from there.`:`Send ${who} to the Lounge.`;
+    if(to.station==='COMPANION')return `Make ${who} your companion.`;
+    const where=to.station==='UPGRADE_CHIP'?'the Upgrade Chip station':to.station==='ASTROMECH'?`the Astromech room (${to.cls==='mission'?'a mission slot':'a credit slot'})`:isProtocolStation(to.station)?stationName(to.station):`the ${stationName(to.station)} room`;
+    const others=(step.options||[]).filter(station=>station!==to.station).map(station=>isProtocolStation(station)?stationName(station):`the ${stationName(station)} room`);
+    return `Tell ${who} to go to work &mdash; it goes to ${where}.${step.assumed&&others.length?` If it heads for ${others.join(' or ')} instead, update Base with where it landed and regenerate.`:''}`;
+  }
+  return step.text||'';
 }
-function applyFusionProjection(projected,scheduled){
-  if(scheduled.blocked)return;
-  const keyOf=u=>`${u.source}:${u.unit}`,consumed=new Set(scheduled.steps.filter(s=>['fuse-in','fuse-held'].includes(s.type)&&s.unit).map(s=>keyOf(s.unit)));
-  for(const field of ['placed','overflow','sell'])projected[field]=(projected[field]||[]).filter(u=>!consumed.has(keyOf(u)));
-  // Intermediate results spent by a later recipe are absent from remaining.
-  projected.fusionResults=scheduled.remaining.placed.filter(u=>u.fusionResult).map(u=>({...u,lockedSlot:false}));
-  projected.placed.push(...projected.fusionResults.filter(u=>!u.fusionUnknown));
-  projected.fusedInputs=consumed.size;
-  projected.rows=optimisedRows(projected.placed,projected.overflow);
-}
-function optimiseMovementRules(){return {
-  slots:stationSlotIndices,
-  canUse:(unit,station)=>canUseStation(state.droids.find(d=>d.name===unit.name),station),
-  isBuilding,workLanding:plannedWorkLanding
-};}
+const optimiseMovementRules=()=>optimiseRouteRules();
 function resolveOptimiseProjection(projected,moves){
   const keyOf=x=>`${x.source}:${x.unit}`;
   const details=new Map([...(projected.overflow||[]),...(projected.placed||[]),...(moves.resolvedGoals||[])].map(x=>[keyOf(x),x]));
@@ -3234,36 +3255,28 @@ function resolveOptimiseProjection(projected,moves){
   projected.rows=optimisedRows(projected.placed,projected.overflow);
 }
 function safeOptimiseStepPlan(baseP,projected){
+  const keyOf=x=>`${x.source}:${x.unit}`;
   const fail=(message,steps=[])=>{
     projected.planComplete=false;projected.planIssues=[message];
-    return steps.some(step=>step.type==='note')?steps:[...steps,{type:'note',at:steps.at(-1)?.at||'ROSTER',planBlocked:true,text:message}];
+    return steps.some(step=>step.type==='note')?steps:[...steps,{type:'note',at:steps.at(-1)?.at||'ANY',visit:steps.at(-1)?.visit,planBlocked:true,text:message}];
   };
   try{
     Object.assign(projected,normaliseProjectedForSteps(baseP,projected));
-    const moves=protocolStepPlan(baseP,projected,false,true);
-    const prepared=withFusionSteps(moves,projected,baseP);
-    let steps=prepared,finalMoves=moves;
-    if(prepared.some(s=>s.type==='fuse')){
-      const scheduled=scheduleFusionBuildSteps(prepared,baseP,projected);
-      if(scheduled.blocked)return fail('Free a Fusion Build slot and run Optimise again before applying.',scheduled.steps);
-      const consumed=new Set(scheduled.steps.filter(s=>['fuse-in','fuse-held'].includes(s.type)&&s.unit).map(s=>`${s.unit.source}:${s.unit.unit}`));
-      finalMoves=protocolStepPlan(scheduled.remaining,{...projected,sell:[],placed:projected.placed.filter(x=>!consumed.has(`${x.source}:${x.unit}`)),overflow:projected.overflow.filter(x=>!consumed.has(`${x.source}:${x.unit}`))},false,true);
-      steps=[...scheduled.steps,...finalMoves];
-      applyFusionProjection(projected,scheduled);
-    }
-    if(!finalMoves.complete){
-      // The steps shown still run in order and can be done in-game. Keep the
-      // layout they reach, verified the same way, so it can be applied on its
-      // own and Optimise regenerated from there.
-      if(finalMoves.finalPlaced){
-        const partial=structuredClone(projected);resolveOptimiseProjection(partial,finalMoves);
-        const shown=steps.filter(step=>step.type!=='note');
-        if(shown.length&&validateOptimisePlan({initial:baseP,projected:partial,steps:shown,rules:optimiseMovementRules()}).ok)projected.partialApply={...partial,planComplete:true,planIssues:[],partial:true};
-      }
-      return fail('The remaining destinations cannot be reached from this Base. Update the blocked positions and regenerate Optimise.',steps);
-    }
-    resolveOptimiseProjection(projected,finalMoves);
-    const validation=validateOptimisePlan({initial:baseP,projected,steps,rules:optimiseMovementRules()});
+    const rules=optimiseRouteRules();
+    // Fusion batches whose three inputs stand on the base now are part of the
+    // walk; ones that wait for an earlier result come afterwards. Inputs kept
+    // for a later batch are not sold.
+    const {batches,later,claimed}=optimiseFusionBatches(baseP,projected);
+    const sell=projected.sell.filter(unit=>!claimed.has(keyOf(unit)));
+    const route=planOptimiseRoute({initial:baseP,target:{placed:projected.placed,sell,overflow:projected.overflow,fusions:batches},rules});
+    const steps=route.steps.map(step=>({...step,text:routeStepText(step)}));
+    projected.later=[...later,...route.later.map(entry=>entry.batch)];
+    projected.routeStops=route.stops;projected.routeAssumed=route.assumed;
+    if(!route.complete)return fail(route.issues[0]||'Optimise could not find a walk that reaches this layout.',steps);
+    resolveOptimiseProjection(projected,route);
+    projected.sell=sell;
+    projected.fusedInputs=batches.filter(batch=>route.fused.includes(batch.index)).reduce((sum,batch)=>sum+batch.inputs.length,0);
+    const validation=validateOptimisePlan({initial:baseP,projected,steps,rules});
     projected.planComplete=validation.ok;projected.planIssues=validation.issues;
     if(!validation.ok){console.warn('Optimise plan validation failed',validation.issues);return fail('These moves could not be verified against your Base. No layout will be applied; update the Base and regenerate Optimise.',steps);}
     return steps;
@@ -3273,16 +3286,52 @@ function safeOptimiseStepPlan(baseP,projected){
   }
 }
 function optimiseInputStamp(){return JSON.stringify({profile:state.cloud?.activeProfileId,shared:state.sharedView?.profile?.id,data:profileDataFromState(),spared:sparedFromSelling(),soldInstead:soldInsteadOfFusion(),landings:slotSessionRead().entries});}
-function createOptimisePreview(baseP=placements(),plan=optimiseBase(baseP,incomeForPlaced(baseP.placed))){
+// The page re-renders on every tick and toggle; the plan only changes when the
+// base or the settings behind it do, so the last preview is kept by its stamp.
+let optimisePreviewCache=null;
+function createOptimisePreview(baseP,plan){
+  const cacheable=!baseP&&!plan,stamp=cacheable?optimiseInputStamp():null;
+  if(cacheable&&optimisePreviewCache?.stamp===stamp)return optimisePreviewCache.preview;
+  baseP=baseP||placements();plan=plan||optimiseBase(baseP,incomeForPlaced(baseP.placed));
   const projected=optimisedPlacements(baseP,plan),steps=safeOptimiseStepPlan(baseP,projected);
   annotateLogSlots(steps);
   // A measured different landing changes the starting state of every later
   // command. Never silently swap preview occupants to fit a recorded result.
   if(steps.some(step=>step.logged&&!slotLogSame(step.logged,typeof step.to==='string'?{station:step.to,slot:step.toSlot}:step.to))){
     projected.planComplete=false;projected.planIssues=['Update Base with the recorded landing, then regenerate Optimise.'];
-    steps.push({type:'note',at:'ROSTER',planBlocked:true,text:projected.planIssues[0]});
+    steps.push({type:'note',at:'ANY',planBlocked:true,text:projected.planIssues[0]});
   }
-  return {baseP,plan,projected,steps,inputStamp:optimiseInputStamp(),currentIncome:incomeForPlaced(baseP.placed),income:incomeForPlaced(projected.placed)};
+  const preview={baseP,plan,projected,steps,inputStamp:stamp||optimiseInputStamp(),currentIncome:incomeForPlaced(baseP.placed),income:incomeForPlaced(projected.placed)};
+  if(cacheable)optimisePreviewCache={stamp,preview};
+  return preview;
+}
+// A tick means "done in-game". Ticks are read as a prefix of the walk — up to
+// the last ticked step — and the Base after that prefix is replayed from the
+// same rules the validator uses, so it can be applied on its own.
+function optimiseTickedPrefix(preview){
+  const steps=preview.steps.filter(step=>step.type!=='note'),ticked=new Set(optimiseTickedSteps());
+  let count=0;steps.forEach((step,index)=>{if(ticked.has(optimiseStepKey(step)))count=index+1});
+  return {count,total:steps.length,steps:steps.slice(0,count)};
+}
+function optimiseTickedProjection(preview){
+  const keyOf=x=>`${x.source}:${x.unit}`,prefix=optimiseTickedPrefix(preview);
+  if(!prefix.count||prefix.count>=prefix.total)return null;
+  const replay=validateOptimisePlan({initial:preview.baseP,projected:{placed:[],overflow:[],sell:[]},steps:prefix.steps,rules:optimiseMovementRules()});
+  const placed=replay.placed.map(unit=>({...unit,...(unit.fusionResult?{lockedSlot:false}:{})}));
+  const sold=prefix.steps.filter(step=>step.type==='sell').map(step=>step.unit);
+  const fused=new Set(prefix.steps.filter(step=>step.type==='fuse').flatMap(step=>step.inputs||[]));
+  // Inputs sent to the Fusion room but not fused yet are still on the table.
+  const tableFree=stationSlotIndices('FUSION').filter(slot=>!placed.some(x=>x.station==='FUSION'&&x.slot===slot));
+  for(const step of prefix.steps.filter(step=>['fuse-in','fuse-held'].includes(step.type)&&!fused.has(keyOf(step.unit)))){
+    const slot=tableFree.shift();if(slot!==undefined)placed.push({...step.unit,station:'FUSION',slot});
+  }
+  const held=new Set([...placed.map(keyOf),...sold.map(keyOf),...fused]);
+  const overflow=[...(preview.baseP.overflow||[]),...preview.baseP.placed].filter(unit=>!held.has(keyOf(unit)));
+  const known=placed.filter(unit=>!unit.fusionUnknown);
+  const income=incomeForPlaced(known);
+  return {placed:known,fusionResults:placed.filter(unit=>unit.fusionResult),sell:sold,overflow,rows:optimisedRows(known,overflow),planComplete:true,planIssues:[],partial:true,
+    tickedCount:prefix.count,tickedTotal:prefix.total,income,
+    partialMessage:`Apply the first ${prefix.count} of ${prefix.total} steps? Your Base will then earn ${fmt(income*3600)}/hr${income<preview.currentIncome*0.999?` — ${fmt((preview.currentIncome-income)*3600)}/hr less than now until you finish the walk`:''}.`};
 }
 function critCalcPage(){
   const render=()=>{
@@ -3391,14 +3440,14 @@ function novaIconicPurchasesHtml(baseP,projected){
   </section>`;
 }
 function optimisePage(){
-  const preview=createOptimisePreview();
+  const preview=createOptimisePreview(),ticked=optimiseTickedProjection(preview);
   const {baseP,plan,projected:p,steps,currentIncome,income}=preview,stepsCollapsed=localStorage.getItem('droid-archive-optimise-steps-collapsed')==='1',gain=income-currentIncome,currentScrap=scrapPayoutsForIncome(currentIncome),optimisedScrap=scrapPayoutsForIncome(income),scrapGain={hit:Math.max(0,(optimisedScrap.hit||0)-(currentScrap.hit||0)),break:Math.max(0,(optimisedScrap.break||0)-(currentScrap.break||0))},rebirthPick=p.placed.reduce((map,x)=>{const previous=map.get(x.name);if(!previous||VARIANTS.indexOf(x.variant)>VARIANTS.indexOf(previous.variant))map.set(x.name,{variant:x.variant,key:`${x.source}:${x.unit}`});return map},new Map()),currentMap=new Map(baseP.placed.map(x=>[`${x.source}:${x.unit}`,x]));
   const nothingToDo=p.planComplete&&!steps.filter(x=>x.type!=='note').length&&!p.sell.length&&gain<=1;
   const classicSteps=optimiseStepStyle()==='classic',visits=classicSteps?[]:optimiseVisits(steps);
   const stepsEyebrow=classicSteps?'Slot-by-slot order':`Walk round the base · ${visits.length} stop${visits.length===1?'':'s'}`;
   const stepsList=classicSteps
-    ?`<ol ${stepsCollapsed?'hidden':''}>${steps.map(step=>`<li class="${stepTicked(step.text)?String.fromCharCode(115,116,101,112,45,100,111,110,101):String()}">${stepHtml(step)}</li>`).join('')}</ol>`
-    :`<ol class="optimise-visits" ${stepsCollapsed?'hidden':''}>${visits.map(v=>`<li class="optimise-visit"><h3>${placeName(v.at)}<small>${v.steps.length} droid${v.steps.length===1?'':'s'}</small></h3><ul>${v.steps.map(step=>`<li class="${stepTicked(step.text)?String.fromCharCode(115,116,101,112,45,100,111,110,101):String()}">${stepHtml(step)}</li>`).join('')}</ul></li>`).join('')}</ol>`;
+    ?`<ol ${stepsCollapsed?'hidden':''}>${steps.map(step=>`<li class="${stepTicked(optimiseStepKey(step))?'step-done':''}">${stepHtml(step)}</li>`).join('')}</ol>`
+    :`<ol class="optimise-visits" ${stepsCollapsed?'hidden':''}>${visits.map(v=>{const droids=new Set(v.steps.filter(step=>step.unit).map(step=>`${step.unit.source}:${step.unit.unit}`)).size;return `<li class="optimise-visit"><h3>${optimiseRegionName(v.at)}<small>${droids} droid${droids===1?'':'s'}</small></h3><ul>${v.steps.map(step=>`<li class="${stepTicked(optimiseStepKey(step))?'step-done':''}">${stepHtml(step)}</li>`).join('')}</ul></li>`}).join('')}</ol>`;
   // Hidden unless the account that owns the research is signed in.
   const trackToggle=`<span class="optimise-track" id="optimiseTrack" hidden><button class="btn secondary" type="button">Track slot choices</button><small></small></span>`;
   const stepsStyleToggle=`<button class="btn secondary optimise-style-toggle" id="toggleStepStyle" title="${classicSteps?'Switch to the route-based plan that groups moves by station':'Switch to the original slot-by-slot plan'}">${classicSteps?'Use route plan':'Use classic plan'}</button>`;
@@ -3436,12 +3485,12 @@ function optimisePage(){
     ${fuseOn?`<ol class="fuse-first-list">${fuseChain.map(fuseStep).join('')}</ol>
     <p class="fuse-first-note">Each step takes three droids out of the Sell list and puts one back, so a later step can spend what an earlier one made. Gains are measured against the weakest droid earning in the layout above; a rarity roll is judged on the middle earner of that rarity and quality.</p>`:'<p class="fuse-first-note">Turn this on and the Sell list is checked for fusions worth making first &mdash; a better droid, or one your Droidex is still missing.</p>'}</section>`;
   const sell=p.sell.map(x=>{const d=state.droids.find(y=>y.name===x.name);const toFusion=fuseTake.has(`${x.source}:${x.unit}`),deferred=fuseDeferred.has(`${x.source}:${x.unit}`);return `<div class="sell-card cycle-unused ${toFusion?'to-fusion':''}"><a href="#/droid/${slug(d.name)}"><div>${picture(d,x.variant)}</div><span><strong>${d.name}</strong><small>${variantText(x.variant)} · From: ${originLabel(x)}</small><em>${toFusion?'&rarr; Fusion room, not sold':deferred?'Waiting for Fusion Build space':(x.sellReason||'No rebirth use')}</em></span></a></div>`}).join('');
-  app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Optimise</div><div class="base-heading"><div><p class="eyebrow">Credit optimiser</p><h1>Optimise</h1><p class="lead">A preview of your Base using your Protocol priority: ${state.protocolPriority==='crafting'?'higher craft speed':'higher credit gain'}.</p></div>${nothingToDo?'<p class="optimise-settled">Already optimal.</p>':`<button class="btn" id="applyOptimised" ${p.planComplete?'':'disabled'}>Apply optimised layout</button>${!p.planComplete&&p.partialApply?'<button class="btn secondary" id="applyOptimisedSteps" title="Update your Base to where the steps shown leave every droid. Regenerate Optimise afterwards for the rest.">Apply the steps shown</button>':''}`}</div><div class="base-top optimise-stats"><div class="stat"><small>Current / hour</small><strong>${fmt(currentIncome*3600)}</strong></div><div class="stat"><small>Optimised / hour</small><strong>${fmt(income*3600)}</strong></div><div class="stat"><small>Estimated gain / hour</small><strong>${gain?`${gain>0?'+':''}${fmt(gain*3600)}`:'—'}</strong></div><div class="stat scrap-stat"><small>Optimised scrap / hit</small><strong>${optimisedScrap.hit?fmt(optimisedScrap.hit):'—'}</strong><em>${scrapGain.hit?`+${fmt(scrapGain.hit)} per hit`:'No change'}</em></div><div class="stat scrap-stat"><small>Optimised scrap / break</small><strong>${optimisedScrap.break?fmt(optimisedScrap.break):'—'}</strong><em>${scrapGain.break?`+${fmt(scrapGain.break)} per break`:'No change'}</em></div><div class="stat"><small>Droids owned</small><strong>${state.owned.reduce((s,x)=>s+x.qty,0)}</strong></div></div>${nothingToDo?'':'<div class="notice">This page does not change your Base until you click <strong>Apply optimised layout</strong>. Droids in Sell are excluded from the applied layout.</div>'}${missingPreferredCompanions().length?`<div class="notice companion-wanted"><strong>Buy for a Companion slot:</strong> ${missingPreferredCompanions().map(name=>`<a href="#/droid/${slug(name)}">${name}</a>`).join(', ')} — you picked ${missingPreferredCompanions().length===1?'this':'these'} as a preferred companion but ${missingPreferredCompanions().length===1?'do not':'do not'} own ${missingPreferredCompanions().length===1?'it':'them'} yet.</div>`:''}${novaIconicPurchasesHtml(baseP,p)}${steps.length?`<section class="optimise-steps ${stepsCollapsed?'collapsed':''}"><header><div><p class="eyebrow">${stepsEyebrow}</p><h2>Step-by-step moves</h2></div><div class="optimise-steps-actions">${trackToggle}${stepsStyleToggle}<button class="icon-btn optimise-steps-toggle" id="toggleOptimiseSteps" title="${stepsCollapsed?'Show':'Minimise'} steps">${stepsCollapsed?'+' :'−'}</button></div></header>${stepsList}</section>`:''}${protocolSummaryHtml(p.placed)}<div class="base-layout-v2 optimise-layout"><div class="typed-stations">${['WORKER','ASTROMECH','BATTLE'].map(region=>'<div class="region-stations">'+station(region)+'</div>').join('')}</div><div class="build-side">${station('BUILD')}</div>${overflow?`<section class="roster-wide"><header><div><strong>Unplaced</strong><span>${p.overflow.length} over capacity</span></div></header><div id="rosterCards">${overflow}</div></section>`:''}${fuseFirst}${sell?`<section class="sell-wide"><header><div><strong>Sell</strong><span>${p.sell.length} unused or duplicate rebirth droid${p.sell.length===1?'':'s'}</span></div></header><div class="sell-grid">${sell}</div></section>`:''}</div>`;
+  app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Optimise</div><div class="base-heading"><div><p class="eyebrow">Credit optimiser</p><h1>Optimise</h1><p class="lead">A preview of your Base using your Protocol priority: ${state.protocolPriority==='crafting'?'higher craft speed':'higher credit gain'}.</p></div>${nothingToDo?'<p class="optimise-settled">Already optimal.</p>':`<button class="btn" id="applyOptimised" ${p.planComplete?'':'disabled'}>Apply optimised layout</button>${ticked?`<button class="btn secondary" id="applyOptimisedSteps" title="${escapeAttr(ticked.partialMessage)}">Apply ticked steps (${ticked.tickedCount}/${ticked.tickedTotal})</button>`:''}`}</div><div class="base-top optimise-stats"><div class="stat"><small>Current / hour</small><strong>${fmt(currentIncome*3600)}</strong></div><div class="stat"><small>Optimised / hour</small><strong>${fmt(income*3600)}</strong></div><div class="stat"><small>Estimated gain / hour</small><strong>${gain?`${gain>0?'+':''}${fmt(gain*3600)}`:'—'}</strong></div><div class="stat scrap-stat"><small>Optimised scrap / hit</small><strong>${optimisedScrap.hit?fmt(optimisedScrap.hit):'—'}</strong><em>${scrapGain.hit?`+${fmt(scrapGain.hit)} per hit`:'No change'}</em></div><div class="stat scrap-stat"><small>Optimised scrap / break</small><strong>${optimisedScrap.break?fmt(optimisedScrap.break):'—'}</strong><em>${scrapGain.break?`+${fmt(scrapGain.break)} per break`:'No change'}</em></div><div class="stat"><small>Droids owned</small><strong>${state.owned.reduce((s,x)=>s+x.qty,0)}</strong></div></div>${nothingToDo?'':`<div class="notice">This page does not change your Base until you click <strong>Apply optimised layout</strong>. Droids in Sell are excluded from the applied layout.${ticked?` Tick the steps you have done: <strong>Apply ticked steps</strong> records the first ${ticked.tickedCount} of ${ticked.tickedTotal}, leaving your Base at ${fmt(ticked.income*3600)}/hr${ticked.income<currentIncome*0.999?' (less than now until you finish the walk)':''}.`:' Tick steps as you do them to record part of the walk.'}</div>`}${missingPreferredCompanions().length?`<div class="notice companion-wanted"><strong>Buy for a Companion slot:</strong> ${missingPreferredCompanions().map(name=>`<a href="#/droid/${slug(name)}">${name}</a>`).join(', ')} — you picked ${missingPreferredCompanions().length===1?'this':'these'} as a preferred companion but ${missingPreferredCompanions().length===1?'do not':'do not'} own ${missingPreferredCompanions().length===1?'it':'them'} yet.</div>`:''}${novaIconicPurchasesHtml(baseP,p)}${steps.length?`<section class="optimise-steps ${stepsCollapsed?'collapsed':''}"><header><div><p class="eyebrow">${stepsEyebrow}</p><h2>Step-by-step moves</h2></div><div class="optimise-steps-actions">${trackToggle}${stepsStyleToggle}<button class="icon-btn optimise-steps-toggle" id="toggleOptimiseSteps" title="${stepsCollapsed?'Show':'Minimise'} steps">${stepsCollapsed?'+' :'−'}</button></div></header>${stepsList}</section>`:''}${protocolSummaryHtml(p.placed)}<div class="base-layout-v2 optimise-layout"><div class="typed-stations">${['WORKER','ASTROMECH','BATTLE'].map(region=>'<div class="region-stations">'+station(region)+'</div>').join('')}</div><div class="build-side">${station('BUILD')}</div>${overflow?`<section class="roster-wide"><header><div><strong>Unplaced</strong><span>${p.overflow.length} over capacity</span></div></header><div id="rosterCards">${overflow}</div></section>`:''}${fuseFirst}${sell?`<section class="sell-wide"><header><div><strong>Sell</strong><span>${p.sell.length} unused or duplicate rebirth droid${p.sell.length===1?'':'s'}</span></div></header><div class="sell-grid">${sell}</div></section>`:''}</div>`;
   document.querySelector('.build-side').insertAdjacentHTML('afterend',`<div class="special-stations">${station('LOUNGE')}${station('COMPANION')}${station('UPGRADE_CHIP')}<div class="fusion-panel">${station('FUSION')}${fusionBuildSection(station('FUSION_BUILD'))}</div></div>`);
   document.querySelector('[data-manage-iconic-unlocks]')?.addEventListener('click',()=>localStorage.setItem('droid-archive-nova-category','iconic'));
   document.querySelector('#toggleFuseFirst')?.addEventListener('change',event=>{state.optimiseFuseFirst=event.target.checked;save();optimisePage()});document.querySelector('#toggleOptimiseSteps')?.addEventListener('click',()=>{localStorage.setItem('droid-archive-optimise-steps-collapsed',stepsCollapsed?'0':'1');optimisePage()});
   document.querySelector('#toggleStepStyle')?.addEventListener('click',()=>{localStorage.setItem('droid-archive-optimise-step-style',classicSteps?'route':'classic');optimisePage();toast(classicSteps?'Using the route plan':'Using the classic slot-by-slot plan')});
-  document.querySelector('#applyOptimisedSteps')?.addEventListener('click',async event=>{const button=event.currentTarget;button.disabled=true;try{await applyOptimisedLayout({...preview,projected:p.partialApply})}finally{if(button.isConnected)button.disabled=false}});
+  document.querySelector('#applyOptimisedSteps')?.addEventListener('click',async event=>{const button=event.currentTarget;button.disabled=true;try{await applyOptimisedLayout({...preview,projected:ticked})}finally{if(button.isConnected)button.disabled=false}});
   document.querySelector('#applyOptimised')?.addEventListener('click',async event=>{const button=event.currentTarget,label=button.textContent;button.disabled=true;button.textContent='Applying…';try{await applyOptimisedLayout(preview)}finally{if(button.isConnected){button.disabled=!p.planComplete||preview.inputStamp!==optimiseInputStamp();button.textContent=button.disabled?'Regenerate Optimise':label}}});
   // Owner only, and only on your own Base: arm tracking, then every send-to-work
   // step offers a box.
@@ -3470,7 +3519,9 @@ function optimisePage(){
       optimisePage();
     };
   });
-  document.querySelectorAll('[data-step-tick]').forEach(box=>box.onclick=e=>{e.stopPropagation();toggleTickedStep(box.dataset.stepTick);box.closest('li')?.classList.toggle('step-done',box.checked)});
+  // A tick changes what "Apply ticked steps" would save, so the page redraws
+  // (the plan itself is cached) without losing the scroll position.
+  document.querySelectorAll('[data-step-tick]').forEach(box=>box.onclick=e=>{e.stopPropagation();toggleTickedStep(box.dataset.stepTick);const y=scrollY;route();scrollTo(0,y)});
   document.querySelectorAll('[data-sell-instead]').forEach(button=>button.onclick=()=>{sellInsteadOfFusion(button.dataset.sellInstead);optimisePage()});
   document.querySelectorAll('[data-skip-sell]').forEach(button=>button.onclick=()=>{spareFromSelling(button.dataset.skipSell);optimisePage()});
   if(companionMode){
@@ -3502,7 +3553,13 @@ function optimisePage(){
     scrapHitGainText:scrapGain.hit?`+${fmt(scrapGain.hit)} per hit`:'No change',
     scrapBreakText:optimisedScrap.break?fmt(optimisedScrap.break):'—',
     scrapBreakGainText:scrapGain.break?`+${fmt(scrapGain.break)} per break`:'No change',
-    steps:steps.map(step=>String(step.text||'').replace(/<[^>]*>/g,''))
+    steps:steps.map(step=>String(step.text||'').replace(/<[^>]*>/g,'')),
+    // The same walk, structured, so the overlay can group it by room and show
+    // what is already ticked off on the website.
+    stops:p.routeStops||0,
+    route:steps.map((step,index)=>({index,type:step.type,at:step.at,room:optimiseRegionName(step.at),visit:step.visit||'',assumed:Boolean(step.assumed),
+      done:step.type!=='note'&&stepTicked(optimiseStepKey(step)),text:String(step.text||'').replace(/<[^>]*>/g,'').replace(/&mdash;/g,'—'),
+      unit:step.unit?{name:step.unit.name,variant:step.unit.variant}:null}))
   })
 }
 function rebirthCheapestPaths(cycle){
@@ -4042,7 +4099,7 @@ const SLOT_RULES_UNDER_TEST=[
    pick:row=>{
      const home=row.free.filter(spot=>spot.station===row.droidType);
      const pool=home.length?home:row.free;
-     for(const station of[...NEAREST_ORDER,'UPGRADE_CHIP','LOUNGE']){
+     for(const station of[...PRODUCTIVE_STATIONS,'UPGRADE_CHIP','LOUNGE']){
        const here=pool.filter(spot=>spot.station===station);
        if(!here.length)continue;
        const order=slotFillOrder(station,{station:row.fromStation,slot:row.fromSlot});
@@ -4070,7 +4127,7 @@ function slotLogPoint(station,slot){
     const lists=station==='LOUNGE'?[spots.LOUNGE,spots.LOUNGE_REBIRTH,spots.LOUNGE_NOVA]:station==='BLUEPRINT_STORAGE'?[spots.BLUEPRINT]:[spots[station]];
     let base=0;
     for(const list of lists){
-      if(list&&slot-base<list.length&&slot-base>=0)return{x:list[slot-base][0],y:list[slot-base][1],upstairs:floor==='upstairs'};
+      if(list&&slot-base<list.length&&slot-base>=0)return{x:list[slot-base][0],y:list[slot-base][1]*MAP_SIZE.h/MAP_SIZE.w,upstairs:floor==='upstairs'};
       base+=(list||[]).length;
     }
   }
@@ -4189,7 +4246,7 @@ function syncSlotLabNav(){
   scheduleHeaderNav(true)
 }
 
-function route(){const path=location.hash.slice(1).split('?')[0]||'/',routeChanged=path!==lastRoutePath;lastRoutePath=path;if(path==='/todo'||path==='/donate'||path==='/groups')app.querySelector('.archive-timers')?.remove();document.querySelector('.sidebar').classList.remove('mobile-open');document.querySelector('#rebirthQuickBar')?.dispose?.();renderBaseSidebar(()=>route());renderCloudHeader();syncSlotLabNav();if(path==='/')home();else if(path==='/shared')archiveExperience.sharedPage();else if(path==='/droids')droidsPage();else if(path==='/droidex')droidexPage();else if(path==='/fusion-lab')fusionLabPage();else if(path==='/nova-shop')novaShopPage();else if(path.startsWith('/nova-shop/'))novaDetailPage(path.split('/')[2]);else if(path==='/cantina-shop')cantinaShopPage();else if(path==='/groups')groupsPage();else if(path==='/galactic-reports'&&GALACTIC_REPORTS_ENABLED)galacticReportsPage();else if(path==='/todo')todoPage();else if(path==='/donate')donatePage();else if(path==='/base')basePageV2();else if(path==='/droid-calc')droidCalcPage();else if(path==='/rebirth')rebirthPage();else if(path==='/crit-calc')critCalcPage();else if(path==='/slot-lab')slotLabPage();else if(path==='/optimise')optimisePage();else if(path==='/lucky-droid')luckyDroidPageV2();else if(path.startsWith('/droid/'))detailPage(path.split('/')[2]);else notFound();decorateSharedView();if(routeChanged){try{app.focus({preventScroll:true})}catch{app.focus()}scrollTo(0,0)}setTimeout(showPatchNotesOnce,80);archiveExperience?.checkpoint('Profile opened');publishCompanionState()}
+function route(){const rawHash=location.hash.slice(1),path=isAuthCallbackHash(rawHash)?'/':rawHash.split('?')[0]||'/',routeChanged=path!==lastRoutePath;lastRoutePath=path;if(path==='/todo'||path==='/donate'||path==='/groups')app.querySelector('.archive-timers')?.remove();document.querySelector('.sidebar').classList.remove('mobile-open');document.querySelector('#rebirthQuickBar')?.dispose?.();renderBaseSidebar(()=>route());renderCloudHeader();syncSlotLabNav();if(path==='/')home();else if(path==='/reset-password'){home();Promise.resolve(supabaseReady()||loadSupabaseConfig()).then(()=>showAuthModal('reset'))}else if(path==='/shared')archiveExperience.sharedPage();else if(path==='/droids')droidsPage();else if(path==='/droidex')droidexPage();else if(path==='/fusion-lab')fusionLabPage();else if(path==='/nova-shop')novaShopPage();else if(path.startsWith('/nova-shop/'))novaDetailPage(path.split('/')[2]);else if(path==='/cantina-shop')cantinaShopPage();else if(path==='/groups')groupsPage();else if(path==='/galactic-reports'&&GALACTIC_REPORTS_ENABLED)galacticReportsPage();else if(path==='/todo')todoPage();else if(path==='/donate')donatePage();else if(path==='/base')basePageV2();else if(path==='/droid-calc')droidCalcPage();else if(path==='/rebirth')rebirthPage();else if(path==='/crit-calc')critCalcPage();else if(path==='/slot-lab')slotLabPage();else if(path==='/optimise')optimisePage();else if(path==='/lucky-droid')luckyDroidPageV2();else if(path.startsWith('/droid/'))detailPage(path.split('/')[2]);else notFound();decorateSharedView();if(routeChanged){try{app.focus({preventScroll:true})}catch{app.focus()}scrollTo(0,0)}setTimeout(showPatchNotesOnce,80);archiveExperience?.checkpoint('Profile opened');publishCompanionState()}
 const routeWithoutActiveNavigation=route;
 const activeNavigationHref=path=>path.startsWith('/droid/')||path==='/droids'?'#/droids':path.startsWith('/nova-shop')?'#/nova-shop':`#${path}`;
 const COMMAND_ART={map:'Map',health:'Health',scrap:'Scrap',chips:'Chips',calc:'DroidCalc',outlook:'Outlook',groupOutlook:'GroupOutlook',fusion:'Fusion',detail:'Detail',transfer:'ImportExport'};
@@ -4208,7 +4265,7 @@ function modernBaseSettings(){
   const optimiseOpen=optimiseSettingsOpen();
   const cycles=Object.keys(state.rebirths),goals=Array.from({length:Math.max(0,maxRebirth()-11)},(_,i)=>i+12);
   const preferredHtml=preferredCompanions().map(name=>{const d=state.droids.find(x=>x.name===name);return `<span class="modern-preferred-companion" title="${escapeAttr(name)}">${d?picture(d,'DEFAULT'):''}<b>${name}</b><button type="button" data-command-remove-companion="${escapeAttr(name)}" title="Remove ${escapeAttr(name)}" aria-label="Remove ${escapeAttr(name)}">×</button></span>`}).join('');
-  heading.insertAdjacentHTML('afterend',`<section class="modern-base-settings ${collapsed?'collapsed':''}"><header><span>${commandIcon('settings')}<strong>Base settings</strong><small>Profile controls</small></span><button class="panel-collapse-button" type="button" id="toggleCommandSettings" aria-expanded="${collapsed?'false':'true'}" title="${collapsed?'Expand':'Minimise'} Base settings">${collapsed?'+':'−'}</button></header><div class="modern-settings-body"><label for="commandMultiplier"><small>Base multiplier</small><span><span class="deck-stepper is-dual"><span class="deck-stepper-arrows"><button type="button" data-step="up" data-step-for="commandMultiplier" data-step-by="1" tabindex="-1" title="Up by 1" aria-label="Increase by 1">&#9650;</button><button type="button" data-step="down" data-step-for="commandMultiplier" data-step-by="1" tabindex="-1" title="Down by 1" aria-label="Decrease by 1">&#9660;</button></span><input id="commandMultiplier" type="number" min="0" step="0.1" value="${state.multiplier}"><span class="deck-stepper-arrows"><button type="button" data-step="up" data-step-for="commandMultiplier" data-step-by="0.1" tabindex="-1" title="Up by 0.1" aria-label="Increase by 0.1">&#9650;</button><button type="button" data-step="down" data-step-for="commandMultiplier" data-step-by="0.1" tabindex="-1" title="Down by 0.1" aria-label="Decrease by 0.1">&#9660;</button></span></span><b>${effectiveMultiplier().toFixed(2)}×</b></span><em>${flawlessCount()} flawless tracked</em></label><label><small>Super rebirth</small><select id="commandCycle">${cycles.map(c=>`<option value="${c}" ${Number(c)===state.cycle?'selected':''}>Cycle ${Number(c)+1}</option>`).join('')}</select></label><label for="commandRebirth"><small>Current rebirth</small><span class="deck-stepper"><input id="commandRebirth" type="number" min="0" max="${maxRebirth()}" step="1" value="${state.rebirth}"><span class="deck-stepper-arrows"><button type="button" data-step="up" data-step-for="commandRebirth" tabindex="-1" aria-label="Increase">&#9650;</button><button type="button" data-step="down" data-step-for="commandRebirth" tabindex="-1" aria-label="Decrease">&#9660;</button></span></span></label><label><small>Super rebirth goal</small><select id="commandGoal">${goals.map(n=>`<option value="${n}" ${n===rebirthGoal()?'selected':''}>Rebirth ${n}</option>`).join('')}</select><em>Recommendations stop at this rebirth</em></label><button class="modern-settings-link" type="button" id="toggleCommandOptimise" aria-expanded="${optimiseOpen?'true':'false'}"><span><strong>Advanced settings</strong><em>${optimiseSettingsSummary()}</em></span><b>${optimiseOpen?'−':'+'}</b></button></div><div class="modern-optimise-settings" ${optimiseOpen?'':'hidden'}><section class="modern-optimise-priorities">${protocolPrioritySetting('commandProtocolPriority')}<div class="fusion-keep-control">${fusionKeepSettings()}<button class="btn secondary" type="button" data-fusion-settings>Fusion settings</button><small>Choose variant upgrades, higher rarity or Mythic rerolls.</small></div><div class="fusion-keep-control"><button class="btn secondary" type="button" data-astromech-settings>Astromech Settings</button><small>Choose Mission or Credit Gain for each Iconic.</small></div><div class="fusion-keep-control"><button class="btn secondary" type="button" data-notification-settings>Droidex Notifications</button><small>Prioritise future rebirth droids within your purchased slots.</small></div></section><section class="modern-companion-settings"><div class="modern-setting-block"><small>Companion boosts</small><div class="modern-setting-pills">${COMPANION_GOALS.map(g=>`<label><input type="checkbox" data-command-companion-goal="${g.id}" ${companionGoals().includes(g.id)?'checked':''}><span>${g.short}</span></label>`).join('')}</div><em>A Companion slot is stocked for each boost picked.</em></div><div class="modern-setting-block"><small>Preferred companions</small><div class="modern-preferred-companions">${preferredHtml}${preferredCompanionsFull()?'':`<button type="button" class="modern-add-companion" id="commandAddPreferredCompanion">${stationIcon('COMPANION')}<span>${preferredCompanions().length?'Add':'Add preferred'}</span></button>`}</div><em>Taken ahead of any boost.</em></div></section><section class="modern-optimise-checks"><label><input id="commandKeepDroidex" type="checkbox" ${state.optimiseKeepDroidex===false?'':'checked'}><span>Keep droids that can fill the Droidex</span></label><label><input id="commandAutoCompleteBuilds" type="checkbox" ${state.autoCompleteBuilds?'checked':''}><span>Auto complete Build droids</span></label><label><input id="commandAutoPurchaseSlots" type="checkbox" ${state.autoPurchaseSlots?'checked':''}><span>Auto purchase slots</span></label><label title="When enabled, Optimise tries to clear Build slots. Sell Priority controls which droids may be removed when safe storage is full."><input id="commandOptimiseFreeBuild" type="checkbox" ${state.optimiseFreeBuild?'checked':''}><span>Keep Build slots open in Optimise</span><i>?</i></label><label title="Shows what each droid fuses into on its card in the droid picker."><input id="commandFusionHints" type="checkbox" ${fusionHintsEnabled()?'checked':''}><span>Show fusion uses in the droid picker</span></label><label title="Lets Optimise park spare droids in Fusion slots, the way it uses the Lounge. Anything left standing there is what a Fuse consumes."><input id="commandFusionAsLounge" type="checkbox" ${state.fusionAsLounge?'checked':''}><span>Use Fusion as Lounge slots</span><i>?</i></label><label title="Shows each region's credits and Protocol bonuses above your stations."><input id="commandShowRegionalProduction" type="checkbox" ${state.showRegionalProduction===false?'':'checked'}><span>Show Regional production</span></label></section><label class="modern-sell-priority" ${state.optimiseFreeBuild?'':'hidden'}><small>Sell priority <i title="Choose which droids Optimise is allowed to sell while trying to free Build slots.">?</i></small><select id="commandOptimiseFreeBuildMode">${OPTIMISE_FREE_BUILD_MODES.map(mode=>`<option value="${mode}" ${optimiseFreeBuildMode()===mode?'selected':''}>${optimiseFreeBuildModeLabel(mode)}</option>`).join('')}</select><em>${optimiseFreeBuildModeHelp(optimiseFreeBuildMode())}</em></label><button class="btn danger modern-super-rebirth" type="button" id="commandSuperRebirth">Super rebirth</button></div></section>`);
+  heading.insertAdjacentHTML('afterend',`<section class="modern-base-settings ${collapsed?'collapsed':''}"><header><span>${commandIcon('settings')}<strong>Base settings</strong><small>Profile controls</small></span><button class="panel-collapse-button" type="button" id="toggleCommandSettings" aria-expanded="${collapsed?'false':'true'}" title="${collapsed?'Expand':'Minimise'} Base settings">${collapsed?'+':'−'}</button></header><div class="modern-settings-body"><label for="commandMultiplier"><small>Base multiplier</small><span><span class="deck-stepper is-dual"><span class="deck-stepper-arrows"><button type="button" data-step="up" data-step-for="commandMultiplier" data-step-by="1" tabindex="-1" title="Up by 1" aria-label="Increase by 1">&#9650;</button><button type="button" data-step="down" data-step-for="commandMultiplier" data-step-by="1" tabindex="-1" title="Down by 1" aria-label="Decrease by 1">&#9660;</button></span><input id="commandMultiplier" type="number" min="0" step="0.1" value="${state.multiplier}"><span class="deck-stepper-arrows"><button type="button" data-step="up" data-step-for="commandMultiplier" data-step-by="0.1" tabindex="-1" title="Up by 0.1" aria-label="Increase by 0.1">&#9650;</button><button type="button" data-step="down" data-step-for="commandMultiplier" data-step-by="0.1" tabindex="-1" title="Down by 0.1" aria-label="Decrease by 0.1">&#9660;</button></span></span><b>${effectiveMultiplier().toFixed(2)}×</b></span><em>${flawlessCount()} flawless tracked</em></label><label><small>Super rebirth</small><select id="commandCycle">${cycles.map(c=>`<option value="${c}" ${Number(c)===state.cycle?'selected':''}>Cycle ${Number(c)+1}</option>`).join('')}</select></label><label for="commandRebirth"><small>Current rebirth</small><span class="deck-stepper"><input id="commandRebirth" type="number" min="0" max="${maxRebirth()}" step="1" value="${state.rebirth}"><span class="deck-stepper-arrows"><button type="button" data-step="up" data-step-for="commandRebirth" tabindex="-1" aria-label="Increase">&#9650;</button><button type="button" data-step="down" data-step-for="commandRebirth" tabindex="-1" aria-label="Decrease">&#9660;</button></span></span></label><label><small>Super rebirth goal</small><select id="commandGoal">${goals.map(n=>`<option value="${n}" ${n===rebirthGoal()?'selected':''}>Rebirth ${n}</option>`).join('')}</select><em>Recommendations stop at this rebirth</em></label><button class="modern-settings-link" type="button" id="toggleCommandOptimise" aria-expanded="${optimiseOpen?'true':'false'}"><span><strong>Advanced settings</strong><em>${optimiseSettingsSummary()}</em></span><b>${optimiseOpen?'−':'+'}</b></button></div><div class="modern-optimise-settings" ${optimiseOpen?'':'hidden'}><section class="modern-optimise-priorities">${protocolPrioritySetting('commandProtocolPriority')}<div class="fusion-keep-control">${fusionKeepSettings()}<button class="btn secondary" type="button" data-fusion-settings>Fusion settings</button><small>Choose variant upgrades, higher rarity or Mythic rerolls.</small></div><div class="fusion-keep-control"><button class="btn secondary" type="button" data-astromech-settings>Astromech Settings</button><small>Choose Mission or Credit Gain for each Iconic.</small></div><div class="fusion-keep-control"><button class="btn secondary" type="button" data-notification-settings>Droidex Notifications</button><small>Prioritise future rebirth droids within your purchased slots.</small></div><label class="side-field modern-min-gain"><span class="modern-min-gain-title">Skip Optimise moves under <i title="A droid only changes room when the optimised layout earns at least this much more for it. 0 plans every gain, however small.">?</i></span><span class="modern-min-gain-input"><input id="commandOptimiseMinGain" type="number" min="0" max="20" step="0.1" value="${optimiseMinGainPercent()}"><em>% of income</em></span></label></section><section class="modern-companion-settings"><div class="modern-setting-block"><small>Companion boosts</small><div class="modern-setting-pills">${COMPANION_GOALS.map(g=>`<label><input type="checkbox" data-command-companion-goal="${g.id}" ${companionGoals().includes(g.id)?'checked':''}><span>${g.short}</span></label>`).join('')}</div><em>A Companion slot is stocked for each boost picked.</em></div><div class="modern-setting-block"><small>Preferred companions</small><div class="modern-preferred-companions">${preferredHtml}${preferredCompanionsFull()?'':`<button type="button" class="modern-add-companion" id="commandAddPreferredCompanion">${stationIcon('COMPANION')}<span>${preferredCompanions().length?'Add':'Add preferred'}</span></button>`}</div><em>Taken ahead of any boost.</em></div></section><section class="modern-optimise-checks"><label><input id="commandKeepDroidex" type="checkbox" ${state.optimiseKeepDroidex===false?'':'checked'}><span>Keep droids that can fill the Droidex</span></label><label><input id="commandAutoCompleteBuilds" type="checkbox" ${state.autoCompleteBuilds?'checked':''}><span>Auto complete Build droids</span></label><label><input id="commandAutoPurchaseSlots" type="checkbox" ${state.autoPurchaseSlots?'checked':''}><span>Auto purchase slots</span></label><label title="When enabled, Optimise tries to clear Build slots. Sell Priority controls which droids may be removed when safe storage is full."><input id="commandOptimiseFreeBuild" type="checkbox" ${state.optimiseFreeBuild?'checked':''}><span>Keep Build slots open in Optimise</span><i>?</i></label><label title="Shows what each droid fuses into on its card in the droid picker."><input id="commandFusionHints" type="checkbox" ${fusionHintsEnabled()?'checked':''}><span>Show fusion uses in the droid picker</span></label><label title="Lets Optimise park spare droids in Fusion slots, the way it uses the Lounge. Anything left standing there is what a Fuse consumes."><input id="commandFusionAsLounge" type="checkbox" ${state.fusionAsLounge?'checked':''}><span>Use Fusion as Lounge slots</span><i>?</i></label><label title="Shows each region's credits and Protocol bonuses above your stations."><input id="commandShowRegionalProduction" type="checkbox" ${state.showRegionalProduction===false?'':'checked'}><span>Show Regional production</span></label></section><label class="modern-sell-priority" ${state.optimiseFreeBuild?'':'hidden'}><small>Sell priority <i title="Choose which droids Optimise is allowed to sell while trying to free Build slots.">?</i></small><select id="commandOptimiseFreeBuildMode">${OPTIMISE_FREE_BUILD_MODES.map(mode=>`<option value="${mode}" ${optimiseFreeBuildMode()===mode?'selected':''}>${optimiseFreeBuildModeLabel(mode)}</option>`).join('')}</select><em>${optimiseFreeBuildModeHelp(optimiseFreeBuildMode())}</em></label><button class="btn danger modern-super-rebirth" type="button" id="commandSuperRebirth">Super rebirth</button></div></section>`);
   const deck=app.querySelector('.modern-base-settings'),rerender=()=>{save();route()};
   deck.querySelector('#toggleCommandSettings').onclick=()=>{const next=!deck.classList.contains('collapsed'),button=deck.querySelector('#toggleCommandSettings');deck.classList.toggle('collapsed',next);localStorage.setItem('droid-archive-command-settings-collapsed',next?'1':'0');button.textContent=next?'+':'−';button.title=`${next?'Expand':'Minimise'} Base settings`;button.setAttribute('aria-expanded',next?'false':'true')};
   deck.querySelectorAll('[data-step-for]').forEach(button=>button.onclick=()=>{const input=deck.querySelector('#'+button.dataset.stepFor);if(!input)return;const by=Number(button.dataset.stepBy);if(by){const low=input.min===''?-Infinity:Number(input.min),high=input.max===''?Infinity:Number(input.max);input.value=String(Math.round(Math.min(high,Math.max(low,(Number(input.value)||0)+(button.dataset.step==='up'?by:-by)))*100)/100)}else button.dataset.step==='up'?input.stepUp():input.stepDown();input.dispatchEvent(new Event('change'))});deck.querySelector('#toggleCommandOptimise').onclick=e=>{const panel=deck.querySelector('.modern-optimise-settings'),open=panel.hidden;panel.hidden=!open;localStorage.setItem('droid-archive-optimise-settings-open',open?'1':'0');e.currentTarget.setAttribute('aria-expanded',String(open));e.currentTarget.querySelector(':scope>b').textContent=open?'−':'+'};
@@ -4225,6 +4282,7 @@ function modernBaseSettings(){
   deck.querySelector('#commandAutoPurchaseSlots').onchange=e=>{state.autoPurchaseSlots=e.target.checked;const changed=autoPurchaseEligibleSlots();save();toast(state.autoPurchaseSlots?changed?'Eligible slots purchased':'Auto purchase slots enabled':'Auto purchase slots disabled');route()};
   deck.querySelector('#commandFusionHints').onchange=e=>localStorage.setItem('droid-archive-picker-fusion-hints',e.target.checked?'1':'0');deck.querySelector('#commandFusionAsLounge').onchange=e=>{state.fusionAsLounge=e.target.checked;save();route()};deck.querySelector('#commandShowRegionalProduction').onchange=e=>{state.showRegionalProduction=e.target.checked;save();route()};deck.querySelector('#commandOptimiseFreeBuild').onchange=e=>{state.optimiseFreeBuild=e.target.checked;rerender()};
   deck.querySelector('#commandOptimiseFreeBuildMode').onchange=e=>{state.optimiseFreeBuildMode=e.target.value;rerender()};
+  deck.querySelector('#commandOptimiseMinGain').onchange=e=>{state.optimiseMinGainPercent=Math.max(0,Math.min(20,Number(e.target.value)||0));localStorage.setItem('droid-archive-optimise-min-gain',String(state.optimiseMinGainPercent));save();rerender()};
   deck.querySelector('#commandSuperRebirth').onclick=()=>showSuperRebirthConfirm(route)
 }
 function modernBaseStationLayout(){
@@ -4431,7 +4489,7 @@ const loadJson=async path=>{const response=await fetch(`${path}${path.includes('
 function applyStellarData(droids,stellarStats={}){const rules=stellarStats._rules||{},images=stellarStats._images||{},round=value=>Math.round(value*1e6)/1e6;for(const droid of droids){if(droid.rarity==='ICONIC'||droid.variants.STELLAR)continue;const base=droid.variants.DEFAULT,known=stellarStats[droid.name]||{},costMultiplier=rules.costMultiplier?.[droid.rarity],incomeMultiplier=rules.incomeMultiplier?.[droid.rarity],craftingMultiplier=rules.craftingMultiplier;droid.variants.STELLAR={cost:known.cost??(knownNumber(base?.cost)&&knownNumber(costMultiplier)?round(base.cost*costMultiplier):null),income:known.income??(knownNumber(base?.income)&&knownNumber(incomeMultiplier)?round(base.income*incomeMultiplier):null),craftingSeconds:known.craftingSeconds??(knownNumber(base?.craftingSeconds)&&knownNumber(craftingMultiplier)?round(base.craftingSeconds*craftingMultiplier):null)};if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;}return droids}
 async function loadEvents(){try{const index=await loadJson('data/events/index.json');if(!Array.isArray(index.events))return[];return Promise.all(index.events.map(file=>loadJson(`data/events/${file}`)))}catch{return[]}}
 async function loadPatchNotes(){try{const data=await loadJson(`data/patch-notes.json?${Date.now()}`);return Array.isArray(data.notes)?data.notes:[]}catch{return[]}}
-Promise.all(['data/droids.json','data/rebirth-cycles/index.json','data/image-manifest.json','data/nova-shop.json','data/cantina-shop.json','data/stellar.json','data/fusion.json'].map(loadJson)).then(async([d,cycleIndex,i,novaShop,cantinaShop,stellarStats,fusion])=>{if(!Array.isArray(cycleIndex.cycles)||!cycleIndex.cycles.length)throw Error('No Super Rebirth cycles are configured.');const [cycles,events]=await Promise.all([Promise.all(cycleIndex.cycles.map(file=>loadJson(`data/rebirth-cycles/${file}`))),loadEvents()]);state.droids=applyStellarData(d,stellarStats);state.fusion=fusion;state.rebirths=Object.fromEntries(cycles.map((cycle,index)=>[index,cycle]));state.images=i;state.novaShop=novaShop;state.cantinaShop=cantinaShop;state.events=events;normalizeLoadedDroidNames();syncCantinaPackUpgrades();if(!Object.hasOwn(state.rebirths,String(state.cycle)))state.cycle=0;autoPurchaseEligibleSlots();saveLocal();attachModalBehaviour();route();loadPatchNotes().then(notes=>{state.patchNotes=notes;showPatchNotesOnce()});loadSupabaseConfig().then(()=>initSupabaseSafe()).then(()=>renderCloudHeader())}).catch(e=>{app.innerHTML=`<h1>Archive unavailable</h1><p>${e.message}</p>`});
+Promise.all(['data/droids.json','data/rebirth-cycles/index.json','data/image-manifest.json','data/nova-shop.json','data/cantina-shop.json','data/stellar.json','data/fusion.json'].map(loadJson)).then(async([d,cycleIndex,i,novaShop,cantinaShop,stellarStats,fusion])=>{if(!Array.isArray(cycleIndex.cycles)||!cycleIndex.cycles.length)throw Error('No Super Rebirth cycles are configured.');const [cycles,events]=await Promise.all([Promise.all(cycleIndex.cycles.map(file=>loadJson(`data/rebirth-cycles/${file}`))),loadEvents()]);state.droids=applyStellarData(d,stellarStats);state.fusion=fusion;state.rebirths=Object.fromEntries(cycles.map((cycle,index)=>[index,cycle]));state.images=i;state.novaShop=novaShop;state.cantinaShop=cantinaShop;state.events=events;normalizeLoadedDroidNames();syncCantinaPackUpgrades();if(!Object.hasOwn(state.rebirths,String(state.cycle)))state.cycle=0;autoPurchaseEligibleSlots();saveLocal();attachModalBehaviour();route();loadPatchNotes().then(notes=>{state.patchNotes=notes;showPatchNotesOnce()});loadSupabaseConfig().then(()=>initSupabaseSafe()).then(()=>{renderCloudHeader();finishAuthCallback()})}).catch(e=>{app.innerHTML=`<h1>Archive unavailable</h1><p>${e.message}</p>`});
 // ── Companion Droidex / rebirth bridges ───────────────────────────────────
 // Called from the Electron companion (companion mode only); no-op for browsers.
 if(companionMode){

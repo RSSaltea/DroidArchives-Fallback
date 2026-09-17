@@ -11,47 +11,6 @@ const VARIANTS=['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLA
 const droids=JSON.parse(fs.readFileSync(ROOT+'data/droids.json','utf8'));
 const protocolBlock=src.slice(src.indexOf('const PROTOCOL_REGIONS='),src.indexOf('const isProtocolStation='));
 
-console.log('=== Protocol steps are grouped into named stops ===');
-{
-  const state={droids:structuredClone(droids)};
-  const sb={state,console,PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
-    unitName:x=>x.name,
-    slotLabel:x=>x?`${x.station} ${x.slot+1}`:'Roster',
-    withFusionSteps:x=>x,
-    isBuilding:()=>false,
-    stationSlotIndices:station=>station==='LOUNGE'?[0,1,2,3,4,5,6,7,8,9]:[0]};
-  vm.createContext(sb);
-  vm.runInContext(protocolBlock,sb);
-  vm.runInContext(line('const isProtocolStation='),sb);
-  vm.runInContext(line('const canUseStation='),sb);
-  vm.runInContext(grab('function protocolStepPlan('),sb);
-  vm.runInContext(grab('function optimiseVisits('),sb);
-  vm.runInContext(line('const stationName='),sb);
-  vm.runInContext(line('const ROSTER='),sb);
-  vm.runInContext(line('const placeName='),sb);
-  const u=(name,variant,station,slot,source)=>({name,variant,station,slot,source,unit:0});
-  // Deliberately interleaved: Lounge, Protocol slot, Lounge, Astromech, not placed.
-  const pz=u('PZ','DEFAULT','PROTOCOL_ASTROMECH_CREDITS',0,1),sa1=u('SA-5','BESKAR','LOUNGE',2,2),
-        sa2=u('SA-5','DIAMOND','LOUNGE',6,3),tri=u('TRI-TEK','DIAMOND','ASTROMECH',1,4),loose={name:'LO',variant:'GOLD',source:5,unit:0};
-  sb.baseP={placed:[sa1,pz,sa2,tri]};
-  sb.projected={placed:[],sell:[sa1,pz,sa2,tri,loose]};
-  const steps=vm.runInContext('protocolStepPlan(baseP,projected)',sb);
-  ok('every step has a stop',steps.every(s=>s.at),JSON.stringify(steps.map(s=>s.at)));
-  ok('and a visit to group it by',steps.every(s=>s.visit!==undefined));
-  sb.steps=steps;
-  const headings=vm.runInContext('optimiseVisits(steps).map(v=>placeName(v.at))',sb);
-  ok('no stop is called undefined',!headings.some(h=>/undefined/i.test(String(h))),headings.join(' | '));
-  ok('a Protocol slot is named for what it is',headings.includes('Astromech Protocol · Credits'),headings.join(' | '));
-  ok('the Lounge is its own stop',headings.includes('Lounge'),headings.join(' | '));
-  ok('both Lounge sells land in the same stop, not two',headings.filter(h=>h==='Lounge').length===1,headings.join(' | '));
-  ok('a droid that is not placed is sold from the Roster',headings.includes('Roster'),headings.join(' | '));
-  sb.baseP={placed:[]};
-  sb.projected={placed:[{name:'SA-5',variant:'DEFAULT',station:'PROTOCOL_WORKER_CREDITS',slot:0,source:9,unit:0}],sell:[]};
-  sb.stationSlotIndices=()=>[];
-  const noted=vm.runInContext('protocolStepPlan(baseP,projected)',sb);
-  ok('a lone move still gets a stop',noted.every(s=>s.at&&s.visit!==undefined),JSON.stringify(noted.map(s=>[s.type,s.at])));
-}
-
 console.log('');
 // Full placement and sale regressions live in tests/protocol-selling.test.cjs.
 console.log('=== spare Protocol droids can be fused, judged by the bonus they give ===');
@@ -61,11 +20,11 @@ console.log('=== spare Protocol droids can be fused, judged by the bonus they gi
   vm.runInContext(line('const RARITY_LADDER='),sb);
   for(const k of ['const variantStep=','const rarityStep=','const nextVariant=','const nextRarity=','const isIconic=',
     'const fusionDroid=','const fusionRecipes=','const fusionRecipeWants=','const fusionKey=','const fusionRecipeFor=',
-    'const droidIncomeAt=','const droidexGapFor=','const PRODUCTIVE_STATIONS=','const variantLabel=','const rarityLabel=','const fmt=',
+    'const lowestVariant=','const droidRarity=','const droidIncomeAt=','const droidexGapFor=','const PRODUCTIVE_STATIONS=','const variantLabel=','const rarityLabel=','const fmt=',
     'const protocolBonus=','const protocolFusionSpares=']) vm.runInContext(line(k),sb);
   vm.runInContext(protocolBlock,sb);
   for(const k of ['function fusionCountFrom(','function fusionBestVariant(','function fusionQualitySteps(','function fusionRaritySteps(',
-    'function typicalIncomeFor(','function fusionSpendFrom(','function fusionBestFrom(','function fusionChainFromSpares(',
+    'function typicalIncomeFor(','function normaliseFusionPreferences(','function fusionOutcome(','function fusionOutcomeText(','function fusionSpendFrom(','function fusionBestFrom(','function fusionChainFromSpares(',
     'function droidexEntry(','function optimiseFusionChain(','function withFusionSteps(']) vm.runInContext(grab(k),sb);
   vm.runInContext("function fusionRebirthProtectedKeys(){return new Set()};function capacity(){return 1};function soldInsteadOfFusion(){return []};function slotLabel(x){return x.station+' '+(x.slot+1)}",sb);
   const everySquare=[];for(const d of droids)for(const v of VARIANTS)everySquare.push({name:d.name,variant:v});
@@ -138,7 +97,7 @@ console.log('=== the rest of the page agrees ===');
   ok('a kept Protocol spare in a fusion step offers Keep, not Sell',src.includes("${step.protocolSpare?'Keep':'Sell'}</button>"));
   ok('the Base panel includes saleable Protocol spares',!src.includes("d.special?.cannotSell||d.type==='PROTOCOL')continue;"));
   const plan=grab('function safeOptimiseStepPlan(');
-  ok('the re-plan drops droids already sent to Fusion, so it cannot move them afterwards',plan.includes('placed:(projected.placed||[]).filter(x=>!consumed.has('));
+  ok('droids kept for a fusion batch are taken out of the sell list before the walk is planned',plan.includes('projected.sell.filter(unit=>!claimed.has(keyOf(unit)))'));
 }
 
 console.log('');

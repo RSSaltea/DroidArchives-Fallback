@@ -94,7 +94,10 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
       if (!rule('canUse', current(key), to.station)) { issue(`${label}: incompatible destination station.`); continue; }
       if (step.workCommand || step.kind === 'work') {
         const landing = rule('workLanding', current(key), placed());
-        if (!samePlace(landing, to)) { issue(`${label}: work command cannot reach the stated destination.`); continue; }
+        // When the game's own distance rule decides between rooms, the plan
+        // may state any of them; the player checks where it lands.
+        const guessed = Boolean(step.assumed) && Array.isArray(landing?.options) && landing.options.includes(to.station);
+        if (!guessed && !samePlace(landing, to)) { issue(`${label}: work command cannot reach the stated destination.`); continue; }
       }
       positions.set(key, { station: to.station, slot: to.slot });
     } else if (step.type === 'swap') {
