@@ -301,3 +301,20 @@ html[data-ui-style="next"] .header-search svg{width:14px;height:14px;stroke-widt
 html[data-ui-style="next"] .header-search input{font:500 13px Inter,system-ui,sans-serif;box-shadow:none!important;outline:none!important;border:0!important;background:none!important;padding:0!important;height:100%}
 html[data-ui-style="next"] .header-search input::placeholder{color:var(--muted)}
 html[data-ui-style="next"] .search-results{border-radius:var(--radius)}
+/* Phones, third pass: the sticky Base row is one scrollable line of chips, and the
+   floating timers are a single short row of icon + time */
+@media(max-width:760px){
+  html[data-ui-style="next"][data-ui-fixed] .base-heading{gap:6px 10px;padding:6px 10px 8px}
+  html[data-ui-style="next"][data-ui-fixed] .base-heading>div:first-child{flex:1 1 100%;gap:8px}
+  html[data-ui-style="next"][data-ui-fixed] .base-heading h1{font-size:17px}
+  html[data-ui-style="next"][data-ui-fixed] .base-actions{flex:1 1 100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:6px;margin:0 -10px;padding:0 10px;-webkit-overflow-scrolling:touch}
+  html[data-ui-style="next"][data-ui-fixed] .base-actions::-webkit-scrollbar{display:none}
+  html[data-ui-style="next"][data-ui-fixed] .base-actions .btn{flex:0 0 auto!important;width:auto!important;min-height:30px;padding:4px 10px!important;font-size:11.5px;white-space:nowrap}
+  html[data-ui-style="next"][data-ui-fixed] .base-actions #transferBase{margin-left:0}
+  html[data-ui-style="next"] .archive-timers.timers-float{padding:2px!important}
+  html[data-ui-style="next"] .archive-timers.timers-float .spawn-timers{flex-wrap:nowrap!important;width:max-content!important;max-width:none}
+  html[data-ui-style="next"] .archive-timers.timers-float .spawn-timer{flex:0 0 auto!important;padding:4px 7px!important;gap:5px!important}
+  html[data-ui-style="next"] .archive-timers.timers-float .spawn-timer img{width:18px!important;height:18px!important}
+  html[data-ui-style="next"] .archive-timers.timers-float .spawn-timer span{display:none!important}
+  html[data-ui-style="next"] .archive-timers.timers-float .spawn-timer strong{font-size:12.5px!important}
+}
