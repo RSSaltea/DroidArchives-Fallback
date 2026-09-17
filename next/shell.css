@@ -122,7 +122,6 @@ html[data-ui-style="next"] .rebirth-group>h3{background:var(--panel-2);border-le
 /* Tables: neutral rows, hairline dividers */
 html[data-ui-style="next"] table{border-collapse:collapse;width:100%}
 html[data-ui-style="next"] tbody tr,html[data-ui-style="next"] td{background:transparent}
-html[data-ui-style="next"] tbody tr:nth-child(even) td{background:rgba(255,255,255,.02)}
 html[data-ui-style="next"] tbody tr:hover td{background:rgba(74,217,132,.06)}
 html[data-ui-style="next"] th,html[data-ui-style="next"] td{padding:8px 10px;font-size:12.5px}
 
@@ -318,3 +317,5 @@ html[data-ui-style="next"] .search-results{border-radius:var(--radius)}
   html[data-ui-style="next"] .archive-timers.timers-float .spawn-timer span{display:none!important}
   html[data-ui-style="next"] .archive-timers.timers-float .spawn-timer strong{font-size:12.5px!important}
 }
+/* Reached upgrade levels keep their highlight, hover or not */
+html[data-ui-style="next"] .nova-level-table tr.owned td,html[data-ui-style="next"] .nova-level-table tr.owned:hover td{background:rgba(74,217,132,.12);color:#bbf7d0}
