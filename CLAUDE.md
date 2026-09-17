@@ -27,6 +27,21 @@ branch automatically, with no build command, whenever `deploy.ps1` pushes a
 snapshot. Nothing deploys to Cloudflare from this machine directly. The
 fallback repo stays on GitHub Pages as the backup copy.
 
+## Interfaces
+
+`index.html` is the current interface (Modern/Legacy toggle, `styles.css` +
+`modern.css`). `next.html` with `next/shell.css` and `next/theme.css` is the
+new toolbar interface being trialled at the same address, driven by the same
+`app.js`. `next/theme.css` is generated from `modern.css` (see the session
+scratchpad `ui/build-theme.cjs`) and then edited; `next/shell.css` holds the
+tokens and shell. Keep both shells working until the user says which wins.
+
+Planned swap (user decision 2026-09-18): when the user says the new interface
+goes live, `index.html` becomes the new shell and the current shell stays in
+the code as `legacy.html`, keeping its Modern style ("Legacy v2") and its
+Legacy style. Until then `next.html` is the mods' test address and the live
+site is unchanged.
+
 - Do not push local branches directly to either public repo, including through
   a GUI, GitHub API, alternate remote name, or raw repository URL.
 - Do not use `git push --all`, `--mirror`, `--tags`, force pushes, or merge local
