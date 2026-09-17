@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="cantina.css?v=2026-07-25-2">
   <link rel="stylesheet" href="archive-experience.css?v=2026-09-16-card-redesign">
   <link rel="stylesheet" href="next/theme.css?v=2026-09-18-2">
-  <link rel="stylesheet" href="next/shell.css?v=2026-09-18-7">
+  <link rel="stylesheet" href="next/shell.css?v=2026-09-18-8">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -141,7 +141,8 @@
       document.addEventListener('pointerdown',e=>{if(!box.contains(e.target))close()});
       new MutationObserver(shell.drawer).observe(document.querySelector('#baseSidebarControls'),{childList:true});
       // The app rebuilds the timer strip after every render; keep its state.
-      let frame=0;const schedule=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(shell.timers)};
+      // A page re-render loses the button icons the app adds; ask for them back.
+      let frame=0;const schedule=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{window.redecorate?.();shell.timers()})};
       new MutationObserver(schedule).observe(document.querySelector('#app'),{childList:true});
       new ResizeObserver(()=>{shell.top();schedule()}).observe(document.querySelector('.toolbar'));
       addEventListener('scroll',schedule,{passive:true});addEventListener('resize',schedule);
@@ -159,6 +160,6 @@
       shell.top();
     });
   </script>
-  <script type="module" src="app.js?v=2026-09-18-next2"></script>
+  <script type="module" src="app.js?v=2026-09-18-next4"></script>
 </body>
 </html>

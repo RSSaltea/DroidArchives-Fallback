@@ -319,3 +319,7 @@ html[data-ui-style="next"] .search-results{border-radius:var(--radius)}
 }
 /* Reached upgrade levels keep their highlight, hover or not */
 html[data-ui-style="next"] .nova-level-table tr.owned td,html[data-ui-style="next"] .nova-level-table tr.owned:hover td{background:rgba(74,217,132,.12);color:#bbf7d0}
+/* Typed stations: the Protocol pair sits at the foot of every card */
+html[data-ui-style="next"] .typed-stations .station{display:flex;flex-direction:column}
+html[data-ui-style="next"] .typed-stations .station>.slot-grid:not(.protocol-grid){flex:0 0 auto}
+html[data-ui-style="next"] .typed-stations .station>.protocol-grid{margin-top:auto}
