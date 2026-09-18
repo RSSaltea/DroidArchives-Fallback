@@ -124,7 +124,12 @@
     window.uiHooks={afterRoute(){shell.drawer();shell.top();requestAnimationFrame(shell.timers)}};
     addEventListener('DOMContentLoaded',()=>{
       const drawer=document.querySelector('.sidebar'),backdrop=document.querySelector('#baseDrawerBackdrop');
-      const setDrawer=open=>{drawer.classList.toggle('mobile-open',open);backdrop.hidden=!open;document.documentElement.classList.toggle('drawer-open',open)};
+      // The app also closes the drawer itself (any route or re-render removes the
+      // class), so the backdrop and the scroll lock follow the drawer's real state
+      // rather than only our own clicks.
+      const syncDrawer=()=>{const open=drawer.classList.contains('mobile-open');backdrop.hidden=!open;document.documentElement.classList.toggle('drawer-open',open)};
+      new MutationObserver(syncDrawer).observe(drawer,{attributes:true,attributeFilter:['class']});
+      const setDrawer=open=>{drawer.classList.toggle('mobile-open',open);syncDrawer()};
       document.querySelector('#baseDrawerButton').onclick=()=>setDrawer(!drawer.classList.contains('mobile-open'));
       document.querySelector('#baseDrawerClose').onclick=()=>setDrawer(false);
       backdrop.onclick=()=>setDrawer(false);
