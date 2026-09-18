@@ -197,7 +197,7 @@ export function planOptimiseRoute({ initial, target, rules, options = {} } = {})
     const unit = units.get(key), from = state.pos.get(key);
     let goal = state.goals.get(key);
     const placed = placedOf(state), { free } = occupancy(placed, rules);
-    const step = { unit: { ...unit }, from: from ? { ...from } : undefined, at: from ? rules.regionOf(from.station, from.slot) : 'ANY' };
+    const step = { unit: { ...unit }, from: from ? { ...from } : undefined, at: (from && rules.regionOf(from.station, from.slot)) || 'ANY' };
     if (kind === 'sell') { state.sold.add(key); state.pos.delete(key); return { ...step, type: 'sell' }; }
     if (kind === 'fusion') {
       const onTable = placed.filter(x => x.station === 'FUSION' && keyOf(x) !== key).length;
@@ -267,7 +267,9 @@ export function planOptimiseRoute({ initial, target, rules, options = {} } = {})
   // else is legal. Buffers park a droid in the Lounge so its slot frees up.
   const visit = (state, region, policy) => {
     const steps = [];
-    const inRegion = key => { const here = regionOfKey(state, key); return here === region || here === null && (region === 'ANY' || !state.pos.has(key) && units.get(key).station === undefined); };
+    // A droid with no room of its own (your Companion walks with you) takes its
+    // command at whichever stop you are already making.
+    const inRegion = key => { const here = regionOfKey(state, key); return here === region || here === null; };
     const open = () => [...state.goals].filter(([key, goal]) => !idle(goal) && !fixed(key) && inRegion(key) && !state.sold.has(key) && !state.staged.has(key) && !(goal.kind === 'place' && goalMet(state.pos.get(key), goal, rules)));
     let progress = true;
     while (progress) {
@@ -304,6 +306,8 @@ export function planOptimiseRoute({ initial, target, rules, options = {} } = {})
       if (goal.kind === 'place' && goalMet(state.pos.get(key), goal, rules)) continue;
       regions.add(regionOfKey(state, key) || 'ANY');
     }
+    // 'Anywhere' is only a stop of its own when no room has work to join.
+    if (regions.size > 1) regions.delete('ANY');
     for (const fusion of fusions) if (!state.fused.has(fusion.index)) regions.add('FUSION');
     return [...regions];
   };

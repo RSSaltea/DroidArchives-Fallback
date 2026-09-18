@@ -21,7 +21,7 @@ function rulesFor(caps,{nearest={},types={}}={}){
     slots,canUse:(unit,station)=>!station.startsWith('PROTOCOL_')||typeOf(unit)==='PROTOCOL',
     isBuilding:unit=>['BUILD','FUSION_BUILD'].includes(unit.station)&&!unit.built,
     typeOf,isMissionSlot:(station,slot)=>station==='ASTROMECH'&&slot%2===0,
-    regionOf:(station,slot)=>station==='BATTLE'&&slot>=5?'BATTLE_UP':REGION_OF[station]??station,
+    regionOf:(station,slot)=>station==='BATTLE'&&slot>=5?'BATTLE_UP':station in REGION_OF?REGION_OF[station]:station,
     distance:(a,b)=>a===b?0:10,nearestOrder:region=>nearest[region]||null,
     protocolStations:()=>Object.keys(caps).filter(station=>station.startsWith('PROTOCOL_')&&caps[station])
   };
@@ -160,4 +160,19 @@ test('the same steps replay through the validator with the planner\'s own landin
   nextSource=0;const a=unit('WORK-A','LOUNGE',0),b=unit('WAR-B','LOUNGE',1);
   const {route}=await plan([a,b],[at(a,'WORKER',0),at(b,'BATTLE',0)],{WORKER:1,BATTLE:1,LOUNGE:5});
   assert.equal(route.complete,true);assert.equal(route.stops,1);
+});
+
+test('a Companion takes its command at a stop already being made, never a room of its own',async()=>{
+  // The Companion walks with the player, so it has no room. Sending it to work
+  // joins the Lounge stop the walk needs anyway and is labelled with that room.
+  nextSource=0;const pal=unit('WORK-PAL','COMPANION',0),rest=unit('WAR-REST','LOUNGE',0);
+  const {route}=await plan([pal,rest],[at(pal,'WORKER',0),at(rest,'BATTLE',0)],{WORKER:1,BATTLE:1,LOUNGE:5,COMPANION:2});
+  assert.equal(route.complete,true,route.issues.join(' '));
+  assert.equal(route.stops,1,'no extra stop for the Companion');
+  assert.ok(route.steps.every(step=>step.at==='LOUNGE'),JSON.stringify(route.steps.map(s=>s.at)));
+  // With nothing else to do, the Companion's command is its own stop, named Anywhere.
+  nextSource=0;const only=unit('WORK-ONLY','COMPANION',0);
+  const alone=await plan([only],[at(only,'WORKER',0)],{WORKER:1,COMPANION:2});
+  assert.equal(alone.route.complete,true,alone.route.issues.join(' '));
+  assert.deepEqual(alone.route.steps.map(step=>step.at),['ANY']);
 });
