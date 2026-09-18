@@ -333,3 +333,14 @@ html[data-ui-style="next"] .modern-support-row .station-companion .base-slot.occ
 html[data-ui-style="next"] .modern-support-row .station-companion .base-slot.occupied>a>div{width:100%;height:40px}
 html[data-ui-style="next"] .modern-support-row .station-companion .base-slot.occupied img{max-height:40px}
 html[data-ui-style="next"] .modern-support-row .station-companion .slot-droid-name{font-size:11.5px}
+/* The three lower columns end on one line: each stretches to the tallest, its
+   last card taking up the slack */
+html[data-ui-style="next"] .base-layout-v2.modern-station-layout{align-items:stretch}
+html[data-ui-style="next"] .modern-center-stations{display:flex;flex-direction:column;gap:10px;align-content:normal}
+html[data-ui-style="next"] .modern-center-stations>.build-side,html[data-ui-style="next"] .modern-center-stations>.blueprint-side{flex:0 0 auto}
+html[data-ui-style="next"] .modern-center-stations>.modern-support-row{flex:1 1 auto}
+html[data-ui-style="next"] .modern-fuse-stations{display:flex;flex-direction:column;gap:10px;align-content:normal}
+html[data-ui-style="next"] .modern-fuse-stations>.fusion-panel,html[data-ui-style="next"] .modern-fuse-stations>.station{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+html[data-ui-style="next"] .modern-fuse-stations>.fusion-panel>.station:last-child{flex:1 1 auto}
+html[data-ui-style="next"] .modern-station-layout>.station-lounge{align-self:stretch;display:flex;flex-direction:column;height:auto}
+html[data-ui-style="next"] .modern-station-layout>.station-lounge>.slot-grid{flex:1;align-content:start}
