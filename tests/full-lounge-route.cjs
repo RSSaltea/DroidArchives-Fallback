@@ -34,7 +34,7 @@ const server=http.createServer((req,res)=>{
  // Lounge leaves no buffer: the walk must still be complete and legal.
  assert.equal(result.complete,true,JSON.stringify(result.issues));
  assert.equal(result.target.overflow.length,0);assert.equal(result.target.placed.length+result.target.sell.length,result.base.placed.length);
- assert(!result.steps.some(s=>s.type==='note'||s.type==='swap'),'the game has no swap command');
+ assert(!result.steps.some(s=>s.type==='note'||s.type==='swap'&&s.kind!=='companion-swap'),'the only swap the game offers is with a Companion slot');
  const key=x=>`${x.source}:${x.unit}`,spot=x=>`${x.station}:${x.slot}`;
  const current=new Map(result.base.placed.map(x=>[key(x),{...x}]));
  for(const step of result.steps){
@@ -80,18 +80,32 @@ const server=http.createServer((req,res)=>{
   assert(!scenario.steps.some(x=>x.type==='note'),JSON.stringify(scenario.steps));
  }
  console.log('PASS: all four Astromech Iconics keep mission slots through both optimisers and both priorities.');
- for(const fixture of ['worker-routing.json','three-free-lounge.json']){
+ // full-base-companion.json: every slot is taken, a second Companion is displaced
+ // and is kept for fusion, so it cannot be sold. A finished Build droid bound for
+ // the Lounge stays in its tank and the Companion takes that Lounge slot.
+ // full-base-trade-places.json: the same base a few steps on, where a Lounge droid
+ // and the Companion must trade places with no free slot: one waits on the Fusion table.
+ // full-lounge-fusion-spares.json: a nearly full Lounge of kept-for-fusion droids whose
+ // better copies are already at work. Those stored copies are spares, not rebirth
+ // copies, so the plan fuses them instead of reporting that nothing can be done.
+ for(const fixture of ['worker-routing.json','three-free-lounge.json','full-base-companion.json','full-base-trade-places.json','full-lounge-fusion-spares.json']){
  const routing=await page.evaluate(profile=>{
   const d=window.testPlan;Object.assign(d.state,d.validateBaseImport(profile));
   const base=d.placements(),target=d.optimisedPlacements(base,d.optimiseBase(base,d.incomeForPlaced(base.placed))),steps=d.safeOptimiseStepPlan(base,target);
-  const key=x=>`${x.source}:${x.unit}`,spot=x=>`${x.station}:${x.slot}`,current=new Map(base.placed.map(x=>[key(x),{...x}])),failures=[];
+  const key=x=>`${x.source}:${x.unit}`,spot=x=>`${x.station}:${x.slot}`,current=new Map(base.placed.map(x=>[key(x),{...x}])),failures=[],fused=new Set();
   for(const step of steps){
    if(step.type==='note'){failures.push(step.text);continue;}
-   const unit=current.get(key(step.unit));if(!unit||spot(unit)!==spot(step.from))failures.push('wrong origin');
+   if(step.type==='fuse'){if(step.resultUnit)current.set(key(step.resultUnit),{...step.resultUnit,station:step.to,slot:step.toSlot});continue;}
+   const unit=current.get(key(step.unit));if(!unit||spot(unit)!==spot(step.from)){failures.push('wrong origin');continue;}
    if(step.type==='sell'){current.delete(key(step.unit));continue;}
-   if(step.type==='swap'){failures.push('the game has no swap command');continue;}
-   if(step.type==='fuse')continue;
-   if(step.type==='fuse-in'||step.type==='fuse-held'){current.delete(key(step.unit));continue;}
+   if(step.type==='swap'){
+    // The one swap the game offers: a droid's card trades it with a Companion.
+    if(step.kind!=='companion-swap'){failures.push('the only swap the game offers is with a Companion slot');continue;}
+    const other=current.get(key(step.withUnit));
+    if(!other||other.station!=='COMPANION'||spot(other)!==spot(step.withFrom)){failures.push('companion swap with the wrong Companion');continue;}
+    const was={station:unit.station,slot:unit.slot};Object.assign(unit,{station:other.station,slot:other.slot});Object.assign(other,was);continue;
+   }
+   if(step.type==='fuse-in'||step.type==='fuse-held'){fused.add(key(step.unit));current.delete(key(step.unit));continue;}
    if(step.workCommand){
     // The droid's own slot still counts while the game decides, so a room
     // with another free slot always keeps its own droids.
@@ -102,11 +116,17 @@ const server=http.createServer((req,res)=>{
    if([...current.values()].some(x=>spot(x)===spot(step.to)))failures.push('occupied destination');
    Object.assign(unit,{station:step.to.station,slot:step.to.slot});
   }
-  for(const goal of target.placed)if(spot(current.get(key(goal)))!==spot(goal))failures.push('unfinished layout');
-  return {failures,steps:steps.length,first:steps.find(x=>x.type!=='sell')};
+  // A droid spent in a fusion is gone; everyone else ends where the layout says.
+  for(const goal of target.placed)if(!fused.has(key(goal))&&(!current.has(key(goal))||spot(current.get(key(goal)))!==spot(goal)))failures.push(`unfinished layout: ${goal.name} ${goal.variant}`);
+  return {failures,steps:steps.length,first:steps.find(x=>x.type!=='sell'),fusions:steps.filter(x=>x.type==='fuse').length,fusedIn:steps.filter(x=>x.type==='fuse-in'||x.type==='fuse-held').map(x=>`${x.unit.name} ${x.unit.variant} from ${x.from.station}`)};
  },JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures',fixture),'utf8')));
  assert.deepEqual(routing.failures,[]);assert(routing.steps>0);
  if(fixture==='three-free-lounge.json'){assert.equal(routing.first.type,'move');}
+ if(fixture==='full-lounge-fusion-spares.json'){
+  assert.equal(routing.fusions,2,JSON.stringify(routing.fusedIn));
+  for(const spare of ['MECHA-DROID GALACTIC from LOUNGE','MONO-WALKER BESKAR from LOUNGE','MECHA-DROID BESKAR from LOUNGE'])assert(routing.fusedIn.includes(spare),`${spare} is a spare: ${JSON.stringify(routing.fusedIn)}`);
+  assert(!routing.fusedIn.some(x=>/STELLAR/.test(x)),'the working Stellar copies are the rebirth copies');
+ }
  console.log('PASS: '+fixture+' completes without bypassing free native slots.');
  }
  await page.evaluate(profile=>Object.assign(window.testPlan.state,window.testPlan.validateBaseImport(profile)),profile);

@@ -111,7 +111,21 @@ function goalFor(unit, rules) {
 const goalMet = (position, goal, rules) => Boolean(position) && position.station === goal.station &&
   (goal.station !== 'ASTROMECH' || classOf(position.station, position.slot, rules) === goal.cls);
 
-export function planOptimiseRoute({ initial, target, rules, options = {} } = {}) {
+// A fusion batch needs a free Fusion Build slot for its result at the moment it
+// is fused. When a walk cannot be completed only because a batch has nowhere to
+// build, that batch waits for a later walk: it is dropped from this one, its
+// inputs stay where they are, and the rest is planned again.
+export function planOptimiseRoute(args = {}) {
+  const batches = [...(args.target?.fusions || [])], waiting = [];
+  let result = planOnce(args);
+  while (!result.complete && batches.length && result.fused.length < batches.length) {
+    waiting.unshift({ batch: batches.pop(), reason: 'no Fusion Build slot is free for its result during this walk' });
+    result = planOnce({ ...args, target: { ...args.target, fusions: batches } });
+  }
+  return waiting.length && result.complete ? { ...result, later: [...result.later, ...waiting] } : result;
+}
+
+function planOnce({ initial, target, rules, options = {} } = {}) {
   const beamWidth = options.beamWidth || 64, maxStops = options.maxStops || 24;
   const issues = [], later = [];
   const units = new Map();
@@ -220,9 +234,36 @@ export function planOptimiseRoute({ initial, target, rules, options = {} } = {})
       state.pos.set(key, { station: 'LOUNGE', slot });
       return { ...step, type: 'move', kind: 'lounge', buffer: kind === 'buffer', to: { station: 'LOUNGE', slot } };
     }
+    if (kind === 'park') {
+      // The Fusion table doubles as a waiting room when the Lounge is full: the
+      // Fusion button puts the droid on a free pad, and it is told where to go
+      // from there later in the walk. Not while a batch is being gathered.
+      if (state.staged.size || (typeof rules.canPark === 'function' && !rules.canPark(unit))) return null;
+      const slot = free('FUSION')[0];
+      if (slot === undefined) return null;
+      state.pos.set(key, { station: 'FUSION', slot });
+      return { ...step, type: 'move', kind: 'park', buffer: true, to: { station: 'FUSION', slot } };
+    }
     if (kind === 'companion') {
       const slot = bookSlot('COMPANION', null, free, rules);
-      if (slot === undefined) return null;
+      if (slot === undefined) {
+        // Both Companion slots taken: the droid's card offers Swap with a slot
+        // instead, and the Companion in that slot takes the droid's old place.
+        // Used when that place suits the Companion (its goal, or a room it can
+        // simply wait in), never out of a Build or Fusion Build tank.
+        if (!from || ['BUILD', 'FUSION_BUILD', 'COMPANION'].includes(from.station)) return null;
+        const leaving = [...state.pos].find(([other, position]) => {
+          if (position.station !== 'COMPANION' || other === key || fixed(other) || state.sold.has(other) || state.staged.has(other)) return false;
+          const otherGoal = state.goals.get(other);
+          if (!otherGoal || otherGoal.kind !== 'place' || otherGoal.station === 'COMPANION') return false;
+          return rules.canUse(units.get(other), from.station) && (['LOUNGE', 'FUSION'].includes(from.station) || goalMet(from, otherGoal, rules));
+        });
+        if (!leaving) return null;
+        const [other, seat] = leaving;
+        state.pos.set(key, { station: 'COMPANION', slot: seat.slot });
+        state.pos.set(other, { station: from.station, slot: from.slot });
+        return { ...step, type: 'swap', kind: 'companion-swap', to: { station: 'COMPANION', slot: seat.slot }, withUnit: { ...units.get(other) }, withFrom: { ...seat } };
+      }
       state.pos.set(key, { station: 'COMPANION', slot });
       return { ...step, type: 'move', kind: 'direct', to: { station: 'COMPANION', slot } };
     }
@@ -284,6 +325,9 @@ export function planOptimiseRoute({ initial, target, rules, options = {} } = {})
       // room is full, so those go first, before anything opens a slot here.
       const order = open().sort(([a, ga], [b, gb]) => rank(ga, units.get(a)) - rank(gb, units.get(b)));
       for (const [key, goal] of order) {
+        // An earlier command in this pass may already have settled this droid
+        // (a Companion Swap drops the old Companion straight into the Lounge).
+        if (goal.kind === 'place' && goalMet(state.pos.get(key), goal, rules)) continue;
         const step = tryCommand(state, key, commandFor(goal), policy.assumed);
         if (step) { steps.push(step); progress = true; }
       }
@@ -291,11 +335,14 @@ export function planOptimiseRoute({ initial, target, rules, options = {} } = {})
       if (fuse) { steps.push(fuse); progress = true; }
       if (!progress && steps.filter(step => step.buffer).length < policy.buffers) {
         const { free } = occupancy(placedOf(state), rules);
-        if (!free('LOUNGE').length) break;
+        const waitingRoom = free('LOUNGE').length ? 'buffer' : free('FUSION').length && !state.staged.size ? 'park' : null;
+        if (!waitingRoom) break;
         const candidates = open().filter(([key, goal]) => goal.kind === 'place' && state.pos.has(key) && goal.station !== 'LOUNGE')
           .filter(([key]) => { const station = state.pos.get(key).station; return arrivalsInto(state, station) > free(station).length; });
-        const [pick] = candidates;
-        if (pick) { const step = tryCommand(state, pick[0], 'buffer', false); if (step) { steps.push(step); progress = true; } }
+        for (const pick of candidates) {
+          const step = tryCommand(state, pick[0], waitingRoom, false);
+          if (step) { steps.push(step); progress = true; break; }
+        }
       }
     }
     return steps;
@@ -387,6 +434,7 @@ export function planOptimiseRoute({ initial, target, rules, options = {} } = {})
   for (const key of blockedKeys) for (const text of hints.get(key) || []) if (!issues.includes(text)) issues.push(text);
   const blocked = blockedKeys.map(key => units.get(key).name);
   if (blocked.length) issues.push(`No order of commands reaches the optimised layout for: ${[...new Set(blocked)].join(', ')}.`);
+  if (!blocked.length && fusions.some(fusion => !partial.state.fused.has(fusion.index))) issues.push('A fusion in this plan has no free Fusion Build slot for its result. Finish or move a droid out of Fusion Build, then run Optimise again.');
   return finish(partial, false);
 
   function finish(node, complete = true) {

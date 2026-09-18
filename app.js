@@ -2769,8 +2769,11 @@ function optimisedPlacements(baseP,plan){
   const lockedKeys=new Set(baseP.placed.filter(x=>x.lockedSlot||isBuilding(x)).map(x=>`${x.source}:${x.unit}`));
   for(const locked of baseP.placed.filter(x=>lockedKeys.has(`${x.source}:${x.unit}`)))if(canKeep(locked.station,locked.slot))claim(locked,locked.station,locked.slot);
   for(const unit of units){const key=`${unit.source}:${unit.unit}`,target=assigned.get(key);if(target)claim(target.missionPriority?{...unit,missionPriority:true}:unit,target.station,target.slot)}
+  // The copy a rebirth will use is the best one you own, wherever it stands. A
+  // better or equal copy already working in a slot covers the rebirth, so the
+  // one in storage is a duplicate: free to fuse, or to sell.
   const bestFuture=new Map();
-  for(const unit of units){if(assigned.has(`${unit.source}:${unit.unit}`))continue;const previous=bestFuture.get(unit.name);if(!previous||VARIANTS.indexOf(unit.variant)>VARIANTS.indexOf(previous.variant))bestFuture.set(unit.name,{variant:unit.variant,key:`${unit.source}:${unit.unit}`})}
+  for(const unit of [...units].sort((a,b)=>Number(assigned.has(`${b.source}:${b.unit}`))-Number(assigned.has(`${a.source}:${a.unit}`)))){const previous=bestFuture.get(unit.name);if(!previous||VARIANTS.indexOf(unit.variant)>VARIANTS.indexOf(previous.variant))bestFuture.set(unit.name,{variant:unit.variant,key:`${unit.source}:${unit.unit}`})}
   const candidates=[],droidexKeepers=new Map(),droidexKeptKeys=new Map(),keptByHand=new Map(),spared=sparedFromSelling(),keepBuildOpen=Boolean(state.optimiseFreeBuild),strictKeepBuild=keepBuildOpen&&optimiseFreeBuildMode()!=='unused-income';
   // A droid in the Upgrade Chip slot is producing, so it is claimed here, before
   // the unused-for-rebirth sell pass below. Picking afterwards meant the best
@@ -2893,13 +2896,32 @@ function optimisedPlacements(baseP,plan){
     if(!item.spared&&!item.keepReason&&!isIconic(d)&&!item.unit.lockedSlot&&item.unit.keepReason!=='fusion'&&!keepForFusion(item.unit)&&!isBuilding(old)&&droidCycleStatus(d,item.unit.variant,bestCopy).kind==='unused'){
       overflow.splice(index,1);sell.push({...item.unit,sellReason:'No free slot to keep it'});continue;
     }
-    const holder=placed.find(x=>x.station===old.station&&x.slot===old.slot);
-    if(!holder){if(canKeep(old.station,old.slot)){overflow.splice(index,1);claim(item.unit,old.station,old.slot)}continue}
-    const holderKey=`${holder.source}:${holder.unit}`,holderOld=current.get(holderKey);
-    if(!holderOld||lockedKeys.has(holderKey)||holder.missionPriority||holderOld.station===old.station&&holderOld.slot===old.slot||!canKeep(holderOld.station,holderOld.slot))continue;
-    placed.splice(placed.indexOf(holder),1);occupied[old.station].delete(old.slot);
-    const {station:_station,slot:_slot,built:_built,...holderUnit}=holder;
-    claim(holderUnit,holderOld.station,holderOld.slot);
+    // First choice costs nothing: a finished droid the layout was only moving
+    // from its Build or Fusion Build tank into the Lounge stays in the tank, and
+    // this droid takes the Lounge slot instead.
+    const tankOrder=keepBuildOpen?['FUSION_BUILD','BUILD']:['BUILD','FUSION_BUILD'];
+    const resting=placed.filter(x=>x.station==='LOUNGE'&&!lockedKeys.has(`${x.source}:${x.unit}`)).map(x=>({x,was:current.get(`${x.source}:${x.unit}`)})).filter(({was})=>was&&tankOrder.includes(was.station)&&was.built&&!placed.some(y=>y.station===was.station&&y.slot===was.slot)).sort((a,b)=>tankOrder.indexOf(a.was.station)-tankOrder.indexOf(b.was.station))[0];
+    if(resting&&canUseStation(d,'LOUNGE')){
+      const {x,was}=resting,loungeSlot=x.slot;
+      placed.splice(placed.indexOf(x),1);occupied.LOUNGE.delete(loungeSlot);
+      const {station:_s,slot:_l,built:_b,...restingUnit}=x;
+      claim(restingUnit,was.station,was.slot);
+      overflow.splice(index,1);claim(item.unit,'LOUNGE',loungeSlot);continue;
+    }
+    // Otherwise it keeps its slot, and whoever was given that slot goes back to
+    // their own, and so on down the line until someone's old slot is free. Every
+    // step puts a droid back where it already stands, so the chain always ends.
+    const chain=[];let wanted=old,blocked=false;
+    for(let guard=0;guard<placed.length+2;guard++){
+      const holder=placed.find(x=>x.station===wanted.station&&x.slot===wanted.slot);
+      if(!holder){blocked=!canKeep(wanted.station,wanted.slot);break}
+      const holderKey=`${holder.source}:${holder.unit}`,holderOld=current.get(holderKey);
+      if(!holderOld||lockedKeys.has(holderKey)||holder.missionPriority||holderOld.station===wanted.station&&holderOld.slot===wanted.slot||chain.some(step=>step.holder===holder)){blocked=true;break}
+      chain.push({holder,to:holderOld});wanted=holderOld;
+    }
+    if(blocked)continue;
+    for(const {holder} of chain){placed.splice(placed.indexOf(holder),1);occupied[holder.station].delete(holder.slot)}
+    for(const {holder,to} of chain){const {station:_station,slot:_slot,built:_built,...holderUnit}=holder;claim(holderUnit,to.station,to.slot)}
     overflow.splice(index,1);claim(item.unit,old.station,old.slot);
   }
   const stablePlaced=stabiliseProjectedPlacements(baseP,placed),rebirthPick=stablePlaced.reduce((map,x)=>{const previous=map.get(x.name),key=`${x.source}:${x.unit}`;if(!previous||VARIANTS.indexOf(x.variant)>VARIANTS.indexOf(previous.variant))map.set(x.name,{variant:x.variant,key});return map},new Map()),finalPlaced=[],finalSell=[...sell];
@@ -3092,7 +3114,10 @@ const optimiseStepStyle=()=>{try{const saved=localStorage.getItem("droid-archive
 const protocolFusionSpares=projected=>[...(projected?.placed||[]),...(projected?.overflow||[])].filter(x=>x.keepReason==='protocol'||x.keepReason==='fusion');
 function fusionRebirthProtectedKeys(){
   const needed=new Set(futureRequirements().map(x=>x.droidName)),best=new Map();
-  for(const unit of expandedOwned()){
+  // Between equal copies the one at work is the rebirth copy, which leaves the
+  // one in storage free to fuse.
+  const stored=unit=>Number(!unit.preferred||['LOUNGE','FUSION','BUILD','FUSION_BUILD'].includes(unit.preferred));
+  for(const unit of expandedOwned().sort((a,b)=>stored(a)-stored(b))){
     if(!needed.has(unit.name))continue;
     const previous=best.get(unit.name);
     if(!previous||VARIANTS.indexOf(unit.variant)>VARIANTS.indexOf(previous.variant))best.set(unit.name,unit);
@@ -3202,6 +3227,8 @@ function optimiseRouteRules(){
     regionOf:optimiseRegion,
     distance:optimiseRegionDistance,
     nearestOrder:region=>MEASURED_OVERFLOW_ORDER[region]||null,
+    // Iconics cannot stand on the Fusion table, so they cannot wait there.
+    canPark:unit=>!isIconic(droidOf(unit)),
     protocolStations:()=>Object.keys(PROTOCOL_SLOTS).filter(station=>stationSlotIndices(station).length)
   };
   rules.workLanding=(unit,placed)=>{const landing=predictWorkLanding(unit,placed,rules);return landing&&{station:landing.station,slot:landing.slot,assumed:landing.assumed,options:landing.options}};
@@ -3225,8 +3252,10 @@ function optimiseFusionBatches(baseP,projected){
     }
   }
   // A result needs a Fusion Build slot: free now, or holding a finished droid
-  // the walk can send to work first.
-  const capacity=stationSlotIndices('FUSION_BUILD').filter(slot=>{const occupant=baseP.placed.find(x=>x.station==='FUSION_BUILD'&&x.slot===slot);return !occupant||occupant.built&&!occupant.lockedSlot}).length;
+  // that this layout really sends somewhere else. One the layout leaves in its
+  // tank (nowhere better to go) keeps the tank.
+  const leavesTank=occupant=>{const goal=projected.placed.find(x=>keyOf(x)===keyOf(occupant));return !goal||goal.station!=='FUSION_BUILD'};
+  const capacity=stationSlotIndices('FUSION_BUILD').filter(slot=>{const occupant=baseP.placed.find(x=>x.station==='FUSION_BUILD'&&x.slot===slot);return !occupant||occupant.built&&!occupant.lockedSlot&&leavesTank(occupant)}).length;
   while(batches.length>capacity)later.unshift(batches.pop());
   return {batches,later,claimed};
 }
@@ -3237,9 +3266,11 @@ function routeStepText(step){
   if(step.type==='fuse-in')return `Send ${who} to the Fusion room.`;
   if(step.type==='fuse-held')return `Leave ${unitName(step.unit)} in Fusion for this batch.`;
   if(step.type==='fuse')return String(step.text||'').replace(/\s*Collect the result and clear the table before the next batch\.?\s*$/,'')+` The result builds in Fusion Build ${Number(step.toSlot)+1} until it finishes.`;
+  if(step.type==='swap'&&step.kind==='companion-swap')return `Open the card of ${who} and press Swap, Slot ${Number(step.withFrom?.slot)+1}: it becomes your companion and ${unitName(step.withUnit)} takes its place in ${slotLabel(step.from)}.`;
   if(step.type==='move'){
     const to=step.to||{};
     if(to.station==='LOUNGE')return step.buffer?`Send ${who} to the Lounge for now; later in this walk it goes to work from there.`:`Send ${who} to the Lounge.`;
+    if(to.station==='FUSION')return `Send ${who} to the Fusion room for now (the Fusion button puts it on a free pad); the Lounge is full, and later in this walk it moves on from there.`;
     if(to.station==='COMPANION')return `Make ${who} your companion.`;
     const where=to.station==='UPGRADE_CHIP'?'the Upgrade Chip station':to.station==='ASTROMECH'?`the Astromech room (${to.cls==='mission'?'a mission slot':'a credit slot'})`:isProtocolStation(to.station)?stationName(to.station):`the ${stationName(to.station)} room`;
     const others=(step.options||[]).filter(station=>station!==to.station).map(station=>isProtocolStation(station)?stationName(station):`the ${stationName(station)} room`);

@@ -11,7 +11,7 @@ const server=http.createServer((req,res)=>{
  fs.readFile(file,(err,data)=>{if(err){res.writeHead(404).end();return}res.writeHead(200,{'Content-Type':{'.html':'text/html','.js':'text/javascript','.json':'application/json','.css':'text/css','.png':'image/png','.svg':'image/svg+xml'}[path.extname(file)]||'application/octet-stream'});res.end(data)});
 });
 const key=u=>`${u.source}:${u.unit}`,spot=u=>`${u.station}:${u.slot}`;
-const COMMANDS=['sell','move','fuse-in','fuse-held','fuse'];
+const COMMANDS=['sell','move','swap','fuse-in','fuse-held','fuse'];
 function replay({base,target,steps}){
  const current=new Map(base.placed.map(u=>[key(u),{...u}]));
  const building=u=>['BUILD','FUSION_BUILD'].includes(u.station)&&!u.built;
@@ -20,6 +20,11 @@ function replay({base,target,steps}){
   assert(COMMANDS.includes(step.type),`not a command the game offers: ${step.type} ${step.text}`);
   assert(step.at&&step.visit,`every step belongs to a stop: ${step.text}`);
   if(step.type==='fuse')continue;
+  if(step.type==='swap'){
+   assert.equal(step.kind,'companion-swap','the only swap the game offers is with a Companion slot');
+   const a=current.get(key(step.unit)),b=current.get(key(step.withUnit));assert(a&&b&&b.station==='COMPANION',`bad companion swap: ${step.text}`);
+   const was={station:a.station,slot:a.slot};Object.assign(a,{station:b.station,slot:b.slot});Object.assign(b,was);continue;
+  }
   const unit=current.get(key(step.unit));assert(unit,`missing copy: ${step.text}`);
   const from=position(step.from,step.fromSlot);
   assert.equal(spot(unit),spot(from),`stale origin: ${step.text}`);

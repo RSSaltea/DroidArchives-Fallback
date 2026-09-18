@@ -2,6 +2,19 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-18-optimise-full-base",
+      "date": "2026-09-18",
+      "title": "Optimise on a full base",
+      "summary": "Optimise finds the fusions in a full Lounge and always has a command for a base with no free slot.",
+      "changes": [
+        "A stored copy of a droid is a spare when an equal or better copy is already working in a slot. Optimise used to hold that stored copy back as the rebirth copy, which could hide every fusion and report Already optimal on a nearly full Lounge.",
+        "When both Companion slots are taken the plan uses the Swap button on the droid card: one command, and the old Companion takes the place the droid left.",
+        "With the Lounge full, a droid can wait on a free Fusion pad so two droids can trade rooms. Iconics are never sent there.",
+        "A fusion with no free Fusion Build slot for its result waits for a later walk instead of stopping the whole plan, and a finished droid can stay in its tank when a displaced droid needs the Lounge slot.",
+        "A plan that cannot be applied yet says why on the Apply button and in a note at the end of the steps."
+      ]
+    },
+    {
       "id": "2026-09-17-optimise-rework",
       "date": "2026-09-17",
       "title": "Optimise rebuilt around how droids really move",
@@ -12,7 +25,7 @@
         "Layouts skip moves worth less than a small share of income (set the threshold in Command Deck). A droid with nowhere to go stays where it is, or is sold when no rebirth needs it.",
         "Fusion batches whose three inputs are on the Base are part of the walk, one batch on the table at a time.",
         "New Base map drawn to the real base: platform, Battle building with its upstairs slots, both Lounge rooms, Fusion lab, Worker pod, the Protocol consoles and the Upgrade Chip station, with every droid on its pad.",
-      "Password reset works again: the link from the email opens the new-password form on the home page instead of a missing page, an expired or already used link says so and offers a fresh one, and the code in the reset email can be typed in instead of opening the link. Direct address: droidarchives.co.uk/#/reset-password."
+        "Password reset works again: the link from the email opens the new-password form on the home page instead of a missing page, an expired or already used link says so and offers a fresh one, and the code in the reset email can be typed in instead of opening the link. Direct address: droidarchives.co.uk/#/reset-password."
       ]
     },
     {

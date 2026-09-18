@@ -193,3 +193,58 @@ test('a droid can overflow into another room while its own is still full, even t
   assert.equal(stuck.route.complete,false);
   assert.ok(stuck.route.issues.some(text=>/Battle droid/.test(text)),stuck.route.issues.join(' | '));
 });
+
+test('a second fusion with nowhere to build its result waits for a later walk instead of failing the plan',async()=>{
+  // One Fusion Build slot: the first result takes it, so the second batch cannot
+  // be fused in this walk. Its inputs stay put and the rest of the plan applies.
+  nextSource=0;const inputs=['A','B','C','D','E','F'].map((n,i)=>unit(`WORK-${n}`,'LOUNGE',i));
+  const result=i=>({source:`fusion-result-${i}`,unit:0,name:'Fusion result',variant:'DEFAULT',fusionUnknown:true,rarity:'EPIC',fusionResult:true,fusionInputs:[],built:false});
+  const recipe=group=>({spend:group.map(u=>({name:u.name,variant:u.variant,count:1})),rarity:'EPIC',variant:'DEFAULT',sure:false,gain:1,after:[]});
+  const batches=[0,1].map(i=>{const group=inputs.slice(i*3,i*3+3);return {index:i,inputs:group,fusion:recipe(group),unit:null,text:'Fuse.',resultUnit:result(i)}});
+  const {route}=await plan(inputs,[],{LOUNGE:6,FUSION:3,FUSION_BUILD:1},{fusions:batches});
+  assert.equal(route.complete,true,route.issues.join(' '));
+  assert.deepEqual(route.fused,[0]);
+  assert.equal(route.later.length,1);assert.match(route.later[0].reason,/Fusion Build/);
+  assert.equal(route.steps.filter(s=>s.type==='fuse-in').length,3,'only the first batch is sent to the Fusion room');
+  for(const waiting of inputs.slice(3))assert.ok(route.finalPlaced.some(x=>x.source===waiting.source&&x.station==='LOUNGE'),`${waiting.name} stays in the Lounge`);
+});
+
+test('with the Lounge full, a droid waits on the Fusion table so two droids can trade rooms',async()=>{
+  // Every slot is taken: the worker resting in the Lounge belongs in the Worker
+  // room, and the droid holding that slot belongs in the Lounge. Neither can go
+  // first, so one stands on a Fusion pad in between.
+  nextSource=0;const rest=unit('WORK-REST','LOUNGE',0),squat=unit('WAR-SQUAT','WORKER',0);
+  const {route,summary}=await plan([rest,squat],[at(rest,'WORKER',0),at(squat,'LOUNGE',0)],{WORKER:1,LOUNGE:1,FUSION:3});
+  assert.equal(route.complete,true,route.issues.join(' '));
+  const park=route.steps.find(s=>s.kind==='park');
+  assert.ok(park&&park.to.station==='FUSION',summary.join(' , '));
+  assert.ok(!route.finalPlaced.some(x=>x.station==='FUSION'),'nobody is left on the table');
+  // An Iconic cannot stand on the table, so the same trade is refused for two of them.
+  nextSource=0;const a=unit('ICON-WORK','LOUNGE',0),b=unit('ICON-WAR','WORKER',0);
+  const mod=await load(),rules={...rulesFor({WORKER:1,LOUNGE:1,FUSION:3},{types:{'ICON-WORK':'WORKER','ICON-WAR':'BATTLE'}}),canPark:u=>!u.name.startsWith('ICON')};
+  const refused=mod.planOptimiseRoute({initial:{placed:[a,b],overflow:[]},target:{placed:[at(a,'WORKER',0),at(b,'LOUNGE',0)],sell:[],overflow:[],fusions:[]},rules});
+  assert.equal(refused.complete,false);
+});
+
+test('a droid becomes the Companion with the Swap button on its card when both Companion slots are taken',async()=>{
+  // The game trades the two: the old Companion takes the droid's place. One
+  // command at one stop, no waiting room needed, and a locked Companion is left alone.
+  nextSource=0;const keep=unit('ASTRO-KEEP','COMPANION',0,{lockedSlot:true}),pal=unit('ASTRO-PAL','COMPANION',1),rest=unit('ASTRO-REST','LOUNGE',0);
+  const {route,summary}=await plan([keep,pal,rest],[keep,at(pal,'LOUNGE',0),at(rest,'COMPANION',1)],{LOUNGE:1,COMPANION:2,FUSION:3});
+  assert.equal(route.complete,true,route.issues.join(' '));
+  assert.equal(route.steps.length,1,summary.join(' , '));
+  const [swap]=route.steps;
+  assert.equal(swap.type,'swap');assert.equal(swap.kind,'companion-swap');
+  assert.equal(swap.unit.name,'ASTRO-REST');assert.equal(swap.withUnit.name,'ASTRO-PAL');assert.equal(swap.at,'LOUNGE');
+  assert.deepEqual(swap.withFrom,{station:'COMPANION',slot:1});
+  assert.ok(route.finalPlaced.some(x=>x.name==='ASTRO-PAL'&&x.station==='LOUNGE'&&x.slot===0));
+  assert.ok(route.finalPlaced.some(x=>x.name==='ASTRO-KEEP'&&x.station==='COMPANION'&&x.slot===0));
+});
+
+test('the old Companion is not walked across the Lounge after a Swap has already put it there',async()=>{
+  // The layout names another Lounge slot for it, but any Lounge slot is the Lounge.
+  nextSource=0;const pal=unit('ASTRO-PAL','COMPANION',0),rest=unit('ASTRO-REST','LOUNGE',0);
+  const {route,summary}=await plan([pal,rest],[at(pal,'LOUNGE',1),at(rest,'COMPANION',0)],{LOUNGE:2,COMPANION:1,FUSION:3});
+  assert.equal(route.complete,true,route.issues.join(' '));
+  assert.deepEqual(route.steps.map(step=>step.kind),['companion-swap'],summary.join(' , '));
+});
