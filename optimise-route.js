@@ -149,6 +149,12 @@ export function planOptimiseRoute({ initial, target, rules, options = {} } = {})
   }
 
   // ---- feasibility of the target itself ----------------------------------
+  // These describe why a droid may be unreachable, judged from the finished
+  // layout alone. The walk can still get there when the room is full at the
+  // moment of the command (droids sold or fused afterwards leave the gaps), so
+  // they only become issues for droids the search really could not place.
+  const hints = new Map();
+  const hint = (key, text) => { if (!hints.has(key)) hints.set(key, []); hints.get(key).push(text); };
   const finalCount = new Map();
   const bump = (station, cls) => { const k = `${station}|${cls || ''}`; finalCount.set(k, (finalCount.get(k) || 0) + 1); };
   for (const [key, goal] of goals) if (goal.kind === 'place') bump(goal.station, goal.cls);
@@ -161,9 +167,9 @@ export function planOptimiseRoute({ initial, target, rules, options = {} } = {})
     if (goal.kind !== 'place') continue;
     const unit = units.get(key), type = rules.typeOf(unit);
     if (goalMet(unit, goal, rules)) continue;
-    if (goal.station === 'UPGRADE_CHIP' && !PRODUCTIVE.every(finalFull)) issues.push(`${unit.name} can only reach the Upgrade Chip once every Worker, Astromech and Battle slot is full, and the optimised layout leaves some empty.`);
-    if (PRODUCTIVE.includes(goal.station) && PRODUCTIVE.includes(type) && goal.station !== type && !finalFull(type)) issues.push(`${unit.name} is a ${type[0] + type.slice(1).toLowerCase()} droid: Work only sends it to ${goal.station[0] + goal.station.slice(1).toLowerCase()} once every ${type[0] + type.slice(1).toLowerCase()} slot is full, and the optimised layout leaves some empty.`);
-    if (goal.station === 'ASTROMECH' && goal.cls === 'credit' && (finalCount.get('ASTROMECH|mission') || 0) < missionCapacity) issues.push(`${unit.name} would take an Astromech mission slot before a credit slot, and the optimised layout leaves a mission slot empty.`);
+    if (goal.station === 'UPGRADE_CHIP' && !PRODUCTIVE.every(finalFull)) hint(key, `${unit.name} can only reach the Upgrade Chip once every Worker, Astromech and Battle slot is full, and the optimised layout leaves some empty.`);
+    if (PRODUCTIVE.includes(goal.station) && PRODUCTIVE.includes(type) && goal.station !== type && !finalFull(type)) hint(key, `${unit.name} is a ${type[0] + type.slice(1).toLowerCase()} droid: Work only sends it to ${goal.station[0] + goal.station.slice(1).toLowerCase()} once every ${type[0] + type.slice(1).toLowerCase()} slot is full, and the optimised layout leaves some empty.`);
+    if (goal.station === 'ASTROMECH' && goal.cls === 'credit' && (finalCount.get('ASTROMECH|mission') || 0) < missionCapacity) hint(key, `${unit.name} would take an Astromech mission slot before a credit slot, and the optimised layout leaves a mission slot empty.`);
   }
 
   // ---- state ---------------------------------------------------------------
@@ -376,8 +382,10 @@ export function planOptimiseRoute({ initial, target, rules, options = {} } = {})
   }
   if (found) return finish(found);
   const partial = best || root;
-  const blocked = [...partial.state.goals].filter(([key, goal]) => !idle(goal) && !partial.state.sold.has(key) && !partial.state.staged.has(key) && !(goal.kind === 'place' && goalMet(partial.state.pos.get(key), goal, rules)))
-    .map(([key]) => units.get(key).name);
+  const blockedKeys = [...partial.state.goals].filter(([key, goal]) => !idle(goal) && !partial.state.sold.has(key) && !partial.state.staged.has(key) && !(goal.kind === 'place' && goalMet(partial.state.pos.get(key), goal, rules)))
+    .map(([key]) => key);
+  for (const key of blockedKeys) for (const text of hints.get(key) || []) if (!issues.includes(text)) issues.push(text);
+  const blocked = blockedKeys.map(key => units.get(key).name);
   if (blocked.length) issues.push(`No order of commands reaches the optimised layout for: ${[...new Set(blocked)].join(', ')}.`);
   return finish(partial, false);
 

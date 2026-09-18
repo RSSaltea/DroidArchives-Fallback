@@ -176,3 +176,20 @@ test('a Companion takes its command at a stop already being made, never a room o
   assert.equal(alone.route.complete,true,alone.route.issues.join(' '));
   assert.deepEqual(alone.route.steps.map(step=>step.at),['ANY']);
 });
+
+test('a droid can overflow into another room while its own is still full, even though the finished layout leaves a gap there',async()=>{
+  // The Battle droid in the Lounge belongs in Astromech in the new layout. Battle
+  // is full now, so Work sends it there; the Battle droid being sold leaves the
+  // gap afterwards. The finished layout has a free Battle slot, which is fine.
+  nextSource=0;const old=unit('WAR-OLD','BATTLE',0),kx=unit('WAR-KX','LOUNGE',0);
+  const {route,summary}=await plan([old,kx],[at(kx,'ASTROMECH',0)],{BATTLE:1,ASTROMECH:1,LOUNGE:5},{sell:[old]});
+  assert.equal(route.complete,true,route.issues.join(' '));
+  assert.deepEqual(route.issues,[]);
+  const work=route.steps.findIndex(s=>s.unit.name==='WAR-KX'&&s.kind==='work'),sell=route.steps.findIndex(s=>s.type==='sell');
+  assert.ok(work>=0&&sell>work,`the overflow has to happen before the sale: ${summary.join(' , ')}`);
+  // When the room is already open, the same layout really is unreachable and says why.
+  nextSource=0;const kx2=unit('WAR-KX','LOUNGE',0);
+  const stuck=await plan([kx2],[at(kx2,'ASTROMECH',0)],{BATTLE:1,ASTROMECH:1,LOUNGE:5});
+  assert.equal(stuck.route.complete,false);
+  assert.ok(stuck.route.issues.some(text=>/Battle droid/.test(text)),stuck.route.issues.join(' | '));
+});
