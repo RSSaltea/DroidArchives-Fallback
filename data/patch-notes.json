@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-19-protocol-keep",
+      "date": "2026-09-19",
+      "title": "Optimise keeps your Protocol droids",
+      "summary": "A Protocol droid is no longer sold while a Protocol slot is empty.",
+      "changes": [
+        "When a stronger Protocol droid takes a slot, the one it replaces moves to an empty Protocol slot (the one in its own room first) instead of going on the Sell list. A Protocol droid is only sold when every Protocol slot is taken.",
+        "New setting, on by default: Never sell a Protocol droid while a Protocol slot is free. It sits with the other Optimise options in Settings and the Command Deck; turn it off to get the old behaviour."
+      ]
+    },
+    {
       "id": "2026-09-18-optimise-full-base",
       "date": "2026-09-18",
       "title": "Optimise on a full base",

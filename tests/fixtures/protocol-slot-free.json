@@ -1,0 +1,545 @@
+{
+ "app": "Droid Archives",
+ "version": 5,
+ "exportedAt": "2026-09-19T10:37:16.713Z",
+ "base": {
+  "owned": [
+   {
+    "name": "CHOPPER",
+    "variant": "DEFAULT",
+    "qty": 1,
+    "preferred": "COMPANION",
+    "preferredSlot": 0,
+    "lockedSlot": true
+   },
+   {
+    "name": "TRAK-R",
+    "variant": "GOLD",
+    "qty": 1,
+    "preferred": "LOUNGE",
+    "preferredSlot": 0
+   },
+   {
+    "name": "LOM",
+    "variant": "DEFAULT",
+    "qty": 1,
+    "preferred": "PROTOCOL_ASTROMECH_CRAFTING",
+    "preferredSlot": 0
+   },
+   {
+    "name": "C-3PO",
+    "variant": "DEFAULT",
+    "qty": 1,
+    "preferred": "PROTOCOL_ASTROMECH_CREDITS",
+    "preferredSlot": 0
+   },
+   {
+    "name": "GROUNDMECH",
+    "variant": "BESKAR",
+    "qty": 1,
+    "preferred": "LOUNGE",
+    "preferredSlot": 2
+   },
+   {
+    "name": "SA-5",
+    "variant": "DIAMOND",
+    "qty": 1,
+    "preferred": "PROTOCOL_WORKER_CREDITS",
+    "preferredSlot": 0
+   },
+   {
+    "name": "MISTER BONES",
+    "variant": "DEFAULT",
+    "qty": 1,
+    "preferred": "ASTROMECH",
+    "preferredSlot": 7
+   },
+   {
+    "name": "IG-11 MARSHAL",
+    "variant": "DEFAULT",
+    "qty": 1,
+    "preferred": "ASTROMECH",
+    "preferredSlot": 1
+   },
+   {
+    "name": "CB-23",
+    "variant": "DEFAULT",
+    "qty": 1,
+    "preferred": "ASTROMECH",
+    "preferredSlot": 4
+   },
+   {
+    "name": "DJ R-3X",
+    "variant": "DEFAULT",
+    "qty": 1,
+    "preferred": "ASTROMECH",
+    "preferredSlot": 6
+   },
+   {
+    "name": "R2-D2",
+    "variant": "DEFAULT",
+    "qty": 1,
+    "preferred": "ASTROMECH",
+    "preferredSlot": 0
+   },
+   {
+    "name": "D-O",
+    "variant": "DEFAULT",
+    "qty": 1,
+    "preferred": "ASTROMECH",
+    "preferredSlot": 5
+   },
+   {
+    "name": "PROTO-ROLLER",
+    "variant": "GALACTIC",
+    "qty": 1,
+    "preferred": "LOUNGE",
+    "preferredSlot": 1
+   },
+   {
+    "name": "B2 SUPER",
+    "variant": "BESKAR",
+    "qty": 1,
+    "preferred": "LOUNGE",
+    "preferredSlot": 8
+   },
+   {
+    "name": "B2 HEAVY",
+    "variant": "RAINBOW",
+    "qty": 1,
+    "preferred": "LOUNGE",
+    "preferredSlot": 7
+   },
+   {
+    "name": "SNOW MOUSE",
+    "variant": "GALACTIC",
+    "qty": 1,
+    "preferred": "WORKER",
+    "preferredSlot": 0
+   },
+   {
+    "name": "R7",
+    "variant": "STELLAR",
+    "qty": 1,
+    "preferred": "WORKER",
+    "preferredSlot": 1
+   },
+   {
+    "name": "MO-TRAK",
+    "variant": "BESKAR",
+    "qty": 1,
+    "preferred": "WORKER",
+    "preferredSlot": 7
+   },
+   {
+    "name": "MONO-WALKER",
+    "variant": "STELLAR",
+    "qty": 1,
+    "preferred": "WORKER",
+    "preferredSlot": 5
+   },
+   {
+    "name": "TRI-TEK",
+    "variant": "GALACTIC",
+    "qty": 1,
+    "preferred": "WORKER",
+    "preferredSlot": 4
+   },
+   {
+    "name": "LOADLIFTER",
+    "variant": "BESKAR",
+    "qty": 1,
+    "preferred": "WORKER",
+    "preferredSlot": 2
+   },
+   {
+    "name": "LOM",
+    "variant": "GOLD",
+    "qty": 1,
+    "preferred": "PROTOCOL_WORKER_CRAFTING",
+    "preferredSlot": 0
+   },
+   {
+    "name": "RIC",
+    "variant": "STELLAR",
+    "qty": 1,
+    "preferred": "WORKER",
+    "preferredSlot": 10
+   },
+   {
+    "name": "LOADLIFTER",
+    "variant": "BESKAR",
+    "qty": 1,
+    "preferred": "WORKER",
+    "preferredSlot": 9
+   },
+   {
+    "name": "LEP",
+    "variant": "BESKAR",
+    "qty": 1,
+    "preferred": "WORKER",
+    "preferredSlot": 8
+   },
+   {
+    "name": "SA-5",
+    "variant": "GOLD",
+    "qty": 1,
+    "preferred": "PROTOCOL_BATTLE_CREDITS",
+    "preferredSlot": 0
+   },
+   {
+    "name": "CYCLO-GRAV",
+    "variant": "STELLAR",
+    "qty": 1,
+    "preferred": "BATTLE",
+    "preferredSlot": 0
+   },
+   {
+    "name": "B2-RP",
+    "variant": "GALACTIC",
+    "qty": 1,
+    "preferred": "BATTLE",
+    "preferredSlot": 1
+   },
+   {
+    "name": "BB9",
+    "variant": "STELLAR",
+    "qty": 1,
+    "preferred": "BATTLE",
+    "preferredSlot": 2
+   },
+   {
+    "name": "B2-RP",
+    "variant": "GALACTIC",
+    "qty": 1,
+    "preferred": "BATTLE",
+    "preferredSlot": 3
+   },
+   {
+    "name": "BB9",
+    "variant": "GALACTIC",
+    "qty": 1,
+    "preferred": "BATTLE",
+    "preferredSlot": 4
+   },
+   {
+    "name": "OPTI-STRIKE",
+    "variant": "GALACTIC",
+    "qty": 1,
+    "preferred": "BATTLE",
+    "preferredSlot": 5
+   },
+   {
+    "name": "MO-TRAK",
+    "variant": "BESKAR",
+    "qty": 1,
+    "preferred": "BATTLE",
+    "preferredSlot": 9
+   },
+   {
+    "name": "IG",
+    "variant": "BESKAR",
+    "qty": 1,
+    "preferred": "BATTLE",
+    "preferredSlot": 10
+   },
+   {
+    "name": "BB-8",
+    "variant": "DEFAULT",
+    "qty": 1,
+    "preferred": "ASTROMECH",
+    "preferredSlot": 8
+   },
+   {
+    "name": "KX",
+    "variant": "STELLAR",
+    "qty": 1,
+    "preferred": "ASTROMECH",
+    "preferredSlot": 2
+   },
+   {
+    "name": "RIC",
+    "variant": "STELLAR",
+    "qty": 1,
+    "preferred": "ASTROMECH",
+    "preferredSlot": 3
+   },
+   {
+    "name": "R7",
+    "variant": "BESKAR",
+    "qty": 1,
+    "preferred": "LOUNGE",
+    "preferredSlot": 3
+   },
+   {
+    "name": "SNOW MOUSE",
+    "variant": "RAINBOW",
+    "qty": 1,
+    "preferred": "LOUNGE",
+    "preferredSlot": 9
+   },
+   {
+    "name": "IG",
+    "variant": "GALACTIC",
+    "qty": 1,
+    "preferred": "BATTLE",
+    "preferredSlot": 8
+   },
+   {
+    "name": "MECHA-DROID",
+    "variant": "STELLAR",
+    "qty": 1,
+    "preferred": "WORKER",
+    "preferredSlot": 6
+   },
+   {
+    "name": "RIC",
+    "variant": "GALACTIC",
+    "qty": 1,
+    "preferred": "WORKER",
+    "preferredSlot": 3
+   },
+   {
+    "name": "SNOW MOUSE",
+    "variant": "BESKAR",
+    "qty": 1,
+    "preferred": "UPGRADE_CHIP",
+    "preferredSlot": 0
+   },
+   {
+    "name": "RIC-1200",
+    "variant": "GALACTIC",
+    "qty": 1,
+    "preferred": "BATTLE",
+    "preferredSlot": 7,
+    "built": true
+   },
+   {
+    "name": "CYCLENS",
+    "variant": "BESKAR",
+    "qty": 1,
+    "preferred": "COMPANION",
+    "preferredSlot": 1,
+    "built": true
+   },
+   {
+    "name": "BB9",
+    "variant": "STELLAR",
+    "qty": 1,
+    "preferred": "BATTLE",
+    "preferredSlot": 6,
+    "built": true
+   },
+   {
+    "name": "CYCLENS",
+    "variant": "GALACTIC",
+    "qty": 1,
+    "preferred": "FUSION_BUILD",
+    "preferredSlot": 0,
+    "built": true
+   },
+   {
+    "name": "DRFT-R",
+    "variant": "GALACTIC",
+    "qty": 1,
+    "preferred": "FUSION_BUILD",
+    "preferredSlot": 2,
+    "built": true
+   },
+   {
+    "name": "IG",
+    "variant": "RAINBOW",
+    "qty": 1,
+    "preferred": "BUILD",
+    "preferredSlot": 1,
+    "built": true
+   },
+   {
+    "name": "B2-RP",
+    "variant": "GALACTIC",
+    "qty": 1,
+    "preferred": "BUILD",
+    "preferredSlot": 2,
+    "built": true
+   }
+  ],
+  "blueprints": [],
+  "droidex": [],
+  "novaUpgrades": {
+   "credits": 5,
+   "multi-crit": 1,
+   "collect-all": 3,
+   "fusion-tank": 2,
+   "lounge-slot": 4,
+   "scrap-value": 6,
+   "fusion-speed": 3,
+   "super-crates": 3,
+   "variant-watch": 1,
+   "companion-slot": 1,
+   "crafting-speed": 5,
+   "daily-crystals": 1,
+   "movement-speed": 7,
+   "blueprint-scrap": 4,
+   "chip-sell-bonus": 4,
+   "critical-amount": 4,
+   "critical-chance": 7,
+   "pickaxe-mastery": 13,
+   "blueprint-vendor": 1,
+   "blueprint-storage": 3,
+   "credit-sell-bonus": 3,
+   "upgrade-chip-scrap": 10,
+   "double-daily-quests": 1,
+   "rebirth-droid-alert": 1,
+   "upgrade-chip-station": 1,
+   "droidex-notifications": 10
+  },
+  "novaIconicUnlocks": [],
+  "cantinaPurchases": {
+   "vip-pack": true,
+   "crit-pack": true,
+   "fusion-pack": true,
+   "starter-pack": true,
+   "fusion-tank-2": true,
+   "companion-pack": true
+  },
+  "multiplier": 69.2,
+  "cycle": 2,
+  "rebirth": 27,
+  "superRebirthGoal": 35,
+  "astromechIconicRoles": {
+   "BB-8": "credits",
+   "CB-23": "credits",
+   "CHOPPER": "credits"
+  },
+  "fusionKeepRules": [
+   {
+    "rarity": "LEGENDARY",
+    "variant": "BESKAR"
+   },
+   {
+    "rarity": "MYTHIC",
+    "variant": "RAINBOW"
+   },
+   {
+    "rarity": "EPIC",
+    "variant": "STELLAR"
+   }
+  ],
+  "fusionPreferences": {
+   "goal": "rarity",
+   "mythics": "variant",
+   "recipes": true
+  },
+  "notificationPreferences": {
+   "priority": "next",
+   "horizon": 6,
+   "startRebirth": 10,
+   "cycles": "both",
+   "ownedPolicy": "upgrades",
+   "upgradeTarget": "required",
+   "upgradeChipLimit": 800,
+   "rangeFromTop": true,
+   "tracked": [
+    {
+     "name": "GUNRUNNER",
+     "variant": "BESKAR"
+    },
+    {
+     "name": "LNG-SHOT",
+     "variant": "BESKAR"
+    },
+    {
+     "name": "MECHA-DROID",
+     "variant": "BESKAR"
+    },
+    {
+     "name": "MONO-WALKER",
+     "variant": "BESKAR"
+    },
+    {
+     "name": "RIC",
+     "variant": "DEFAULT"
+    },
+    {
+     "name": "PROTO-ROLLER",
+     "variant": "BESKAR"
+    },
+    {
+     "name": "SNOW MOUSE",
+     "variant": "RAINBOW"
+    },
+    {
+     "name": "TRI-TEK",
+     "variant": "DIAMOND"
+    },
+    {
+     "name": "GROUNDMECH",
+     "variant": "DEFAULT"
+    },
+    {
+     "name": "TRAK-R",
+     "variant": "DEFAULT"
+    }
+   ]
+  },
+  "protocolPriority": "credits",
+  "optimiseFreeBuild": false,
+  "optimiseFreeBuildMode": "upgrade-cost",
+  "optimiseMinGainPercent": 0.5,
+  "optimiseKeepDroidex": false,
+  "companionGoals": [
+   "pickaxe"
+  ],
+  "preferredCompanions": [
+   "CHOPPER"
+  ],
+  "autoCompleteBuilds": false,
+  "autoPurchaseSlots": true,
+  "purchasedSlots": [
+   "WORKER:4",
+   "BUILD:1",
+   "ASTROMECH:3",
+   "PROTOCOL_WORKER_CREDITS:0",
+   "BUILD:2",
+   "FUSION:0",
+   "FUSION:1",
+   "FUSION:2",
+   "FUSION_BUILD:0",
+   "BATTLE:2",
+   "WORKER:5",
+   "ASTROMECH:4",
+   "PROTOCOL_ASTROMECH_CREDITS:0",
+   "BATTLE:3",
+   "WORKER:6",
+   "ASTROMECH:5",
+   "BATTLE:4",
+   "PROTOCOL_BATTLE_CREDITS:0",
+   "WORKER:7",
+   "ASTROMECH:6",
+   "WORKER:8",
+   "ASTROMECH:7",
+   "PROTOCOL_WORKER_CRAFTING:0",
+   "WORKER:9",
+   "ASTROMECH:8",
+   "WORKER:10",
+   "BATTLE:5",
+   "LOUNGE:5",
+   "PROTOCOL_ASTROMECH_CRAFTING:0",
+   "BATTLE:6",
+   "LOUNGE:6",
+   "BATTLE:7",
+   "LOUNGE:7",
+   "BATTLE:8",
+   "LOUNGE:8",
+   "BATTLE:9",
+   "PROTOCOL_BATTLE_CRAFTING:0",
+   "BATTLE:10"
+  ],
+  "loungePurchased": 4,
+  "novaLevel": 0,
+  "rebirthTracker": {
+   "notUsingBase": true,
+   "entries": {}
+  }
+ }
+}

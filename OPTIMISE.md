@@ -36,7 +36,11 @@ validator and the slot log.
    the base as it stands, then runs a local search that charges every droid
    changing station a move threshold (`optimiseMinGainPercent`, default 0.5%
    of income), so equal-income reshuffles never win. Iconic candidates are
-   tried as ranked prefixes rather than every subset.
+   tried as ranked prefixes rather than every subset. A Protocol droid the
+   search leaves out then fills an empty Protocol slot (its own room first on
+   a tie), so one is only sold when every Protocol slot is taken. Setting
+   `optimiseKeepProtocol`, on by default; off restores selling the droid a
+   stronger one replaced.
 3. `optimisedPlacements()` allocates the target: kept copies, fusion reserves,
    sale candidates and locked slots. A displaced droid with nowhere to go is
    sold when no rebirth needs it and nothing protects it; otherwise it stays

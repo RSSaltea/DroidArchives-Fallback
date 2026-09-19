@@ -88,9 +88,13 @@ const server=http.createServer((req,res)=>{
  // full-lounge-fusion-spares.json: a nearly full Lounge of kept-for-fusion droids whose
  // better copies are already at work. Those stored copies are spares, not rebirth
  // copies, so the plan fuses them instead of reporting that nothing can be done.
- for(const fixture of ['worker-routing.json','three-free-lounge.json','full-base-companion.json','full-base-trade-places.json','full-lounge-fusion-spares.json']){
- const routing=await page.evaluate(profile=>{
-  const d=window.testPlan;Object.assign(d.state,d.validateBaseImport(profile));
+ // protocol-slot-free.json: five Protocol droids, six Protocol slots. A stronger droid
+ // takes a Credits slot; the one it replaces moves to the empty Crafting slot in the
+ // same room rather than being sold, unless the player turns that rule off.
+ for(const fixture of ['worker-routing.json','three-free-lounge.json','full-base-companion.json','full-base-trade-places.json','full-lounge-fusion-spares.json','protocol-slot-free.json','protocol-slot-free.json:sell']){
+ const [fixtureFile,fixtureMode]=fixture.split(':');
+ const routing=await page.evaluate(({profile,keepProtocol})=>{
+  const d=window.testPlan;Object.assign(d.state,d.validateBaseImport(profile));d.state.optimiseKeepProtocol=keepProtocol;
   const base=d.placements(),target=d.optimisedPlacements(base,d.optimiseBase(base,d.incomeForPlaced(base.placed))),steps=d.safeOptimiseStepPlan(base,target);
   const key=x=>`${x.source}:${x.unit}`,spot=x=>`${x.station}:${x.slot}`,current=new Map(base.placed.map(x=>[key(x),{...x}])),failures=[],fused=new Set();
   for(const step of steps){
@@ -118,10 +122,19 @@ const server=http.createServer((req,res)=>{
   }
   // A droid spent in a fusion is gone; everyone else ends where the layout says.
   for(const goal of target.placed)if(!fused.has(key(goal))&&(!current.has(key(goal))||spot(current.get(key(goal)))!==spot(goal)))failures.push(`unfinished layout: ${goal.name} ${goal.variant}`);
-  return {failures,steps:steps.length,first:steps.find(x=>x.type!=='sell'),fusions:steps.filter(x=>x.type==='fuse').length,fusedIn:steps.filter(x=>x.type==='fuse-in'||x.type==='fuse-held').map(x=>`${x.unit.name} ${x.unit.variant} from ${x.from.station}`)};
- },JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures',fixture),'utf8')));
+  return {failures,steps:steps.length,first:steps.find(x=>x.type!=='sell'),sold:steps.filter(x=>x.type==='sell').map(x=>`${x.unit.name} ${x.unit.variant}`),protocol:target.placed.filter(x=>x.station.startsWith('PROTOCOL_')).map(x=>`${x.name} ${x.variant} @ ${x.station}`),fusions:steps.filter(x=>x.type==='fuse').length,fusedIn:steps.filter(x=>x.type==='fuse-in'||x.type==='fuse-held').map(x=>`${x.unit.name} ${x.unit.variant} from ${x.from.station}`)};
+ },{profile:JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures',fixtureFile),'utf8')),keepProtocol:fixtureMode!=='sell'});
  assert.deepEqual(routing.failures,[]);assert(routing.steps>0);
  if(fixture==='three-free-lounge.json'){assert.equal(routing.first.type,'move');}
+ if(fixture==='protocol-slot-free.json'){
+  assert.deepEqual(routing.sold,[],'no Protocol droid is sold while a Protocol slot is free');
+  assert(routing.protocol.includes('LOM GOLD @ PROTOCOL_BATTLE_CREDITS'),JSON.stringify(routing.protocol));
+  assert(routing.protocol.includes('SA-5 GOLD @ PROTOCOL_BATTLE_CRAFTING'),JSON.stringify(routing.protocol));
+  assert.equal(routing.protocol.length,5);
+ }
+ if(fixture==='protocol-slot-free.json:sell'){
+  assert.deepEqual(routing.sold,['SA-5 GOLD'],'with the rule off the replaced Protocol droid is sold as before');
+ }
  if(fixture==='full-lounge-fusion-spares.json'){
   assert.equal(routing.fusions,2,JSON.stringify(routing.fusedIn));
   for(const spare of ['MECHA-DROID GALACTIC from LOUNGE','MONO-WALKER BESKAR from LOUNGE','MECHA-DROID BESKAR from LOUNGE'])assert(routing.fusedIn.includes(spare),`${spare} is a spare: ${JSON.stringify(routing.fusedIn)}`);
