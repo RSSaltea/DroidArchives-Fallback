@@ -20,7 +20,7 @@ function setup(){
   productiveStations:()=>Object.entries(caps).filter(([station])=>['WORKER','ASTROMECH','BATTLE'].includes(station)).flatMap(([station,n])=>Array.from({length:n},(_,slot)=>({station,slot}))),
   stationSlotIndices:station=>Array.from({length:caps[station]??(station.startsWith('PROTOCOL_')?1:0)},(_,i)=>i),
   slotFillOrder:station=>Array.from({length:caps[station]||0},(_,i)=>i).reverse(),
-  optimiseAssignmentMoves:()=>[],
+  optimiseAssignmentMoves:()=>[],sparedFromSelling:()=>state.spared||[],keepForFusion:x=>(state.fusionKept||[]).includes(x.name+' '+x.variant),
   stabiliseAssignments:x=>x,
   optimiseCreditBase:()=>({income:0,assignments:[],moves:[]}),
   unitName:x=>x.name,slotLabel:x=>x?`${x.station} ${x.slot+1}`:'Roster',withFusionSteps:x=>x
@@ -160,4 +160,20 @@ test('duplicate matching preserves locks, unfinished builds, manual Keep and cop
  ctx.base={placed:[{name:'LOM',variant:'RAINBOW',source:0,unit:0,station:'LOUNGE',slot:0},{name:'LOM',variant:'RAINBOW',source:1,unit:0,station:'PROTOCOL_WORKER_CRAFTING',slot:0}]};
  ctx.target={placed:[{...ctx.base.placed[0],station:'PROTOCOL_WORKER_CRAFTING',slot:0}],sell:[ctx.base.placed[1]],overflow:[]};
  const result=run('normaliseProjectedForSteps(base,target)');assert.equal(result.sell[0].source,0);assert.equal(result.placed[0].source,1);
+});
+test('with more Protocol droids than slots the weakest is the one left over to sell',()=>{
+ // Six SA-5 Default fill every Protocol slot and a TDA Stellar waits in the Lounge.
+ // No earner is on the base, so no swap gains a credit and the move threshold alone
+ // would leave the TDA out and send it to the Sell list.
+ const stations=['WORKER','ASTROMECH','BATTLE'].flatMap(region=>['CREDITS','CRAFTING'].map(role=>`PROTOCOL_${region}_${role}`));
+ const placed=JSON.stringify([...stations.map((station,source)=>({name:'SA-5',variant:'DEFAULT',station,slot:0,source,unit:0})),{name:'TDA',variant:'STELLAR',station:'LOUNGE',slot:0,source:6,unit:0}]);
+ const owned=[...stations.map(()=>({name:'SA-5',variant:'DEFAULT'})),{name:'TDA',variant:'STELLAR'}];
+ const first=setup();first.state.owned=owned;first.ctx.optimiseMoveLambda=()=>1e9;
+ const result=first.run(`optimiseBase({placed:${placed}},0)`),inSlots=result.assignments.filter(x=>x.station.startsWith('PROTOCOL_'));
+ assert.equal(inSlots.length,6);assert(inSlots.some(x=>x.name==='TDA'),'the strongest Protocol droid takes a slot');
+ assert.equal(inSlots.filter(x=>x.name==='SA-5').length,5,'one SA-5 is the leftover');
+ // A leftover you are saving for fusion is left alone.
+ const kept=setup();kept.state.owned=owned;kept.state.fusionKept=['TDA STELLAR'];kept.ctx.optimiseMoveLambda=()=>1e9;
+ const untouched=kept.run(`optimiseBase({placed:${placed}},0)`);
+ assert(!untouched.assignments.some(x=>x.name==='TDA'));assert.equal(untouched.assignments.filter(x=>x.name==='SA-5').length,6);
 });

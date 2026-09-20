@@ -91,7 +91,10 @@ const server=http.createServer((req,res)=>{
  // protocol-slot-free.json: five Protocol droids, six Protocol slots. A stronger droid
  // takes a Credits slot; the one it replaces moves to the empty Crafting slot in the
  // same room rather than being sold, unless the player turns that rule off.
- for(const fixture of ['worker-routing.json','three-free-lounge.json','full-base-companion.json','full-base-trade-places.json','full-lounge-fusion-spares.json','protocol-slot-free.json','protocol-slot-free.json:sell']){
+ // protocol-more-than-slots.json: eight Protocol droids for six slots (one finished in a
+ // Build tank). Every slot ends up filled and the two left over to sell are the two
+ // weakest, not a stronger one that happened to stand in the wrong slot.
+ for(const fixture of ['worker-routing.json','three-free-lounge.json','full-base-companion.json','full-base-trade-places.json','full-lounge-fusion-spares.json','protocol-slot-free.json','protocol-slot-free.json:sell','protocol-more-than-slots.json']){
  const [fixtureFile,fixtureMode]=fixture.split(':');
  const routing=await page.evaluate(({profile,keepProtocol})=>{
   const d=window.testPlan;Object.assign(d.state,d.validateBaseImport(profile));d.state.optimiseKeepProtocol=keepProtocol;
@@ -132,8 +135,15 @@ const server=http.createServer((req,res)=>{
   assert(routing.protocol.includes('SA-5 GOLD @ PROTOCOL_BATTLE_CRAFTING'),JSON.stringify(routing.protocol));
   assert.equal(routing.protocol.length,5);
  }
+ if(fixture==='protocol-more-than-slots.json'){
+  assert.equal(routing.protocol.length,6,JSON.stringify(routing.protocol));
+  assert.deepEqual(routing.sold.filter(x=>/^(SA-5|LOM|PZ|TDA) /.test(x)).sort(),['LOM DEFAULT','TDA DEFAULT']);
+  assert(routing.protocol.some(x=>x.startsWith('LOM GOLD @')),'the stronger LOM keeps a slot');
+ }
  if(fixture==='protocol-slot-free.json:sell'){
-  assert.deepEqual(routing.sold,['SA-5 GOLD'],'with the rule off the replaced Protocol droid is sold as before');
+  // With the rule off one Protocol droid is left over, and it is the weakest one
+  // (LOM Default, 12%), not the SA-5 Gold (16%) that LOM Gold replaced.
+  assert.deepEqual(routing.sold,['LOM DEFAULT'],'with the rule off the weakest Protocol droid is the one sold');
  }
  if(fixture==='full-lounge-fusion-spares.json'){
   assert.equal(routing.fusions,2,JSON.stringify(routing.fusedIn));

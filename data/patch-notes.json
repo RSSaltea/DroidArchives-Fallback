@@ -2,6 +2,15 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-20-protocol-weakest",
+      "date": "2026-09-20",
+      "title": "Optimise Protocol fix",
+      "summary": "Optimise now sells your weakest Protocol droids, not stronger ones.",
+      "changes": [
+        "If you have more Protocol droids than slots, the strongest keep the slots and the weakest are sold."
+      ]
+    },
+    {
       "id": "2026-09-19-protocol-keep",
       "date": "2026-09-19",
       "title": "Optimise keeps your Protocol droids",

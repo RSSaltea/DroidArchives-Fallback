@@ -418,6 +418,23 @@ function optimiseUnreservedBase(p,currentIncome){
       if(!pick)break;assignment=pick.candidate;
     }
   }
+  // With more Protocol droids than slots, the ones left over are the ones that
+  // get sold, so they must be the weakest. The move threshold alone would keep a
+  // weak droid in its slot and sell a stronger one standing elsewhere, because a
+  // better Crafting bonus earns no credits to pay for the walk. A leftover that
+  // is being saved on purpose (a fusion rule, or Keep pressed in the plan) stays out.
+  {
+    const strength=index=>protocolBonus(units[index].droid,units[index].variant,'CREDITS')*1e6+protocolBonus(units[index].droid,units[index].variant,'CRAFTING');
+    const saved=new Set(sparedFromSelling());
+    for(let guard=0;guard<units.length;guard++){
+      const used=new Set(assignment.filter(i=>i>=0));
+      const spare=units.map((_,u)=>u).filter(u=>!used.has(u)&&units[u].droid?.type==='PROTOCOL'&&!saved.has(units[u].key)&&!keepForFusion(units[u])).sort((a,b)=>strength(b)-strength(a))[0];
+      if(spare===undefined)break;
+      const weakest=slots.map((_,i)=>i).filter(i=>assignment[i]>=0&&isProtocolStation(slots[i].station)&&allowed(spare,slots[i])).sort((a,b)=>strength(assignment[a])-strength(assignment[b]))[0];
+      if(weakest===undefined||strength(assignment[weakest])>=strength(spare))break;
+      assignment=[...assignment];assignment[weakest]=spare;
+    }
+  }
   const assignments=assignment.flatMap((index,i)=>index<0?[]:[{key:units[index].key,name:units[index].name,variant:units[index].variant,...slots[i]}]);
   const income=incomeForPlaced(layout(assignment));
   return {income,gain:income-currentIncome,assignments:stabiliseAssignments(assignments,p),moves:[],protocolPriority:state.protocolPriority||'credits'};

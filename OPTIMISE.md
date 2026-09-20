@@ -39,8 +39,11 @@ validator and the slot log.
    tried as ranked prefixes rather than every subset. A Protocol droid the
    search leaves out then fills an empty Protocol slot (its own room first on
    a tie), so one is only sold when every Protocol slot is taken. Setting
-   `optimiseKeepProtocol`, on by default; off restores selling the droid a
-   stronger one replaced.
+   `optimiseKeepProtocol`, on by default; off leaves the slot empty and sells
+   the leftover. Either way, with more Protocol droids than slots the
+   leftovers are the weakest: a stronger unplaced droid takes the slot of the
+   weakest placed one regardless of the move threshold, unless it is being
+   saved by a fusion rule or by Keep.
 3. `optimisedPlacements()` allocates the target: kept copies, fusion reserves,
    sale candidates and locked slots. A displaced droid with nowhere to go is
    sold when no rebirth needs it and nothing protects it; otherwise it stays
