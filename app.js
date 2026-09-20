@@ -2871,18 +2871,18 @@ function optimisedPlacements(baseP,plan){
   const first=optimisedPlacementsPass(baseP,plan);
   if(planHonoured(plan,first))return first;
   let best=first;
-  if(state.optimiseFuseFirst!==false){
-    const consumed=fusionFreesSlots(baseP,plan,first);
-    if(consumed.size){
-      const second=optimisedPlacementsPass(baseP,plan,consumed);
-      // The second layout stands only if its own batches still use every droid
-      // that was taken off the base for them; otherwise one would have no slot.
-      if(fusionConsumesAll(baseP,second,consumed)){if(planHonoured(plan,second))return second;best=second;}
-    }
+  const consumed=state.optimiseFuseFirst!==false?fusionFreesSlots(baseP,plan,first):new Set();
+  if(consumed.size){
+    const second=optimisedPlacementsPass(baseP,plan,consumed);
+    // A layout stands only if its own batches still use every droid that was
+    // taken off the base for them; otherwise one would have no slot. Here that
+    // can fail for a reason the tank pass cures: the result's Fusion Build slot
+    // is freed by a droid that only leaves once a tank takes the one it displaces.
+    if(fusionConsumesAll(baseP,second,consumed)){second.fallback=first;if(planHonoured(plan,second))return second;best=second;}
   }
-  const consumed=new Set((best.fusing||[]).map(x=>`${x.source}:${x.unit}`));
-  const third=optimisedPlacementsPass(baseP,plan,consumed,{tanks:true});
-  if(consumed.size&&!fusionConsumesAll(baseP,third,consumed))return best;
+  let third=optimisedPlacementsPass(baseP,plan,consumed,{tanks:true});
+  if(consumed.size&&!fusionConsumesAll(baseP,third,consumed))third=optimisedPlacementsPass(baseP,plan,new Set(),{tanks:true});
+  third.fallback=best;
   return planHonoured(plan,third)||third.overflow.length<best.overflow.length?third:best;
 }
 // Whether a layout puts every droid the search assigned where it asked, with
@@ -2913,7 +2913,7 @@ function optimisedPlacementsPass(baseP,plan,consumed=new Set(),{tanks=false}={})
   // A tank a droid can be swapped into: it holds a finished, unlocked droid now
   // (the one whose card offers Swap) and the layout has not given it to anyone.
   seatToSwap=tanks&&baseP.placed.some(x=>x.station==='COMPANION'&&!x.lockedSlot&&!isBuilding(x)),
-  vacatedTank=station=>seatToSwap?stationSlotIndices(station).find(slot=>!occupied[station].has(slot)&&baseP.placed.some(x=>{const key=`${x.source}:${x.unit}`,goal=assigned.get(key);return x.station===station&&x.slot===slot&&!x.lockedSlot&&!isBuilding(x)&&(goal?goal.station!==station||goal.slot!==slot:consumed.has(key)||sell.some(y=>`${y.source}:${y.unit}`===key))})):undefined,free=(station,origin)=>slotFillOrder(station,origin).find(i=>!occupied[station].has(i))??-1,canKeep=(station,slot)=>station&&stationSlotIndices(station).includes(slot)&&!occupied[station].has(slot);
+  vacatedTank=station=>seatToSwap?stationSlotIndices(station).find(slot=>!occupied[station].has(slot)&&baseP.placed.some(x=>{const key=`${x.source}:${x.unit}`,goal=assigned.get(key);return x.station===station&&x.slot===slot&&!x.lockedSlot&&!isBuilding(x)&&goal&&(goal.station!==station||goal.slot!==slot)&&!consumed.has(key)})):undefined,free=(station,origin)=>slotFillOrder(station,origin).find(i=>!occupied[station].has(i))??-1,canKeep=(station,slot)=>station&&stationSlotIndices(station).includes(slot)&&!occupied[station].has(slot);
   const lockedKeys=new Set(baseP.placed.filter(x=>x.lockedSlot||isBuilding(x)).map(x=>`${x.source}:${x.unit}`));
   for(const locked of baseP.placed.filter(x=>lockedKeys.has(`${x.source}:${x.unit}`)))if(canKeep(locked.station,locked.slot))claim(locked,locked.station,locked.slot);
   for(const unit of units){const key=`${unit.source}:${unit.unit}`,target=assigned.get(key);if(target)claim(target.missionPriority?{...unit,missionPriority:true}:unit,target.station,target.slot)}
@@ -3288,7 +3288,28 @@ function optimiseFusionChain(projected,baseP){
   // kept Protocol spare is the exception: it is there to be fused.
   const sellKeys=new Set(spares.map(x=>`${x.source}:${x.unit}`));
   if((baseP?.placed||[]).some(x=>x.station==='FUSION'&&!sellKeys.has(`${x.source}:${x.unit}`)))return[];
-  return fusionChainFromSpares(spares,projected?.placed);
+  // Three spares already on the table are a batch the player has staged. When
+  // they fuse into something, that batch goes first and uses exactly them, so the
+  // chain never plans a different batch around droids that are in its way.
+  const staged=(baseP?.placed||[]).filter(x=>x.station==='FUSION'&&sellKeys.has(`${x.source}:${x.unit}`));
+  const stagedBatch=staged.length===3?fusionBatchOf(staged,projected?.placed):null;
+  if(!stagedBatch)return fusionChainFromSpares(spares,projected?.placed);
+  const stagedKeys=new Set(staged.map(x=>`${x.source}:${x.unit}`));
+  const rest=fusionChainFromSpares(spares.filter(x=>!stagedKeys.has(`${x.source}:${x.unit}`)),projected?.placed);
+  return [{...stagedBatch,staged:true,step:1},...rest.map(step=>({...step,step:step.step+1,after:(step.after||[]).map(i=>i+1)}))];
+}
+// The fusion three given droids make, if any, judged like a chain step: how it
+// compares with the weakest droid earning, and any Protocol bonus it brings.
+function fusionBatchOf(units,placed){
+  const stock=new Map();
+  for(const unit of units){if(!stock.has(unit.name))stock.set(unit.name,new Map());const byVariant=stock.get(unit.name);byVariant.set(unit.variant,(byVariant.get(unit.variant)||0)+1)}
+  const earning=(placed||[]).filter(x=>PRODUCTIVE_STATIONS.includes(x.station)).map(x=>droidIncomeAt(x.name,x.variant));
+  const slots=PRODUCTIVE_STATIONS.reduce((total,type)=>total+capacity(type),0),floor=earning.length<slots?0:Math.min(...earning);
+  // The player put them there, so the batch is offered whenever it is a fusion
+  // at all; the floor only sets the gain the step reports.
+  const pick=fusionBestFrom(stock,-Infinity,new Map(),null);
+  if(!pick||pick.spend.reduce((sum,part)=>sum+part.count,0)!==3)return null;
+  return {...pick,gain:pick.income-floor};
 }
 function withFusionSteps(steps,projected,baseP){
   if(state.optimiseFuseFirst===false)return steps;
@@ -3305,7 +3326,7 @@ function withFusionSteps(steps,projected,baseP){
       text:`Send ${unit.name} ${variantLabel(unit.variant)}${now?` from ${slotLabel(now)}`:''}.`});
   }
   const batches=[],claimed=new Set(),made=new Map();
-  const keyOf=x=>`${x.name}|${x.variant}`;
+  const keyOf=x=>`${x.name}|${x.variant}`,origin=s=>s.from?.station||s.from||s.unit?.station||s.at;
   for(const fusion of chain){
     const inputs=[],results=[];
     for(const part of fusion.spend){
@@ -3313,7 +3334,8 @@ function withFusionSteps(steps,projected,baseP){
       made.set(key,(made.get(key)||0)-generated);
       if(generated)results.push({...part,count:generated});
       for(let n=generated;n<part.count;n++){
-        const input=available.find(s=>!claimed.has(s)&&keyOf(s.unit)===key);
+        // A staged batch is made of the droids on the table, not other copies.
+        const input=(fusion.staged?available.find(s=>!claimed.has(s)&&keyOf(s.unit)===key&&origin(s)==='FUSION'):null)||available.find(s=>!claimed.has(s)&&keyOf(s.unit)===key);
         if(!input)return steps; // Never offer a batch without all three inputs.
         claimed.add(input);inputs.push(input);
       }
@@ -3321,7 +3343,6 @@ function withFusionSteps(steps,projected,baseP){
     if(fusion.out)made.set(keyOf(fusion.out),(made.get(keyOf(fusion.out))||0)+1);
     batches.push({fusion,inputs,results});
   }
-  const origin=s=>s.from?.station||s.from||s.unit?.station||s.at;
   const onTable=available.filter(s=>origin(s)==='FUSION');
   // Inputs already on the table cannot be ignored while another batch runs.
   // Keep the original non-fusion plan when the batches cannot honor them. This
@@ -3348,7 +3369,7 @@ function withFusionSteps(steps,projected,baseP){
     const makes=step.out?`${step.out.name} ${variantLabel(step.out.variant)}`:`${/^[aeiou]/i.test(rolled)?'an':'a'} ${rolled} droid at ${variantLabel(step.variant)}`;
     // Protocol droids roll into any type of droid, not only another Protocol one.
     const anyType=!step.sure&&step.spend.some(part=>fusionDroid(part.name)?.type==='PROTOCOL')?' It can be a Worker, Astromech, Battle or Protocol droid.':'';
-    const why=step.fills?' It is a Droidex square you do not have.':step.protocol&&step.bonusGain>0?' It gives a stronger Protocol bonus than the weakest one in your slots.':step.gain>0?` It out-earns the weakest droid working, by about ${fmt(step.gain*3600)}/hr.`:'';
+    const why=step.staged?' These three are already on the table.':step.fills?' It is a Droidex square you do not have.':step.protocol&&step.bonusGain>0?' It gives a stronger Protocol bonus than the weakest one in your slots.':step.gain>0?` It out-earns the weakest droid working, by about ${fmt(step.gain*3600)}/hr.`:'';
     const waits=step.after.length?' Do this one after the fusion above, which makes the copy it needs.':'';
     const roll=step.sure?'':' Which droid arrives is a roll.';
     out.push({type:'fuse',kind:'fuse',at:'FUSION',visit:`fusion-${index}`,fusion:step,
@@ -3486,7 +3507,14 @@ function createOptimisePreview(baseP,plan){
   const cacheable=!baseP&&!plan,stamp=cacheable?optimiseInputStamp():null;
   if(cacheable&&optimisePreviewCache?.stamp===stamp)return optimisePreviewCache.preview;
   baseP=baseP||placements();plan=plan||optimiseBase(baseP,incomeForPlaced(baseP.placed));
-  const projected=optimisedPlacements(baseP,plan),steps=safeOptimiseStepPlan(baseP,projected);
+  let projected=optimisedPlacements(baseP,plan),steps=safeOptimiseStepPlan(baseP,projected);
+  // A layout that leans on fusion or Companion swaps may still be one no order
+  // of commands reaches. Rather than show a broken walk, fall back to the
+  // plainer layout it improved on, as long as that one can be walked.
+  for(let fallback=projected.fallback;fallback&&!projected.planComplete;fallback=fallback.fallback){
+    const altSteps=safeOptimiseStepPlan(baseP,fallback);
+    if(fallback.planComplete){projected=fallback;steps=altSteps;break;}
+  }
   annotateLogSlots(steps);
   // A measured different landing changes the starting state of every later
   // command. Never silently swap preview occupants to fit a recorded result.

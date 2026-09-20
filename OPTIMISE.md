@@ -57,12 +57,18 @@ validator and the slot log.
    batches `optimiseFusionBatches()` could make now are worked out and their
    three inputs are taken off the base for a second pass, so the slots they
    stand in are free for the displaced droid; the layout carries them as
-   `fusing`. The second pass stands only if its own batches still consume
-   every one of them; otherwise the first pass is kept. When the plan is still
-   unmet, a third pass may park a displaced droid in a tank the plan empties
-   (`BUILD` first, then `FUSION_BUILD`), provided an unlocked Companion can
-   swap it in; a droid already in a tank keeps its own. Fusion comes first
-   because it makes a droid rather than blocking a tank.
+   `fusing`. A pass stands only if its own batches still consume every one
+   of them. When the plan is still unmet, a third pass may park a displaced
+   droid in a tank the plan empties by a swap (`BUILD` first, then
+   `FUSION_BUILD`; a tank emptied by a sale or by Work takes nobody), provided
+   an unlocked Companion can swap it in; a droid already in a tank keeps its
+   own. The consumed batch carries into that pass, since a tank occupant
+   leaving is often what frees the Fusion Build slot the result needs. Fusion
+   comes first because it makes a droid rather than blocking a tank. Each
+   better layout remembers the plainer one it improved on, and
+   `createOptimisePreview()` falls back to that when the better one has no
+   walk. Three spares already on the Fusion table are a batch the player
+   staged: it is fused first, with exactly those copies.
    `repairReachableLayout()` then rejects cross-type placements the Work rule
    could never produce.
 4. `safeOptimiseStepPlan()` normalises the projection, chooses the fusion
@@ -76,7 +82,10 @@ validator and the slot log.
    when the Companion coming out lands in its own goal or is the real Companion
    being parked; the seated droid waits until the occupant of the slot it wants
    swaps it out; the parked Companion holds its slot and returns to the seat
-   with its own command; a droid in a tank leaves only through the seat. Identical droids
+   with its own command; a droid in a tank that another droid is bound for
+   leaves only through the seat (a free tank slot is no room for anyone); a
+   droid bound for a tank goes first, and may take an empty seat with the
+   Companion command. Landing in a tank is tracked per search state. Identical droids
    trade goals freely. The first pass only accepts landings the rules call
    certain; a second pass allows "assumed" landings (a Work that could reach
    more than one room) and marks them. Plans are ranked by stops, then assumed

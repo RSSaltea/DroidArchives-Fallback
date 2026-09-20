@@ -197,11 +197,14 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   // ---- state ---------------------------------------------------------------
   // Goals travel with the state: two identical droids can trade goals, so the
   // one whose Work landing fits takes the job.
-  const start = { pos: new Map(), sold: new Set(), staged: new Map(), fused: new Set(), region: null, goals: new Map(goals) };
+  const start = { pos: new Map(), sold: new Set(), staged: new Map(), fused: new Set(), built: new Set(), region: null, goals: new Map(goals) };
   for (const [key, unit] of units) if (unit.station) start.pos.set(key, { station: unit.station, slot: unit.slot });
-  const clone = state => ({ pos: new Map(state.pos), sold: new Set(state.sold), staged: new Map(state.staged), fused: new Set(state.fused), region: state.region, goals: new Map(state.goals) });
+  const clone = state => ({ pos: new Map(state.pos), sold: new Set(state.sold), staged: new Map(state.staged), fused: new Set(state.fused), built: new Set(state.built), region: state.region, goals: new Map(state.goals) });
   const twins = (a, b) => a.name === b.name && a.variant === b.variant;
-  const placedOf = state => [...state.pos].map(([key, position]) => ({ ...units.get(key), ...position }));
+  // A finished droid swapped into a tank is a finished droid there: the walk
+  // remembers it per state, and the layout it reports says so.
+  const unitAs = (state, key) => state.built.has(key) ? { ...units.get(key), built: true } : units.get(key);
+  const placedOf = state => [...state.pos].map(([key, position]) => ({ ...unitAs(state, key), ...position }));
   const pending = state => {
     let count = 0;
     for (const [key, goal] of state.goals) {
@@ -220,7 +223,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     return count;
   };
 
-  const landedInTank = (key, station) => { if (['BUILD', 'FUSION_BUILD'].includes(station)) units.set(key, { ...units.get(key), built: true }); };
+  const landedInTank = (state, key, station) => { if (['BUILD', 'FUSION_BUILD'].includes(station)) state.built.add(key); };
   // One command, applied to a copied state. Returns the step or null.
   const tryCommand = (state, key, kind, allowAssumed) => {
     const unit = units.get(key), from = state.pos.get(key);
@@ -272,7 +275,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         const [other, seat] = leaving;
         state.pos.set(key, { station: 'COMPANION', slot: seat.slot });
         state.pos.set(other, { station: from.station, slot: from.slot });
-        landedInTank(other, from.station);
+        landedInTank(state, other, from.station);
         return { ...step, type: 'swap', kind: 'companion-swap', to: { station: 'COMPANION', slot: seat.slot }, withUnit: { ...units.get(other) }, withFrom: { ...seat } };
       }
       state.pos.set(key, { station: 'COMPANION', slot });
@@ -297,11 +300,19 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         return rules.canUse(units.get(other), from.station) && !(from.station === 'FUSION' && typeof rules.canPark === 'function' && !rules.canPark(units.get(other)));
       });
       const seat = seats.find(([other]) => goalMet(from, state.goals.get(other), rules)) || seats[0];
-      if (!seat) return null;
+      if (!seat) {
+        // No Companion to trade with, but a seat is free: a droid bound for a
+        // tank takes it with the Companion command and waits there for the
+        // tank's occupant to swap it in.
+        const freeSeat = ['BUILD', 'FUSION_BUILD'].includes(goal?.station) ? bookSlot('COMPANION', null, free, rules) : undefined;
+        if (freeSeat === undefined) return null;
+        state.pos.set(key, { station: 'COMPANION', slot: freeSeat });
+        return { ...step, type: 'move', kind: 'direct', buffer: true, to: { station: 'COMPANION', slot: freeSeat } };
+      }
       const [other, position] = seat;
       state.pos.set(key, { station: 'COMPANION', slot: position.slot });
       state.pos.set(other, { station: from.station, slot: from.slot });
-      landedInTank(other, from.station);
+      landedInTank(state, other, from.station);
       return { ...step, type: 'swap', kind: 'companion-swap', buffer: true, to: { station: 'COMPANION', slot: position.slot }, withUnit: { ...units.get(other) }, withFrom: { ...position } };
     }
     if (kind === 'work') {
@@ -365,6 +376,10 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         // An earlier command in this pass may already have settled this droid
         // (a Companion Swap drops the old Companion straight into the Lounge).
         if (goal.kind === 'place' && goalMet(state.pos.get(key), goal, rules)) continue;
+        // A finished droid in a tank another droid is bound for must leave by
+        // Swap, so that droid is swapped in; Work or Lounge would empty the tank.
+        const here = state.pos.get(key);
+        if (here && ['BUILD', 'FUSION_BUILD'].includes(here.station) && arrivalsInto(state, here.station) > 0) continue;
         const step = tryCommand(state, key, commandFor(goal), policy.assumed);
         if (step) { steps.push(step); progress = true; }
       }
@@ -383,8 +398,15 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         // of the slot it wants swaps it out. A droid in a tank leaves only
         // through the seat: parked anywhere else it leaves an empty tank no
         // droid can ever enter.
+        // A droid bound for a tank has to wait in the seat first, whether or
+        // not anything is waiting for its own slot.
         const candidates = open().filter(([key, goal]) => goal.kind === 'place' && state.pos.has(key) && state.pos.get(key).station !== 'COMPANION' && goal.station !== 'LOUNGE' && goal.station !== 'COMPANION')
-          .filter(([key]) => { const station = state.pos.get(key).station; return arrivalsInto(state, station) > free(station).length; });
+          .filter(([key, goal]) => {
+            // An empty tank takes nobody, so a free tank slot is no room for
+            // the droids bound there: the occupant still has to swap them in.
+            const station = state.pos.get(key).station, room = ['BUILD', 'FUSION_BUILD'].includes(station) ? 0 : free(station).length;
+            return arrivalsInto(state, station) > room || ['BUILD', 'FUSION_BUILD'].includes(goal.station);
+          });
         for (const pick of candidates) {
           const inTank = ['BUILD', 'FUSION_BUILD'].includes(state.pos.get(pick[0]).station);
           const step = rooms.filter(room => !inTank || room === 'seat').reduce((found, room) => found || tryCommand(state, pick[0], room, false), null);
@@ -396,7 +418,9 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   };
   // Lower bound on the stops still needed: every room with work left costs one.
   const stopsLeft = state => regionsWithWork(state).length;
-  const rank = (goal, unit) => goal.kind === 'sell' ? 0 : goal.kind === 'fusion' ? 1 : goal.station === 'COMPANION' ? 2 : goal.station === 'LOUNGE' ? 3
+  // A droid bound for a tank must be in the seat before the tank's occupant
+  // moves, so it comes right after the storage commands.
+  const rank = (goal, unit) => goal.kind === 'sell' ? 0 : goal.kind === 'fusion' ? 1 : goal.station === 'COMPANION' ? 2 : goal.station === 'LOUNGE' ? 3 : ['BUILD', 'FUSION_BUILD'].includes(goal.station) ? 3.5
     : goal.station === 'UPGRADE_CHIP' ? 7 : PRODUCTIVE.includes(goal.station) && goal.station !== rules.typeOf(unit) ? 4 : goal.cls === 'credit' ? 6 : 5;
   const idle = goal => goal.kind === 'stay' || goal.kind === 'done';
   const regionsWithWork = state => {
@@ -495,7 +519,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       step.visit = `route-${visitIndex}`;
     }
     // Goals as they ended up, after any identical droids traded jobs.
-    const resolvedGoals = [...node.state.goals].filter(([, goal]) => goal.kind === 'place').map(([key, goal]) => ({ ...units.get(key), ...(node.state.pos.get(key) || { station: goal.station, slot: -1 }) }));
+    const resolvedGoals = [...node.state.goals].filter(([, goal]) => goal.kind === 'place').map(([key, goal]) => ({ ...unitAs(node.state, key), ...(node.state.pos.get(key) || { station: goal.station, slot: -1 }) }));
     return { steps, finalPlaced, resolvedGoals, complete: complete && issues.length === 0, stops: node.stops, commands: node.commands, assumed: node.assumed, issues, later,
       sold: [...node.state.sold], staged: [...node.state.staged.keys()], fused: [...node.state.fused] };
   }

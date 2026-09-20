@@ -9,7 +9,9 @@
       "changes": [
         "Fixed Optimise calling a base optimal when a better layout existed but the droids it would displace had nowhere to go. A fusion batch the walk can make now gives up the slots of the three droids it consumes, so the swap goes through.",
         "Edited the Optimise heading: when a better layout still cannot be reached, it says which droids are in the way and what would free them, instead of Already optimal.",
-        "Added the Companion swap to Optimise. When the Lounge is full and nothing can be fused, a finished droid in a Build or Fusion Build tank is swapped out through a Companion slot, and the droid it replaces is swapped into the tank the same way."
+        "Added the Companion swap to Optimise. When the Lounge is full and nothing can be fused, a finished droid in a Build or Fusion Build tank is swapped out through a Companion slot, and the droid it replaces is swapped into the tank the same way.",
+        "Fixed Optimise ignoring three droids you had already put on the Fusion table. That batch is now fused first, with exactly those three.",
+        "Fixed Optimise showing a walk it could not finish. If the improved layout has no route, it falls back to the plainer one."
       ]
     },
     {

@@ -68,6 +68,30 @@ const server=http.createServer((req,res)=>{
  assert.ok(off.steps.length>=3&&off.steps.every(s=>s.type==='swap'),JSON.stringify(off.steps));
  assert.ok(off.steps.every(s=>/press Swap, Slot/.test(s.text)),JSON.stringify(off.steps));
  assert.equal(errors.length,0,errors.join('\n'));
+ // The same base a day on: rebirth 32, two droids with no further use, and the
+ // three Legendary Galactics the player has already put on the Fusion table.
+ // Those three are fused first, exactly as staged; the two dead ends are sold;
+ // OPTI-STRIKE takes TRI-TEK's tank through the Companion; nothing is invented.
+ const staged=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/fusion-staged-table.json'),'utf8'));
+ const later=await page.evaluate(([profile])=>{
+  const d=window.testPlan;d.applyProfileData(profile.base);d.state.optimiseFuseFirst=true;d.save();
+  const base=d.placements(),plan=d.optimiseBase(base,d.incomeForPlaced(base.placed)),target=d.optimisedPlacements(base,plan);
+  const steps=d.safeOptimiseStepPlan(base,target);
+  return {complete:target.planComplete,issues:target.planIssues,sell:target.sell.map(x=>x.name+' '+x.variant).sort(),
+   triTek:target.placed.filter(x=>x.name==='TRI-TEK'&&x.variant==='STELLAR').map(x=>x.station),
+   steps:steps.map(s=>({type:s.type,unit:s.unit&&(s.unit.name+' '+s.unit.variant),from:s.from?.station,text:String(s.text).replace(/<[^>]+>/g,'')}))};
+ },[staged]);
+ assert.equal(later.complete,true,JSON.stringify(later.issues));
+ assert.deepEqual(later.sell,['BB GALACTIC','GROUNDMECH GALACTIC']);
+ assert.deepEqual(later.triTek,['ASTROMECH']);
+ const held=later.steps.filter(s=>s.type==='fuse-held');
+ assert.equal(held.length,3,JSON.stringify(later.steps));
+ assert.ok(held.every(s=>s.from==='FUSION'),'the staged batch uses the copies on the table');
+ const fuse=later.steps.find(s=>s.type==='fuse');
+ assert.ok(fuse&&/already on the table/.test(fuse.text),fuse&&fuse.text);
+ assert.ok(later.steps.some(s=>s.type==='swap'),'the tank swap is part of the walk');
+ assert.ok(!later.steps.some(s=>s.type==='note'),JSON.stringify(later.steps));
+ assert.equal(errors.length,0,errors.join('\n'));
  console.log('fusion-frees-slots: all passed');
  }finally{await browser.close();server.close();}
 })().catch(error=>{console.error(error);process.exit(1);});
