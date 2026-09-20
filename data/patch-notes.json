@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-20-my-fusions",
+      "date": "2026-09-20",
+      "title": "My fusions and the Fusion droid buff",
+      "summary": "A new My fusions button on Base, and Fusion droids now earn 50% more.",
+      "changes": [
+        "My fusions shows which Fusion droids your own droids can make, and what you are still missing.",
+        "Fusion droid incomes updated for game patch 1.31."
+      ]
+    },
+    {
       "id": "2026-09-20-protocol-weakest",
       "date": "2026-09-20",
       "title": "Optimise Protocol fix",

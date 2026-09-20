@@ -744,6 +744,27 @@ html.in-companion .site-header .discord-button{flex:0 0 auto}
 }
 
 /* Stock on a fusion card, and the Outlook the tracked results feed. */
+.fusion-mine-modal{width:min(760px,calc(100vw - 32px));max-height:calc(100vh - 48px);display:flex;flex-direction:column}
+.fusion-mine-list{overflow:auto;min-height:0;display:grid;gap:10px;padding-right:4px}
+.fusion-mine-list h3{margin:6px 0 0;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.fusion-mine-list h3 span{margin-left:6px;padding:1px 7px;border-radius:9px;background:rgba(127,209,160,.14);color:#7df0a1;font-size:11px}
+.fusion-mine-row{padding:10px 12px;background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:8px}
+.fusion-mine-row.is-ready{border-color:#3f6b52;background:rgba(127,209,160,.07)}
+.fusion-mine-row header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.fusion-mine-row header a{flex:0 0 52px;width:52px;height:52px;display:block}
+.fusion-mine-row header img{width:100%;height:100%;object-fit:contain}
+.fusion-mine-row header p{margin:0;font-size:14px}
+.fusion-mine-row header small{color:var(--muted)}
+.fusion-mine-parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+.fusion-mine-part{padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:rgba(0,0,0,.16)}
+.fusion-mine-part strong{display:block;font-size:12px}
+.fusion-mine-part em{font-style:normal;font-size:11px;font-weight:800}
+.fusion-mine-part.is-held em{color:#7df0a1}.fusion-mine-part.is-short em{color:#ff9f9f}
+.fusion-mine-part ul{margin:5px 0 0;padding:0;list-style:none;font-size:12px;display:grid;gap:2px}
+.fusion-mine-part li small{color:var(--muted)}
+.fusion-mine-part li.is-missing{color:#ff9f9f;font-weight:700}
+.fusion-mine-warn{color:#ffc86b;font-weight:700}
+.fusion-mine-empty{color:var(--muted)}
 .fusion-stock{font-size:9px;font-weight:800;font-style:normal;letter-spacing:.03em}
 .fusion-stock.is-held{color:#7df0a1}
 .fusion-stock.is-short{color:#ff9f9f}
