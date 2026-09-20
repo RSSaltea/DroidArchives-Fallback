@@ -248,3 +248,37 @@ test('the old Companion is not walked across the Lounge after a Swap has already
   assert.equal(route.complete,true,route.issues.join(' '));
   assert.deepEqual(route.steps.map(step=>step.kind),['companion-swap'],summary.join(' , '));
 });
+
+test('a finished Build droid leaves through the Companion seat when every room is full, and the droid it displaces takes the tank',async()=>{
+  // The card of a droid in a finished Build tank offers Swap with a Companion
+  // seat, like any other card: the droid takes the seat and the Companion the
+  // tank. Swapped again from the card of the droid whose slot it wants, it lands
+  // there; that droid waits in the seat until the tank's occupant swaps it in.
+  nextSource=0;const pal=unit('WAR-PAL','COMPANION',0),done=unit('ASTRO-DONE','BUILD',0,{built:true}),weak=unit('WORK-WEAK','ASTROMECH',0);
+  const {route,summary}=await plan([pal,done,weak],[pal,at(done,'ASTROMECH',0),at(weak,'BUILD',0)],{ASTROMECH:1,BUILD:1,COMPANION:1,LOUNGE:0,FUSION:0});
+  assert.equal(route.complete,true,route.issues.join(' ')+' '+summary.join(' , '));
+  assert.ok(route.steps.every(step=>step.type==='swap'&&step.kind==='companion-swap'),summary.join(' , '));
+  assert.equal(route.steps.length,3,summary.join(' , '));
+  const where=name=>route.finalPlaced.find(x=>x.name===name);
+  assert.deepEqual([where('ASTRO-DONE').station,where('WORK-WEAK').station,where('WAR-PAL').station],['ASTROMECH','BUILD','COMPANION']);
+  assert.equal(where('WORK-WEAK').built,true,'a finished droid swapped into a tank does not start building');
+});
+
+test('a locked Companion is no seat to swap through, so the tank stays out of reach',async()=>{
+  nextSource=0;const pal=unit('WAR-PAL','COMPANION',0,{lockedSlot:true}),done=unit('ASTRO-DONE','BUILD',0,{built:true}),weak=unit('WORK-WEAK','ASTROMECH',0);
+  const {route}=await plan([pal,done,weak],[pal,at(done,'ASTROMECH',0),at(weak,'BUILD',0)],{ASTROMECH:1,BUILD:1,COMPANION:1,LOUNGE:0,FUSION:0});
+  assert.equal(route.complete,false);assert.match(route.issues.join(' '),/Build slot/);
+});
+
+test('an empty Build tank is still never a target: there is no occupant to swap a droid in',async()=>{
+  nextSource=0;const pal=unit('WAR-PAL','COMPANION',0),weak=unit('WORK-WEAK','ASTROMECH',0);
+  const {route}=await plan([pal,weak],[pal,at(weak,'BUILD',0)],{ASTROMECH:1,BUILD:1,COMPANION:1,LOUNGE:0});
+  assert.equal(route.complete,false);assert.match(route.issues.join(' '),/Build slot/);
+});
+
+test('with a Lounge slot free the walk still prefers it to the Companion seat',async()=>{
+  nextSource=0;const pal=unit('WAR-PAL','COMPANION',0),a=unit('WORK-A','WORKER',0),b=unit('WAR-B','BATTLE',0);
+  const {route,summary}=await plan([pal,a,b],[pal,at(a,'BATTLE',0),at(b,'WORKER',0)],{WORKER:1,BATTLE:1,COMPANION:1,LOUNGE:1});
+  assert.equal(route.complete,true,route.issues.join(' '));
+  assert.ok(!route.steps.some(step=>step.type==='swap'),summary.join(' , '));
+});

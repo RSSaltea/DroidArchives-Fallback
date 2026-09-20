@@ -7,7 +7,10 @@
 // before credit slots), overflows to the nearest other type only once its own
 // type is full, and lands on the Upgrade Chip only when everything is full.
 // Lounge and Fusion pick their own slot too. Slots within a station earn the
-// same, so a plan cares about stations, not slot numbers.
+// same, so a plan cares about stations, not slot numbers. Swap, offered on any
+// droid's card while both Companion seats are taken, trades it with a seated
+// Companion: the droid takes the seat and the Companion takes its slot. That is
+// the one way into a finished Build tank, whose card offers Swap as well.
 //
 // A stop is a region the player walks to. The planner searches over sequences
 // of stops, issuing every command that is legal in that region, and keeps the
@@ -149,6 +152,11 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     if (units.has(key) && units.get(key).station) issues.push(`${unit.name} has no slot to go to: free a Lounge slot or sell it, then run Optimise again.`);
   }
   const fixed = key => { const unit = units.get(key); return unit.lockedSlot || rules.isBuilding(unit); };
+  // A seated Companion that can be swapped out is the only way into a Build
+  // tank: the droid waits in the seat until the tank's finished occupant swaps
+  // it in. So a tank is a target only while it holds such an occupant.
+  const seatToSwap = [...units].some(([key, unit]) => unit.station === 'COMPANION' && !fixed(key));
+  const tankToSwap = (station, key) => seatToSwap && [...units].some(([other, unit]) => other !== key && unit.station === station && !fixed(other));
   for (const [key, unit] of units) {
     const goal = goals.get(key);
     if (!goal) { goals.set(key, unit.station ? { kind: 'place', ...goalFor(unit, rules) } : { kind: 'stay' }); continue; }
@@ -156,8 +164,8 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       issues.push(`${unit.name} is ${unit.lockedSlot ? 'locked' : 'still building'} and cannot move.`);
       goals.set(key, unit.station ? { kind: 'place', ...goalFor(unit, rules) } : { kind: 'stay' });
     }
-    if (goal.kind === 'place' && ['BUILD', 'FUSION_BUILD'].includes(goal.station) && !goalMet(unit, goal, rules)) {
-      issues.push(`${unit.name} cannot be moved into a Build slot; only a crafted droid appears there.`);
+    if (goal.kind === 'place' && ['BUILD', 'FUSION_BUILD'].includes(goal.station) && !goalMet(unit, goal, rules) && !tankToSwap(goal.station, key)) {
+      issues.push(`${unit.name} cannot be moved into a Build slot; only a crafted droid appears there, or a Companion swapped in by the droid leaving it.`);
       goals.set(key, unit.station ? { kind: 'place', ...goalFor(unit, rules) } : { kind: 'stay' });
     }
   }
@@ -212,6 +220,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     return count;
   };
 
+  const landedInTank = (key, station) => { if (['BUILD', 'FUSION_BUILD'].includes(station)) units.set(key, { ...units.get(key), built: true }); };
   // One command, applied to a copied state. Returns the step or null.
   const tryCommand = (state, key, kind, allowAssumed) => {
     const unit = units.get(key), from = state.pos.get(key);
@@ -250,8 +259,9 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         // Both Companion slots taken: the droid's card offers Swap with a slot
         // instead, and the Companion in that slot takes the droid's old place.
         // Used when that place suits the Companion (its goal, or a room it can
-        // simply wait in), never out of a Build or Fusion Build tank.
-        if (!from || ['BUILD', 'FUSION_BUILD', 'COMPANION'].includes(from.station)) return null;
+        // simply wait in). A finished Build droid's card offers it too, and the
+        // Companion then takes the tank.
+        if (!from || from.station === 'COMPANION') return null;
         const leaving = [...state.pos].find(([other, position]) => {
           if (position.station !== 'COMPANION' || other === key || fixed(other) || state.sold.has(other) || state.staged.has(other)) return false;
           const otherGoal = state.goals.get(other);
@@ -262,10 +272,37 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         const [other, seat] = leaving;
         state.pos.set(key, { station: 'COMPANION', slot: seat.slot });
         state.pos.set(other, { station: from.station, slot: from.slot });
+        landedInTank(other, from.station);
         return { ...step, type: 'swap', kind: 'companion-swap', to: { station: 'COMPANION', slot: seat.slot }, withUnit: { ...units.get(other) }, withFrom: { ...seat } };
       }
       state.pos.set(key, { station: 'COMPANION', slot });
       return { ...step, type: 'move', kind: 'direct', to: { station: 'COMPANION', slot } };
+    }
+    if (kind === 'seat') {
+      // The Companion seat as a waiting room: Swap on the droid's card puts it
+      // in the seat and the Companion in its slot, whatever that slot is. The
+      // droid leaves the seat when the occupant of the slot it wants presses
+      // Swap in turn. This is how a finished Build droid gets out with every
+      // room full, and how the droid it displaces ends up in the tank.
+      // The droid whose goal is the seat gets there with its own Companion
+      // command, never as a buffer.
+      if (!from || from.station === 'COMPANION' || goal?.kind === 'place' && goal.station === 'COMPANION') return null;
+      // The Companion coming out lands in this droid's slot, so it must belong
+      // there: the slot is its goal, or it is the real Companion being parked
+      // until the seat is free again. Anything else would strand it.
+      const seats = [...state.pos].filter(([other, position]) => {
+        if (position.station !== 'COMPANION' || other === key || fixed(other) || state.sold.has(other) || state.staged.has(other)) return false;
+        const otherGoal = state.goals.get(other);
+        if (!otherGoal || otherGoal.kind !== 'place' || !(otherGoal.station === 'COMPANION' || goalMet(from, otherGoal, rules))) return false;
+        return rules.canUse(units.get(other), from.station) && !(from.station === 'FUSION' && typeof rules.canPark === 'function' && !rules.canPark(units.get(other)));
+      });
+      const seat = seats.find(([other]) => goalMet(from, state.goals.get(other), rules)) || seats[0];
+      if (!seat) return null;
+      const [other, position] = seat;
+      state.pos.set(key, { station: 'COMPANION', slot: position.slot });
+      state.pos.set(other, { station: from.station, slot: from.slot });
+      landedInTank(other, from.station);
+      return { ...step, type: 'swap', kind: 'companion-swap', buffer: true, to: { station: 'COMPANION', slot: position.slot }, withUnit: { ...units.get(other) }, withFrom: { ...position } };
     }
     if (kind === 'work') {
       let landing = predictWorkLanding({ ...unit, ...(from || {}) }, placed, rules);
@@ -335,12 +372,22 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       if (fuse) { steps.push(fuse); progress = true; }
       if (!progress && steps.filter(step => step.buffer).length < policy.buffers) {
         const { free } = occupancy(placedOf(state), rules);
-        const waitingRoom = free('LOUNGE').length ? 'buffer' : free('FUSION').length && !state.staged.size ? 'park' : null;
-        if (!waitingRoom) break;
-        const candidates = open().filter(([key, goal]) => goal.kind === 'place' && state.pos.has(key) && goal.station !== 'LOUNGE')
+        // Waiting rooms in the order this policy prefers: the Lounge, a Fusion
+        // pad, and the Companion seat (a Swap), which some walks need first.
+        const rooms = [free('LOUNGE').length ? 'buffer' : null, free('FUSION').length && !state.staged.size ? 'park' : null, policy.seats ? 'seat' : null].filter(Boolean);
+        if (policy.seatsFirst) rooms.sort((a, b) => (a === 'seat' ? -1 : 0) - (b === 'seat' ? -1 : 0));
+        if (!rooms.length) break;
+        // The Companion standing in for a droid that took its seat is holding
+        // that slot; it goes back to the seat with its own command, never a
+        // waiting room. The droid in the seat waits there until the occupant
+        // of the slot it wants swaps it out. A droid in a tank leaves only
+        // through the seat: parked anywhere else it leaves an empty tank no
+        // droid can ever enter.
+        const candidates = open().filter(([key, goal]) => goal.kind === 'place' && state.pos.has(key) && state.pos.get(key).station !== 'COMPANION' && goal.station !== 'LOUNGE' && goal.station !== 'COMPANION')
           .filter(([key]) => { const station = state.pos.get(key).station; return arrivalsInto(state, station) > free(station).length; });
         for (const pick of candidates) {
-          const step = tryCommand(state, pick[0], waitingRoom, false);
+          const inTank = ['BUILD', 'FUSION_BUILD'].includes(state.pos.get(pick[0]).station);
+          const step = rooms.filter(room => !inTank || room === 'seat').reduce((found, room) => found || tryCommand(state, pick[0], room, false), null);
           if (step) { steps.push(step); progress = true; break; }
         }
       }
@@ -364,8 +411,8 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     for (const fusion of fusions) if (!state.fused.has(fusion.index)) regions.add('FUSION');
     return [...regions];
   };
-  const CERTAIN_POLICIES = [{ assumed: false, buffers: 0 }, { assumed: false, buffers: 1 }, { assumed: false, buffers: 99 }];
-  const ALL_POLICIES = [...CERTAIN_POLICIES, { assumed: true, buffers: 0 }, { assumed: true, buffers: 99 }];
+  const CERTAIN_POLICIES = [{ assumed: false, buffers: 0 }, { assumed: false, buffers: 1 }, { assumed: false, buffers: 99 }, { assumed: false, buffers: 99, seats: true }, { assumed: false, buffers: 99, seats: true, seatsFirst: true }];
+  const ALL_POLICIES = [...CERTAIN_POLICIES, { assumed: true, buffers: 0 }, { assumed: true, buffers: 99 }, { assumed: true, buffers: 99, seats: true, seatsFirst: true }];
 
   // ---- beam search over stops --------------------------------------------
   // Nodes at one depth have made the same number of stops, so they compare on

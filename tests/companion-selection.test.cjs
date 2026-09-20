@@ -23,7 +23,9 @@ function optimise({units,preferred=['CHOPPER'],goals=['pickaxe'],assignments=[],
  for(const prefix of ['const COMPANION_GOALS=','const companionGoals=','const companionSlotCount=','const preferredCompanions=']){
   const line=src.split(/\r?\n/).find(x=>x.startsWith(prefix));assert(line,prefix);vm.runInContext(line,ctx);
  }
- for(const name of ['droidAttributeValue','stabiliseProjectedPlacements','optimisedPlacements'])vm.runInContext(fn(name),ctx);
+ for(const name of ['droidAttributeValue','stabiliseProjectedPlacements','optimisedPlacements','fusionFreesSlots','fusionConsumesAll','optimisedPlacementsPass','planHonoured'])vm.runInContext(fn(name),ctx);
+ // No fusion is planned in these layouts, so the pre-pass has nothing to consume.
+ vm.runInContext('function optimiseFusionBatches(){return {batches:[],later:[],claimed:new Set()}}',ctx);
  return vm.runInContext('optimisedPlacements(base,plan)',ctx);
 }
 const lockedChopper={name:'CHOPPER',station:'COMPANION',slot:0,lockedSlot:true};

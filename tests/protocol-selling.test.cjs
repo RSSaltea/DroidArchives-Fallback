@@ -31,7 +31,9 @@ function setup({units,assignments=[],keep=[],rules=[],gaps=[],lounge=3,freeBuild
     optimiseFreeBuildModeLabel:()=>'Upgrade cost',
     stabiliseProjectedPlacements:(_,placed)=>placed,optimisedRows:(placed,overflow)=>[...placed,...overflow]
   });
-  for(const name of ['normaliseAstromechIconicRoles','astromechIconicRole','normaliseFusionKeepRules','keepForFusion','optimisedPlacements'])vm.runInContext(fn(name),ctx);
+  for(const name of ['normaliseAstromechIconicRoles','astromechIconicRole','normaliseFusionKeepRules','keepForFusion','optimisedPlacements','fusionFreesSlots','fusionConsumesAll','optimisedPlacementsPass','planHonoured'])vm.runInContext(fn(name),ctx);
+  // No fusion is planned in these layouts, so the pre-pass has nothing to consume.
+  vm.runInContext('function optimiseFusionBatches(){return {batches:[],later:[],claimed:new Set()}}',ctx);
   return vm.runInContext('optimisedPlacements(baseP,plan)',ctx);
 }
 test('unused Protocol copies are sold from Lounge, obsolete Protocol slots and overflow',()=>{

@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-20-fusion-frees-slots",
+      "date": "2026-09-20",
+      "title": "Optimise finds a way out of a full base",
+      "summary": "A better earner stuck in a Build tank is no longer left there: a fusion batch or a Companion swap frees the room it needs.",
+      "changes": [
+        "Fixed Optimise calling a base optimal when a better layout existed but the droids it would displace had nowhere to go. A fusion batch the walk can make now gives up the slots of the three droids it consumes, so the swap goes through.",
+        "Edited the Optimise heading: when a better layout still cannot be reached, it says which droids are in the way and what would free them, instead of Already optimal.",
+        "Added the Companion swap to Optimise. When the Lounge is full and nothing can be fused, a finished droid in a Build or Fusion Build tank is swapped out through a Companion slot, and the droid it replaces is swapped into the tank the same way."
+      ]
+    },
+    {
       "id": "2026-09-20-my-fusions",
       "date": "2026-09-20",
       "title": "My fusions and the Fusion droid buff",

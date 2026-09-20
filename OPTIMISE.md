@@ -22,9 +22,14 @@ Lounge, Customize, Sell. Nothing can be told "go to Astromech 3":
 - **Lounge** stores the droid in the nearest free Lounge slot.
 - **Fusion** puts it on the fusion table (three pads). **Companion** takes it
   along. **Sell** removes it.
+- **Swap** appears on a droid's card while both Companion slots are taken: the
+  droid takes the chosen seat and that Companion takes the droid's slot,
+  whatever it is. The card of a finished droid in a Build or Fusion Build tank
+  offers it too (measured 2026-09-20), so the Companion can land in a tank.
 - Build 1, 2 and 3 belong to the Worker, Astromech and Battle regions. A Build
-  slot is only ever filled by crafting; it is never a move destination. Battle
-  slots 6 and up are upstairs and count as their own stop.
+  slot is filled by crafting, or by a Companion swapped in by the finished
+  droid leaving it; it is never a Work or Lounge destination. Battle slots 6
+  and up are upstairs and count as their own stop.
 
 These rules live in `optimiseRouteRules()` and are shared by the planner, the
 validator and the slot log.
@@ -48,6 +53,16 @@ validator and the slot log.
    sale candidates and locked slots. A displaced droid with nowhere to go is
    sold when no rebirth needs it and nothing protects it; otherwise it stays
    in its slot and the newcomer returns to its own old slot.
+   When that leaves the plan unmet (every store full of kept droids), the
+   batches `optimiseFusionBatches()` could make now are worked out and their
+   three inputs are taken off the base for a second pass, so the slots they
+   stand in are free for the displaced droid; the layout carries them as
+   `fusing`. The second pass stands only if its own batches still consume
+   every one of them; otherwise the first pass is kept. When the plan is still
+   unmet, a third pass may park a displaced droid in a tank the plan empties
+   (`BUILD` first, then `FUSION_BUILD`), provided an unlocked Companion can
+   swap it in; a droid already in a tank keeps its own. Fusion comes first
+   because it makes a droid rather than blocking a tank.
    `repairReachableLayout()` then rejects cross-type placements the Work rule
    could never produce.
 4. `safeOptimiseStepPlan()` normalises the projection, chooses the fusion
@@ -56,7 +71,12 @@ validator and the slot log.
 5. `planOptimiseRoute()` runs a beam search over room visits. At each stop it
    issues every command that is legal now: Work when the predicted landing is
    the droid's goal, Lounge to buffer a droid whose goal is blocked, Fusion for
-   batch inputs (one batch on the table at a time), Sell. Identical droids
+   batch inputs (one batch on the table at a time), Sell, and Swap through a
+   Companion seat. The seat is a waiting room with rules: a droid takes it only
+   when the Companion coming out lands in its own goal or is the real Companion
+   being parked; the seated droid waits until the occupant of the slot it wants
+   swaps it out; the parked Companion holds its slot and returns to the seat
+   with its own command; a droid in a tank leaves only through the seat. Identical droids
    trade goals freely. The first pass only accepts landings the rules call
    certain; a second pass allows "assumed" landings (a Work that could reach
    more than one room) and marks them. Plans are ranked by stops, then assumed
@@ -77,8 +97,10 @@ the same route grouped by room.
 ## Invariants
 
 - Every copy has one identity (`source:unit`) and at most one physical position.
-- A step is Sell, Work, Lounge, a fusion command or the fusion itself. There is
-  no swap command and no move into a Build or Fusion Build slot.
+- A step is Sell, Work, Lounge, a fusion command, the fusion itself, or a Swap
+  with a Companion seat. The only way into a Build or Fusion Build slot is a
+  Companion swapped in by the finished droid leaving it; an empty tank is never
+  a target.
 - Locked copies and unfinished builds cannot move or be sold or fused.
 - A Work step's destination is what the Work rule predicts from the droid's
   position and the occupancy at that moment, including its own slot.
@@ -122,12 +144,15 @@ node tests/session-2026-09-13/test-protocol-optimise.js
 node tests/optimise-movement-regression.cjs
 node tests/optimise-fusion-apply-ui.cjs
 node tests/full-lounge-route.cjs
+node tests/fusion-frees-slots.cjs
 ```
 
 `tests/optimise-route.test.cjs` covers the planner on its own: overflow
 certainty, mission-first landings, a full room draining through the Lounge,
-identical droids, Build never being a target, Protocol landings, fusion
-batches and the validator replay. The browser checks need Playwright and
+identical droids, Build only reachable by a Companion swap, Protocol landings,
+fusion batches and the validator replay. `tests/fusion-frees-slots.cjs` is a
+real full base whose plan is met by a fusion batch, or by Companion swaps with
+fusion off. The browser checks need Playwright and
 `CHROME_PATH` pointing at a Chromium browser; they use isolated profiles and
 local static servers. The movement regression covers a finished Build droid
 going to work with nothing swapped into its slot, identical copies needing no

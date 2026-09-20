@@ -2853,9 +2853,67 @@ function stabiliseProjectedPlacements(baseP,placed,slotIndices=stationSlotIndice
 // applying recorded landings moves droids after the fact, and the rows written
 // to the save have to be rebuilt from where they ended up.
 const optimisedRows=(placed,overflow)=>[...placed,...overflow].map(x=>({name:x.name,variant:x.variant,qty:1,...(x.station?{preferred:x.station,preferredSlot:x.slot}:{}),...(x.lockedSlot?{lockedSlot:true}:{}),...(x.built?{built:true}:{})}));
+// A layout can be stuck: every store full, and every spare droid kept for fusion
+// or for a rebirth, so a better earner sitting in a Build tank never gets a slot
+// because the droid it would displace has nowhere to go. Fusion is the way out.
+// A batch worth making consumes its three inputs, so a kept-for-fusion droid a
+// batch will use needs no slot at all: the slot it stands in is free for the
+// displaced droid. The first pass places as before; when it fell short of the
+// plan, the inputs of the batches the walk can make now are taken off the base
+// and the layout is placed again without them.
+// A second way out, tried last: a finished droid's card in a Build tank offers
+// Swap with a Companion, so the Companion can take the tank, be swapped into
+// the slot the displaced droid leaves, and swap back out once that droid is the
+// Companion. So a tank the plan empties can hold the displaced droid, at the
+// price of a tank that cannot craft until it moves on. Fusion, which makes a
+// droid rather than parking one, comes first.
 function optimisedPlacements(baseP,plan){
-  const assigned=new Map((plan.assignments||[]).map(x=>[x.key,x])),current=new Map(baseP.placed.map(x=>[`${x.source}:${x.unit}`,x])),occupied=Object.fromEntries(Object.keys(SLOT_RULES).map(type=>[type,new Set()])),placed=[],overflow=[],sell=[],units=expandedOwned();
-  const claim=(unit,station,slot)=>{const origin=current.get(`${unit.source}:${unit.unit}`);occupied[station].add(slot);placed.push({...unit,station,slot,...(origin&&['BUILD','FUSION_BUILD'].includes(station)&&!isBuilding(origin)?{built:true}:{})})},free=(station,origin)=>slotFillOrder(station,origin).find(i=>!occupied[station].has(i))??-1,canKeep=(station,slot)=>station&&stationSlotIndices(station).includes(slot)&&!occupied[station].has(slot);
+  const first=optimisedPlacementsPass(baseP,plan);
+  if(planHonoured(plan,first))return first;
+  let best=first;
+  if(state.optimiseFuseFirst!==false){
+    const consumed=fusionFreesSlots(baseP,plan,first);
+    if(consumed.size){
+      const second=optimisedPlacementsPass(baseP,plan,consumed);
+      // The second layout stands only if its own batches still use every droid
+      // that was taken off the base for them; otherwise one would have no slot.
+      if(fusionConsumesAll(baseP,second,consumed)){if(planHonoured(plan,second))return second;best=second;}
+    }
+  }
+  const consumed=new Set((best.fusing||[]).map(x=>`${x.source}:${x.unit}`));
+  const third=optimisedPlacementsPass(baseP,plan,consumed,{tanks:true});
+  if(consumed.size&&!fusionConsumesAll(baseP,third,consumed))return best;
+  return planHonoured(plan,third)||third.overflow.length<best.overflow.length?third:best;
+}
+// Whether a layout puts every droid the search assigned where it asked, with
+// nothing left over.
+function planHonoured(plan,projected){
+  const keyOf=x=>`${x.source}:${x.unit}`,assigned=new Map((plan.assignments||[]).map(x=>[x.key,x]));
+  return !projected.overflow.length&&projected.placed.every(x=>{const goal=assigned.get(keyOf(x));return !goal||goal.station===x.station&&goal.slot===x.slot});
+}
+// Which kept droids a fusion batch would take, when the first pass could not
+// honour the plan. Fusion Build capacity counts a tank whose finished droid the
+// plan sends to work, even though the first pass had to leave it in the tank.
+function fusionFreesSlots(baseP,plan,projected){
+  const keyOf=x=>`${x.source}:${x.unit}`,assigned=new Map((plan.assignments||[]).map(x=>[x.key,x]));
+  if(planHonoured(plan,projected))return new Set();
+  const hopeful={...projected,placed:projected.placed.map(x=>{const goal=assigned.get(keyOf(x));return x.station==='FUSION_BUILD'&&x.built&&!x.lockedSlot&&goal&&goal.station!=='FUSION_BUILD'?{...x,station:goal.station,slot:goal.slot}:x})};
+  const {batches}=optimiseFusionBatches(baseP,hopeful),placedKeys=new Set(projected.placed.map(keyOf));
+  return new Set(batches.flatMap(batch=>batch.inputs.map(keyOf)).filter(key=>placedKeys.has(key)));
+}
+function fusionConsumesAll(baseP,projected,consumed){
+  const keyOf=x=>`${x.source}:${x.unit}`,{batches}=optimiseFusionBatches(baseP,projected),used=new Set(batches.flatMap(batch=>batch.inputs.map(keyOf)));
+  return [...consumed].every(key=>used.has(key));
+}
+function optimisedPlacementsPass(baseP,plan,consumed=new Set(),{tanks=false}={}){
+  const assigned=new Map((plan.assignments||[]).map(x=>[x.key,x])),current=new Map(baseP.placed.map(x=>[`${x.source}:${x.unit}`,x])),occupied=Object.fromEntries(Object.keys(SLOT_RULES).map(type=>[type,new Set()])),placed=[],overflow=[],sell=[],units=expandedOwned().filter(x=>!consumed.has(`${x.source}:${x.unit}`));
+  // The droids a fusion takes: off the base for placing, and named for the walk.
+  const fusing=expandedOwned().filter(x=>consumed.has(`${x.source}:${x.unit}`)).map(x=>({...x,keepReason:'fusion'}));
+  const claim=(unit,station,slot)=>{const origin=current.get(`${unit.source}:${unit.unit}`);occupied[station].add(slot);placed.push({...unit,station,slot,...(origin&&['BUILD','FUSION_BUILD'].includes(station)&&!isBuilding(origin)?{built:true}:{})})},
+  // A tank a droid can be swapped into: it holds a finished, unlocked droid now
+  // (the one whose card offers Swap) and the layout has not given it to anyone.
+  seatToSwap=tanks&&baseP.placed.some(x=>x.station==='COMPANION'&&!x.lockedSlot&&!isBuilding(x)),
+  vacatedTank=station=>seatToSwap?stationSlotIndices(station).find(slot=>!occupied[station].has(slot)&&baseP.placed.some(x=>{const key=`${x.source}:${x.unit}`,goal=assigned.get(key);return x.station===station&&x.slot===slot&&!x.lockedSlot&&!isBuilding(x)&&(goal?goal.station!==station||goal.slot!==slot:consumed.has(key)||sell.some(y=>`${y.source}:${y.unit}`===key))})):undefined,free=(station,origin)=>slotFillOrder(station,origin).find(i=>!occupied[station].has(i))??-1,canKeep=(station,slot)=>station&&stationSlotIndices(station).includes(slot)&&!occupied[station].has(slot);
   const lockedKeys=new Set(baseP.placed.filter(x=>x.lockedSlot||isBuilding(x)).map(x=>`${x.source}:${x.unit}`));
   for(const locked of baseP.placed.filter(x=>lockedKeys.has(`${x.source}:${x.unit}`)))if(canKeep(locked.station,locked.slot))claim(locked,locked.station,locked.slot);
   for(const unit of units){const key=`${unit.source}:${unit.unit}`,target=assigned.get(key);if(target)claim(target.missionPriority?{...unit,missionPriority:true}:unit,target.station,target.slot)}
@@ -2972,6 +3030,13 @@ function optimisedPlacements(baseP,plan){
     const {unit,fallbacks,old}=item;
     let station='',slot=-1;
     for(const fallback of fallbacks){if(fallback==='BUILD'&&old?.station!=='BUILD')continue;slot=free(fallback,old);if(slot>=0){claim(unit,fallback,slot);station=fallback;break}}
+    // Last resort, when asked: a tank the layout empties, reached by Companion swap.
+    // A droid already standing in a tank keeps it; only a droid with no slot at all
+    // takes one the layout empties.
+    if(!station&&seatToSwap&&!keepBuildOpen){
+      if(old&&['BUILD','FUSION_BUILD'].includes(old.station)&&!occupied[old.station].has(old.slot)){claim(unit,old.station,old.slot);station=old.station}
+      else for(const tank of ['BUILD','FUSION_BUILD']){slot=vacatedTank(tank);if(slot!==undefined){claim(unit,tank,slot);station=tank;break}}
+    }
     if(!station){const d=state.droids.find(x=>x.name===unit.name);if(item.spared)overflow.push(item.keepReason?{...unit,keepReason:item.keepReason}:unit);else if(strictKeepBuild&&!isIconic(d))sell.push({...unit,sellReason:`Sold to keep Build slots open · ${optimiseFreeBuildModeLabel(optimiseFreeBuildMode()).toLowerCase()} priority`});else overflow.push(unit)}
   }
   // The game cannot hold a droid in mid-air. One with nowhere to go stays in
@@ -3028,7 +3093,7 @@ function optimisedPlacements(baseP,plan){
   }
   if(keepBuildOpen&&optimiseFreeBuildMode()==='unused-income')finalSell.sort((a,b)=>{const ad=state.droids.find(d=>d.name===a.name),bd=state.droids.find(d=>d.name===b.name);return(ad?.variants[a.variant]?.income||0)-(bd?.variants[b.variant]?.income||0)});
   const rows=optimisedRows(finalPlaced,overflow);
-  return{placed:finalPlaced,overflow,sell:finalSell,rows}
+  return{placed:finalPlaced,overflow,sell:finalSell,rows,fusing}
 }
 async function collectOptimiseFusionResults(projected){
   const pending=(projected.fusionResults||[]).filter(u=>u.fusionUnknown),picked=[];
@@ -3136,7 +3201,7 @@ function normaliseProjectedForSteps(baseP,projected){
     }
   }
   for(const target of placed){const origin=current.get(keyOf(target));if(origin&&['BUILD','FUSION_BUILD'].includes(target.station)&&!isBuilding(origin))target.built=true;}
-  return{...projected,placed,sell,overflow};
+  return{...projected,placed,sell,overflow,fusing:cloneRows(projected.fusing)};
 }
 
 // ─── Route-aware step planner ───────────────────────────────────────────────
@@ -3201,7 +3266,7 @@ const optimiseStepStyle=()=>{try{const saved=localStorage.getItem("droid-archive
 // Plan batches from individual sell candidates, respecting per-copy Sell choices.
 // Explicit fusion reserves are eligible alongside sell candidates. Accept the
 // older Protocol keep reason too when processing an existing projected layout.
-const protocolFusionSpares=projected=>[...(projected?.placed||[]),...(projected?.overflow||[])].filter(x=>x.keepReason==='protocol'||x.keepReason==='fusion');
+const protocolFusionSpares=projected=>[...(projected?.fusing||[]),...(projected?.placed||[]),...(projected?.overflow||[])].filter(x=>x.keepReason==='protocol'||x.keepReason==='fusion');
 function fusionRebirthProtectedKeys(){
   const needed=new Set(futureRequirements().map(x=>x.droidName)),best=new Map();
   // Between equal copies the one at work is the rebirth copy, which leaves the
@@ -3345,7 +3410,7 @@ function optimiseFusionBatches(baseP,projected){
   // that this layout really sends somewhere else. One the layout leaves in its
   // tank (nowhere better to go) keeps the tank.
   const leavesTank=occupant=>{const goal=projected.placed.find(x=>keyOf(x)===keyOf(occupant));return !goal||goal.station!=='FUSION_BUILD'};
-  const capacity=stationSlotIndices('FUSION_BUILD').filter(slot=>{const occupant=baseP.placed.find(x=>x.station==='FUSION_BUILD'&&x.slot===slot);return !occupant||occupant.built&&!occupant.lockedSlot&&leavesTank(occupant)}).length;
+  const capacity=stationSlotIndices('FUSION_BUILD').filter(slot=>{const occupant=baseP.placed.find(x=>x.station==='FUSION_BUILD'&&x.slot===slot);if(projected.placed.some(x=>x.station==='FUSION_BUILD'&&x.slot===slot&&(!occupant||keyOf(x)!==keyOf(occupant))))return false;return !occupant||occupant.built&&!occupant.lockedSlot&&leavesTank(occupant)}).length;
   while(batches.length>capacity)later.unshift(batches.pop());
   return {batches,later,claimed};
 }
@@ -3371,7 +3436,10 @@ function routeStepText(step){
 const optimiseMovementRules=()=>optimiseRouteRules();
 function resolveOptimiseProjection(projected,moves){
   const keyOf=x=>`${x.source}:${x.unit}`;
-  const details=new Map([...(projected.overflow||[]),...(projected.placed||[]),...(moves.resolvedGoals||[])].map(x=>[keyOf(x),x]));
+  // The route reports each goal from the base copy, which carries no keep reason;
+  // merge, so the reason the layout gave a droid survives its resolved position.
+  const details=new Map();
+  for(const x of [...(projected.overflow||[]),...(projected.placed||[]),...(moves.resolvedGoals||[])])details.set(keyOf(x),{...(details.get(keyOf(x))||{}),...x});
   const actual=(moves.finalPlaced||[]).map(unit=>({...details.get(keyOf(unit)),...unit,...(unit.fusionResult?{lockedSlot:false}:{})}));
   const held=new Set(actual.map(keyOf));
   projected.placed=actual.filter(x=>!x.fusionUnknown);
@@ -3564,6 +3632,18 @@ function novaIconicPurchasesHtml(baseP,projected){
     ${options.length?`<div class="nova-iconic-purchase-list">${options.map(option=>`<article class="nova-iconic-purchase ${option.gain>0?'worth-buying':''}"><a href="#/droid/${slug(option.name)}">${picture(state.droids.find(d=>d.name===option.name),'DEFAULT')}<strong>${escapeAttr(option.name)}</strong></a><div><strong>${option.gain>0?'Buy for credit gain':'Wait for credit gain'}</strong><span>${option.gain>0?`+${fmt(option.gain*3600)} credits/hour &middot; ${escapeAttr(stationName(option.destination.station))} slot ${option.destination.slot+1}`:'No estimated credit increase with your current base and priorities.'}</span></div></article>`).join('')}</div><p class="nova-iconic-purchase-note">Each option is compared separately with your optimised base. After buying one in game, add it to Base and recalculate. Gains show income, not purchase payback or affordability.</p>`:`<p class="nova-iconic-purchase-note">${unlocked.length?'Your Base already contains every iconic you marked as unlocked.':'Tick your permanent iconic unlocks in Nova Shop to check which copies would increase your income.'}</p>`}
   </section>`;
 }
+// What the page says when the walk has nothing to do. That is only "optimal"
+// when the search agrees; when it found a better layout that no command can
+// reach, say so, name the droids in the way and what would free them.
+function optimiseSettledHtml(plan,p){
+  if(!(plan?.gain>1)||!(plan?.moves||[]).length)return '<p class="optimise-settled">Already optimal.</p>';
+  const keyOf=x=>`${x.source}:${x.unit}`,detailOf=key=>String(p.placed.find(x=>keyOf(x)===key)?.keepDetail||'').replace(/<[^>]+>/g,'');
+  const wants=plan.moves.slice(0,3).map(move=>`${move.unit.name} ${variantLabel(move.unit.variant)} to ${stationName(move.targetStation)}`).join(', ')+(plan.moves.length>3?` and ${plan.moves.length-3} more`:'');
+  // A droid that both moves and is displaced is on its way, not in the way.
+  const movers=new Set(plan.moves.map(move=>move.unit.key)),blocked=[...new Map(plan.moves.filter(move=>move.displaced&&!movers.has(move.displaced.key)).map(move=>[move.displaced.key,move.displaced])).values()]
+    .map(unit=>{const why=detailOf(unit.key);return `${unit.name} ${variantLabel(unit.variant)}${why?` (${why})`:''}`}).join(', ');
+  return `<p class="optimise-settled optimise-blocked"><strong>Nothing can move yet.</strong> A layout earning about ${fmt(plan.gain*3600)}/h more exists: ${wants}. It cannot be reached because the droids it would displace have nowhere to go${blocked?`: ${blocked}`:''}. Free a Lounge slot, sell a spare, or loosen a Keep for fusion rule, then regenerate.</p>`;
+}
 function optimisePage(){
   const preview=createOptimisePreview(),ticked=optimiseTickedProjection(preview);
   const {baseP,plan,projected:p,steps,currentIncome,income}=preview,stepsCollapsed=localStorage.getItem('droid-archive-optimise-steps-collapsed')==='1',gain=income-currentIncome,currentScrap=scrapPayoutsForIncome(currentIncome),optimisedScrap=scrapPayoutsForIncome(income),scrapGain={hit:Math.max(0,(optimisedScrap.hit||0)-(currentScrap.hit||0)),break:Math.max(0,(optimisedScrap.break||0)-(currentScrap.break||0))},rebirthPick=p.placed.reduce((map,x)=>{const previous=map.get(x.name);if(!previous||VARIANTS.indexOf(x.variant)>VARIANTS.indexOf(previous.variant))map.set(x.name,{variant:x.variant,key:`${x.source}:${x.unit}`});return map},new Map()),currentMap=new Map(baseP.placed.map(x=>[`${x.source}:${x.unit}`,x]));
@@ -3610,7 +3690,7 @@ function optimisePage(){
     ${fuseOn?`<ol class="fuse-first-list">${fuseChain.map(fuseStep).join('')}</ol>
     <p class="fuse-first-note">Each step takes three droids out of the Sell list and puts one back, so a later step can spend what an earlier one made. Gains are measured against the weakest droid earning in the layout above; a rarity roll is judged on the middle earner of that rarity and quality.</p>`:'<p class="fuse-first-note">Turn this on and the Sell list is checked for fusions worth making first &mdash; a better droid, or one your Droidex is still missing.</p>'}</section>`;
   const sell=p.sell.map(x=>{const d=state.droids.find(y=>y.name===x.name);const toFusion=fuseTake.has(`${x.source}:${x.unit}`),deferred=fuseDeferred.has(`${x.source}:${x.unit}`);return `<div class="sell-card cycle-unused ${toFusion?'to-fusion':''}"><a href="#/droid/${slug(d.name)}"><div>${picture(d,x.variant)}</div><span><strong>${d.name}</strong><small>${variantText(x.variant)} · From: ${originLabel(x)}</small><em>${toFusion?'&rarr; Fusion room, not sold':deferred?'Waiting for Fusion Build space':(x.sellReason||'No rebirth use')}</em></span></a></div>`}).join('');
-  app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Optimise</div><div class="base-heading"><div><p class="eyebrow">Credit optimiser</p><h1>Optimise</h1><p class="lead">A preview of your Base using your Protocol priority: ${state.protocolPriority==='crafting'?'higher craft speed':'higher credit gain'}.</p></div>${nothingToDo?'<p class="optimise-settled">Already optimal.</p>':`<button class="btn" id="applyOptimised" ${p.planComplete?'':'disabled title="This plan cannot be applied yet. The note at the end of the steps says why."'}>Apply optimised layout</button>${ticked?`<button class="btn secondary" id="applyOptimisedSteps" title="${escapeAttr(ticked.partialMessage)}">Apply ticked steps (${ticked.tickedCount}/${ticked.tickedTotal})</button>`:''}`}</div><div class="base-top optimise-stats"><div class="stat"><small>Current / hour</small><strong>${fmt(currentIncome*3600)}</strong></div><div class="stat"><small>Optimised / hour</small><strong>${fmt(income*3600)}</strong></div><div class="stat"><small>Estimated gain / hour</small><strong>${gain?`${gain>0?'+':''}${fmt(gain*3600)}`:'—'}</strong></div><div class="stat scrap-stat"><small>Optimised scrap / hit</small><strong>${optimisedScrap.hit?fmt(optimisedScrap.hit):'—'}</strong><em>${scrapGain.hit?`+${fmt(scrapGain.hit)} per hit`:'No change'}</em></div><div class="stat scrap-stat"><small>Optimised scrap / break</small><strong>${optimisedScrap.break?fmt(optimisedScrap.break):'—'}</strong><em>${scrapGain.break?`+${fmt(scrapGain.break)} per break`:'No change'}</em></div><div class="stat"><small>Droids owned</small><strong>${state.owned.reduce((s,x)=>s+x.qty,0)}</strong></div></div>${nothingToDo?'':`<div class="notice">This page does not change your Base until you click <strong>Apply optimised layout</strong>. Droids in Sell are excluded from the applied layout.${ticked?` Tick the steps you have done: <strong>Apply ticked steps</strong> records the first ${ticked.tickedCount} of ${ticked.tickedTotal}, leaving your Base at ${fmt(ticked.income*3600)}/hr${ticked.income<currentIncome*0.999?' (less than now until you finish the walk)':''}.`:' Tick steps as you do them to record part of the walk.'}</div>`}${missingPreferredCompanions().length?`<div class="notice companion-wanted"><strong>Buy for a Companion slot:</strong> ${missingPreferredCompanions().map(name=>`<a href="#/droid/${slug(name)}">${name}</a>`).join(', ')} — you picked ${missingPreferredCompanions().length===1?'this':'these'} as a preferred companion but ${missingPreferredCompanions().length===1?'do not':'do not'} own ${missingPreferredCompanions().length===1?'it':'them'} yet.</div>`:''}${novaIconicPurchasesHtml(baseP,p)}${steps.length?`<section class="optimise-steps ${stepsCollapsed?'collapsed':''}"><header><div><p class="eyebrow">${stepsEyebrow}</p><h2>Step-by-step moves</h2></div><div class="optimise-steps-actions">${trackToggle}${stepsStyleToggle}<button class="icon-btn optimise-steps-toggle" id="toggleOptimiseSteps" title="${stepsCollapsed?'Show':'Minimise'} steps">${stepsCollapsed?'+' :'−'}</button></div></header>${stepsList}</section>`:''}${protocolSummaryHtml(p.placed)}<div class="base-layout-v2 optimise-layout"><div class="typed-stations">${['WORKER','ASTROMECH','BATTLE'].map(region=>'<div class="region-stations">'+station(region)+'</div>').join('')}</div><div class="build-side">${station('BUILD')}</div>${overflow?`<section class="roster-wide"><header><div><strong>Unplaced</strong><span>${p.overflow.length} over capacity</span></div></header><div id="rosterCards">${overflow}</div></section>`:''}${fuseFirst}${sell?`<section class="sell-wide"><header><div><strong>Sell</strong><span>${p.sell.length} unused or duplicate rebirth droid${p.sell.length===1?'':'s'}</span></div></header><div class="sell-grid">${sell}</div></section>`:''}</div>`;
+  app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Optimise</div><div class="base-heading"><div><p class="eyebrow">Credit optimiser</p><h1>Optimise</h1><p class="lead">A preview of your Base using your Protocol priority: ${state.protocolPriority==='crafting'?'higher craft speed':'higher credit gain'}.</p></div>${nothingToDo?optimiseSettledHtml(plan,p):`<button class="btn" id="applyOptimised" ${p.planComplete?'':'disabled title="This plan cannot be applied yet. The note at the end of the steps says why."'}>Apply optimised layout</button>${ticked?`<button class="btn secondary" id="applyOptimisedSteps" title="${escapeAttr(ticked.partialMessage)}">Apply ticked steps (${ticked.tickedCount}/${ticked.tickedTotal})</button>`:''}`}</div><div class="base-top optimise-stats"><div class="stat"><small>Current / hour</small><strong>${fmt(currentIncome*3600)}</strong></div><div class="stat"><small>Optimised / hour</small><strong>${fmt(income*3600)}</strong></div><div class="stat"><small>Estimated gain / hour</small><strong>${gain?`${gain>0?'+':''}${fmt(gain*3600)}`:'—'}</strong></div><div class="stat scrap-stat"><small>Optimised scrap / hit</small><strong>${optimisedScrap.hit?fmt(optimisedScrap.hit):'—'}</strong><em>${scrapGain.hit?`+${fmt(scrapGain.hit)} per hit`:'No change'}</em></div><div class="stat scrap-stat"><small>Optimised scrap / break</small><strong>${optimisedScrap.break?fmt(optimisedScrap.break):'—'}</strong><em>${scrapGain.break?`+${fmt(scrapGain.break)} per break`:'No change'}</em></div><div class="stat"><small>Droids owned</small><strong>${state.owned.reduce((s,x)=>s+x.qty,0)}</strong></div></div>${nothingToDo?'':`<div class="notice">This page does not change your Base until you click <strong>Apply optimised layout</strong>. Droids in Sell are excluded from the applied layout.${ticked?` Tick the steps you have done: <strong>Apply ticked steps</strong> records the first ${ticked.tickedCount} of ${ticked.tickedTotal}, leaving your Base at ${fmt(ticked.income*3600)}/hr${ticked.income<currentIncome*0.999?' (less than now until you finish the walk)':''}.`:' Tick steps as you do them to record part of the walk.'}</div>`}${missingPreferredCompanions().length?`<div class="notice companion-wanted"><strong>Buy for a Companion slot:</strong> ${missingPreferredCompanions().map(name=>`<a href="#/droid/${slug(name)}">${name}</a>`).join(', ')} — you picked ${missingPreferredCompanions().length===1?'this':'these'} as a preferred companion but ${missingPreferredCompanions().length===1?'do not':'do not'} own ${missingPreferredCompanions().length===1?'it':'them'} yet.</div>`:''}${novaIconicPurchasesHtml(baseP,p)}${steps.length?`<section class="optimise-steps ${stepsCollapsed?'collapsed':''}"><header><div><p class="eyebrow">${stepsEyebrow}</p><h2>Step-by-step moves</h2></div><div class="optimise-steps-actions">${trackToggle}${stepsStyleToggle}<button class="icon-btn optimise-steps-toggle" id="toggleOptimiseSteps" title="${stepsCollapsed?'Show':'Minimise'} steps">${stepsCollapsed?'+' :'−'}</button></div></header>${stepsList}</section>`:''}${protocolSummaryHtml(p.placed)}<div class="base-layout-v2 optimise-layout"><div class="typed-stations">${['WORKER','ASTROMECH','BATTLE'].map(region=>'<div class="region-stations">'+station(region)+'</div>').join('')}</div><div class="build-side">${station('BUILD')}</div>${overflow?`<section class="roster-wide"><header><div><strong>Unplaced</strong><span>${p.overflow.length} over capacity</span></div></header><div id="rosterCards">${overflow}</div></section>`:''}${fuseFirst}${sell?`<section class="sell-wide"><header><div><strong>Sell</strong><span>${p.sell.length} unused or duplicate rebirth droid${p.sell.length===1?'':'s'}</span></div></header><div class="sell-grid">${sell}</div></section>`:''}</div>`;
   document.querySelector('.build-side').insertAdjacentHTML('afterend',`<div class="special-stations">${station('LOUNGE')}${station('COMPANION')}${station('UPGRADE_CHIP')}<div class="fusion-panel">${station('FUSION')}${fusionBuildSection(station('FUSION_BUILD'))}</div></div>`);
   document.querySelector('[data-manage-iconic-unlocks]')?.addEventListener('click',()=>localStorage.setItem('droid-archive-nova-category','iconic'));
   document.querySelector('#toggleFuseFirst')?.addEventListener('change',event=>{state.optimiseFuseFirst=event.target.checked;save();optimisePage()});document.querySelector('#toggleOptimiseSteps')?.addEventListener('click',()=>{localStorage.setItem('droid-archive-optimise-steps-collapsed',stepsCollapsed?'0':'1');optimisePage()});
