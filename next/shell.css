@@ -170,8 +170,12 @@ html[data-ui-style="next"][data-ui-fixed] .base-heading>div:first-child{display:
 html[data-ui-style="next"][data-ui-fixed] .base-heading h1{font-size:20px;margin:0}
 html[data-ui-style="next"][data-ui-fixed] .base-heading .eyebrow{order:2;margin:0;padding:3px 7px;font-size:9.5px}
 html[data-ui-style="next"][data-ui-fixed] .base-actions{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:6px;flex:1 1 auto;margin:0}
-html[data-ui-style="next"][data-ui-fixed] .base-actions .btn{min-height:30px;padding:5px 10px;font-size:12px}
-html[data-ui-style="next"][data-ui-fixed] .base-actions #transferBase{margin-left:auto}
+html[data-ui-style="next"][data-ui-fixed] .base-actions .btn{min-height:30px;padding:5px 9px;font-size:12px}
+/* Import / Export keeps its label for screen readers and the icon rule, but shows only the icon, so the row does not spill. */
+html[data-ui-style="next"][data-ui-fixed] .base-actions #transferBase{width:34px;min-width:34px;padding:0;justify-content:center}
+html[data-ui-style="next"][data-ui-fixed] .base-actions #transferBase .btn-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* On narrower windows the row tightens rather than spilling a button onto a line of its own. */
+@media(max-width:1400px){html[data-ui-style="next"][data-ui-fixed] .base-actions{gap:5px}html[data-ui-style="next"][data-ui-fixed] .base-actions .btn{padding:4px 7px;font-size:11px;gap:5px}}
 html[data-ui-style="next"] .btn>.command-icon{width:15px;height:15px;flex:0 0 15px}
 
 /* Spawn timers: in flow at the top, then a compact draggable panel */

@@ -68,8 +68,11 @@ html[data-ui-style="modern"] .base-heading{align-items:center;margin:0 0 18px;pa
 html[data-ui-style="modern"] .base-heading>div:first-child{display:flex;align-items:center;gap:12px}
 html[data-ui-style="modern"] .base-heading .eyebrow{order:2;margin:0;padding:5px 8px;border:1px solid color-mix(in srgb,var(--green) 36%,var(--line));border-radius:4px;background:color-mix(in srgb,var(--green) 8%,transparent)}
 html[data-ui-style="modern"] .base-heading h1{font-size:32px}
-html[data-ui-style="modern"] .base-actions{gap:7px}
-html[data-ui-style="modern"] .base-actions .btn{min-height:36px;padding:8px 12px;font-size:11px}
+html[data-ui-style="modern"] .base-actions{gap:6px}
+html[data-ui-style="modern"] .base-actions .btn{min-height:36px;padding:8px 10px;font-size:11px}
+/* Import / Export keeps its label for screen readers and the icon rule, but shows only the icon, so the toolbar fits one row. */
+html[data-ui-style="modern"] .base-actions #transferBase{width:40px;min-width:40px;padding:0;justify-content:center}
+html[data-ui-style="modern"] .base-actions #transferBase .btn-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 html[data-ui-style="modern"] .base-actions .base-panel-toggle.active,html[data-ui-style="modern"] .base-actions .base-panel-toggle.active:hover{border-color:#49d982;background:linear-gradient(180deg,#1e5438,#173e2d);color:#7bf0a8;box-shadow:inset 0 0 0 1px rgba(103,235,153,.13),0 0 14px rgba(61,213,119,.11)}
 html[data-ui-style="modern"] .base-actions .base-panel-toggle.active .command-icon{color:#69e99a}
 html[data-ui-style="modern"] .base-top{position:relative;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0 0 14px;padding:7px 4px;border:1px solid var(--line);border-radius:9px;background:linear-gradient(110deg,color-mix(in srgb,var(--panel) 97%,white 1%),color-mix(in srgb,var(--panel) 90%,var(--green) 2%));box-shadow:var(--shadow)}
