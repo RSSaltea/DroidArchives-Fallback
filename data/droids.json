@@ -2325,7 +2325,7 @@
       "cannotSell": true,
       "maxQuantity": 1
     },
-    "novaCrystalCost": 30
+    "novaCrystalCost": 100
   },
   {
     "name": "CB-23",
@@ -2359,7 +2359,7 @@
       "cannotSell": true,
       "maxQuantity": 1
     },
-    "novaCrystalCost": 75
+    "novaCrystalCost": 250
   },
   {
     "name": "R2-D2",
@@ -2393,7 +2393,7 @@
       "cannotSell": true,
       "maxQuantity": 1
     },
-    "novaCrystalCost": 30
+    "novaCrystalCost": 200
   },
   {
     "name": "MISTER BONES",
@@ -2427,7 +2427,7 @@
       "cannotSell": true,
       "maxQuantity": 1
     },
-    "novaCrystalCost": 30
+    "novaCrystalCost": 100
   },
   {
     "name": "IG-11 MARSHAL",
@@ -2461,7 +2461,7 @@
       "cannotSell": true,
       "maxQuantity": 1
     },
-    "novaCrystalCost": 30
+    "novaCrystalCost": 100
   },
   {
     "name": "DJ R-3X",
@@ -2495,7 +2495,7 @@
       "cannotSell": true,
       "maxQuantity": 1
     },
-    "novaCrystalCost": 30
+    "novaCrystalCost": 100
   },
   {
     "name": "C-3PO",
@@ -2531,7 +2531,7 @@
       "cannotSell": true,
       "maxQuantity": 1
     },
-    "novaCrystalCost": 30
+    "novaCrystalCost": 200
   },
   {
     "name": "CHOPPER",
@@ -2565,7 +2565,8 @@
       "cannotSell": true,
       "maxQuantity": 1,
       "passive": "+50% Crit Chance & Damage"
-    }
+    },
+    "novaCrystalCost": 100
   },
   {
     "name": "D-O",
@@ -2599,7 +2600,8 @@
       "cannotSell": true,
       "maxQuantity": 1,
       "passive": "Half Fusion Time"
-    }
+    },
+    "novaCrystalCost": 100
   },
   {
     "name": "WHL-EX",
@@ -3403,12 +3405,12 @@
     },
     "portraits": {
       "DEFAULT": "assets/droids/protocol/T_Portrait_SA5_Common.png",
-      "GOLD": "assets/droids/protocol/T_Portrait_SA5_Common.png",
-      "DIAMOND": "assets/droids/protocol/T_Portrait_SA5_Common.png",
-      "RAINBOW": "assets/droids/protocol/T_Portrait_SA5_Common.png",
-      "BESKAR": "assets/droids/protocol/T_Portrait_SA5_Common.png",
-      "GALACTIC": "assets/droids/protocol/T_Portrait_SA5_Common.png",
-      "STELLAR": "assets/droids/protocol/T_Portrait_SA5_Common.png"
+      "GOLD": "assets/droids/protocol/SA-5_Gold.png",
+      "DIAMOND": "assets/droids/protocol/SA-5_Diamond.png",
+      "RAINBOW": "assets/droids/protocol/SA-5_Rainbow.png",
+      "BESKAR": "assets/droids/protocol/SA-5_Beskar.png",
+      "GALACTIC": "assets/droids/protocol/SA-5_Galactic.png",
+      "STELLAR": "assets/droids/protocol/SA-5_Stellar.png"
     },
     "acquisition": "World Mission Protocol Crates",
     "source": "https://gonk.tools/wiki",
@@ -3486,12 +3488,12 @@
     },
     "portraits": {
       "DEFAULT": "assets/droids/protocol/T_Portrait_LOM_Common.png",
-      "GOLD": "assets/droids/protocol/T_Portrait_LOM_Common.png",
-      "DIAMOND": "assets/droids/protocol/T_Portrait_LOM_Common.png",
-      "RAINBOW": "assets/droids/protocol/T_Portrait_LOM_Common.png",
-      "BESKAR": "assets/droids/protocol/T_Portrait_LOM_Common.png",
-      "GALACTIC": "assets/droids/protocol/T_Portrait_LOM_Common.png",
-      "STELLAR": "assets/droids/protocol/T_Portrait_LOM_Common.png"
+      "GOLD": "assets/droids/protocol/LOM_Gold.png",
+      "DIAMOND": "assets/droids/protocol/LOM_Diamond.png",
+      "RAINBOW": "assets/droids/protocol/LOM_Rainbow.png",
+      "BESKAR": "assets/droids/protocol/LOM_Beskar.png",
+      "GALACTIC": "assets/droids/protocol/LOM_Galactic.png",
+      "STELLAR": "assets/droids/protocol/LOM_Stellar.png"
     },
     "acquisition": "World Mission Protocol Crates",
     "source": "https://gonk.tools/wiki",
@@ -3569,12 +3571,12 @@
     },
     "portraits": {
       "DEFAULT": "assets/droids/protocol/T_Portrait_PZ_Common.png",
-      "GOLD": "assets/droids/protocol/T_Portrait_PZ_Common.png",
-      "DIAMOND": "assets/droids/protocol/T_Portrait_PZ_Common.png",
-      "RAINBOW": "assets/droids/protocol/T_Portrait_PZ_Common.png",
-      "BESKAR": "assets/droids/protocol/T_Portrait_PZ_Common.png",
-      "GALACTIC": "assets/droids/protocol/T_Portrait_PZ_Common.png",
-      "STELLAR": "assets/droids/protocol/T_Portrait_PZ_Common.png"
+      "GOLD": "assets/droids/protocol/PZ_Gold.png",
+      "DIAMOND": "assets/droids/protocol/PZ_Diamond.png",
+      "RAINBOW": "assets/droids/protocol/PZ_Rainbow.png",
+      "BESKAR": "assets/droids/protocol/PZ_Beskar.png",
+      "GALACTIC": "assets/droids/protocol/PZ_Galactic.png",
+      "STELLAR": "assets/droids/protocol/PZ_Stellar.png"
     },
     "acquisition": "World Mission Protocol Crates",
     "source": "https://gonk.tools/wiki",
@@ -3652,12 +3654,12 @@
     },
     "portraits": {
       "DEFAULT": "assets/droids/protocol/T_Portrait_TDA_Common.png",
-      "GOLD": "assets/droids/protocol/T_Portrait_TDA_Common.png",
-      "DIAMOND": "assets/droids/protocol/T_Portrait_TDA_Common.png",
-      "RAINBOW": "assets/droids/protocol/T_Portrait_TDA_Common.png",
-      "BESKAR": "assets/droids/protocol/T_Portrait_TDA_Common.png",
-      "GALACTIC": "assets/droids/protocol/T_Portrait_TDA_Common.png",
-      "STELLAR": "assets/droids/protocol/T_Portrait_TDA_Common.png"
+      "GOLD": "assets/droids/protocol/TDA_Gold.png",
+      "DIAMOND": "assets/droids/protocol/TDA_Diamond.png",
+      "RAINBOW": "assets/droids/protocol/TDA_Rainbow.png",
+      "BESKAR": "assets/droids/protocol/TDA_Beskar.png",
+      "GALACTIC": "assets/droids/protocol/TDA_Galactic.png",
+      "STELLAR": "assets/droids/protocol/TDA_Stellar.png"
     },
     "acquisition": "World Mission Protocol Crates",
     "source": "https://gonk.tools/wiki",

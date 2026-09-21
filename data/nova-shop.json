@@ -1,5 +1,5 @@
 {
-  "source": "https://gonk.tools/wiki?section=nova",
+  "source": "https://droidex.dubtrackr.win/droid-tycoon-tools/nova-shop-planner/",
   "currency": {
     "name": "Nova Crystal",
     "icon": "assets/events/nova-crystal.png"
@@ -815,12 +815,12 @@
       "description": "Increases the odds of higher-rarity droids appearing on the Sandcrawler conveyor for 15 minutes. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
-      "costBase": 40,
+      "costBase": 200,
       "costScale": 0,
       "levels": [
         {
           "level": 1,
-          "cost": 40,
+          "cost": 200,
           "reward": "One 15-minute Luck Boost token"
         }
       ]
@@ -834,12 +834,12 @@
       "description": "Increases Droid Depot crafting speed and Pickaxe level by 50% for everyone in the session for 15 minutes. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
-      "costBase": 30,
+      "costBase": 150,
       "costScale": 0,
       "levels": [
         {
           "level": 1,
-          "cost": 30,
+          "cost": 150,
           "reward": "One 15-minute Crafting Boost token"
         }
       ]
@@ -853,12 +853,12 @@
       "description": "Sends Rainbow Variant energy across the Sandcrawler conveyor every 30 seconds for 5 minutes. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
-      "costBase": 20,
+      "costBase": 100,
       "costScale": 0,
       "levels": [
         {
           "level": 1,
-          "cost": 20,
+          "cost": 100,
           "reward": "One 5-minute Rainbow Surge token"
         }
       ]
@@ -872,12 +872,12 @@
       "description": "Sends Beskar Variant energy across the Sandcrawler conveyor every 30 seconds for 5 minutes. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
-      "costBase": 30,
+      "costBase": 150,
       "costScale": 0,
       "levels": [
         {
           "level": 1,
-          "cost": 30,
+          "cost": 150,
           "reward": "One 5-minute Beskar Surge token"
         }
       ]
@@ -891,13 +891,32 @@
       "description": "Sends Galactic Variant energy across the Sandcrawler conveyor every 30 seconds for 5 minutes. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
-      "costBase": 40,
+      "costBase": 300,
       "costScale": 0,
       "levels": [
         {
           "level": 1,
-          "cost": 40,
+          "cost": 300,
           "reward": "One 5-minute Galactic Surge token"
+        }
+      ]
+    },
+    {
+      "id": "stellar-surge-token",
+      "sourceId": "STELLAR_SURGE",
+      "name": "Stellar Surge Token",
+      "category": "lobby-boosts",
+      "icon": "assets/nova-shop/SurgeBoost.png",
+      "description": "Sends a wave of 'Stellar Variant' energy across the Sandcrawler conveyor every 30 seconds for 5 minutes. Use in the Cantina Shop.",
+      "uncapped": true,
+      "repeatable": true,
+      "costBase": 450,
+      "costScale": 0,
+      "levels": [
+        {
+          "level": 1,
+          "cost": 450,
+          "reward": "One 5-minute Stellar Surge token"
         }
       ]
     },
@@ -1441,37 +1460,37 @@
         },
         {
           "level": 5,
-          "cost": 25,
+          "cost": 30,
           "reward": "Keep 13 pickaxe levels"
         },
         {
           "level": 6,
-          "cost": 30,
+          "cost": 40,
           "reward": "Keep 15 pickaxe levels"
         },
         {
           "level": 7,
-          "cost": 35,
+          "cost": 50,
           "reward": "Keep 17 pickaxe levels"
         },
         {
           "level": 8,
-          "cost": 40,
+          "cost": 60,
           "reward": "Keep 19 pickaxe levels"
         },
         {
           "level": 9,
-          "cost": 45,
+          "cost": 75,
           "reward": "Keep 21 pickaxe levels"
         },
         {
           "level": 10,
-          "cost": 50,
+          "cost": 90,
           "reward": "Keep 23 pickaxe levels"
         },
         {
           "level": 11,
-          "cost": 55,
+          "cost": 105,
           "reward": "Keep 25 pickaxe levels"
         },
         {
@@ -1481,7 +1500,7 @@
         },
         {
           "level": 13,
-          "cost": 140,
+          "cost": 150,
           "reward": "Keep 29 pickaxe levels"
         }
       ]
@@ -2582,7 +2601,9 @@
           "cost": 1235,
           "reward": "+50/sec Droid fusion."
         }
-      ]
+      ],
+      "costBase": 10,
+      "costScale": 25
     }
   ],
   "rebirthRewards": [
@@ -2761,5 +2782,6 @@
       "xpMultPercent": 3790
     }
   ],
-  "rebirthRewardsNote": "Rebirth is the completed rank. regularNovaCrystals is paid on reaching that rank; novaCrystals is the separate Super Rebirth payout at that rank. Regular rewards and ranks 31-35 updated from player-provided reward table and in-game screenshots, 14 September 2026. Credit and XP percentages for ranks 31-35 supplied by a player, 16 September 2026."
+  "rebirthRewardsNote": "Rebirth is the completed rank. regularNovaCrystals is paid on reaching that rank; novaCrystals is the separate Super Rebirth payout at that rank. Regular rewards and ranks 31-35 updated from player-provided reward table and in-game screenshots, 14 September 2026. Credit and XP percentages for ranks 31-35 supplied by a player, 16 September 2026.",
+  "pricesReviewedAt": "2026-09-18"
 }
