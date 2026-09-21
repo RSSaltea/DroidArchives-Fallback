@@ -2,6 +2,18 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-21-new-interface",
+      "date": "2026-09-21",
+      "title": "The new interface is now the main site",
+      "summary": "The toolbar interface that was on trial is now what everyone sees.",
+      "changes": [
+        "Edited the main site to use the new toolbar interface. The previous look is still there: press Classic in the header.",
+        "Edited the old interface: its two styles are now called Classic and Legacy, and it has a New look button to come back.",
+        "Added a Rebirth perks switch to the Critical Calculator, so you can see the best next buy for a fresh Super Rebirth.",
+        "Removed the out-of-date note on the Critical Calculator saying rebirth crit buffs were not included."
+      ]
+    },
+    {
       "id": "2026-09-20-fusion-frees-slots",
       "date": "2026-09-20",
       "title": "Optimise finds a way out of a full base",

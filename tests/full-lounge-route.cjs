@@ -3,9 +3,10 @@ const fs=require('fs'),path=require('path'),http=require('http'),assert=require(
 let chromium;
 try{({chromium}=require('playwright'));}catch{({chromium}=require(path.join(process.env.LOCALAPPDATA,'DroidArchivesResearch/ui-test/node_modules/playwright')));}
 const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'app.js'),'utf8');
+// These checks drive the command deck, which belongs to the classic shell.
 const server=http.createServer((req,res)=>{
  const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
- const file=path.resolve(root,'.'+(pathname==='/'?'/index.html':pathname));
+ const file=path.resolve(root,'.'+(pathname==='/'?'/classic.html':pathname));
  if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}
  const type={'.js':'text/javascript','.css':'text/css','.html':'text/html','.json':'application/json','.svg':'image/svg+xml','.png':'image/png'}[path.extname(file)];
  fs.readFile(file,(err,data)=>{if(err){res.writeHead(404).end();return;}res.writeHead(200,{'Content-Type':type||'application/octet-stream'});res.end(data);});

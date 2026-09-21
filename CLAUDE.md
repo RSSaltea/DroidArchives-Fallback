@@ -29,18 +29,24 @@ fallback repo stays on GitHub Pages as the backup copy.
 
 ## Interfaces
 
-`index.html` is the current interface (Modern/Legacy toggle, `styles.css` +
-`modern.css`). `next.html` with `next/shell.css` and `next/theme.css` is the
-new toolbar interface being trialled at the same address, driven by the same
-`app.js`. `next/theme.css` is generated from `modern.css` (see the session
-scratchpad `ui/build-theme.cjs`) and then edited; `next/shell.css` holds the
-tokens and shell. Keep both shells working until the user says which wins.
+`index.html` is the main interface since 2026-09-21: the toolbar shell
+(`data-ui-style="next"`, `data-ui-fixed`) with `next/shell.css` and
+`next/theme.css`. `next/theme.css` is generated from `modern.css` and then
+edited; `next/shell.css` holds the tokens and shell. The internal style name
+stays `next` because the CSS is keyed to it.
 
-Planned swap (user decision 2026-09-18): when the user says the new interface
-goes live, `index.html` becomes the new shell and the current shell stays in
-the code as `legacy.html`, keeping its Modern style ("Legacy v2") and its
-Legacy style. Until then `next.html` is the mods' test address and the live
-site is unchanged.
+`classic.html` is the previous interface, kept for anyone who prefers it
+(`styles.css` + `modern.css`). Its header button switches between two styles,
+shown to players as **Classic** (internally `modern`) and **Legacy**. It links
+back to the main site with "New look"; the main site links to it with "Classic".
+Both shells run the same `app.js`, so keep both working.
+
+`next.html` was the trial address; it now only forwards to `./`, keeping the
+hash, so old links and Cloudflare's `/next` still land on the right page.
+
+The pages load their scripts and styles with `?v=` cache stamps, and `app.js`
+imports its modules the same way. When one of those files changes, bump its
+stamp, or returning visitors keep running the old copy.
 
 - Do not push local branches directly to either public repo, including through
   a GUI, GitHub API, alternate remote name, or raw repository URL.

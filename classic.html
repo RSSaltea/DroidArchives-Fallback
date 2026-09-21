@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A community-built Droid Tycoon wiki and base planner.">
+  <title>Droid Archives</title>
+  <script>try{document.documentElement.dataset.uiStyle=localStorage.getItem('droid-archive-ui-style')==='legacy'?'legacy':'modern'}catch{document.documentElement.dataset.uiStyle='modern'}</script>
+  <link rel="icon" type="image/png" href="assets/other/icon.png?v=2026-07-20-1">
+  <link rel="apple-touch-icon" href="assets/other/icon.png?v=2026-07-20-1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Slab:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=2026-09-21-main">
+  <link rel="stylesheet" href="cantina.css?v=2026-07-25-2">
+  <link rel="stylesheet" href="modern.css?v=2026-09-21-main">
+  <link rel="stylesheet" href="archive-experience.css?v=2026-09-16-card-redesign">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#/">
+      <span class="brand-mark"><img src="assets/other/icon.png?v=2026-07-20-1" alt="Droid Archives"></span>
+      <span><strong>Droid Archives</strong><small>Tycoon wiki & planner</small></span>
+    </a>
+    <button class="menu-button" id="menuButton" aria-label="Toggle navigation">☰</button>
+    <nav id="nav">
+      <a href="#/">Homepage</a><a href="#/droids">Droids</a><a href="#/droidex">Droidex</a><a href="#/fusion-lab">Fusion Lab</a><a href="#/nova-shop">Nova Shop</a><a href="#/cantina-shop">Cantina Shop</a><a href="#/base">Base</a><a href="#/optimise">Optimise</a><a href="#/droid-calc">Droid Calc</a><a href="#/crit-calc">Crit Calc</a><a href="#/rebirth">Rebirth</a><a href="#/groups">Groups</a><a href="#/lucky-droid">Lucky Droid</a>
+    </nav>
+    <div class="header-cloud" id="headerCloud"></div>
+    <a class="patch-icon-button" href="#/todo" aria-label="View Patch Notes" title="Patch Notes">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5V3Zm3 4h8V5H8v2Zm0 4h8V9H8v2Zm0 4h8v-2H8v2Zm0 4h5v-2H8v2Z"/></svg>
+    </a>
+    <a class="discord-button" href="https://discord.gg/droidarchives" target="_blank" rel="noopener noreferrer" aria-label="Join the Droid Archives Discord" title="Join our Discord">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 5.3A16 16 0 0 0 15.7 4l-.5 1.1a14 14 0 0 0-6.4 0L8.3 4a16 16 0 0 0-3.8 1.3C2.1 8.8 1.4 12.2 1.7 15.6A15 15 0 0 0 6.4 18l1.2-1.7-1.8-.9.4-.3c3.6 1.7 7.8 1.7 11.6 0l.4.3-1.8.9 1.2 1.7a15 15 0 0 0 4.7-2.4c.4-4-1-7.4-2.8-10.3ZM8.7 14.2c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Zm6.6 0c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Z"/></svg>
+    </a>
+    <a class="donate-icon-button" href="#/donate" aria-label="Donate to support Droid Archives" title="Donate">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h13v3h1.5a3.5 3.5 0 0 1 0 7H17v1a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V4Zm13 5v3h1.5a1.5 1.5 0 0 0 0-3H17ZM6 6v9a3 3 0 0 0 3 3h3a3 3 0 0 0 3-3V6H6Z"/></svg>
+    </a>
+    <a class="ui-style-button new-interface-link" href="index.html" title="Back to the new Droid Archives interface" aria-label="Back to the new Droid Archives interface"><span aria-hidden="true">✦</span><strong>New look</strong></a>
+    <button class="ui-style-button" id="uiStyleButton" aria-label="Switch interface style" title="Switch interface style"><span aria-hidden="true">◫</span><strong>Classic</strong></button>
+    <button class="theme-button" id="themeButton" aria-label="Switch colour theme" title="Switch colour theme">☀</button>
+    <label class="header-search"><span>⌕</span><input id="globalSearch" placeholder="Search the archives…" autocomplete="off"></label>
+  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="side-title">Navigation</p>
+      <a href="#/"><img class="side-icon" src="assets/nav/Homepage.png" alt=""> <span>Homepage</span></a>
+      <a href="#/droids"><img class="side-icon" src="assets/nav/Droids.png" alt=""> <span>Droids</span></a>
+      <a href="#/droidex"><img class="side-icon" src="assets/nav/Droidex.png" alt=""> <span>Droidex</span></a>
+      <a href="#/fusion-lab"><img class="side-icon" src="assets/nav/FusionLab.png" alt=""> <span>Fusion Lab</span></a>
+      <a href="#/nova-shop"><img class="side-icon" src="assets/nav/NovaShop.png" alt=""> <span>Nova Shop</span></a>
+      <a href="#/cantina-shop"><img class="side-icon" src="assets/nav/CantinaShop.png" alt=""> <span>Cantina Shop</span></a>
+      <a href="#/base"><img class="side-icon" src="assets/nav/Base.png" alt=""> <span>Base</span></a>
+      <a href="#/optimise"><img class="side-icon" src="assets/nav/Optimise.png" alt=""> <span>Optimise</span></a>
+      <a href="#/droid-calc"><img class="side-icon" src="assets/nav/DroidCalc.png" alt=""> <span>Droid Calc</span></a>
+      <a href="#/crit-calc"><img class="side-icon" src="assets/nav/CritCalc.png" alt=""> <span>Crit Calc</span></a>
+      <a href="#/rebirth"><img class="side-icon" src="assets/nav/Rebirth.png" alt=""> <span>Rebirth</span></a>
+      <a href="#/groups"><img class="side-icon" src="assets/nav/Groups.png" alt=""> <span>Groups</span></a>
+      <a href="#/lucky-droid"><img class="side-icon" src="assets/nav/LuckyDroid.png" alt=""> <span>Lucky Droid</span></a>
+      <a href="#/todo"><img class="side-icon" src="assets/nav/PatchNotes.png" alt=""> <span>Patch Notes</span></a>
+      <a href="#/donate"><img class="side-icon" src="assets/nav/Donate.png" alt=""> <span>Donate</span></a>
+      <div class="side-rule"></div>
+      <div id="baseSidebarControls"></div>
+    </aside>
+    <main id="app" tabindex="-1"><div class="loading">Loading archive data…</div></main>
+  </div>
+  <footer><span>Unofficial community tool for Fortnite: Droid Tycoon · Protocol data checked 13 September 2026</span><span>Issues, feedback or corrections? Add <strong>.saltea</strong> on Discord. <button id="copyDiscord" type="button">Copy username</button></span></footer>
+  <div id="toast" role="status"></div>
+  <div id="modalRoot"></div>
+  <script type="module" src="app.js?v=2026-09-21-main"></script>
+</body>
+</html>

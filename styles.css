@@ -1127,3 +1127,4 @@ body.has-rebirth-quick-bar #app{padding-bottom:74px}
 .side-min-gain-input input{width:90px;flex:0 0 auto}
 .side-min-gain-input em{font-style:normal;color:var(--muted);font-size:11px;font-weight:700;text-transform:none;letter-spacing:0}
 .optimise-settled.optimise-blocked{white-space:normal;font-weight:600;line-height:1.45;background:rgba(245,185,68,.12);border-color:#b8862e;color:#f5d58a}
+a.ui-style-button{display:inline-flex;align-items:center;text-decoration:none}

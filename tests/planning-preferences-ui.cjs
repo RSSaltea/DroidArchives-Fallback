@@ -2,7 +2,7 @@ const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),
 let chromium;try{({chromium}=require('playwright'))}catch{({chromium}=require(path.join(process.env.LOCALAPPDATA,'DroidArchivesResearch/ui-test/node_modules/playwright')))}
 const root=path.resolve(__dirname,'..');
 const server=http.createServer((req,res)=>{
-  let pathname=new URL(req.url,'http://localhost').pathname;if(pathname==='/')pathname='/index.html';
+  let pathname=new URL(req.url,'http://localhost').pathname;if(pathname==='/')pathname='/classic.html'; // the command deck belongs to the classic shell
   if(pathname==='/data/patch-notes.json'){res.writeHead(200,{'Content-Type':'application/json'}).end('{"notes":[]}');return}
   const file=path.resolve(root,'.'+decodeURIComponent(pathname));if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return}
   fs.readFile(file,(err,data)=>{if(err){res.writeHead(404).end();return}

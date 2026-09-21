@@ -1,5 +1,5 @@
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-09-16-optimise';
-import { planOptimiseRoute, predictWorkLanding } from './optimise-route.js?v=2026-09-17-route';
+import { planOptimiseRoute, predictWorkLanding } from './optimise-route.js?v=2026-09-21-seat-swaps';
 import { createArchiveExperience } from './archive-experience.js?v=2026-09-16-card-redesign';
 let archiveExperience=null;
 const DROID_TYPES=['WORKER','ASTROMECH','BATTLE','PROTOCOL'];
@@ -1952,8 +1952,11 @@ function rebirthCritPerks({after=0,through=Infinity}={}){
   }).map(r=>({at:Number(r.rebirth)||0,chance:Number(r.critChancePercent)||0,amount:Number(r.critAmountPercent)||0}));
 }
 const pickaxeHitSeconds=effectiveLevel=>PICKAXE_SECONDS_PER_LEVEL*(Math.max(0,effectiveLevel)+1);
-const critChanceFor=(level,chopper)=>CRIT_CHANCE_BASE+CRIT_CHANCE_PER_LEVEL*Math.max(0,level)+(chopper?CHOPPER_CRIT_BONUS:0)+rebirthCritBonus().chance;
-const critAmountFor=(level,chopper)=>CRIT_AMOUNT_BASE+CRIT_AMOUNT_PER_LEVEL*Math.max(0,level)+(chopper?CHOPPER_CRIT_BONUS:0)+rebirthCritBonus().amount;
+// The rebirth perks reset with a Super Rebirth, so the calculator can leave them
+// out to show which upgrade is the best buy for a fresh run.
+const critPerksOn=()=>critSetting('perks',1)!==0;
+const critChanceFor=(level,chopper)=>CRIT_CHANCE_BASE+CRIT_CHANCE_PER_LEVEL*Math.max(0,level)+(chopper?CHOPPER_CRIT_BONUS:0)+(critPerksOn()?rebirthCritBonus().chance:0);
+const critAmountFor=(level,chopper)=>CRIT_AMOUNT_BASE+CRIT_AMOUNT_PER_LEVEL*Math.max(0,level)+(chopper?CHOPPER_CRIT_BONUS:0)+(critPerksOn()?rebirthCritBonus().amount:0);
 const multiCritRolls=level=>Math.max(0,level)+1;
 // Average damage multiplier of a swing, relative to a non-crit hit. Follows the
 // community sheet: the hit itself, plus the crit amount once per crit landed.
@@ -3595,7 +3598,7 @@ function critCalcPage(){
         ${num('critPickaxe','Pickaxe level',current.pickaxe,0,masteryFloor?`Pickaxe Mastery keeps ${masteryFloor}`:'Set Pickaxe Mastery in Nova Shop')}
         <div class="crit-field"><span>Astromech companion</span><div class="crit-readout">${autoAstro?`+${autoAstro}`:'—'}</div><small>${autoAstro?`From your Base · effective level ${current.pickaxe+autoAstro}`:'No Astromech in a Companion slot'}</small></div>
         <label class="crit-field crit-toggle"><span>Chopper</span><div class="crit-switch"><input type="checkbox" id="critChopper" ${current.chopper?'checked':''}><b>${current.chopper?'Equipped':'Not equipped'}</b></div><small>+${Math.round(CHOPPER_CRIT_BONUS*100)}% chance and amount${autoChopper?' · found in your Base':''}</small></label>
-        <div class="crit-field"><span>Rebirth perks</span><div class="crit-readout">${rebirthBonus.chance||rebirthBonus.amount?`+${Math.round(rebirthBonus.chance*100)}% / +${Math.round(rebirthBonus.amount*100)}%`:'—'}</div><small>${rebirthBonus.chance||rebirthBonus.amount?`Chance and amount, banked through R: ${state.rebirth}`:'None yet · the first lands at R: 23'}</small><small class="crit-cost">${nextCritPerk?`Next at R: ${nextCritPerk.at} · +${nextCritPerk.chance||nextCritPerk.amount}% crit ${nextCritPerk.chance?'chance':'amount'}`:'Every rebirth crit perk is banked'}</small></div>
+        <label class="crit-field crit-toggle"><span>Rebirth perks</span><div class="crit-switch"><input type="checkbox" id="critPerks" ${critPerksOn()?'checked':''} ${rebirthBonus.chance||rebirthBonus.amount?'':'disabled'}><b>${rebirthBonus.chance||rebirthBonus.amount?`${critPerksOn()?'':'Off · '}+${Math.round(rebirthBonus.chance*100)}% / +${Math.round(rebirthBonus.amount*100)}%`:'—'}</b></div><small>${rebirthBonus.chance||rebirthBonus.amount?(critPerksOn()?`Chance and amount, banked through R: ${state.rebirth}`:'Left out, as on a fresh Super Rebirth'):'None yet · the first lands at R: 23'}</small><small class="crit-cost">${nextCritPerk?`Next at R: ${nextCritPerk.at} · +${nextCritPerk.chance||nextCritPerk.amount}% crit ${nextCritPerk.chance?'chance':'amount'}`:'Every rebirth crit perk is banked'}</small></label>
       </section>
       <div class="base-top crit-stats">
         <div class="stat"><small>Base hit</small><strong>${p.base.toFixed(1)}s</strong><em>level ${current.pickaxe}${current.astromech?` + ${current.astromech}`:''} = ${current.pickaxe+current.astromech}</em></div>
@@ -3608,17 +3611,16 @@ function critCalcPage(){
       <table><thead><tr><th>Upgrade</th><th>To</th><th>Cost</th><th>Seconds/hit</th><th>Extra damage</th><th>Nova per 1% damage</th></tr></thead><tbody>
       ${options.map((o,i)=>{const after=critProfile({...current,...(o.id===CRIT_UPGRADE_IDS.chance?{chanceLevel:o.to}:o.id===CRIT_UPGRADE_IDS.amount?{amountLevel:o.to}:{multiLevel:o.to})});
         return `<tr class="${o===best?String.fromCharCode(99,114,105,116,45,112,105,99,107):o.locked?String.fromCharCode(99,114,105,116,45,108,111,99,107,101,100):String()}"><th>${o.name}${o.note?`<small class="crit-note">${o.note}</small>`:''}</th><td>${o.to}</td><td>${fmt(o.cost)}</td><td>${after.perHit.toFixed(1)}s<small class="crit-note">from ${p.perHit.toFixed(1)}s</small></td><td>+${(o.gain*100).toFixed(2)}%</td><td>${fmt(Math.round(o.cost/(o.gain*100)))}</td></tr>`}).join('')||'<tr><td colspan="6">Everything is maxed.</td></tr>'}
-      </tbody></table></section>
-      <div class="notice"><strong>Rebirth crit buffs are not included yet.</strong> The model has a slot for them, so they will fold in once the numbers are known.</div>`;
+      </tbody></table></section>`;
     const bind=(id,key)=>{const el=document.querySelector('#'+id);if(el)el.onchange=()=>{setCritSetting(key,Number(el.type==='checkbox'?(el.checked?1:0):el.value)||0);render()}};
-    bind('critPickaxe','pickaxe');bind('critChopper','chopper');
+    bind('critPickaxe','pickaxe');bind('critChopper','chopper');bind('critPerks','perks');
     // Perk levels write through to the Nova Shop itself.
     const setPerk=(id,level)=>{setNovaLevel(id,Math.max(0,level),false);save();render()};
     [['critChance',CRIT_UPGRADE_IDS.chance],['critAmount',CRIT_UPGRADE_IDS.amount],['critMulti',CRIT_UPGRADE_IDS.multi]]
       .forEach(([field,id])=>{const el=document.querySelector('#'+field);if(el)el.onchange=()=>setPerk(id,Number(el.value)||0)});
     document.querySelectorAll('[data-perk-up]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkUp,novaLevelFor(b.dataset.perkUp)+1));
     document.querySelectorAll('[data-perk-down]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkDown,novaLevelFor(b.dataset.perkDown)-1));
-    document.querySelector('#critReset').onclick=()=>{['chopper','pickaxe'].forEach(k=>localStorage.removeItem('droid-archive-crit-'+k));render();toast('Pickaxe and companion reset to your Base')};
+    document.querySelector('#critReset').onclick=()=>{['chopper','pickaxe','perks'].forEach(k=>localStorage.removeItem('droid-archive-crit-'+k));render();toast('Pickaxe and companion reset to your Base')};
   };
   render();
 }
@@ -4634,8 +4636,8 @@ if(window.ResizeObserver)new ResizeObserver(()=>scheduleHeaderNav()).observe(doc
 window.addEventListener('resize',()=>scheduleHeaderNav(true));
 document.fonts?.ready.then(()=>scheduleHeaderNav(true));
 const UI_STYLE_KEY='droid-archive-ui-style';
-function applyUiStyle(){if(document.documentElement.hasAttribute('data-ui-fixed'))return;const style=localStorage.getItem(UI_STYLE_KEY)==='legacy'?'legacy':'modern',button=document.querySelector('#uiStyleButton');document.documentElement.dataset.uiStyle=style;if(button){button.querySelector('strong').textContent=style==='modern'?'Modern':'Legacy';button.title=`Switch to ${style==='modern'?'Legacy':'Modern'} interface`;button.setAttribute('aria-label',button.title);button.setAttribute('aria-pressed',String(style==='modern'))}}
-applyUiStyle();applyTheme();renderCloudHeader();scheduleHeaderNav(true);const uiStyleButton=document.querySelector('#uiStyleButton');if(uiStyleButton)uiStyleButton.onclick=()=>{const next=document.documentElement.dataset.uiStyle==='modern'?'legacy':'modern';localStorage.setItem(UI_STYLE_KEY,next);applyUiStyle();route();requestAnimationFrame(updateTimerDocking);toast(`${next==='modern'?'Modern':'Legacy'} interface enabled`)};const themeButton=document.querySelector('#themeButton');if(themeButton)themeButton.onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';save();applyTheme();renderCloudHeader()};document.querySelector('#menuButton').onclick=()=>{const sidebar=document.querySelector('.sidebar'),dropdown=document.querySelector('#cloudDropdown'),cloudButton=document.querySelector('#cloudMenuButton');if(dropdown){dropdown.hidden=true;cloudButton?.setAttribute('aria-expanded','false')}sidebar.classList.toggle('mobile-open')};document.addEventListener('click',()=>{const dropdown=document.querySelector('#cloudDropdown'),button=document.querySelector('#cloudMenuButton');if(dropdown){dropdown.hidden=true;button?.setAttribute('aria-expanded','false')}});document.querySelector('#globalSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){location.hash='#/droids';setTimeout(()=>{const s=document.querySelector('#droidSearch');if(s){s.value=e.target.value;s.dispatchEvent(new Event('input'))}},20)}});window.addEventListener('hashchange',route);
+function applyUiStyle(){if(document.documentElement.hasAttribute('data-ui-fixed'))return;const style=localStorage.getItem(UI_STYLE_KEY)==='legacy'?'legacy':'modern',button=document.querySelector('#uiStyleButton');document.documentElement.dataset.uiStyle=style;if(button){button.querySelector('strong').textContent=style==='modern'?'Classic':'Legacy';button.title=`Switch to ${style==='modern'?'Legacy':'Classic'} style`;button.setAttribute('aria-label',button.title);button.setAttribute('aria-pressed',String(style==='modern'))}}
+applyUiStyle();applyTheme();renderCloudHeader();scheduleHeaderNav(true);const uiStyleButton=document.querySelector('#uiStyleButton');if(uiStyleButton)uiStyleButton.onclick=()=>{const next=document.documentElement.dataset.uiStyle==='modern'?'legacy':'modern';localStorage.setItem(UI_STYLE_KEY,next);applyUiStyle();route();requestAnimationFrame(updateTimerDocking);toast(`${next==='modern'?'Classic':'Legacy'} style enabled`)};const themeButton=document.querySelector('#themeButton');if(themeButton)themeButton.onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';save();applyTheme();renderCloudHeader()};document.querySelector('#menuButton').onclick=()=>{const sidebar=document.querySelector('.sidebar'),dropdown=document.querySelector('#cloudDropdown'),cloudButton=document.querySelector('#cloudMenuButton');if(dropdown){dropdown.hidden=true;cloudButton?.setAttribute('aria-expanded','false')}sidebar.classList.toggle('mobile-open')};document.addEventListener('click',()=>{const dropdown=document.querySelector('#cloudDropdown'),button=document.querySelector('#cloudMenuButton');if(dropdown){dropdown.hidden=true;button?.setAttribute('aria-expanded','false')}});document.querySelector('#globalSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){location.hash='#/droids';setTimeout(()=>{const s=document.querySelector('#droidSearch');if(s){s.value=e.target.value;s.dispatchEvent(new Event('input'))}},20)}});window.addEventListener('hashchange',route);
 document.querySelector('#copyDiscord').onclick=async()=>{try{await navigator.clipboard.writeText('.saltea');toast('Discord username copied')}catch{toast('Discord: .saltea')}};
 // The dashboard and companion use the same placements and income rules as Base.
 let archiveOverviewCache=null;
