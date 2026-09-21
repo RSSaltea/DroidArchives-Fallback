@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-21-shared-profile-exit",
+      "date": "2026-09-21",
+      "title": "Group profile fixes",
+      "summary": "Switching back from a group profile works without a refresh.",
+      "changes": [
+        "Fixed switching back to your own profile from the profile menu doing nothing until you refreshed the page.",
+        "Edited Return to my profiles in the profile menu to keep you on the page you were on.",
+        "Fixed the floating rebirth bar not appearing on a group profile you are allowed to edit."
+      ]
+    },
+    {
       "id": "2026-09-21-companion-activities",
       "date": "2026-09-21",
       "title": "Companions for what you are doing",
