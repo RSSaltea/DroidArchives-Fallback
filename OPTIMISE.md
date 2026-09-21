@@ -42,7 +42,12 @@ validator and the slot log.
    browser. `companionActivityPicks()` names who takes which Companion seat:
    the listed Iconics first, in order, when they are on the base, then the best
    perk of the activity's kind from every droid owned, working or not. A locked
-   Companion keeps its seat. `optimiseBase()` reserves those picks the way it
+   Companion keeps its seat. Scrap farming is a trade-off, not a ranking:
+   `scrapCompanionChoice()` tries every way of seating Protocol droids against
+   leaving them in the Protocol Credits slots. Measured in game, a Companion's
+   Credit Multiplier is added to the base multiplier (credits scale with
+   multiplier + % / 100, two Companions add up), while a Credits slot multiplies
+   one region. `optimiseBase()` reserves those picks the way it
    reserves mission Iconics, so the search plans the base without them.
 2. `optimiseBase()` chooses jobs. It seeds from both a credit-first layout and
    the base as it stands, then runs a local search that charges every droid

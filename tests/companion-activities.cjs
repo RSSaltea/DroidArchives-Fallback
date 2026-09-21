@@ -35,11 +35,28 @@ const server=http.createServer((req,res)=>{
    swaps:preview.steps.filter(s=>s.type==='swap').length};
  },[profile,activity,unlock]);
  // With CHOPPER locked in the first seat only the second one follows the activity.
- assert.deepEqual((await run('scrap',false)).seats,['CHOPPER DEFAULT','LOM STELLAR'],'the best Credit Multiplier, taken out of its Protocol slot');
+ // Scrap farming weighs a Protocol droid beside you (its % joins the credit multiplier)
+ // against the same droid in a Protocol Credits slot (it multiplies one region). Here the
+ // one free seat goes to SA-5 Stellar: LOM Stellar has more %, but is worth more in its slot.
+ assert.deepEqual((await run('scrap',false)).seats,['CHOPPER DEFAULT','SA-5 STELLAR']);
  assert.deepEqual((await run('combat',false)).seats,['CHOPPER DEFAULT','DJ R-3X DEFAULT'],'one free seat: DJ R-3X alone');
  // Nothing locked: both seats follow the activity.
  const scrap=await run('scrap',true);
- assert.deepEqual(scrap.seats,['LOM STELLAR','SA-5 STELLAR'],'two Protocol droids, never C-3PO');
+ assert.equal(scrap.seats.length,2);assert.ok(!scrap.seats.includes('C-3PO DEFAULT'),'never C-3PO: his perk is different');
+ // The multiplier decides the trade. A tiny one makes every % beside you worth a lot, so the
+ // two biggest are seated; a huge one makes them worth little, so the strong ones keep
+ // their Credits slots and only Protocol droids with no slot to fill are seated.
+ const scrapAt=multiplier=>page.evaluate(([profile,multiplier])=>{
+  const d=window.testPlan,data=structuredClone(profile.base);for(const row of data.owned)delete row.lockedSlot;data.multiplier=multiplier;
+  d.applyProfileData(data);d.save();d.setCompanionActivity('scrap');
+  const picks=d.companionActivityPicks(d.createOptimisePreview().baseP);return {names:picks.picks.map(x=>x.name+' '+x.variant),gain:picks.gain};
+ },[profile,multiplier]);
+ const small=await scrapAt(1);
+ assert.deepEqual([...small.names].sort(),['LOM STELLAR','SA-5 STELLAR'],'the two biggest multipliers when each % counts for a lot');
+ assert.ok(small.gain>1,'and the gain is large: '+small.gain);
+ const huge=await scrapAt(100000);
+ assert.ok(!huge.names.includes('LOM STELLAR'),'a strong bonus stays in its Credits slot when the multiplier dwarfs the %: '+huge.names.join(', '));
+ assert.ok(huge.gain<0.05,'and there is little to gain: '+huge.gain);
  const crafting=await run('crafting',true);
  assert.deepEqual(crafting.seats,['CHOPPER DEFAULT','TRI-TEK STELLAR'],'CHOPPER and the best pickaxe level');
  assert.equal(crafting.complete,true,JSON.stringify(crafting.issues));
@@ -73,7 +90,8 @@ const server=http.createServer((req,res)=>{
  assert.match(await page.locator('.companion-activity small').innerText(),/DJ R-3X/);
  await page.click('[data-companion-activity="scrap"]');await page.waitForFunction(()=>!document.querySelector('.companion-activity-sub'));
  assert.deepEqual(await pressed(),['scrap']);
- assert.match(await page.locator('.companion-activity small').innerText(),/LOM Stellar/);
+ const scrapHint=await page.locator('.companion-activity small').innerText();
+ assert.match(scrapHint,/SA-5 Stellar/);assert.match(scrapHint,/Base multiplier/,'the hint says which multiplier the trade was judged with');
  await page.click('[data-companion-activity="scrap"]');await page.waitForFunction(()=>!document.querySelector('[data-companion-activity][aria-pressed="true"]'));
  assert.equal(errors.length,0,errors.join('\n'));
  console.log('companion-activities: all passed');

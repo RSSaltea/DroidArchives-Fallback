@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-21-scrap-farming-choice",
+      "date": "2026-09-21",
+      "title": "Scrap farming weighs the Credits slots",
+      "summary": "Scrap farming now compares each Protocol droid beside you with the same droid in a Protocol Credits slot.",
+      "changes": [
+        "Edited Scrap farming: a Protocol droid is only made a Companion when that earns more than leaving it in a Protocol Credits slot. The rest fill the Credits slots, strongest bonus to the region that earns most.",
+        "Added the expected gain to the line under the buttons.",
+        "The comparison uses your Base multiplier. Enter the one the game shows with no Protocol droid beside you, as the game adds a Companion's Credit Multiplier to it."
+      ]
+    },
+    {
       "id": "2026-09-21-fusion-settings-panel",
       "date": "2026-09-21",
       "title": "Fusion settings in the settings panel",

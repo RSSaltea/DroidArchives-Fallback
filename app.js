@@ -1643,7 +1643,7 @@ const companionSlotCount=()=>stationSlotIndices('COMPANION').length;
 // names the Iconics to take first, in order, and the perk to fill any seat left
 // with. It is a mode for this sitting, kept in this browser rather than the profile.
 const COMPANION_ACTIVITIES={
-  scrap:{label:'Scrap farming',prefer:[],goal:'credits',why:'the best Credit Multiplier'},
+  scrap:{label:'Scrap farming',prefer:[],goal:'credits',why:'the Protocol droids worth more beside you than in a Credits slot'},
   crafting:{label:'Crafting',prefer:['CHOPPER'],goal:'pickaxe',why:'CHOPPER and the best pickaxe level'},
   combat:{label:'Combat',missions:true,prefer:['DJ R-3X','MISTER BONES'],goal:'health',why:'DJ R-3X, then MISTER BONES or the best max health'},
   mining:{label:'Mining',missions:true,prefer:['DJ R-3X','CHOPPER'],goal:'pickaxe',why:'DJ R-3X, then CHOPPER or the best pickaxe level'},
@@ -1656,6 +1656,39 @@ const setCompanionActivity=id=>{try{COMPANION_ACTIVITIES[id]?localStorage.setIte
 // candidate, working or not: the point of the mode is the best perk, and the
 // rest of the base is planned around it. A locked or still-building droid stays
 // put, so a locked Companion keeps its seat and counts if the activity wants it.
+// A Protocol droid has two ways to raise what scrap pays, and scrap pays in
+// seconds of the base's credits. As a Companion its Credit Multiplier joins the
+// base multiplier: measured in game, 453.84B with nobody, 532.98B with 1600%,
+// 542.87B with 1800% and 622.01B with both, so every 100% adds the same amount
+// and two Companions simply add up; credits scale with (multiplier + % / 100). In
+// a Protocol Credits slot it multiplies one region's credits instead. Which job
+// is worth more depends on the multiplier and on how much that region earns, so
+// every way of seating up to `seats` of them is tried, with the rest put in the
+// open Credits slots where they help most, and the split that earns most wins.
+function scrapCompanionChoice(p,units,seats){
+  const keyOf=x=>`${x.source}:${x.unit}`,multiplier=Math.max(1e-9,Number(effectiveMultiplier())||1),regions=regionalIncome(p.placed);
+  const fixedSlot=region=>p.placed.find(x=>x.station===`PROTOCOL_${region}_CREDITS`&&(x.lockedSlot||isBuilding(x)));
+  const open=PROTOCOL_REGIONS.filter(region=>stationSlotIndices(`PROTOCOL_${region}_CREDITS`).length&&!fixedSlot(region)).sort((a,b)=>regions[b].beforeBonus-regions[a].beforeBonus);
+  const pool=units.map(unit=>({unit,droid:state.droids.find(d=>d.name===unit.name)})).filter(x=>x.droid?.type==='PROTOCOL')
+    .map(x=>({...x,seat:droidAttributeValue(x.droid,x.unit.variant),slot:protocolBonus(x.droid,x.unit.variant,'CREDITS')}));
+  const earns=seated=>{
+    const taken=new Set(seated.map(x=>keyOf(x.unit))),rest=pool.filter(x=>!taken.has(keyOf(x.unit))&&x.slot>0).sort((a,b)=>b.slot-a.slot);
+    // The strongest bonus goes to the region that earns most.
+    const bonus=new Map(open.map((region,i)=>[region,rest[i]?.slot||0]));
+    const income=PROTOCOL_REGIONS.reduce((sum,region)=>{const held=fixedSlot(region),held_d=held&&state.droids.find(d=>d.name===held.name);
+      return sum+regions[region].beforeBonus*(1+(held?protocolBonus(held_d,held.variant,'CREDITS'):bonus.get(region)||0)/100)},0);
+    return income*(multiplier+seated.reduce((sum,x)=>sum+x.seat,0)/100)/multiplier;
+  };
+  const candidates=pool.filter(x=>x.seat>0);let best={seated:[],value:earns([])};
+  const tryout=(seated,from)=>{
+    const value=earns(seated);if(value>best.value*(1+1e-9))best={seated,value};
+    if(seated.length<seats)for(let i=from;i<candidates.length;i++)tryout([...seated,candidates[i]],i+1);
+  };
+  tryout([],0);
+  // What you have now, for the hint: the Protocol droids already in a seat.
+  const now=earns(candidates.filter(x=>p.placed.some(y=>keyOf(y)===keyOf(x.unit)&&y.station==='COMPANION')));
+  return {units:best.seated.sort((a,b)=>b.seat-a.seat).map(x=>x.unit),gain:now>0?best.value/now-1:0};
+}
 function companionActivityPicks(p){
   const id=companionActivity(),activity=COMPANION_ACTIVITIES[id];
   if(!activity)return {id:null,picks:[],missing:[],locked:[]};
@@ -1668,7 +1701,10 @@ function companionActivityPicks(p){
     if(!unit){missing.push(name);continue}
     if(chosen.length<seats.length)chosen.push({unit,why:'preferred'});
   }
-  const goal=COMPANION_GOALS.find(g=>g.id===activity.goal);
+  // Scrap farming is a trade-off rather than a ranking, so it has its own choice.
+  let gain=null;
+  if(id==='scrap'){const choice=scrapCompanionChoice(p,units,seats.length-chosen.length);gain=choice.gain;for(const unit of choice.units)chosen.push({unit,why:'Credits'})}
+  const goal=id==='scrap'?null:COMPANION_GOALS.find(g=>g.id===activity.goal);
   if(goal){
     const value=x=>droidAttributeValue(state.droids.find(d=>d.name===x.name),x.variant),income=x=>state.droids.find(d=>d.name===x.name)?.variants?.[x.variant]?.income||0;
     const pool=units.filter(x=>state.droids.find(d=>d.name===x.name)?.type===goal.type&&value(x)>0&&!chosen.some(c=>keyOf(c.unit)===keyOf(x)))
@@ -1680,7 +1716,7 @@ function companionActivityPicks(p){
   const free=[...seats],picks=[];
   for(const c of chosen){const now=p.placed.find(x=>keyOf(x)===keyOf(c.unit));if(now?.station==='COMPANION'&&free.includes(now.slot)){free.splice(free.indexOf(now.slot),1);picks.push({...c.unit,station:'COMPANION',slot:now.slot,companionWhy:c.why})}}
   for(const c of chosen)if(!picks.some(x=>keyOf(x)===keyOf(c.unit)))picks.push({...c.unit,station:'COMPANION',slot:free.shift(),companionWhy:c.why});
-  return {id,picks,missing,locked};
+  return {id,picks,missing,locked,gain};
 }
 const preferredCompanionsFull=()=>preferredCompanions().length>=companionSlotCount();
 const droidexGapsAbove=(name,variant)=>{const d=state.droids.find(x=>x.name===name);if(!d||isIconic(d))return[];return VARIANTS.slice(VARIANTS.indexOf(variant)+1).filter(v=>!droidexEntry(name,v))};
@@ -3733,11 +3769,13 @@ function optimiseSettledHtml(plan,p){
 // Three buttons for what you are doing, the World missions one opening its three
 // kinds. Pressing the active one again turns the mode off.
 function companionActivityHtml(baseP){
-  const active=companionActivity(),activity=COMPANION_ACTIVITIES[active],{picks,missing,locked}=companionActivityPicks(baseP);
+  const active=companionActivity(),activity=COMPANION_ACTIVITIES[active],{picks,missing,locked,gain}=companionActivityPicks(baseP);
   const button=(id,label,on)=>`<button type="button" class="btn secondary companion-activity-button ${on?'active':''}" data-companion-activity="${id}" aria-pressed="${on}">${label}</button>`;
   const notes=[];
   if(activity){
     notes.push(picks.length?`Companions: ${picks.map(x=>`${x.name}${isIconic(state.droids.find(d=>d.name===x.name))?'':` ${variantLabel(x.variant)} (${droidAttribute(state.droids.find(d=>d.name===x.name),x.variant)})`}`).join(' + ')}`:'No droid you own fits this yet.');
+    if(active==='scrap'&&gain!==null)notes.push(gain>0.0005?`about +${(gain*100).toFixed(1)}% credits over your Companions and Credits slots as they are, counting the Protocol slots the rest can fill`:'your Companions and Credits slots already earn the most');
+    if(active==='scrap')notes.push(`uses your Base multiplier ×${effectiveMultiplier()}, which should be the one the game shows with no Protocol droid beside you`);
     if(missing.length)notes.push(`Not on your Base: ${missing.join(', ')}`);
     if(locked.length)notes.push(`${locked.map(x=>x.name).join(', ')} ${locked.length===1?'is':'are'} locked in ${locked.length===1?'a Companion seat':'Companion seats'} and ${locked.length===1?'stays':'stay'}`);
   }
