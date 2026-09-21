@@ -660,21 +660,6 @@
       ]
     },
     {
-      "id": "daily-crystals",
-      "sourceId": "DQC",
-      "name": "Daily Crystals",
-      "category": "featured",
-      "icon": "assets/nova-shop/DailyQuestCrystals.png",
-      "description": "Earn Nova Crystals from all Daily Quests.",
-      "levels": [
-        {
-          "level": 1,
-          "cost": 30,
-          "reward": "Daily Quests can award Nova Crystals"
-        }
-      ]
-    },
-    {
       "id": "upgrade-chip-station",
       "sourceId": "UCS",
       "name": "Upgrade Chip Station",
@@ -1408,6 +1393,21 @@
           "level": 1,
           "cost": 75,
           "reward": "Unlock one daily quest reset"
+        }
+      ]
+    },
+    {
+      "id": "daily-crystals",
+      "sourceId": "DQC",
+      "name": "Daily Crystals",
+      "category": "core",
+      "icon": "assets/nova-shop/DailyQuestCrystals.png",
+      "description": "Earn Nova Crystals from all Daily Quests.",
+      "levels": [
+        {
+          "level": 1,
+          "cost": 30,
+          "reward": "Daily Quests can award Nova Crystals"
         }
       ]
     },

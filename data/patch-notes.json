@@ -2,6 +2,15 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-21-daily-crystals-core",
+      "date": "2026-09-21",
+      "title": "Daily Crystals moved",
+      "summary": "Daily Crystals is now under Core Upgrades in the Nova Shop.",
+      "changes": [
+        "Edited Daily Crystals to sit in Core Upgrades, next to Double Daily Quests, instead of Featured."
+      ]
+    },
+    {
       "id": "2026-09-21-scrap-farming-choice",
       "date": "2026-09-21",
       "title": "Scrap farming weighs the Credits slots",
