@@ -37,6 +37,13 @@ validator and the slot log.
 ## Pipeline
 
 1. `placements()` reads the current physical base.
+   A companion activity (`COMPANION_ACTIVITIES`: Scrap farming, Crafting, and
+   Combat, Mining and Fishing under World missions) is a mode kept in this
+   browser. `companionActivityPicks()` names who takes which Companion seat:
+   the listed Iconics first, in order, when they are on the base, then the best
+   perk of the activity's kind from every droid owned, working or not. A locked
+   Companion keeps its seat. `optimiseBase()` reserves those picks the way it
+   reserves mission Iconics, so the search plans the base without them.
 2. `optimiseBase()` chooses jobs. It seeds from both a credit-first layout and
    the base as it stands, then runs a local search that charges every droid
    changing station a move threshold (`optimiseMinGainPercent`, default 0.5%
@@ -154,6 +161,7 @@ node tests/optimise-movement-regression.cjs
 node tests/optimise-fusion-apply-ui.cjs
 node tests/full-lounge-route.cjs
 node tests/fusion-frees-slots.cjs
+node tests/companion-activities.cjs
 ```
 
 `tests/optimise-route.test.cjs` covers the planner on its own: overflow

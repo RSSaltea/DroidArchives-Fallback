@@ -1128,3 +1128,11 @@ body.has-rebirth-quick-bar #app{padding-bottom:74px}
 .side-min-gain-input em{font-style:normal;color:var(--muted);font-size:11px;font-weight:700;text-transform:none;letter-spacing:0}
 .optimise-settled.optimise-blocked{white-space:normal;font-weight:600;line-height:1.45;background:rgba(245,185,68,.12);border-color:#b8862e;color:#f5d58a}
 a.ui-style-button{display:inline-flex;align-items:center;text-decoration:none}
+/* Companions for what you are doing: three modes, World missions opening its three kinds. */
+.companion-activity{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 16px;padding:10px 14px;background:var(--panel);border:1px solid var(--line);border-radius:6px}
+.companion-activity-title{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.companion-activity .btn{min-height:32px;padding:6px 12px;font-size:12px}
+/* Each shell styles .btn.secondary itself, so the pressed state has to outrank all three. */
+html[data-ui-style] .companion-activity .btn.companion-activity-button.active,html[data-ui-style] .companion-activity .btn.companion-activity-button.active:hover{border-color:#49d982;color:#8ae2a5;background:#193024}
+.companion-activity-sub{display:inline-flex;flex-wrap:wrap;gap:6px;padding-left:10px;border-left:1px solid var(--line)}
+.companion-activity small{flex:1 1 100%;color:var(--muted);font-size:12px;line-height:1.45}

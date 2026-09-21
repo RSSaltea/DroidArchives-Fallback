@@ -12,7 +12,8 @@ function fn(name){const at=src.indexOf(`function ${name}(`);assert(at>=0,name);c
 function setup(){
  const state={droids:structuredClone(data),owned:[],protocolPriority:'credits'};
  const caps={WORKER:1,ASTROMECH:1,BATTLE:1,BUILD:3,FUSION_BUILD:3,LOUNGE:1};
- const ctx=vm.createContext({state,console,ASTROMECH_MISSION_SLOTS:[0,2,4,6,8],optimiseMoveLambda:()=>0,PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
+ // No companion activity is on in these layouts, so nothing is reserved for a seat.
+ const ctx=vm.createContext({state,console,companionActivityPicks:()=>({id:null,picks:[],missing:[],locked:[]}),ASTROMECH_MISSION_SLOTS:[0,2,4,6,8],optimiseMoveLambda:()=>0,PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
   effectiveMultiplier:()=>1,isIconic:d=>d?.rarity==='ICONIC',iconicIncome:d=>d?.rarity==='ICONIC'?(d.special?.incomePercent??.15):0,
   placedBaseIncome:placed=>placed.reduce((n,x)=>n+(state.droids.find(d=>d.name===x.name)?.variants[x.variant]?.income||0),0),
   expandedOwned:()=>state.owned.flatMap((x,source)=>Array.from({length:x.qty||1},(_,unit)=>({...x,source,unit}))),

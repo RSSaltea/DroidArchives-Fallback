@@ -269,7 +269,9 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
           if (position.station !== 'COMPANION' || other === key || fixed(other) || state.sold.has(other) || state.staged.has(other)) return false;
           const otherGoal = state.goals.get(other);
           if (!otherGoal || otherGoal.kind !== 'place' || otherGoal.station === 'COMPANION') return false;
-          return rules.canUse(units.get(other), from.station) && (['LOUNGE', 'FUSION'].includes(from.station) || goalMet(from, otherGoal, rules));
+          // A finished tank is a room to wait in too: the old Companion can be told
+          // Work or Lounge from there like any finished droid.
+          return rules.canUse(units.get(other), from.station) && (['LOUNGE', 'FUSION', 'BUILD', 'FUSION_BUILD'].includes(from.station) || goalMet(from, otherGoal, rules));
         });
         if (!leaving) return null;
         const [other, seat] = leaving;
@@ -379,7 +381,8 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         // A finished droid in a tank another droid is bound for must leave by
         // Swap, so that droid is swapped in; Work or Lounge would empty the tank.
         const here = state.pos.get(key);
-        if (here && ['BUILD', 'FUSION_BUILD'].includes(here.station) && arrivalsInto(state, here.station) > 0) continue;
+        // Only those two empty it: a sale, a fusion or the droid's own Companion swap go ahead.
+        if (here && ['BUILD', 'FUSION_BUILD'].includes(here.station) && arrivalsInto(state, here.station) > 0 && ['work', 'lounge'].includes(commandFor(goal))) continue;
         const step = tryCommand(state, key, commandFor(goal), policy.assumed);
         if (step) { steps.push(step); progress = true; }
       }

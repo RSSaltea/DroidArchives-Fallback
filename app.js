@@ -1,5 +1,5 @@
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-09-16-optimise';
-import { planOptimiseRoute, predictWorkLanding } from './optimise-route.js?v=2026-09-21-seat-swaps';
+import { planOptimiseRoute, predictWorkLanding } from './optimise-route.js?v=2026-09-21-activities';
 import { createArchiveExperience } from './archive-experience.js?v=2026-09-16-card-redesign';
 let archiveExperience=null;
 const DROID_TYPES=['WORKER','ASTROMECH','BATTLE','PROTOCOL'];
@@ -331,18 +331,22 @@ function optimiseBase(p,currentIncome){
   const keyOf=x=>`${x.source}:${x.unit}`,fixed=p.placed.filter(x=>x.lockedSlot||isBuilding(x)),fixedKeys=new Set(fixed.map(keyOf));
   const missionSlots=stationSlotIndices('ASTROMECH').filter(slot=>ASTROMECH_MISSION_SLOTS.includes(slot)&&!fixed.some(x=>x.station==='ASTROMECH'&&x.slot===slot));
   const rank=name=>name==='R2-D2'?0:name==='CB-23'?1:2;
-  const candidates=expandedOwned().filter(x=>{const d=state.droids.find(d=>d.name===x.name);return missionIconic(d)&&!fixedKeys.has(keyOf(x));})
+  // The Companions an activity asks for are settled first: they leave whatever
+  // job they had, and the search fills the base without them.
+  const activityPicks=companionActivityPicks(p).picks,activityKeys=new Set(activityPicks.map(keyOf));
+  const candidates=expandedOwned().filter(x=>{const d=state.droids.find(d=>d.name===x.name);return missionIconic(d)&&!fixedKeys.has(keyOf(x))&&!activityKeys.has(keyOf(x));})
     .sort((a,b)=>rank(a.name)-rank(b.name)||a.name.localeCompare(b.name));
   const picks=candidates.slice(0,missionSlots.length),used=new Set(),reservations=[];
   // Preserve existing mission positions first; a non-mission position is never
   // a reason to displace one of these assignments for a higher credit earner.
   for(const unit of picks){const old=p.placed.find(x=>keyOf(x)===keyOf(unit));if(old?.station==='ASTROMECH'&&missionSlots.includes(old.slot)&&!used.has(old.slot)){used.add(old.slot);reservations.push({...unit,station:'ASTROMECH',slot:old.slot});}}
   for(const unit of picks)if(!reservations.some(x=>keyOf(x)===keyOf(unit))){const slot=missionSlots.find(x=>!used.has(x));used.add(slot);reservations.push({...unit,station:'ASTROMECH',slot});}
+  for(const unit of activityPicks)reservations.push({...unit,companionActivity:true});
   if(!reservations.length)return repairReachableLayout(optimiseUnreservedBase(p,currentIncome),p);
   const keys=new Set(reservations.map(keyOf)),spots=new Set(reservations.map(x=>`${x.station}:${x.slot}`));
   const constrained={...p,placed:[...p.placed.filter(x=>!keys.has(keyOf(x))&&!spots.has(`${x.station}:${x.slot}`)),...reservations.map(x=>({...x,lockedSlot:true}))]};
   const result=repairReachableLayout(optimiseUnreservedBase(constrained,currentIncome),constrained);
-  const assignments=[...result.assignments,...reservations.map(x=>({key:keyOf(x),name:x.name,variant:x.variant,station:x.station,slot:x.slot,missionPriority:true}))];
+  const assignments=[...result.assignments,...reservations.map(x=>({key:keyOf(x),name:x.name,variant:x.variant,station:x.station,slot:x.slot,...(x.companionActivity?{companionActivity:true}:{missionPriority:true})}))];
   return {...result,assignments,moves:optimiseAssignmentMoves(assignments,p)};
 }
 function optimiseUnreservedBase(p,currentIncome){
@@ -1635,6 +1639,49 @@ const missingPreferredCompanions=()=>{const owned=new Set(state.owned.map(x=>x.n
 // There is no point naming more preferred companions than you have slots to put
 // them in, so the picker stops at however many are actually unlocked.
 const companionSlotCount=()=>stationSlotIndices('COMPANION').length;
+// What you are doing right now decides who should walk with you. Each activity
+// names the Iconics to take first, in order, and the perk to fill any seat left
+// with. It is a mode for this sitting, kept in this browser rather than the profile.
+const COMPANION_ACTIVITIES={
+  scrap:{label:'Scrap farming',prefer:[],goal:'credits',why:'the best Credit Multiplier'},
+  crafting:{label:'Crafting',prefer:['CHOPPER'],goal:'pickaxe',why:'CHOPPER and the best pickaxe level'},
+  combat:{label:'Combat',missions:true,prefer:['DJ R-3X','MISTER BONES'],goal:'health',why:'DJ R-3X, then MISTER BONES or the best max health'},
+  mining:{label:'Mining',missions:true,prefer:['DJ R-3X','CHOPPER'],goal:'pickaxe',why:'DJ R-3X, then CHOPPER or the best pickaxe level'},
+  fishing:{label:'Fishing',missions:true,prefer:['DJ R-3X','BB-8'],goal:null,why:'DJ R-3X, then BB-8'}
+};
+const COMPANION_ACTIVITY_KEY='droid-archive-companion-activity';
+const companionActivity=()=>{try{const id=localStorage.getItem(COMPANION_ACTIVITY_KEY);return COMPANION_ACTIVITIES[id]?id:null}catch{return null}};
+const setCompanionActivity=id=>{try{COMPANION_ACTIVITIES[id]?localStorage.setItem(COMPANION_ACTIVITY_KEY,id):localStorage.removeItem(COMPANION_ACTIVITY_KEY)}catch{}};
+// Who the active activity puts in which Companion seat. Every droid you own is a
+// candidate, working or not: the point of the mode is the best perk, and the
+// rest of the base is planned around it. A locked or still-building droid stays
+// put, so a locked Companion keeps its seat and counts if the activity wants it.
+function companionActivityPicks(p){
+  const id=companionActivity(),activity=COMPANION_ACTIVITIES[id];
+  if(!activity)return {id:null,picks:[],missing:[],locked:[]};
+  const keyOf=x=>`${x.source}:${x.unit}`,fixed=p.placed.filter(x=>x.lockedSlot||isBuilding(x)),fixedKeys=new Set(fixed.map(keyOf));
+  const locked=fixed.filter(x=>x.station==='COMPANION'),seats=stationSlotIndices('COMPANION').filter(slot=>!locked.some(x=>x.slot===slot));
+  const units=expandedOwned().filter(x=>!fixedKeys.has(keyOf(x))),chosen=[],missing=[];
+  for(const name of activity.prefer){
+    if(locked.some(x=>x.name===name))continue;
+    const unit=units.find(x=>x.name===name);
+    if(!unit){missing.push(name);continue}
+    if(chosen.length<seats.length)chosen.push({unit,why:'preferred'});
+  }
+  const goal=COMPANION_GOALS.find(g=>g.id===activity.goal);
+  if(goal){
+    const value=x=>droidAttributeValue(state.droids.find(d=>d.name===x.name),x.variant),income=x=>state.droids.find(d=>d.name===x.name)?.variants?.[x.variant]?.income||0;
+    const pool=units.filter(x=>state.droids.find(d=>d.name===x.name)?.type===goal.type&&value(x)>0&&!chosen.some(c=>keyOf(c.unit)===keyOf(x)))
+      // Best perk first; between equals, the one that earns least is missed least.
+      .sort((a,b)=>value(b)-value(a)||income(a)-income(b));
+    while(chosen.length<seats.length&&pool.length)chosen.push({unit:pool.shift(),why:goal.short});
+  }
+  // A pick already in a seat keeps it; the others take the seats left, in order.
+  const free=[...seats],picks=[];
+  for(const c of chosen){const now=p.placed.find(x=>keyOf(x)===keyOf(c.unit));if(now?.station==='COMPANION'&&free.includes(now.slot)){free.splice(free.indexOf(now.slot),1);picks.push({...c.unit,station:'COMPANION',slot:now.slot,companionWhy:c.why})}}
+  for(const c of chosen)if(!picks.some(x=>keyOf(x)===keyOf(c.unit)))picks.push({...c.unit,station:'COMPANION',slot:free.shift(),companionWhy:c.why});
+  return {id,picks,missing,locked};
+}
 const preferredCompanionsFull=()=>preferredCompanions().length>=companionSlotCount();
 const droidexGapsAbove=(name,variant)=>{const d=state.droids.find(x=>x.name===name);if(!d||isIconic(d))return[];return VARIANTS.slice(VARIANTS.indexOf(variant)+1).filter(v=>!droidexEntry(name,v))};
 // The next rebirth consumes 3 droids, so they are held back from the sell total.
@@ -2841,7 +2888,7 @@ function basePageV2(){
   document.querySelectorAll('[data-purchase-station]').forEach(button=>button.onclick=()=>purchaseRebirthSlot(button.dataset.purchaseStation,Number(button.dataset.purchaseSlot),render));
   requestAnimationFrame(()=>decorateCommandDeck('/base'));
  };render()}
-function stabiliseProjectedPlacements(baseP,placed,slotIndices=stationSlotIndices){const current=new Map(baseP.placed.map(x=>[`${x.source}:${x.unit}`,x])),stations=[...new Set(placed.map(x=>x.station))],stable=[];for(const station of stations){const list=placed.filter(x=>x.station===station),slots=slotIndices(station),pinned=list.filter(x=>x.missionPriority||x.lockedSlot),used=new Set(pinned.map(x=>x.slot)),floating=[];stable.push(...pinned);for(const item of list.filter(x=>!pinned.includes(x))){const old=current.get(`${item.source}:${item.unit}`);if(old?.station===station&&slots.includes(old.slot)&&!used.has(old.slot)){used.add(old.slot);stable.push({...item,slot:old.slot})}else floating.push(item)}const spare=new Set(slots.filter(slot=>!used.has(slot))),colliding=[];
+function stabiliseProjectedPlacements(baseP,placed,slotIndices=stationSlotIndices){const current=new Map(baseP.placed.map(x=>[`${x.source}:${x.unit}`,x])),stations=[...new Set(placed.map(x=>x.station))],stable=[];for(const station of stations){const list=placed.filter(x=>x.station===station),slots=slotIndices(station),pinned=list.filter(x=>x.missionPriority||x.companionActivity||x.lockedSlot),used=new Set(pinned.map(x=>x.slot)),floating=[];stable.push(...pinned);for(const item of list.filter(x=>!pinned.includes(x))){const old=current.get(`${item.source}:${item.unit}`);if(old?.station===station&&slots.includes(old.slot)&&!used.has(old.slot)){used.add(old.slot);stable.push({...item,slot:old.slot})}else floating.push(item)}const spare=new Set(slots.filter(slot=>!used.has(slot))),colliding=[];
     for(const item of floating){if(spare.has(item.slot)){spare.delete(item.slot);stable.push(item)}else colliding.push(item)}
     for(const item of colliding){
       const old=current.get(`${item.source}:${item.unit}`);
@@ -2919,7 +2966,7 @@ function optimisedPlacementsPass(baseP,plan,consumed=new Set(),{tanks=false}={})
   vacatedTank=station=>seatToSwap?stationSlotIndices(station).find(slot=>!occupied[station].has(slot)&&baseP.placed.some(x=>{const key=`${x.source}:${x.unit}`,goal=assigned.get(key);return x.station===station&&x.slot===slot&&!x.lockedSlot&&!isBuilding(x)&&goal&&(goal.station!==station||goal.slot!==slot)&&!consumed.has(key)})):undefined,free=(station,origin)=>slotFillOrder(station,origin).find(i=>!occupied[station].has(i))??-1,canKeep=(station,slot)=>station&&stationSlotIndices(station).includes(slot)&&!occupied[station].has(slot);
   const lockedKeys=new Set(baseP.placed.filter(x=>x.lockedSlot||isBuilding(x)).map(x=>`${x.source}:${x.unit}`));
   for(const locked of baseP.placed.filter(x=>lockedKeys.has(`${x.source}:${x.unit}`)))if(canKeep(locked.station,locked.slot))claim(locked,locked.station,locked.slot);
-  for(const unit of units){const key=`${unit.source}:${unit.unit}`,target=assigned.get(key);if(target)claim(target.missionPriority?{...unit,missionPriority:true}:unit,target.station,target.slot)}
+  for(const unit of units){const key=`${unit.source}:${unit.unit}`,target=assigned.get(key);if(target)claim(target.missionPriority?{...unit,missionPriority:true}:target.companionActivity?{...unit,companionActivity:true}:unit,target.station,target.slot)}
   // The copy a rebirth will use is the best one you own, wherever it stands. A
   // better or equal copy already working in a slot covers the rebirth, so the
   // one in storage is a duplicate: free to fuse, or to sell.
@@ -3074,7 +3121,7 @@ function optimisedPlacementsPass(baseP,plan,consumed=new Set(),{tanks=false}={})
       const holder=placed.find(x=>x.station===wanted.station&&x.slot===wanted.slot);
       if(!holder){blocked=!canKeep(wanted.station,wanted.slot);break}
       const holderKey=`${holder.source}:${holder.unit}`,holderOld=current.get(holderKey);
-      if(!holderOld||lockedKeys.has(holderKey)||holder.missionPriority||holderOld.station===wanted.station&&holderOld.slot===wanted.slot||chain.some(step=>step.holder===holder)){blocked=true;break}
+      if(!holderOld||lockedKeys.has(holderKey)||holder.missionPriority||holder.companionActivity||holderOld.station===wanted.station&&holderOld.slot===wanted.slot||chain.some(step=>step.holder===holder)){blocked=true;break}
       chain.push({holder,to:holderOld});wanted=holderOld;
     }
     if(blocked)continue;
@@ -3089,7 +3136,7 @@ function optimisedPlacementsPass(baseP,plan,consumed=new Set(),{tanks=false}={})
     const key=`${x.source}:${x.unit}`,d=state.droids.find(y=>y.name===x.name),producing=PRODUCTIVE_STATIONS.includes(x.station)||isProtocolStation(x.station)||x.station==='UPGRADE_CHIP',status=d?droidCycleStatus(d,x.variant,rebirthPick.get(x.name)?.key===key):{kind:'unused'};
     // Why a droid is being kept, so the plan can say Rebirth or Droidex rather
     // than leaving you to guess.
-    const companionDetail=companionKept.get(key)||missionKept.get(key),handDetail=keptByHand.get(key),keepDetail=droidexKeptKeys.get(key);
+    const companionDetail=companionKept.get(key)||missionKept.get(key)||(x.companionActivity?`Companion · ${COMPANION_ACTIVITIES[companionActivity()]?.label.toLowerCase()||'activity'}`:undefined),handDetail=keptByHand.get(key),keepDetail=droidexKeptKeys.get(key);
     const reason=x.keepReason==='fusion'?{keepReason:'fusion',keepDetail:'Kept for fusion - waiting for a matching batch'}:companionDetail?{keepReason:'companion',keepDetail:companionDetail}:handDetail?{keepReason:'manual',keepDetail:handDetail}:keepDetail?{keepReason:'droidex',keepDetail}:producing||status.kind!=='unused'?{keepReason:'rebirth',keepDetail:status.label}:{};
     const keep={...x,...reason,...(isBuilding(x)?{keepReason:'building',keepDetail:'Still being built · cannot be moved yet'}:{})};
     if(!producing&&status.kind==='unused'&&!isIconic(d)&&!x.lockedSlot&&!keepDetail&&!companionDetail&&!handDetail&&x.keepReason!=='fusion'&&!keepForFusion(x)&&!isBuilding(x))finalSell.push({...x,sellReason:status.label});else finalPlaced.push(keep);
@@ -3178,7 +3225,7 @@ function stepHtml(step,index){
 function normaliseProjectedForSteps(baseP,projected){
   const keyOf=x=>`${x.source}:${x.unit}`,groupOf=x=>`${x.name}:${x.variant}`,cloneRows=rows=>(rows||[]).map(x=>({...x}));
   const placed=cloneRows(projected.placed),sell=cloneRows(projected.sell),overflow=cloneRows(projected.overflow);
-  const fixed=new Set([...baseP.placed.filter(x=>x.lockedSlot||isBuilding(x)),...placed.filter(x=>x.lockedSlot||x.missionPriority||x.keepReason==='manual')].map(keyOf));
+  const fixed=new Set([...baseP.placed.filter(x=>x.lockedSlot||isBuilding(x)),...placed.filter(x=>x.lockedSlot||x.missionPriority||x.companionActivity||x.keepReason==='manual')].map(keyOf));
   const current=new Map(baseP.placed.map(x=>[keyOf(x),x]));
   for(const group of new Set(placed.map(groupOf))){
     // Identical unlocked copies can fill the same jobs. Keep protected copies
@@ -3502,7 +3549,7 @@ function safeOptimiseStepPlan(baseP,projected){
     return fail('Optimise could not finish a safe move sequence. Your Base has not changed.');
   }
 }
-function optimiseInputStamp(){return JSON.stringify({profile:state.cloud?.activeProfileId,shared:state.sharedView?.profile?.id,data:profileDataFromState(),spared:sparedFromSelling(),soldInstead:soldInsteadOfFusion(),landings:slotSessionRead().entries});}
+function optimiseInputStamp(){return JSON.stringify({profile:state.cloud?.activeProfileId,shared:state.sharedView?.profile?.id,data:profileDataFromState(),spared:sparedFromSelling(),soldInstead:soldInsteadOfFusion(),landings:slotSessionRead().entries,activity:companionActivity()});}
 // The page re-renders on every tick and toggle; the plan only changes when the
 // base or the settings behind it do, so the last preview is kept by its stamp.
 let optimisePreviewCache=null;
@@ -3674,6 +3721,19 @@ function optimiseSettledHtml(plan,p){
     .map(unit=>{const why=detailOf(unit.key);return `${unit.name} ${variantLabel(unit.variant)}${why?` (${why})`:''}`}).join(', ');
   return `<p class="optimise-settled optimise-blocked"><strong>Nothing can move yet.</strong> A layout earning about ${fmt(plan.gain*3600)}/h more exists: ${wants}. It cannot be reached because the droids it would displace have nowhere to go${blocked?`: ${blocked}`:''}. Free a Lounge slot, sell a spare, or loosen a Keep for fusion rule, then regenerate.</p>`;
 }
+// Three buttons for what you are doing, the World missions one opening its three
+// kinds. Pressing the active one again turns the mode off.
+function companionActivityHtml(baseP){
+  const active=companionActivity(),activity=COMPANION_ACTIVITIES[active],{picks,missing,locked}=companionActivityPicks(baseP);
+  const button=(id,label,on)=>`<button type="button" class="btn secondary companion-activity-button ${on?'active':''}" data-companion-activity="${id}" aria-pressed="${on}">${label}</button>`;
+  const notes=[];
+  if(activity){
+    notes.push(picks.length?`Companions: ${picks.map(x=>`${x.name}${isIconic(state.droids.find(d=>d.name===x.name))?'':` ${variantLabel(x.variant)} (${droidAttribute(state.droids.find(d=>d.name===x.name),x.variant)})`}`).join(' + ')}`:'No droid you own fits this yet.');
+    if(missing.length)notes.push(`Not on your Base: ${missing.join(', ')}`);
+    if(locked.length)notes.push(`${locked.map(x=>x.name).join(', ')} ${locked.length===1?'is':'are'} locked in ${locked.length===1?'a Companion seat':'Companion seats'} and ${locked.length===1?'stays':'stay'}`);
+  }
+  return `<section class="companion-activity" aria-label="Companions for what you are doing"><span class="companion-activity-title">Companions for</span>${button('scrap','Scrap farming',active==='scrap')}${button('crafting','Crafting',active==='crafting')}${button('missions','World missions',Boolean(activity?.missions))}${activity?.missions?`<span class="companion-activity-sub">${['combat','mining','fishing'].map(id=>button(id,COMPANION_ACTIVITIES[id].label,active===id)).join('')}</span>`:''}<small>${activity?`${activity.label}: ${activity.why}. ${notes.join(' · ')}.`:'Pick what you are doing and Optimise swaps your Companions to suit. Press it again to go back to your own Companion choices.'}</small></section>`;
+}
 function optimisePage(){
   const preview=createOptimisePreview(),ticked=optimiseTickedProjection(preview);
   const {baseP,plan,projected:p,steps,currentIncome,income}=preview,stepsCollapsed=localStorage.getItem('droid-archive-optimise-steps-collapsed')==='1',gain=income-currentIncome,currentScrap=scrapPayoutsForIncome(currentIncome),optimisedScrap=scrapPayoutsForIncome(income),scrapGain={hit:Math.max(0,(optimisedScrap.hit||0)-(currentScrap.hit||0)),break:Math.max(0,(optimisedScrap.break||0)-(currentScrap.break||0))},rebirthPick=p.placed.reduce((map,x)=>{const previous=map.get(x.name);if(!previous||VARIANTS.indexOf(x.variant)>VARIANTS.indexOf(previous.variant))map.set(x.name,{variant:x.variant,key:`${x.source}:${x.unit}`});return map},new Map()),currentMap=new Map(baseP.placed.map(x=>[`${x.source}:${x.unit}`,x]));
@@ -3720,9 +3780,15 @@ function optimisePage(){
     ${fuseOn?`<ol class="fuse-first-list">${fuseChain.map(fuseStep).join('')}</ol>
     <p class="fuse-first-note">Each step takes three droids out of the Sell list and puts one back, so a later step can spend what an earlier one made. Gains are measured against the weakest droid earning in the layout above; a rarity roll is judged on the middle earner of that rarity and quality.</p>`:'<p class="fuse-first-note">Turn this on and the Sell list is checked for fusions worth making first &mdash; a better droid, or one your Droidex is still missing.</p>'}</section>`;
   const sell=p.sell.map(x=>{const d=state.droids.find(y=>y.name===x.name);const toFusion=fuseTake.has(`${x.source}:${x.unit}`),deferred=fuseDeferred.has(`${x.source}:${x.unit}`);return `<div class="sell-card cycle-unused ${toFusion?'to-fusion':''}"><a href="#/droid/${slug(d.name)}"><div>${picture(d,x.variant)}</div><span><strong>${d.name}</strong><small>${variantText(x.variant)} · From: ${originLabel(x)}</small><em>${toFusion?'&rarr; Fusion room, not sold':deferred?'Waiting for Fusion Build space':(x.sellReason||'No rebirth use')}</em></span></a></div>`}).join('');
-  app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Optimise</div><div class="base-heading"><div><p class="eyebrow">Credit optimiser</p><h1>Optimise</h1><p class="lead">A preview of your Base using your Protocol priority: ${state.protocolPriority==='crafting'?'higher craft speed':'higher credit gain'}.</p></div>${nothingToDo?optimiseSettledHtml(plan,p):`<button class="btn" id="applyOptimised" ${p.planComplete?'':'disabled title="This plan cannot be applied yet. The note at the end of the steps says why."'}>Apply optimised layout</button>${ticked?`<button class="btn secondary" id="applyOptimisedSteps" title="${escapeAttr(ticked.partialMessage)}">Apply ticked steps (${ticked.tickedCount}/${ticked.tickedTotal})</button>`:''}`}</div><div class="base-top optimise-stats"><div class="stat"><small>Current / hour</small><strong>${fmt(currentIncome*3600)}</strong></div><div class="stat"><small>Optimised / hour</small><strong>${fmt(income*3600)}</strong></div><div class="stat"><small>Estimated gain / hour</small><strong>${gain?`${gain>0?'+':''}${fmt(gain*3600)}`:'—'}</strong></div><div class="stat scrap-stat"><small>Optimised scrap / hit</small><strong>${optimisedScrap.hit?fmt(optimisedScrap.hit):'—'}</strong><em>${scrapGain.hit?`+${fmt(scrapGain.hit)} per hit`:'No change'}</em></div><div class="stat scrap-stat"><small>Optimised scrap / break</small><strong>${optimisedScrap.break?fmt(optimisedScrap.break):'—'}</strong><em>${scrapGain.break?`+${fmt(scrapGain.break)} per break`:'No change'}</em></div><div class="stat"><small>Droids owned</small><strong>${state.owned.reduce((s,x)=>s+x.qty,0)}</strong></div></div>${nothingToDo?'':`<div class="notice">This page does not change your Base until you click <strong>Apply optimised layout</strong>. Droids in Sell are excluded from the applied layout.${ticked?` Tick the steps you have done: <strong>Apply ticked steps</strong> records the first ${ticked.tickedCount} of ${ticked.tickedTotal}, leaving your Base at ${fmt(ticked.income*3600)}/hr${ticked.income<currentIncome*0.999?' (less than now until you finish the walk)':''}.`:' Tick steps as you do them to record part of the walk.'}</div>`}${missingPreferredCompanions().length?`<div class="notice companion-wanted"><strong>Buy for a Companion slot:</strong> ${missingPreferredCompanions().map(name=>`<a href="#/droid/${slug(name)}">${name}</a>`).join(', ')} — you picked ${missingPreferredCompanions().length===1?'this':'these'} as a preferred companion but ${missingPreferredCompanions().length===1?'do not':'do not'} own ${missingPreferredCompanions().length===1?'it':'them'} yet.</div>`:''}${novaIconicPurchasesHtml(baseP,p)}${steps.length?`<section class="optimise-steps ${stepsCollapsed?'collapsed':''}"><header><div><p class="eyebrow">${stepsEyebrow}</p><h2>Step-by-step moves</h2></div><div class="optimise-steps-actions">${trackToggle}${stepsStyleToggle}<button class="icon-btn optimise-steps-toggle" id="toggleOptimiseSteps" title="${stepsCollapsed?'Show':'Minimise'} steps">${stepsCollapsed?'+' :'−'}</button></div></header>${stepsList}</section>`:''}${protocolSummaryHtml(p.placed)}<div class="base-layout-v2 optimise-layout"><div class="typed-stations">${['WORKER','ASTROMECH','BATTLE'].map(region=>'<div class="region-stations">'+station(region)+'</div>').join('')}</div><div class="build-side">${station('BUILD')}</div>${overflow?`<section class="roster-wide"><header><div><strong>Unplaced</strong><span>${p.overflow.length} over capacity</span></div></header><div id="rosterCards">${overflow}</div></section>`:''}${fuseFirst}${sell?`<section class="sell-wide"><header><div><strong>Sell</strong><span>${p.sell.length} unused or duplicate rebirth droid${p.sell.length===1?'':'s'}</span></div></header><div class="sell-grid">${sell}</div></section>`:''}</div>`;
+  app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Optimise</div><div class="base-heading"><div><p class="eyebrow">Credit optimiser</p><h1>Optimise</h1><p class="lead">A preview of your Base using your Protocol priority: ${state.protocolPriority==='crafting'?'higher craft speed':'higher credit gain'}.</p></div>${nothingToDo?optimiseSettledHtml(plan,p):`<button class="btn" id="applyOptimised" ${p.planComplete?'':'disabled title="This plan cannot be applied yet. The note at the end of the steps says why."'}>Apply optimised layout</button>${ticked?`<button class="btn secondary" id="applyOptimisedSteps" title="${escapeAttr(ticked.partialMessage)}">Apply ticked steps (${ticked.tickedCount}/${ticked.tickedTotal})</button>`:''}`}</div>${companionActivityHtml(baseP)}<div class="base-top optimise-stats"><div class="stat"><small>Current / hour</small><strong>${fmt(currentIncome*3600)}</strong></div><div class="stat"><small>Optimised / hour</small><strong>${fmt(income*3600)}</strong></div><div class="stat"><small>Estimated gain / hour</small><strong>${gain?`${gain>0?'+':''}${fmt(gain*3600)}`:'—'}</strong></div><div class="stat scrap-stat"><small>Optimised scrap / hit</small><strong>${optimisedScrap.hit?fmt(optimisedScrap.hit):'—'}</strong><em>${scrapGain.hit?`+${fmt(scrapGain.hit)} per hit`:'No change'}</em></div><div class="stat scrap-stat"><small>Optimised scrap / break</small><strong>${optimisedScrap.break?fmt(optimisedScrap.break):'—'}</strong><em>${scrapGain.break?`+${fmt(scrapGain.break)} per break`:'No change'}</em></div><div class="stat"><small>Droids owned</small><strong>${state.owned.reduce((s,x)=>s+x.qty,0)}</strong></div></div>${nothingToDo?'':`<div class="notice">This page does not change your Base until you click <strong>Apply optimised layout</strong>. Droids in Sell are excluded from the applied layout.${ticked?` Tick the steps you have done: <strong>Apply ticked steps</strong> records the first ${ticked.tickedCount} of ${ticked.tickedTotal}, leaving your Base at ${fmt(ticked.income*3600)}/hr${ticked.income<currentIncome*0.999?' (less than now until you finish the walk)':''}.`:' Tick steps as you do them to record part of the walk.'}</div>`}${missingPreferredCompanions().length?`<div class="notice companion-wanted"><strong>Buy for a Companion slot:</strong> ${missingPreferredCompanions().map(name=>`<a href="#/droid/${slug(name)}">${name}</a>`).join(', ')} — you picked ${missingPreferredCompanions().length===1?'this':'these'} as a preferred companion but ${missingPreferredCompanions().length===1?'do not':'do not'} own ${missingPreferredCompanions().length===1?'it':'them'} yet.</div>`:''}${novaIconicPurchasesHtml(baseP,p)}${steps.length?`<section class="optimise-steps ${stepsCollapsed?'collapsed':''}"><header><div><p class="eyebrow">${stepsEyebrow}</p><h2>Step-by-step moves</h2></div><div class="optimise-steps-actions">${trackToggle}${stepsStyleToggle}<button class="icon-btn optimise-steps-toggle" id="toggleOptimiseSteps" title="${stepsCollapsed?'Show':'Minimise'} steps">${stepsCollapsed?'+' :'−'}</button></div></header>${stepsList}</section>`:''}${protocolSummaryHtml(p.placed)}<div class="base-layout-v2 optimise-layout"><div class="typed-stations">${['WORKER','ASTROMECH','BATTLE'].map(region=>'<div class="region-stations">'+station(region)+'</div>').join('')}</div><div class="build-side">${station('BUILD')}</div>${overflow?`<section class="roster-wide"><header><div><strong>Unplaced</strong><span>${p.overflow.length} over capacity</span></div></header><div id="rosterCards">${overflow}</div></section>`:''}${fuseFirst}${sell?`<section class="sell-wide"><header><div><strong>Sell</strong><span>${p.sell.length} unused or duplicate rebirth droid${p.sell.length===1?'':'s'}</span></div></header><div class="sell-grid">${sell}</div></section>`:''}</div>`;
   document.querySelector('.build-side').insertAdjacentHTML('afterend',`<div class="special-stations">${station('LOUNGE')}${station('COMPANION')}${station('UPGRADE_CHIP')}<div class="fusion-panel">${station('FUSION')}${fusionBuildSection(station('FUSION_BUILD'))}</div></div>`);
   document.querySelector('[data-manage-iconic-unlocks]')?.addEventListener('click',()=>localStorage.setItem('droid-archive-nova-category','iconic'));
+  document.querySelectorAll('[data-companion-activity]').forEach(button=>button.addEventListener('click',()=>{
+    const id=button.dataset.companionActivity,active=companionActivity(),inMissions=Boolean(COMPANION_ACTIVITIES[active]?.missions);
+    // World missions opens on Combat; pressing the active mode again turns it off.
+    setCompanionActivity(id==='missions'?(inMissions?null:'combat'):id===active?null:id);
+    optimisePage();
+  }));
   document.querySelector('#toggleFuseFirst')?.addEventListener('change',event=>{state.optimiseFuseFirst=event.target.checked;save();optimisePage()});document.querySelector('#toggleOptimiseSteps')?.addEventListener('click',()=>{localStorage.setItem('droid-archive-optimise-steps-collapsed',stepsCollapsed?'0':'1');optimisePage()});
   document.querySelector('#toggleStepStyle')?.addEventListener('click',()=>{localStorage.setItem('droid-archive-optimise-step-style',classicSteps?'route':'classic');optimisePage();toast(classicSteps?'Using the route plan':'Using the classic slot-by-slot plan')});
   document.querySelector('#applyOptimisedSteps')?.addEventListener('click',async event=>{const button=event.currentTarget;button.disabled=true;try{await applyOptimisedLayout({...preview,projected:ticked})}finally{if(button.isConnected)button.disabled=false}});

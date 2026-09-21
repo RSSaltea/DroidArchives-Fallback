@@ -2,6 +2,18 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-21-companion-activities",
+      "date": "2026-09-21",
+      "title": "Companions for what you are doing",
+      "summary": "Three buttons on Optimise swap your Companions to suit Scrap farming, Crafting or World missions.",
+      "changes": [
+        "Added Scrap farming: your Companions become the Protocol droids with the best Credit Multiplier. C-3PO is left out, as its perk is different.",
+        "Added Crafting: CHOPPER, then your best Astromech for pickaxe level.",
+        "Added World missions with Combat, Mining and Fishing. Each takes DJ R-3X first; the second seat goes to MISTER BONES (or your best max health), CHOPPER (or your best pickaxe level), or BB-8.",
+        "The best droid is taken even if it is working, and the rest of the base is planned around it. A locked Companion keeps its seat. Press the active button again to go back to your own Companion choices."
+      ]
+    },
+    {
       "id": "2026-09-21-new-interface",
       "date": "2026-09-21",
       "title": "The new interface is now the main site",
