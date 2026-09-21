@@ -92,6 +92,24 @@ const server=http.createServer((req,res)=>{
  assert.ok(later.steps.some(s=>s.type==='swap'),'the tank swap is part of the walk');
  assert.ok(!later.steps.some(s=>s.type==='note'),JSON.stringify(later.steps));
  assert.equal(errors.length,0,errors.join('\n'));
+ // Two PROTO-ROLLER Galactics already on the table and a third on the Upgrade Chip,
+ // with Fusion settings on Higher rarity. The batch is the two on the table plus a
+ // different Legendary Galactic, so the table copies stay put and the third copy goes
+ // to the Lounge. Moving it on and an identical one off was a command for nothing.
+ const copies=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/fusion-table-copies.json'),'utf8'));
+ const table=await page.evaluate(([profile])=>{
+  const d=window.testPlan;d.applyProfileData(profile.base);d.state.optimiseFuseFirst=true;d.save();
+  const base=d.placements(),plan=d.optimiseBase(base,d.incomeForPlaced(base.placed)),target=d.optimisedPlacements(base,plan);
+  const steps=d.safeOptimiseStepPlan(base,target);
+  return {complete:target.planComplete,issues:target.planIssues,steps:steps.map(s=>({type:s.type,name:s.unit&&s.unit.name,from:s.from&&s.from.station,to:s.to&&(s.to.station||s.to),text:String(s.text).replace(/<[^>]+>/g,'')}))};
+ },[copies]);
+ assert.equal(table.complete,true,JSON.stringify(table.issues));
+ assert.equal(table.steps.filter(s=>s.type==='fuse-held'&&s.name==='PROTO-ROLLER').length,2,'both copies on the table are used where they stand');
+ assert.ok(!table.steps.some(s=>s.name==='PROTO-ROLLER'&&s.from==='FUSION'&&s.type==='move'),'no PROTO-ROLLER is taken off the table');
+ assert.ok(table.steps.some(s=>s.type==='move'&&s.name==='PROTO-ROLLER'&&s.from==='UPGRADE_CHIP'&&s.to==='LOUNGE'),'the third copy goes straight to the Lounge');
+ const rolled=table.steps.find(s=>s.type==='fuse');
+ assert.ok(rolled&&/Mythic droid at Galactic/.test(rolled.text),'Higher rarity rolls a Mythic, not a Stellar PROTO-ROLLER: '+(rolled&&rolled.text));
+ assert.equal(errors.length,0,errors.join(String.fromCharCode(10)));
  console.log('fusion-frees-slots: all passed');
  }finally{await browser.close();server.close();}
 })().catch(error=>{console.error(error);process.exit(1);});

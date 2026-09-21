@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-21-fusion-settings-panel",
+      "date": "2026-09-21",
+      "title": "Fusion settings in the settings panel",
+      "summary": "Fusion settings moved beside Keep for fusion, and one pointless fusion step is gone.",
+      "changes": [
+        "Edited Fusion settings to sit beside Keep for fusion in Advanced settings, with a line saying what each does. It is no longer on the Optimise page.",
+        "Fixed Optimise sending a droid to the Fusion table while moving an identical one off it. Copies already on the table are used first."
+      ]
+    },
+    {
       "id": "2026-09-21-shared-profile-exit",
       "date": "2026-09-21",
       "title": "Group profile fixes",

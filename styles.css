@@ -1136,3 +1136,5 @@ a.ui-style-button{display:inline-flex;align-items:center;text-decoration:none}
 html[data-ui-style] .companion-activity .btn.companion-activity-button.active,html[data-ui-style] .companion-activity .btn.companion-activity-button.active:hover{border-color:#49d982;color:#8ae2a5;background:#193024}
 .companion-activity-sub{display:inline-flex;flex-wrap:wrap;gap:6px;padding-left:10px;border-left:1px solid var(--line)}
 .companion-activity small{flex:1 1 100%;color:var(--muted);font-size:12px;line-height:1.45}
+/* Keep for fusion and Fusion settings sit side by side in the settings panel. */
+.side-fusion-buttons{display:flex;flex-wrap:wrap;gap:6px}.side-fusion-buttons .btn{flex:1 1 auto}
