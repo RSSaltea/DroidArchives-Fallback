@@ -1,5 +1,5 @@
 {
-  "note": "Fusion Lab recipes. Three droids go in, one comes out. Transcribed from the community sheet; incomes are per second and values are the figures shown beside them. Fusion droids cannot be upgraded yet, so only the variants the sheet lists are recorded.",
+  "note": "Fusion Lab recipes. Three droids go in, one comes out. Recipes are transcribed from the community sheet. All 17 Fusion droids' incomes across Default through Stellar were checked against extracted client economy settings on 2026-09-22; these are base credits per second before player bonuses, not a live gameplay verification.",
   "recipes": [
     { "name": "WHL-EX",   "type": "WORKER",    "rarity": "RARE",      "inputs": ["ARG", "MOUSE", "MOUSE"] },
     { "name": "ZRO-TEC",  "type": "ASTROMECH", "rarity": "RARE",      "inputs": ["ID10", "ID10", "2BB"] },
