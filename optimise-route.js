@@ -6,16 +6,16 @@
 // droid takes the nearest free slot of its own type (Astromech mission slots
 // before credit slots), overflows to the nearest other type only once its own
 // type is full, and lands on the Upgrade Chip only when everything is full.
-// Lounge and Fusion pick their own slot too. Slots within a station earn the
-// same, so a plan cares about stations, not slot numbers. Swap, offered on any
+// Lounge and Fusion pick their own slot too. Equivalent earning slots can meet
+// the same goal, but their exact positions matter for subsequent moves. Swap, offered on any
 // droid's card while both Companion seats are taken, trades it with a seated
 // Companion: the droid takes the seat and the Companion takes its slot. That is
 // the one way into a finished Build tank, whose card offers Swap as well.
 //
 // A stop is a region the player walks to. The planner searches over sequences
 // of stops, issuing every command that is legal in that region, and keeps the
-// route with the fewest stops, then the fewest commands, then the fewest
-// landings that depend on the base's geometry ("check where it lands").
+// route with the fewest stops, then commands, uncertain landings and estimated
+// travel distance. The bounded search is not an optimality proof.
 //
 // Pure: no globals. Everything about the base comes in through `rules`.
 
@@ -50,6 +50,49 @@ function bookSlot(station, cls, free, rules) {
 
 const regionOfUnit = (unit, rules) => unit.station ? rules.regionOf(unit.station, unit.slot) : null;
 
+// Compare attachment points only within the highest-priority candidate group.
+// Unknown origins/coordinates and exact ties remain conditional predictions.
+function chooseSlot(unit, candidates, rules, uncertainAvailability = false) {
+  if (!candidates.length) return null;
+  const ranked = candidates.map(candidate => ({ ...candidate,
+    gap: unit.positionUncertain ? null : rules.slotDistanceSquared(unit, candidate) }));
+  const known = ranked.every(x => typeof x.gap === 'number' && Number.isFinite(x.gap) && x.gap >= 0);
+  if (known) ranked.sort((a, b) => a.gap - b.gap);
+  const possible = known ? ranked.filter(x => Math.abs(x.gap - ranked[0].gap) <= 1e-6) : ranked;
+  const { gap, ...pick } = ranked[0];
+  return { ...pick, assumed: uncertainAvailability || possible.length > 1,
+    options: [...new Set(possible.map(x => x.station))],
+    candidates: possible.map(({ gap, ...candidate }) => candidate) };
+}
+
+export function predictStationLanding(unit, placed, station, rules) {
+  const { free } = occupancy(placed, rules);
+  if (!rules.canUse(unit, station)) return null;
+  const candidates = free(station).map(slot => ({ station, slot }));
+  if (typeof rules.slotDistanceSquared === 'function') return chooseSlot(unit, candidates, rules, placed.some(x => x.positionUncertain));
+  return candidates.length ? { ...candidates[0], assumed: false, options: [station] } : null;
+}
+
+function predictWorkByDistance(unit, placed, rules) {
+  const { free } = occupancy(placed, rules), type = rules.typeOf(unit);
+  const choose = candidates => chooseSlot(unit, candidates, rules, placed.some(x => x.positionUncertain));
+  const slots = station => rules.canUse(unit, station) ? free(station).map(slot => ({
+    station, slot, cls: classOf(station, slot, rules)
+  })) : [];
+  if (type === 'PROTOCOL') {
+    const protocol = rules.protocolStations().flatMap(slots);
+    if (protocol.length) return choose(protocol);
+  } else if (!PRODUCTIVE.includes(type)) return null;
+  const work = PRODUCTIVE.flatMap(slots).map(candidate => ({ ...candidate,
+    priority: candidate.station === type ? (type === 'ASTROMECH' && candidate.cls === 'mission' ? 2 : 1) : 0
+  }));
+  if (work.length) {
+    const priority = Math.max(...work.map(x => x.priority));
+    return choose(work.filter(x => x.priority === priority));
+  }
+  return choose(slots('UPGRADE_CHIP'));
+}
+
 // Which of several open stations the droid reaches first. A measured order for
 // the droid's room settles it; otherwise the map distance is a guess and the
 // caller marks the landing "check where it lands".
@@ -76,6 +119,7 @@ function nearest(unit, choices, rules) {
 // Battle droid in a full Battle room leaves for another room), so a working
 // droid whose room has no other free slot overflows rather than staying.
 export function predictWorkLanding(unit, placed, rules) {
+  if (typeof rules.slotDistanceSquared === 'function') return predictWorkByDistance(unit, placed, rules);
   const { free } = occupancy(placed, rules);
   const type = rules.typeOf(unit);
   const landing = (station, assumed, options) => {
@@ -120,12 +164,63 @@ const goalMet = (position, goal, rules) => Boolean(position) && position.station
 // inputs stay where they are, and the rest is planned again.
 export function planOptimiseRoute(args = {}) {
   const batches = [...(args.target?.fusions || [])], waiting = [];
-  let result = planOnce(args);
+  const solve = input => {
+    const route = planOnce(input);
+    // Dense bases can need more alternative occupancy states. Retry only a
+    // search failure, not an invalid/locked target, and keep the bound explicit.
+    if (!route.complete && !input.options?.beamWidth && route.issues.some(text=>text.startsWith('No verified route'))) {
+      const wider = planOnce({ ...input, options: { ...input.options, beamWidth: 192, advancedOnly: true } });
+      if (wider.complete) return wider;
+    }
+    return route;
+  };
+  let result = solve(args);
   while (!result.complete && batches.length && result.fused.length < batches.length) {
     waiting.unshift({ batch: batches.pop(), reason: 'no Fusion Build slot is free for its result during this walk' });
-    result = planOnce({ ...args, target: { ...args.target, fusions: batches } });
+    result = solve({ ...args, target: { ...args.target, fusions: batches } });
   }
   return waiting.length && result.complete ? { ...result, later: [...result.later, ...waiting] } : result;
+}
+
+// Reorder whole visits only when replay confirms every command still lands in
+// the same slot. Joining visits saves a room trip without changing the result.
+// This bounded local improvement preserves all commands and their uncertainty.
+export function shortenOptimiseWalk(steps, { distance, isValid }) {
+  const groups = [];
+  for (const step of steps) {
+    if (!groups.length || groups.at(-1)[0].visit !== step.visit) groups.push([]);
+    groups.at(-1).push(step);
+  }
+  const normalize = order => {
+    const joined = [];
+    for (const group of order) {
+      if (joined.length && joined.at(-1)[0].at === group[0].at) joined.at(-1).push(...group);
+      else joined.push([...group]);
+    }
+    return joined;
+  };
+  const length = order => order.reduce((sum, group, i) => sum + (i ? distance(order[i-1][0].at, group[0].at) : 0), 0);
+  const flatten = order => order.flatMap((group, stop) => group.map(step => ({ ...step, stop, visit: `route-${stop}` }))).map((step, index) => ({ ...step, index }));
+  let best = normalize(groups), bestDistance = length(best);
+  for (let pass = 0; pass < 12; pass++) {
+    let improved = null, improvedDistance = bestDistance;
+    const consider = order => {
+      order = normalize(order);
+      const current = improved || best, gap = length(order);
+      if (order.length > current.length || order.length === current.length && gap >= improvedDistance - 1e-6) return;
+      if (!isValid(flatten(order))) return;
+      improved = order; improvedDistance = gap;
+    };
+    for (let i = 0; i < best.length; i++) for (let j = 0; j < best.length; j++) {
+      if (i === j) continue;
+      const order = [...best], [group] = order.splice(i, 1);
+      order.splice(j, 0, group); consider(order);
+      if (j > i) consider([...best.slice(0, i), ...best.slice(i, j+1).reverse(), ...best.slice(j+1)]);
+    }
+    if (!improved) break;
+    best = improved; bestDistance = improvedDistance;
+  }
+  return { steps: flatten(best), stops: best.length, travelDistance: bestDistance };
 }
 
 function planOnce({ initial, target, rules, options = {} } = {}) {
@@ -191,14 +286,14 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     if (goalMet(unit, goal, rules)) continue;
     if (goal.station === 'UPGRADE_CHIP' && !PRODUCTIVE.every(finalFull)) hint(key, `${unit.name} can only reach the Upgrade Chip once every Worker, Astromech and Battle slot is full, and the optimised layout leaves some empty.`);
     if (PRODUCTIVE.includes(goal.station) && PRODUCTIVE.includes(type) && goal.station !== type && !finalFull(type)) hint(key, `${unit.name} is a ${type[0] + type.slice(1).toLowerCase()} droid: Work only sends it to ${goal.station[0] + goal.station.slice(1).toLowerCase()} once every ${type[0] + type.slice(1).toLowerCase()} slot is full, and the optimised layout leaves some empty.`);
-    if (goal.station === 'ASTROMECH' && goal.cls === 'credit' && (finalCount.get('ASTROMECH|mission') || 0) < missionCapacity) hint(key, `${unit.name} would take an Astromech mission slot before a credit slot, and the optimised layout leaves a mission slot empty.`);
+    if (type === 'ASTROMECH' && goal.station === 'ASTROMECH' && goal.cls === 'credit' && (finalCount.get('ASTROMECH|mission') || 0) < missionCapacity) hint(key, `${unit.name} would take an Astromech mission slot before a credit slot, and the optimised layout leaves a mission slot empty.`);
   }
 
   // ---- state ---------------------------------------------------------------
   // Goals travel with the state: two identical droids can trade goals, so the
   // one whose Work landing fits takes the job.
   const start = { pos: new Map(), sold: new Set(), staged: new Map(), fused: new Set(), built: new Set(), region: null, goals: new Map(goals) };
-  for (const [key, unit] of units) if (unit.station) start.pos.set(key, { station: unit.station, slot: unit.slot });
+  for (const [key, unit] of units) if (unit.station) start.pos.set(key, { station: unit.station, slot: unit.slot, ...(unit.positionUncertain ? { positionUncertain: true } : {}) });
   const clone = state => ({ pos: new Map(state.pos), sold: new Set(state.sold), staged: new Map(state.staged), fused: new Set(state.fused), built: new Set(state.built), region: state.region, goals: new Map(state.goals) });
   const twins = (a, b) => a.name === b.name && a.variant === b.variant;
   // A finished droid swapped into a tank is a finished droid there: the walk
@@ -215,7 +310,10 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     for (const fusion of fusions) if (!state.fused.has(fusion.index)) count++;
     return count;
   };
-  const signature = state => [...state.pos].map(([key, p]) => `${key}@${p.station}:${p.slot}`).sort().join(',') + '|' + [...state.sold].sort().join(',') + '|' + [...state.staged.keys()].sort().join(',') + '|' + [...state.fused].sort().join(',');
+  // The same layout reached in a different room has a different onward walk.
+  // Twin goal swaps and finished tanks also affect which commands remain legal.
+  const signature = state => [...state.pos].map(([key, p]) => `${key}@${p.station}:${p.slot}:${!!p.positionUncertain}`).sort().join(',') + '|' + [...state.sold].sort().join(',') + '|' + [...state.staged.keys()].sort().join(',') + '|' + [...state.fused].sort().join(',')
+    + '|' + state.region + '|' + [...state.built].sort().join(',') + '|' + [...state.goals].map(([key, goal]) => `${key}:${goal.kind}:${goal.station || ''}:${goal.cls || ''}:${goal.fusion ?? ''}`).sort().join(',');
   const regionOfKey = (state, key) => { const p = state.pos.get(key); return p ? rules.regionOf(p.station, p.slot) : null; };
   const arrivalsInto = (state, station) => {
     let count = 0;
@@ -241,10 +339,11 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       return { ...step, type: from?.station === 'FUSION' ? 'fuse-held' : 'fuse-in', to: 'FUSION' };
     }
     if (kind === 'lounge' || kind === 'buffer') {
-      const slot = bookSlot('LOUNGE', null, free, rules);
-      if (slot === undefined || !rules.canUse(unit, 'LOUNGE')) return null;
-      state.pos.set(key, { station: 'LOUNGE', slot });
-      return { ...step, type: 'move', kind: 'lounge', buffer: kind === 'buffer', to: { station: 'LOUNGE', slot } };
+      const landing = predictStationLanding({ ...unit, ...from }, placed, 'LOUNGE', rules);
+      if (!landing || landing.assumed && !allowAssumed) return null;
+      const to = { station: 'LOUNGE', slot: landing.slot, positionUncertain: landing.assumed };
+      state.pos.set(key, to);
+      return { ...step, type: 'move', kind: 'lounge', buffer: kind === 'buffer', assumed: landing.assumed, to };
     }
     if (kind === 'park') {
       // The Fusion table doubles as a waiting room when the Lounge is full: the
@@ -253,8 +352,11 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       if (state.staged.size || (typeof rules.canPark === 'function' && !rules.canPark(unit))) return null;
       const slot = free('FUSION')[0];
       if (slot === undefined) return null;
-      state.pos.set(key, { station: 'FUSION', slot });
-      return { ...step, type: 'move', kind: 'park', buffer: true, to: { station: 'FUSION', slot } };
+      const assumed = typeof rules.slotDistanceSquared === 'function' && free('FUSION').length > 1;
+      if (assumed && !allowAssumed) return null;
+      const to = { station: 'FUSION', slot, positionUncertain: assumed };
+      state.pos.set(key, to);
+      return { ...step, type: 'move', kind: 'park', buffer: true, assumed, to };
     }
     if (kind === 'companion') {
       const slot = bookSlot('COMPANION', null, free, rules);
@@ -276,7 +378,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         if (!leaving) return null;
         const [other, seat] = leaving;
         state.pos.set(key, { station: 'COMPANION', slot: seat.slot });
-        state.pos.set(other, { station: from.station, slot: from.slot });
+        state.pos.set(other, { ...from });
         landedInTank(state, other, from.station);
         return { ...step, type: 'swap', kind: 'companion-swap', to: { station: 'COMPANION', slot: seat.slot }, withUnit: { ...units.get(other) }, withFrom: { ...seat } };
       }
@@ -313,21 +415,22 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       }
       const [other, position] = seat;
       state.pos.set(key, { station: 'COMPANION', slot: position.slot });
-      state.pos.set(other, { station: from.station, slot: from.slot });
+      state.pos.set(other, { ...from });
       landedInTank(state, other, from.station);
       return { ...step, type: 'swap', kind: 'companion-swap', buffer: true, to: { station: 'COMPANION', slot: position.slot }, withUnit: { ...units.get(other) }, withFrom: { ...position } };
     }
-    if (kind === 'work') {
+    if (kind === 'work' || kind === 'transit') {
       let landing = predictWorkLanding({ ...unit, ...(from || {}) }, placed, rules);
       if (!landing) return null;
       // A guessed landing is planned towards the goal when the goal is one of
       // the rooms the game may pick; the step tells the player to check.
       if (landing.assumed && !goalMet(landing, goal, rules) && goal.kind === 'place' && (landing.options || []).includes(goal.station)) {
         const { free } = occupancy(placed, rules), cls = goal.station === 'ASTROMECH' ? (free('ASTROMECH').some(slot => rules.isMissionSlot('ASTROMECH', slot)) ? 'mission' : 'credit') : null;
-        const slot = bookSlot(goal.station, cls, free, rules);
-        if (slot !== undefined) landing = { ...landing, station: goal.station, slot, cls };
+        const candidate = landing.candidates?.find(x => goalMet(x, goal, rules));
+        const slot = candidate?.slot ?? (landing.candidates ? undefined : bookSlot(goal.station, cls, free, rules));
+        if (slot !== undefined) landing = { ...landing, station: goal.station, slot, cls: candidate?.cls ?? cls };
       }
-      if (!goalMet(landing, goal, rules)) {
+      if (kind !== 'transit' && !goalMet(landing, goal, rules)) {
         // An identical droid may be waiting for exactly this landing: let the
         // two swap jobs rather than walk one past the other.
         const twin = [...state.goals].find(([other, otherGoal]) => other !== key && otherGoal.kind === 'place' && twins(units.get(other), unit) && !fixed(other) &&
@@ -336,8 +439,8 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         state.goals.set(twin[0], goal); state.goals.set(key, twin[1]); goal = twin[1];
       }
       if (landing.assumed && !allowAssumed) return null;
-      state.pos.set(key, { station: landing.station, slot: landing.slot });
-      return { ...step, type: 'move', kind: 'work', workCommand: true, assumed: landing.assumed, options: landing.options, to: { station: landing.station, slot: landing.slot, cls: landing.cls, assumed: landing.assumed } };
+      state.pos.set(key, { station: landing.station, slot: landing.slot, positionUncertain: landing.assumed });
+      return { ...step, type: 'move', kind: 'work', workCommand: true, ...(kind === 'transit' ? { buffer: true } : {}), assumed: landing.assumed, options: landing.options, to: { station: landing.station, slot: landing.slot, cls: landing.cls, assumed: landing.assumed, positionUncertain: landing.assumed } };
     }
     return null;
   };
@@ -354,8 +457,9 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       for (const key of fusion.inputs) { state.staged.delete(key); state.goals.set(key, { kind: 'done' }); }
       state.fused.add(fusion.index);
       const result = fusion.batch.resultUnit ? { ...fusion.batch.resultUnit, built: false } : null;
-      if (result) { units.set(keyOf(result), { ...result }); state.pos.set(keyOf(result), { station: 'FUSION_BUILD', slot }); }
-      return { type: 'fuse', at: 'FUSION', fusion: fusion.batch.fusion, unit: fusion.batch.unit || null, resultUnit: result, inputs: [...fusion.inputs], to: 'FUSION_BUILD', toSlot: slot, waitForBuild: false, text: fusion.batch.text };
+      const assumed = typeof rules.slotDistanceSquared === 'function' && free('FUSION_BUILD').length > 1;
+      if (result) { units.set(keyOf(result), { ...result }); state.pos.set(keyOf(result), { station: 'FUSION_BUILD', slot, positionUncertain: assumed }); }
+      return { type: 'fuse', at: 'FUSION', assumed, fusion: fusion.batch.fusion, unit: fusion.batch.unit || null, resultUnit: result, inputs: [...fusion.inputs], to: 'FUSION_BUILD', toSlot: slot, waitForBuild: false, text: fusion.batch.text };
     }
     return null;
   };
@@ -363,7 +467,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   // Everything worth doing in one region, in a sensible order, until nothing
   // else is legal. Buffers park a droid in the Lounge so its slot frees up.
   const visit = (state, region, policy) => {
-    const steps = [];
+    const steps = [], buffered = new Set();
     // A droid with no room of its own (your Companion walks with you) takes its
     // command at whichever stop you are already making.
     const inRegion = key => { const here = regionOfKey(state, key); return here === region || here === null; };
@@ -373,7 +477,9 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       progress = false;
       // A droid bound for another type of room can only leave while its own
       // room is full, so those go first, before anything opens a slot here.
-      const order = open().sort(([a, ga], [b, gb]) => rank(ga, units.get(a)) - rank(gb, units.get(b)));
+      const choices = open();
+      if (policy.reverseTies) choices.reverse();
+      const order = choices.sort(([a, ga], [b, gb]) => rank(ga, units.get(a)) - rank(gb, units.get(b)));
       for (const [key, goal] of order) {
         // An earlier command in this pass may already have settled this droid
         // (a Companion Swap drops the old Companion straight into the Lounge).
@@ -392,8 +498,9 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         const { free } = occupancy(placedOf(state), rules);
         // Waiting rooms in the order this policy prefers: the Lounge, a Fusion
         // pad, and the Companion seat (a Swap), which some walks need first.
-        const rooms = [free('LOUNGE').length ? 'buffer' : null, free('FUSION').length && !state.staged.size ? 'park' : null, policy.seats ? 'seat' : null].filter(Boolean);
+        const rooms = [policy.transit ? 'transit' : null, free('LOUNGE').length ? 'buffer' : null, free('FUSION').length && !state.staged.size ? 'park' : null, policy.seats ? 'seat' : null].filter(Boolean);
         if (policy.seatsFirst) rooms.sort((a, b) => (a === 'seat' ? -1 : 0) - (b === 'seat' ? -1 : 0));
+        if (policy.parkFirst) rooms.sort((a, b) => (a === 'park' ? -1 : 0) - (b === 'park' ? -1 : 0));
         if (!rooms.length) break;
         // The Companion standing in for a droid that took its seat is holding
         // that slot; it goes back to the seat with its own command, never a
@@ -403,23 +510,28 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         // droid can ever enter.
         // A droid bound for a tank has to wait in the seat first, whether or
         // not anything is waiting for its own slot.
-        const candidates = open().filter(([key, goal]) => goal.kind === 'place' && state.pos.has(key) && state.pos.get(key).station !== 'COMPANION' && goal.station !== 'LOUNGE' && goal.station !== 'COMPANION')
+        const candidates = open().filter(([key, goal]) => !buffered.has(key) && goal.kind === 'place' && state.pos.has(key) && state.pos.get(key).station !== 'COMPANION' && goal.station !== 'LOUNGE' && goal.station !== 'COMPANION')
           .filter(([key, goal]) => {
             // An empty tank takes nobody, so a free tank slot is no room for
             // the droids bound there: the occupant still has to swap them in.
             const station = state.pos.get(key).station, room = ['BUILD', 'FUSION_BUILD'].includes(station) ? 0 : free(station).length;
-            return arrivalsInto(state, station) > room || ['BUILD', 'FUSION_BUILD'].includes(goal.station);
+            const distanceBlocked = typeof rules.slotDistanceSquared === 'function' && !['BUILD', 'FUSION_BUILD'].includes(station) && (policy.reposition || !['LOUNGE', 'FUSION'].includes(station)) &&
+              commandFor(goal) === 'work' && !goalMet(predictWorkLanding({ ...units.get(key), ...state.pos.get(key) }, placedOf(state), rules), goal, rules);
+            return arrivalsInto(state, station) > room || ['BUILD', 'FUSION_BUILD'].includes(goal.station) || distanceBlocked;
           });
+        if (policy.reverseTies) candidates.reverse();
         for (const pick of candidates) {
           const inTank = ['BUILD', 'FUSION_BUILD'].includes(state.pos.get(pick[0]).station);
-          const step = rooms.filter(room => !inTank || room === 'seat').reduce((found, room) => found || tryCommand(state, pick[0], room, false), null);
-          if (step) { steps.push(step); progress = true; break; }
+          const fromStation = state.pos.get(pick[0]).station;
+          const step = rooms.filter(room => (!inTank || room === 'seat') && !(fromStation === 'LOUNGE' && room === 'buffer') && !(fromStation === 'FUSION' && room === 'park')).reduce((found, room) => found || tryCommand(state, pick[0], room, policy.assumed), null);
+          if (step) { buffered.add(pick[0]); steps.push(step); progress = true; break; }
         }
       }
     }
     return steps;
   };
-  // Lower bound on the stops still needed: every room with work left costs one.
+  // Search heuristic, not a proven lower bound: a Swap can resolve work in
+  // another room without visiting it.
   const stopsLeft = state => regionsWithWork(state).length;
   // A droid bound for a tank must be in the seat before the tank's occupant
   // moves, so it comes right after the storage commands.
@@ -440,24 +552,31 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   };
   const CERTAIN_POLICIES = [{ assumed: false, buffers: 0 }, { assumed: false, buffers: 1 }, { assumed: false, buffers: 99 }, { assumed: false, buffers: 99, seats: true }, { assumed: false, buffers: 99, seats: true, seatsFirst: true }];
   const ALL_POLICIES = [...CERTAIN_POLICIES, { assumed: true, buffers: 0 }, { assumed: true, buffers: 99 }, { assumed: true, buffers: 99, seats: true, seatsFirst: true }];
+  const searches = [CERTAIN_POLICIES, ALL_POLICIES];
+  if (typeof rules.slotDistanceSquared === 'function') {
+    // A different waiting room can change which free station is nearest.
+    CERTAIN_POLICIES.push({ assumed: false, buffers: 99, parkFirst: true });
+    ALL_POLICIES.push({ assumed: true, buffers: 99, parkFirst: true });
+    // Keep the simpler search independent: extra detours must not crowd its
+    // short routes out of the beam. Advanced searches can only improve them.
+    searches.push([...CERTAIN_POLICIES.map(p=>({...p,reposition:true})), { assumed: false, buffers: 99, reverseTies: true, reposition: true }, { assumed: false, buffers: 99, transit: true, reposition: true }]);
+    searches.push([...ALL_POLICIES.map(p=>({...p,reposition:true})), { assumed: true, buffers: 99, reverseTies: true, reposition: true }, { assumed: true, buffers: 99, transit: true, reposition: true }]);
+  }
 
   // ---- beam search over stops --------------------------------------------
-  // Nodes at one depth have made the same number of stops, so they compare on
-  // how many more they still need at least, then on what the walk costs the
-  // player: parked droids, guessed landings, commands, distance. A walk with
-  // no guessed landings is searched on its own as well, so a certain route is
-  // never crowded out; the fewer stops win, then the fewer guesses.
+  // Nodes at one depth have made the same number of stops. Rank remaining
+  // work first, then commands, uncertainty and travel. Separate simple and
+  // certain searches preserve routes that extra detours could crowd out.
   const root = { state: start, steps: [], stops: 0, commands: 0, assumed: 0, buffers: 0, walk: 0 };
   let best = null, bestPending = pending(start), found = null;
-  // Parked droids already show up as work left in the Lounge, so progress
-  // ranks ahead of them; a guessed landing ranks ahead too, as it can derail
-  // everything after it.
-  const better = (a, b) => a.stopsLeft - b.stopsLeft || a.pendingLeft - b.pendingLeft || a.assumed - b.assumed || a.buffers - b.buffers || a.commands - b.commands || a.walk - b.walk;
+  // A temporary placement is extra work until the droid reaches its goal.
+  const cost = (a, b) => a.commands - b.commands || a.assumed - b.assumed || a.walk - b.walk || a.buffers - b.buffers;
+  const better = (a, b) => a.stopsLeft - b.stopsLeft || a.pendingLeft - b.pendingLeft || cost(a, b);
   if (bestPending === 0) return finish(root);
-  for (const POLICIES of [CERTAIN_POLICIES, ALL_POLICIES]) {
+  for (const POLICIES of options.advancedOnly && searches.length > 2 ? searches.slice(2) : searches) {
   let beam = [root];
   const seen = new Map();
-  for (let depth = 0; depth < maxStops; depth++) {
+  for (let depth = 0; depth < Math.min(maxStops, found?.stops ?? maxStops); depth++) {
     const next = [];
     for (const node of beam) {
       for (const region of regionsWithWork(node.state)) {
@@ -466,8 +585,10 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
           const state = clone(node.state);
           const steps = visit(state, region, policy);
           if (!steps.length) continue;
+          state.region = region;
           const sig = signature(state);
-          if (variants.has(sig)) continue;
+          const prior = variants.get(sig);
+          if (prior && (prior.steps.length < steps.length || prior.steps.length === steps.length && prior.steps.filter(s=>s.assumed).length <= steps.filter(s=>s.assumed).length)) continue;
           variants.set(sig, { state, steps });
         }
         for (const [sig, { state, steps }] of variants) {
@@ -481,8 +602,8 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
           child.state.region = region;
           child.pendingLeft = pending(child.state);
           child.stopsLeft = child.pendingLeft ? stopsLeft(child.state) : 0;
-          const key = sig + '#' + depth;
-          if (seen.has(key) && better(seen.get(key), child) <= 0) continue;
+          const key = sig;
+          if (seen.has(key) && (seen.get(key).stops < child.stops || seen.get(key).stops === child.stops && better(seen.get(key), child) <= 0)) continue;
           seen.set(key, child);
           next.push(child);
         }
@@ -490,9 +611,9 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     }
     if (!next.length) break;
     next.sort(better);
-    const complete = next.filter(node => node.pendingLeft === 0).sort((a, b) => a.assumed - b.assumed || a.buffers - b.buffers || a.commands - b.commands || a.walk - b.walk);
+    const complete = next.filter(node => node.pendingLeft === 0).sort(cost);
     if (complete.length) {
-      const rank = node => [node.stops, node.assumed, node.buffers, node.commands, node.walk];
+      const rank = node => [node.stops, node.commands, node.assumed, node.walk, node.buffers];
       const lexLess = (a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] < b[i]; return false; };
       if (!found || lexLess(rank(complete[0]), rank(found))) found = complete[0];
       break;
@@ -507,7 +628,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     .map(([key]) => key);
   for (const key of blockedKeys) for (const text of hints.get(key) || []) if (!issues.includes(text)) issues.push(text);
   const blocked = blockedKeys.map(key => units.get(key).name);
-  if (blocked.length) issues.push(`No order of commands reaches the optimised layout for: ${[...new Set(blocked)].join(', ')}.`);
+  if (blocked.length) issues.push(`No verified route was found to the optimised layout for: ${[...new Set(blocked)].join(', ')}.`);
   if (!blocked.length && fusions.some(fusion => !partial.state.fused.has(fusion.index))) issues.push('A fusion in this plan has no free Fusion Build slot for its result. Finish or move a droid out of Fusion Build, then run Optimise again.');
   return finish(partial, false);
 
@@ -523,7 +644,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     }
     // Goals as they ended up, after any identical droids traded jobs.
     const resolvedGoals = [...node.state.goals].filter(([, goal]) => goal.kind === 'place').map(([key, goal]) => ({ ...unitAs(node.state, key), ...(node.state.pos.get(key) || { station: goal.station, slot: -1 }) }));
-    return { steps, finalPlaced, resolvedGoals, complete: complete && issues.length === 0, stops: node.stops, commands: node.commands, assumed: node.assumed, issues, later,
+    return { steps, finalPlaced, resolvedGoals, complete: complete && issues.length === 0, stops: node.stops, commands: node.commands, assumed: node.assumed, travelDistance: node.walk, buffers: node.buffers, issues, later,
       sold: [...node.state.sold], staged: [...node.state.staged.keys()], fused: [...node.state.fused] };
   }
 }

@@ -31,6 +31,34 @@ const unit=(name,station,slot,extra={})=>({source:nextSource++,unit:0,name,varia
 const at=(u,station,slot=0)=>({...u,station,slot});
 const stops=steps=>steps.reduce((n,step,i)=>n+(i===0||step.visit!==steps[i-1].visit?1:0),0);
 const summary=steps=>steps.map(s=>`${s.at}:${s.type}${s.kind?'/'+s.kind:''}:${s.unit?.name||''}${s.to?'->'+(typeof s.to==='string'?s.to:s.to.station+(s.to.cls?'('+s.to.cls+')':'')):''}${s.buffer?'*':''}${s.assumed?'?':''}`);
+
+test('visit shortening matches exhaustive minimum for six independent room visits',async()=>{
+  const {shortenOptimiseWalk,validateOptimisePlan}=await load();
+  const xy={WORKER:[0,0],BATTLE:[8,0],ASTROMECH:[2,0],LOUNGE:[10,0],FUSION:[4,0],BATTLE_UP:[6,0]};
+  const regions=Object.keys(xy),placed=regions.map((station,source)=>({source,unit:0,name:`WORK-${source}`,variant:'DEFAULT',station,slot:0,built:true}));
+  const steps=placed.map((u,i)=>({type:'sell',unit:u,from:{station:u.station,slot:0},at:u.station,visit:`route-${i}`}));
+  const distance=(a,b)=>Math.hypot(xy[a][0]-xy[b][0],xy[a][1]-xy[b][1]);
+  const rules={slots:()=>[0],canUse:()=>true,isBuilding:()=>false,workLanding:()=>null};
+  const isValid=steps=>validateOptimisePlan({initial:{placed},projected:{placed:[],sell:placed},steps,rules}).ok;
+  const result=shortenOptimiseWalk(steps,{distance,isValid});
+  const perms=xs=>xs.length?xs.flatMap((x,i)=>perms(xs.filter((_,j)=>i!==j)).map(tail=>[x,...tail])):[[]];
+  const exact=Math.min(...perms(regions).map(order=>order.reduce((sum,r,i)=>sum+(i?distance(order[i-1],r):0),0)));
+  assert.equal(result.travelDistance,exact);assert.equal(result.stops,6);assert(isValid(result.steps));
+  assert.deepEqual(result.steps.map(s=>s.unit.source).sort(),steps.map(s=>s.unit.source).sort());
+});
+
+test('visit shortening preserves command dependencies and joins compatible repeat visits',async()=>{
+  const {shortenOptimiseWalk}=await load();
+  const steps=['A','B','A','C'].map((at,i)=>({at,visit:`route-${i}`,id:i}));
+  const xy={A:0,B:10,C:20},distance=(a,b)=>Math.abs(xy[a]-xy[b]);
+  let rejected=0;
+  const isValid=rows=>{const ids=rows.map(r=>r.id),ok=ids.indexOf(1)<ids.indexOf(3);if(!ok)rejected++;return ok;};
+  const result=shortenOptimiseWalk(steps,{distance,isValid});
+  assert.equal(result.stops,3);assert.equal(result.travelDistance,20);assert(isValid(result.steps));
+  assert.equal(steps[2].visit,'route-2','input instructions remain untouched');
+  const locked=shortenOptimiseWalk(steps,{distance,isValid:rows=>rows.every((r,i)=>r.id===i)});
+  assert.equal(locked.stops,4);assert.equal(locked.travelDistance,40);
+});
 async function plan(placed,targetPlaced,caps,options={}){
   const mod=await load(),rules=rulesFor(caps,options);
   const initial={placed,overflow:options.overflow||[]};

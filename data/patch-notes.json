@@ -2,6 +2,20 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-23-background-optimise",
+      "date": "2026-09-23",
+      "title": "Optimise plans ahead and looks for shorter walks",
+      "summary": "Optimise now works in the background as your recorded Base changes, keeping a verified route ready and looking for ways to reduce trips between rooms.",
+      "changes": [
+        "While the site is open, adding a droid, recording a move, changing your settings or switching profiles starts a fresh search. You can keep using other pages while it works. Changes must be recorded in Base or received through the companion; this does not detect moves in the game by itself.",
+        "The first verified route is available while Optimise looks for improvements. Each change gets up to 45 seconds of background searching, then the best route found is kept until your Base changes again. This is not a guarantee of the absolute shortest route.",
+        "Routes now use individual slot positions to predict Work and Lounge landings. Work keeps the game's role and mission priorities, then compares direct 3D distance between slots, including height, without adding a detour for stairs.",
+        "Optimise tries alternative move orders and temporary placements to free blocked slots. It also combines or reorders room visits when replay confirms the same final result, aiming for fewer stops and commands, then a shorter estimated walk. Travel estimates use room positions rather than timed walking paths.",
+        "Old searches are cancelled when your Base changes, and outdated previews cannot be applied. Once you start ticking off steps, your instructions stay fixed while you follow them. Recording the new positions in Base starts a new plan from there.",
+        "Expected landing slots are shown in the instructions. Wait for each droid to arrive before the next dependent move. Uncertain landings remain marked: if a droid lands elsewhere, update Base so Optimise can recalculate. Your Base is only changed when you choose to apply a layout or ticked steps."
+      ]
+    },
+    {
       "id": "2026-09-21-daily-crystals-core",
       "date": "2026-09-21",
       "title": "Daily Crystals moved",

@@ -65,7 +65,7 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
       const { station, slot, ...unit } = input;
       units.set(key, { ...unit });
       if (positioned) {
-        const place = { station, slot };
+        const place = { station, slot, ...(input.positionUncertain ? { positionUncertain: true } : {}) };
         if (!validPlace(place)) issue(`Initial base contains an invalid slot for ${key}.`);
         if (occupant(place)) issue(`Initial base contains duplicate occupancy at ${station}:${slot}.`);
         positions.set(key, place);
@@ -94,12 +94,21 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
       if (!rule('canUse', current(key), to.station)) { issue(`${label}: incompatible destination station.`); continue; }
       if (step.workCommand || step.kind === 'work') {
         const landing = rule('workLanding', current(key), placed());
-        // When the game's own distance rule decides between rooms, the plan
-        // may state any of them; the player checks where it lands.
-        const guessed = Boolean(step.assumed) && Array.isArray(landing?.options) && landing.options.includes(to.station);
+        // A conditional prediction may use only one of the predictor's
+        // eligible slots; an assumed flag cannot bypass a known nearer slot.
+        const guessed = Boolean(step.assumed && landing?.assumed) && (Array.isArray(landing.candidates)
+          ? landing.candidates.some(candidate => samePlace(candidate, to))
+          : Array.isArray(landing.options) && landing.options.includes(to.station));
         if (!guessed && !samePlace(landing, to)) { issue(`${label}: work command cannot reach the stated destination.`); continue; }
+        if (landing?.assumed && !step.assumed) { issue(`${label}: uncertain work destination must be marked for confirmation.`); continue; }
+      } else if (step.kind === 'lounge' && typeof rules.stationLanding === 'function') {
+        const landing = rule('stationLanding', current(key), placed(), 'LOUNGE');
+        const guessed = Boolean(step.assumed && landing?.assumed) && landing.candidates?.some(candidate => samePlace(candidate, to));
+        if ((!guessed && !samePlace(landing, to)) || landing?.assumed && !step.assumed) {
+          issue(`${label}: lounge command cannot reach the stated destination.`); continue;
+        }
       }
-      positions.set(key, { station: to.station, slot: to.slot });
+      positions.set(key, { station: to.station, slot: to.slot, positionUncertain: Boolean(step.assumed) });
     } else if (step.type === 'swap') {
       const key = resolve(step.unit, label), other = resolve(step.withUnit, label);
       const from = positionOf(step, 'from'), withFrom = positionOf(step, 'withFrom');
@@ -117,8 +126,9 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
       // A completed droid swapped into a build slot does not start building again.
       if (buildStation(withFrom.station)) units.set(key, { ...units.get(key), built: true });
       if (buildStation(from.station)) units.set(other, { ...units.get(other), built: true });
-      positions.set(key, { station: withFrom.station, slot: withFrom.slot });
-      positions.set(other, { station: from.station, slot: from.slot });
+      const fromUncertain = positions.get(key)?.positionUncertain, otherUncertain = positions.get(other)?.positionUncertain;
+      positions.set(key, { station: withFrom.station, slot: withFrom.slot, positionUncertain: otherUncertain });
+      positions.set(other, { station: from.station, slot: from.slot, positionUncertain: fromUncertain });
     } else if (step.type === 'sell') {
       const key = resolve(step.unit, label);
       if (!key || !checkFrom(key, positionOf(step, 'from'), label) || !movable(key, label)) continue;
@@ -174,7 +184,7 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
         issue(`${label}: Fusion result metadata has the wrong destination.`); continue;
       }
       const { station, slot, ...metadata } = result;
-      units.set(key, { ...metadata, built: false, fusionResult: true }); positions.set(key, { station: to.station, slot: to.slot });
+      units.set(key, { ...metadata, built: false, fusionResult: true }); positions.set(key, { station: to.station, slot: to.slot, positionUncertain: Boolean(step.assumed) });
       generated.add(key); seen.add(key); staged.clear(); batchStart = null;
     } else issue(`${label}: unsupported instruction ${String(step.type)}.`);
   }

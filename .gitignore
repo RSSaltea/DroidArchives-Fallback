@@ -21,6 +21,7 @@ superRebirthRewards-CgMNMGB4.js
 # Build conversation archive and project handoff notes
 conversation/
 HANDOFF.md
+DATAMINING.md
 REBUILD_PROGRESS.md
 
 # Desktop-only detection template asset (not used by the site)

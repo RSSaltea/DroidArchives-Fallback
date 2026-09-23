@@ -1,5 +1,7 @@
-import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-09-16-optimise';
-import { planOptimiseRoute, predictWorkLanding } from './optimise-route.js?v=2026-09-21-activities';
+import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-09-23-background';
+import { planOptimiseRoute, predictWorkLanding, predictStationLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-09-23-background';
+import { slotDistanceSquared, slotPosition } from './slot-geometry.js?v=2026-09-23-background';
+import { createOptimiseBackground } from './optimise-background.js?v=2026-09-23-background';
 import { createArchiveExperience } from './archive-experience.js?v=2026-09-16-card-redesign';
 let archiveExperience=null;
 const DROID_TYPES=['WORKER','ASTROMECH','BATTLE','PROTOCOL'];
@@ -80,7 +82,7 @@ function publishCompanionState(optimise){
   };
 }
 const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
-const fmt=n=>{if(!n)return '—';const u=[['T',1e12],['B',1e9],['M',1e6],['K',1e3]];for(const [s,v] of u)if(n>=v)return `${(n/v).toLocaleString(undefined,{maximumFractionDigits:2})}${s}`;return n.toLocaleString()};
+const fmt=n=>{if(!n)return '—';const u=[['T',1e12],['B',1e9],['M',1e6],['K',1e3]];for(const [s,v] of u)if(n>=v)return `${(n/v).toLocaleString(undefined,{maximumFractionDigits:3})}${s}`;return n.toLocaleString()};
 // Ordered to match the banners in game: Stellar, Mythic, Galactic. Offsets are
 // minutes past the hour and land the same in UK time either way, since BST is a
 // whole hour ahead of UTC. Stellar lands on the hour, read off a 15:07 countdown
@@ -172,6 +174,7 @@ let cloudSaveTimer=null;
 function markCloudSignedOut(message='SIGNED OUT — changes are local only'){unsubscribeCloudChanges();state.cloud.session=null;state.cloud.user=null;state.cloud.doc=null;state.cloud.reconnecting=false;state.cloud.syncing=false;state.cloud.status=message;saveLocal();renderCloudHeader();renderBaseSidebar(()=>route())}
 function scheduleCloudSave(){if(state.cloud.enabled&&!cloudConnected()){state.cloud.status='SIGNED OUT — changes save locally only';renderCloudHeader();return}if(!cloudConnected())return;clearTimeout(cloudSaveTimer);state.cloud.status='Unsynced changes';renderCloudHeader();cloudSaveTimer=setTimeout(()=>{cloudSaveTimer=null;cloudSaveNow().catch(e=>{state.cloud.syncing=false;state.cloud.status=e.message;renderCloudHeader();route()})},900)}
 const save=()=>{
+  setTimeout(refreshBackgroundOptimise,0);
   if(state.sharedView){state.sharedView.profile.data=profileDataFromState();state.sharedView.changeVersion=(state.sharedView.changeVersion||0)+1;if(state.sharedView.canEdit)scheduleSharedProfileSave();return}
   const persist=()=>{updateActiveLocalProfile();updateActiveCloudProfile();saveLocal()};
   try{persist()}catch(error){
@@ -490,15 +493,9 @@ const ASTROMECH_MISSION_SLOTS=[0,2,4,6,8];
 // the Lounge and every even slot came later regardless, so the first five
 // Astromechs you send to work are the ones that go on missions.
 //
-// Battle is the one station distance cannot model. Both of its floors are drawn on
-// the one map image, so the upstairs dots are hand-placed onto ground-floor
-// coordinates and a flat gap cannot price the stairs. Scored against the slot log,
-// nearest-from-origin gets 30 of 38 on the four single-floor sweeps and 3 of 10 on
-// Battle. So Battle keeps the order a sweep actually produced — emptied and
-// refilled a droid at a time, every landing naming the best slot still free — which
-// beats a distance already known to be wrong. Plain slot order is not the fallback:
-// it matches nothing that was observed. Give upstairs real coordinates and this
-// entry can go.
+// Recovered 3D attachment positions now take precedence, including Battle's
+// upper floor. The measured sweep below remains a fallback only when the
+// source position is unknown; it is not a universal distance order.
 //
 //   Battle  11, 10, 5, 4, 9, 3, 8, 2, 7, 6, 1
 //
@@ -510,13 +507,16 @@ const ASTROMECH_MISSION_SLOTS=[0,2,4,6,8];
 // from a slot that sits on you, so every gap comes back the same and the stable
 // sort leaves slot order alone.
 const MEASURED_FILL_ORDER={BATTLE:[10,9,4,3,8,2,7,1,6,5,0]};
-// A station's slots in the order the game would take them for a droid arriving
-// from `origin` ({station,slot}). No origin means nothing to measure from — a
-// droid still in the roster has not stood anywhere yet — so slot order stands.
-// The sort is stable, so equal gaps stay in slot order too.
+// Allocation order uses 3D positions when both ends are known. With no origin,
+// allocation needs a provisional order; the route predictor separately marks
+// unknown origins and ties as conditional rather than claiming that order.
 const slotFillOrder=(station,origin)=>{
   const available=stationSlotIndices(station),measured=MEASURED_FILL_ORDER[station];
-  const ordered=measured
+  const distances=origin?available.map(slot=>({slot,gap:slotDistanceSquared(origin,{station,slot})})):[];
+  const hasGeometry=distances.length>0&&distances.every(x=>Number.isFinite(x.gap));
+  const ordered=hasGeometry
+    ?distances.sort((a,b)=>a.gap-b.gap).map(x=>x.slot)
+    :measured
     ?[...measured.filter(slot=>available.includes(slot)),...available.filter(slot=>!measured.includes(slot))]
     :origin
       ?available.map(slot=>({slot,gap:slotWalkGap(origin,{station,slot})})).sort((a,b)=>a.gap-b.gap).map(x=>x.slot)
@@ -3244,7 +3244,7 @@ const FUSION_STEP_TYPES=['fuse-in','fuse-held','fuse-deferred','fuse-result','fu
 const stepTicked=text=>optimiseTickedSteps().includes(text);
 function stepHtml(step,index){
   const d=state.droids.find(x=>x.name===step.unit?.name);
-  const assumed=step.assumed?'<em class="step-assumed" title="More than one credit station was open, so which slot it takes depends on your base layout. Check this one.">check where it lands</em>':'';
+  const assumed=step.assumed?'<em class="step-assumed" title="The starting position or destination slot is uncertain. Confirm where it lands and regenerate if it differs.">check where it lands</em>':'';
   // A step for the Fusion room gets its own colour, so sending a droid to be fused
   // never reads like sending it to storage.
   const toLounge=step.type==='move'&&(step.to==='LOUNGE'||step.to?.station==='LOUNGE');
@@ -3480,29 +3480,35 @@ function withFusionSteps(steps,projected,baseP){
 const OPTIMISE_REGION_NAMES={WORKER:'Worker room',ASTROMECH:'Astromech room',BATTLE:'Battle (downstairs)',BATTLE_UP:'Battle (upstairs)',LOUNGE:'Lounge',FUSION:'Fusion room',ANY:'Anywhere',ROSTER:'Roster'};
 const optimiseRegion=(station,slot)=>station==='BATTLE'?(slot>=BATTLE_UPSTAIRS_FROM?'BATTLE_UP':'BATTLE'):station==='FUSION'||station==='FUSION_BUILD'?'FUSION':station==='UPGRADE_CHIP'?'WORKER':station==='BUILD'?PROTOCOL_REGIONS[slot]||'WORKER':station==='COMPANION'?null:PROTOCOL_SLOTS[station]?PROTOCOL_SLOTS[station].region:station;
 const optimiseRegionName=region=>OPTIMISE_REGION_NAMES[region]||placeName(region);
-// Rough map positions of each room (percent of the map width), only used to
-// break ties the game decides by distance; every such landing is flagged.
-const OPTIMISE_REGION_XY={WORKER:[70,66],ASTROMECH:[34,42],BATTLE:[55,17],BATTLE_UP:[55,17],LOUNGE:[77,27],FUSION:[53,61]};
+// Horizontal centres of the captured slot groups estimate the player's travel
+// between stops. These are not navigable paths or walking times. Droid landings
+// use the separate full 3D slot distance, never this room-level estimate.
+const OPTIMISE_REGION_XY=Object.fromEntries(Object.entries({WORKER:['WORKER',0,11],ASTROMECH:['ASTROMECH',0,9],BATTLE:['BATTLE',0,5],BATTLE_UP:['BATTLE',5,11],LOUNGE:['LOUNGE',0,13],FUSION:['FUSION',0,3]}).map(([region,[station,start,end]])=>{
+  const points=Array.from({length:end-start},(_,i)=>slotPosition({station,slot:start+i}));
+  return [region,[0,1].map(axis=>points.reduce((sum,p)=>sum+p[axis],0)/points.length)];
+}));
 // Where a droid overflows to when its own room is full, measured in-game from
 // each room. A Worker droid took Battle over Astromech every time it was offered both.
 const MEASURED_OVERFLOW_ORDER={WORKER:['BATTLE','ASTROMECH']};
-const optimiseRegionDistance=(a,b)=>{if(a===b)return 0;const p=OPTIMISE_REGION_XY[a],q=OPTIMISE_REGION_XY[b];if(!p||!q)return 50;const stairs=(a==='BATTLE_UP')!==(b==='BATTLE_UP')&&a!=='BATTLE'&&b!=='BATTLE'?15:0;return Math.hypot(p[0]-q[0],p[1]-q[1])+stairs};
+const optimiseRegionDistance=(a,b)=>{if(a===b||a==='ANY'||b==='ANY')return 0;const p=OPTIMISE_REGION_XY[a],q=OPTIMISE_REGION_XY[b];return p&&q?Math.hypot(p[0]-q[0],p[1]-q[1]):0};
 function optimiseRouteRules(){
   const droidOf=unit=>state.droids.find(d=>d.name===unit?.name);
   const rules={
     slots:station=>stationSlotIndices(station),
-    canUse:(unit,station)=>canUseStation(droidOf(unit),station),
+    canUse:(unit,station)=>canUseStation(droidOf(unit),station)&&(station!=='UPGRADE_CHIP'||!isIconic(droidOf(unit))),
     isBuilding,
     typeOf:unit=>droidOf(unit)?.type||null,
     isMissionSlot:(station,slot)=>station==='ASTROMECH'&&ASTROMECH_MISSION_SLOTS.includes(slot),
     regionOf:optimiseRegion,
     distance:optimiseRegionDistance,
+    slotDistanceSquared,
     nearestOrder:region=>MEASURED_OVERFLOW_ORDER[region]||null,
     // Iconics cannot stand on the Fusion table, so they cannot wait there.
     canPark:unit=>!isIconic(droidOf(unit)),
     protocolStations:()=>Object.keys(PROTOCOL_SLOTS).filter(station=>stationSlotIndices(station).length)
   };
-  rules.workLanding=(unit,placed)=>{const landing=predictWorkLanding(unit,placed,rules);return landing&&{station:landing.station,slot:landing.slot,assumed:landing.assumed,options:landing.options}};
+  rules.workLanding=(unit,placed)=>predictWorkLanding(unit,placed,rules);
+  rules.stationLanding=(unit,placed,station)=>predictStationLanding(unit,placed,station,rules);
   return rules;
 }
 // Fusion batches the walk can perform now (all three inputs on the base and a
@@ -3540,12 +3546,12 @@ function routeStepText(step){
   if(step.type==='swap'&&step.kind==='companion-swap')return `Open the card of ${who} and press Swap, Slot ${Number(step.withFrom?.slot)+1}: it becomes your companion and ${unitName(step.withUnit)} takes its place in ${slotLabel(step.from)}.`;
   if(step.type==='move'){
     const to=step.to||{};
-    if(to.station==='LOUNGE')return step.buffer?`Send ${who} to the Lounge for now; later in this walk it goes to work from there.`:`Send ${who} to the Lounge.`;
-    if(to.station==='FUSION')return `Send ${who} to the Fusion room for now (the Fusion button puts it on a free pad); the Lounge is full, and later in this walk it moves on from there.`;
+    if(to.station==='LOUNGE')return `Send ${who} to the Lounge${step.buffer?' for now':''}; expected landing: ${slotLabel(to)}. Wait for it to arrive.${step.assumed?' If it lands elsewhere, update Base and regenerate.':''}`;
+    if(to.station==='FUSION')return `Send ${who} to the Fusion room for now; expected landing: ${slotLabel(to)}. Wait for it to arrive.${step.assumed?' If it lands elsewhere, update Base and regenerate.':''}`;
     if(to.station==='COMPANION')return `Make ${who} your companion.`;
-    const where=to.station==='UPGRADE_CHIP'?'the Upgrade Chip station':to.station==='ASTROMECH'?`the Astromech room (${to.cls==='mission'?'a mission slot':'a credit slot'})`:isProtocolStation(to.station)?stationName(to.station):`the ${stationName(to.station)} room`;
+    const where=to.station==='UPGRADE_CHIP'?'the Upgrade Chip station':isProtocolStation(to.station)?stationName(to.station):`${slotLabel(to)}${to.station==='ASTROMECH'?` (${to.cls==='mission'?'mission':'credit'} slot)`:''}`;
     const others=(step.options||[]).filter(station=>station!==to.station).map(station=>isProtocolStation(station)?stationName(station):`the ${stationName(station)} room`);
-    return `Tell ${who} to go to work &mdash; it goes to ${where}.${step.assumed&&others.length?` If it heads for ${others.join(' or ')} instead, update Base with where it landed and regenerate.`:''}`;
+    return `Tell ${who} to go to work &mdash; expected landing: ${where}. Wait for it to arrive.${step.assumed?` If it lands elsewhere${others.length?` (${others.join(' or ')} may also be available)`:''}, update Base and regenerate.`:''}`;
   }
   return step.text||'';
 }
@@ -3563,7 +3569,7 @@ function resolveOptimiseProjection(projected,moves){
   projected.overflow=(projected.overflow||[]).filter(x=>!held.has(keyOf(x)));
   projected.rows=optimisedRows(projected.placed,projected.overflow);
 }
-function safeOptimiseStepPlan(baseP,projected){
+function safeOptimiseStepPlan(baseP,projected,computedRoute=null){
   const keyOf=x=>`${x.source}:${x.unit}`;
   const fail=(message,steps=[])=>{
     projected.planComplete=false;projected.planIssues=[message];
@@ -3577,14 +3583,16 @@ function safeOptimiseStepPlan(baseP,projected){
     // for a later batch are not sold.
     const {batches,later,claimed}=optimiseFusionBatches(baseP,projected);
     const sell=projected.sell.filter(unit=>!claimed.has(keyOf(unit)));
-    const route=planOptimiseRoute({initial:baseP,target:{placed:projected.placed,sell,overflow:projected.overflow,fusions:batches},rules});
-    const steps=route.steps.map(step=>({...step,text:routeStepText(step)}));
+    const route=computedRoute||planOptimiseRoute({initial:baseP,target:{placed:projected.placed,sell,overflow:projected.overflow,fusions:batches},rules});
+    let steps=route.steps.map(step=>({...step,text:routeStepText(step)}));
     projected.later=[...later,...route.later.map(entry=>entry.batch)];
     projected.routeStops=route.stops;projected.routeAssumed=route.assumed;
     if(!route.complete)return fail(route.issues[0]||'Optimise could not find a walk that reaches this layout.',steps);
     resolveOptimiseProjection(projected,route);
     projected.sell=sell;
     projected.fusedInputs=batches.filter(batch=>route.fused.includes(batch.index)).reduce((sum,batch)=>sum+batch.inputs.length,0);
+    const shorter=computedRoute?{steps,stops:route.stops,travelDistance:route.travelDistance}:shortenOptimiseWalk(steps,{distance:rules.distance,isValid:candidate=>validateOptimisePlan({initial:baseP,projected,steps:candidate,rules}).ok});
+    steps=shorter.steps;projected.routeStops=shorter.stops;projected.routeTravelDistance=shorter.travelDistance;
     const validation=validateOptimisePlan({initial:baseP,projected,steps,rules});
     projected.planComplete=validation.ok;projected.planIssues=validation.issues;
     if(!validation.ok){console.warn('Optimise plan validation failed',validation.issues);return fail('These moves could not be verified against your Base. No layout will be applied; update the Base and regenerate Optimise.',steps);}
@@ -3598,6 +3606,66 @@ function optimiseInputStamp(){return JSON.stringify({profile:state.cloud?.active
 // The page re-renders on every tick and toggle; the plan only changes when the
 // base or the settings behind it do, so the last preview is kept by its stamp.
 let optimisePreviewCache=null;
+let optimiseBackgroundJob=null,optimiseBackgroundStatus='idle',optimiseDisplayedPreview=null,optimiseBackgroundRender=false;
+function renderBackgroundOptimise(){
+  optimiseBackgroundRender=true;
+  if(location.hash.split('?')[0]!=='#/optimise'||document.querySelector('#modalRoot')?.children.length||document.activeElement?.matches('input,select,textarea'))return;
+  optimiseBackgroundRender=false;optimisePage();
+}
+const optimiseBackground=createOptimiseBackground({
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-09-23-background',import.meta.url),{type:'module'}),
+  onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
+  onResult:(message,stamp)=>{
+    if(stamp!==optimiseInputStamp()||optimiseBackgroundJob?.stamp!==stamp)return;
+    const {baseP,plan,targets}=optimiseBackgroundJob,projected=structuredClone(targets[message.index]);
+    const steps=safeOptimiseStepPlan(baseP,projected,message.route);
+    if(!projected.planComplete)return;
+    const preview=finishOptimisePreview(baseP,plan,projected,steps,stamp);
+    optimisePreviewCache={stamp,preview};renderBackgroundOptimise();
+  }
+});
+function refreshBackgroundOptimise(){
+  if(!state.droids.length)return;
+  const stamp=optimiseInputStamp();
+  if(optimiseBackgroundJob?.stamp===stamp)return;
+  optimiseBackground.cancel();optimiseDisplayedPreview=null;
+  if(optimisePreviewCache?.stamp!==stamp)optimisePreviewCache=null;
+  // Scheduling is cheap; prepare the target after a short debounce so a burst
+  // of imports/slot edits does not repeatedly run even the layout allocator.
+  const job=optimiseBackgroundJob={stamp};
+  clearTimeout(refreshBackgroundOptimise.timer);
+  refreshBackgroundOptimise.timer=setTimeout(()=>{
+    if(optimiseBackgroundJob!==job||stamp!==optimiseInputStamp())return;
+    try{
+      const baseP=placements(),plan=optimiseBase(baseP,incomeForPlaced(baseP.placed)),targets=[];
+      let projected=optimisedPlacements(baseP,plan);
+      while(projected){targets.push(structuredClone(projected));projected=projected.fallback;}
+      const rules=optimiseRouteRules(),stations=Object.keys(SLOT_RULES),slots=Object.fromEntries(stations.map(s=>[s,rules.slots(s)]));
+      const regions=Object.fromEntries(stations.flatMap(s=>slots[s].map(slot=>[`${s}:${slot}`,rules.regionOf(s,slot)])));
+      const rooms=[...new Set(Object.values(regions).filter(Boolean)),'ANY'];
+      const ruleData={slots,regions,protocol:rules.protocolStations(),missions:Object.fromEntries(stations.map(s=>[s,slots[s].filter(slot=>rules.isMissionSlot(s,slot))])),
+        distances:Object.fromEntries(rooms.map(a=>[a,Object.fromEntries(rooms.map(b=>[b,rules.distance(a,b)]))])),
+        droids:Object.fromEntries(state.droids.map(d=>[d.name,{type:d.type,canPark:rules.canPark({name:d.name}),allowed:stations.filter(s=>rules.canUse({name:d.name},s))}]))};
+      const workerTargets=targets.map(target=>{
+        Object.assign(target,normaliseProjectedForSteps(baseP,target));
+        const {batches,claimed}=optimiseFusionBatches(baseP,target);
+        return {placed:target.placed,sell:target.sell.filter(u=>!claimed.has(`${u.source}:${u.unit}`)),overflow:target.overflow,fusions:batches};
+      });
+      Object.assign(job,{baseP,plan,targets});
+      optimiseBackground.update(stamp,{initial:baseP,targets:workerTargets,rules:ruleData});
+    }catch(error){optimiseBackgroundStatus='error';renderBackgroundOptimise();console.warn('Background Optimise unavailable',error)}
+  },200);
+}
+function backgroundOptimisePreview(){
+  refreshBackgroundOptimise();const stamp=optimiseInputStamp();
+  if(optimiseDisplayedPreview?.inputStamp===stamp&&optimiseTickedPrefix(optimiseDisplayedPreview).count)return optimiseDisplayedPreview;
+  const preview=optimisePreviewCache?.stamp===stamp?optimisePreviewCache.preview:null;
+  if(preview)optimiseDisplayedPreview=preview;
+  return preview;
+}
+// Catches profile/cloud changes and companion activity that do not call save.
+// An unchanged snapshot never restarts a completed or budget-limited search.
+setInterval(()=>{refreshBackgroundOptimise();if(optimiseBackgroundRender)renderBackgroundOptimise()},1000);
 function createOptimisePreview(baseP,plan){
   const cacheable=!baseP&&!plan,stamp=cacheable?optimiseInputStamp():null;
   if(cacheable&&optimisePreviewCache?.stamp===stamp)return optimisePreviewCache.preview;
@@ -3610,6 +3678,11 @@ function createOptimisePreview(baseP,plan){
     const altSteps=safeOptimiseStepPlan(baseP,fallback);
     if(fallback.planComplete){projected=fallback;steps=altSteps;break;}
   }
+  const preview=finishOptimisePreview(baseP,plan,projected,steps,stamp||optimiseInputStamp());
+  if(cacheable)optimisePreviewCache={stamp,preview};
+  return preview;
+}
+function finishOptimisePreview(baseP,plan,projected,steps,stamp){
   annotateLogSlots(steps);
   // A measured different landing changes the starting state of every later
   // command. Never silently swap preview occupants to fit a recorded result.
@@ -3617,9 +3690,7 @@ function createOptimisePreview(baseP,plan){
     projected.planComplete=false;projected.planIssues=['Update Base with the recorded landing, then regenerate Optimise.'];
     steps.push({type:'note',at:'ANY',planBlocked:true,text:projected.planIssues[0]});
   }
-  const preview={baseP,plan,projected,steps,inputStamp:stamp||optimiseInputStamp(),currentIncome:incomeForPlaced(baseP.placed),income:incomeForPlaced(projected.placed)};
-  if(cacheable)optimisePreviewCache={stamp,preview};
-  return preview;
+  return {baseP,plan,projected,steps,inputStamp:stamp,currentIncome:incomeForPlaced(baseP.placed),income:incomeForPlaced(projected.placed)};
 }
 // A tick means "done in-game". Ticks are read as a prefix of the walk — up to
 // the last ticked step — and the Base after that prefix is replayed from the
@@ -3782,7 +3853,15 @@ function companionActivityHtml(baseP){
   return `<section class="companion-activity" aria-label="Companions for what you are doing"><span class="companion-activity-title">Companions for</span>${button('scrap','Scrap farming',active==='scrap')}${button('crafting','Crafting',active==='crafting')}${button('missions','World missions',Boolean(activity?.missions))}${activity?.missions?`<span class="companion-activity-sub">${['combat','mining','fishing'].map(id=>button(id,COMPANION_ACTIVITIES[id].label,active===id)).join('')}</span>`:''}<small>${activity?`${activity.label}: ${activity.why}. ${notes.join(' · ')}.`:'Pick what you are doing and Optimise swaps your Companions to suit. Press it again to go back to your own Companion choices.'}</small></section>`;
 }
 function optimisePage(){
-  const preview=createOptimisePreview(),ticked=optimiseTickedProjection(preview);
+  const preview=backgroundOptimisePreview();
+  if(!preview){
+    if(companionMode)window.__companionApplyOptimise=()=>({applied:false,reason:'Optimise is still finding a verified route for this Base'});
+    const searching=['idle','queued','searching'].includes(optimiseBackgroundStatus);
+    app.innerHTML=`<h1>Optimise</h1><section class="panel" role="status"><p>${searching?'Finding a route for your current Base. You can keep using the site.':'No verified route is ready. Check your Base and try again.'}</p>${searching?'':'<button class="btn" id="retryBackgroundOptimise">Try again</button>'}</section>`;
+    document.querySelector('#retryBackgroundOptimise')?.addEventListener('click',()=>{optimiseBackgroundJob=null;refreshBackgroundOptimise();optimisePage()});
+    publishCompanionState({computed:false,steps:[],route:[],stops:0});return;
+  }
+  const ticked=optimiseTickedProjection(preview);
   const {baseP,plan,projected:p,steps,currentIncome,income}=preview,stepsCollapsed=localStorage.getItem('droid-archive-optimise-steps-collapsed')==='1',gain=income-currentIncome,currentScrap=scrapPayoutsForIncome(currentIncome),optimisedScrap=scrapPayoutsForIncome(income),scrapGain={hit:Math.max(0,(optimisedScrap.hit||0)-(currentScrap.hit||0)),break:Math.max(0,(optimisedScrap.break||0)-(currentScrap.break||0))},rebirthPick=p.placed.reduce((map,x)=>{const previous=map.get(x.name);if(!previous||VARIANTS.indexOf(x.variant)>VARIANTS.indexOf(previous.variant))map.set(x.name,{variant:x.variant,key:`${x.source}:${x.unit}`});return map},new Map()),currentMap=new Map(baseP.placed.map(x=>[`${x.source}:${x.unit}`,x]));
   const nothingToDo=p.planComplete&&!steps.filter(x=>x.type!=='note').length&&!p.sell.length&&gain<=1;
   const classicSteps=optimiseStepStyle()==='classic',visits=classicSteps?[]:optimiseVisits(steps);
@@ -3829,6 +3908,7 @@ function optimisePage(){
   const sell=p.sell.map(x=>{const d=state.droids.find(y=>y.name===x.name);const toFusion=fuseTake.has(`${x.source}:${x.unit}`),deferred=fuseDeferred.has(`${x.source}:${x.unit}`);return `<div class="sell-card cycle-unused ${toFusion?'to-fusion':''}"><a href="#/droid/${slug(d.name)}"><div>${picture(d,x.variant)}</div><span><strong>${d.name}</strong><small>${variantText(x.variant)} · From: ${originLabel(x)}</small><em>${toFusion?'&rarr; Fusion room, not sold':deferred?'Waiting for Fusion Build space':(x.sellReason||'No rebirth use')}</em></span></a></div>`}).join('');
   app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Optimise</div><div class="base-heading"><div><p class="eyebrow">Credit optimiser</p><h1>Optimise</h1><p class="lead">A preview of your Base using your Protocol priority: ${state.protocolPriority==='crafting'?'higher craft speed':'higher credit gain'}.</p></div>${nothingToDo?optimiseSettledHtml(plan,p):`<button class="btn" id="applyOptimised" ${p.planComplete?'':'disabled title="This plan cannot be applied yet. The note at the end of the steps says why."'}>Apply optimised layout</button>${ticked?`<button class="btn secondary" id="applyOptimisedSteps" title="${escapeAttr(ticked.partialMessage)}">Apply ticked steps (${ticked.tickedCount}/${ticked.tickedTotal})</button>`:''}`}</div>${companionActivityHtml(baseP)}<div class="base-top optimise-stats"><div class="stat"><small>Current / hour</small><strong>${fmt(currentIncome*3600)}</strong></div><div class="stat"><small>Optimised / hour</small><strong>${fmt(income*3600)}</strong></div><div class="stat"><small>Estimated gain / hour</small><strong>${gain?`${gain>0?'+':''}${fmt(gain*3600)}`:'—'}</strong></div><div class="stat scrap-stat"><small>Optimised scrap / hit</small><strong>${optimisedScrap.hit?fmt(optimisedScrap.hit):'—'}</strong><em>${scrapGain.hit?`+${fmt(scrapGain.hit)} per hit`:'No change'}</em></div><div class="stat scrap-stat"><small>Optimised scrap / break</small><strong>${optimisedScrap.break?fmt(optimisedScrap.break):'—'}</strong><em>${scrapGain.break?`+${fmt(scrapGain.break)} per break`:'No change'}</em></div><div class="stat"><small>Droids owned</small><strong>${state.owned.reduce((s,x)=>s+x.qty,0)}</strong></div></div>${nothingToDo?'':`<div class="notice">This page does not change your Base until you click <strong>Apply optimised layout</strong>. Droids in Sell are excluded from the applied layout.${ticked?` Tick the steps you have done: <strong>Apply ticked steps</strong> records the first ${ticked.tickedCount} of ${ticked.tickedTotal}, leaving your Base at ${fmt(ticked.income*3600)}/hr${ticked.income<currentIncome*0.999?' (less than now until you finish the walk)':''}.`:' Tick steps as you do them to record part of the walk.'}</div>`}${missingPreferredCompanions().length?`<div class="notice companion-wanted"><strong>Buy for a Companion slot:</strong> ${missingPreferredCompanions().map(name=>`<a href="#/droid/${slug(name)}">${name}</a>`).join(', ')} — you picked ${missingPreferredCompanions().length===1?'this':'these'} as a preferred companion but ${missingPreferredCompanions().length===1?'do not':'do not'} own ${missingPreferredCompanions().length===1?'it':'them'} yet.</div>`:''}${novaIconicPurchasesHtml(baseP,p)}${steps.length?`<section class="optimise-steps ${stepsCollapsed?'collapsed':''}"><header><div><p class="eyebrow">${stepsEyebrow}</p><h2>Step-by-step moves</h2></div><div class="optimise-steps-actions">${trackToggle}${stepsStyleToggle}<button class="icon-btn optimise-steps-toggle" id="toggleOptimiseSteps" title="${stepsCollapsed?'Show':'Minimise'} steps">${stepsCollapsed?'+' :'−'}</button></div></header>${stepsList}</section>`:''}${protocolSummaryHtml(p.placed)}<div class="base-layout-v2 optimise-layout"><div class="typed-stations">${['WORKER','ASTROMECH','BATTLE'].map(region=>'<div class="region-stations">'+station(region)+'</div>').join('')}</div><div class="build-side">${station('BUILD')}</div>${overflow?`<section class="roster-wide"><header><div><strong>Unplaced</strong><span>${p.overflow.length} over capacity</span></div></header><div id="rosterCards">${overflow}</div></section>`:''}${fuseFirst}${sell?`<section class="sell-wide"><header><div><strong>Sell</strong><span>${p.sell.length} unused or duplicate rebirth droid${p.sell.length===1?'':'s'}</span></div></header><div class="sell-grid">${sell}</div></section>`:''}</div>`;
   document.querySelector('.build-side').insertAdjacentHTML('afterend',`<div class="special-stations">${station('LOUNGE')}${station('COMPANION')}${station('UPGRADE_CHIP')}<div class="fusion-panel">${station('FUSION')}${fusionBuildSection(station('FUSION_BUILD'))}</div></div>`);
+  document.querySelector('.base-heading')?.insertAdjacentHTML('afterend',`<p id="optimiseBackgroundStatus" role="status">${optimiseTickedPrefix(preview).count?'Keeping your current instructions while you follow them.':optimiseBackgroundStatus==='searching'?'Route ready. Looking for a shorter walk in the background.':'Best route found for your current Base.'}</p>`);
   document.querySelector('[data-manage-iconic-unlocks]')?.addEventListener('click',()=>localStorage.setItem('droid-archive-nova-category','iconic'));
   document.querySelectorAll('[data-companion-activity]').forEach(button=>button.addEventListener('click',()=>{
     const id=button.dataset.companionActivity,active=companionActivity(),inMissions=Boolean(COMPANION_ACTIVITIES[active]?.missions);
@@ -4462,8 +4542,8 @@ const SLOT_FLOOR_PENALTY=12;
 // A slot with no dot on the map cannot be compared with one that has, so it sorts
 // last rather than poisoning the comparison with Infinity.
 const SLOT_GAP_UNREACHABLE=1e6;
-// The walk the game seems to measure: a straight line across the floor, plus a
-// flat charge for changing floor.
+// Legacy schematic distance for map diagnostics and unmapped allocation
+// origins. Work routing uses slotDistanceSquared and never this floor penalty.
 function slotWalkGap(from,to){
   const a=slotLogPoint(from.station,from.slot),b=slotLogPoint(to.station,to.slot);
   if(!a||!b)return SLOT_GAP_UNREACHABLE;

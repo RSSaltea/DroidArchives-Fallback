@@ -17,7 +17,7 @@ if (Invoke-Git status --porcelain) {
 }
 
 # Fail closed if app files were force-added. Never publish their source or assets.
-$privatePaths = '^(desktop|release|research|references|conversation|scripts|\.agents|\.claude)(/|$)|^(build-companion\.bat|backup\.ps1|HANDOFF\.md|REBUILD_PROGRESS\.md)$|(^|/)[^/]*\.(traineddata|exe|msi|appx|pyd|dll|zip|blockmap)$|^assets/(test/|other/RebirthDroid\.png$)'
+$privatePaths = '^(desktop|release|research|references|conversation|scripts|\.agents|\.claude)(/|$)|^(build-companion\.bat|backup\.ps1|HANDOFF\.md|DATAMINING\.md|REBUILD_PROGRESS\.md)$|(^|/)[^/]*\.(traineddata|exe|msi|appx|pyd|dll|zip|blockmap)$|^assets/(test/|other/RebirthDroid\.png$)'
 $files = @(Invoke-Git -c core.quotePath=false ls-tree -r --name-only HEAD)
 if ($files | Where-Object { $_ -match $privatePaths }) {
   throw 'The committed tree contains private app or local-only files. Remove them from Git tracking (keep local copies) before deploying.'
