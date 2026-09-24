@@ -467,10 +467,31 @@ function repairReachableLayout(result,p){
     }
     if(!changed)break;
   }
-  const stationChanged=assignments.some((x,i)=>x.station!==result.assignments[i].station);
+  // Refill the slots that left behind with droids nobody placed: each one's own
+  // room first, another room only once its own is full, and only when the gain
+  // pays for the walk, as it must in the search.
+  const owned=expandedOwned(),unitOf=key=>owned.find(u=>keyOf(u)===key),current=new Map(p.placed.map(x=>[keyOf(x),x.station]));
+  const layoutOf=list=>[...locked,...list.map(x=>({...unitOf(x.key),...x}))];
+  const lambda=optimiseMoveLambda(result.income-result.gain),lockedKeys=new Set(locked.map(keyOf));
+  const roomLeft=type=>stationSlotIndices(type).length-assignments.filter(x=>x.station===type).length-locked.filter(x=>x.station===type).length;
+  let added=0;
+  for(let guard=0;guard<owned.length;guard++){
+    const taken=new Set(assignments.map(x=>x.key)),before=incomeForPlaced(layoutOf(assignments));let pick=null;
+    for(const unit of owned){
+      const key=keyOf(unit),d=state.droids.find(x=>x.name===unit.name);
+      if(taken.has(key)||lockedKeys.has(key)||!PRODUCTIVE_STATIONS.includes(d?.type))continue;
+      for(const station of PRODUCTIVE_STATIONS){
+        if(roomLeft(station)<=0||station!==d.type&&roomLeft(d.type)>0||!canUseStation(d,station))continue;
+        const entry={key,name:unit.name,variant:unit.variant,station,slot:-1},gain=incomeForPlaced(layoutOf([...assignments,entry]))-before-(current.get(key)!==station?lambda:0);
+        if(gain>1e-7&&(!pick||gain>pick.gain))pick={entry,gain};
+      }
+    }
+    if(!pick)break;assignments.push(pick.entry);added++;
+  }
+  const stationChanged=added||assignments.some((x,i)=>x.station!==result.assignments[i].station);
   if(!stationChanged)return result;
   const stabilised=stabiliseAssignments(assignments.map(x=>({...x,slot:x.slot<0?0:x.slot})),p);
-  const placed=[...locked,...stabilised.map(x=>({...expandedOwned().find(u=>keyOf(u)===x.key),...x}))];
+  const placed=[...locked,...stabilised.map(x=>({...unitOf(x.key),...x}))];
   return {...result,assignments:stabilised,income:incomeForPlaced(placed),gain:incomeForPlaced(placed)-(result.income-result.gain)};
 }
 
@@ -3020,10 +3041,13 @@ function optimisedPlacementsPass(baseP,plan,consumed=new Set(),{tanks=false}={})
   // the unused-for-rebirth sell pass below. Picking afterwards meant the best
   // chip earner was sold for having no rebirth use and a weaker droid inherited
   // the slot, cutting chip output.
+  // Work only lands on the chip once every Worker, Astromech and Battle slot is
+  // full, so with any left empty only a droid already standing there can stay.
   const chipRateOf=unit=>upgradeChipRate(state.droids.find(x=>x.name===unit.name),unit.variant),chipPicks=new Set();
+  const roomsFull=PRODUCTIVE_STATIONS.every(station=>stationSlotIndices(station).every(slot=>occupied[station].has(slot)));
   for(const chipSlot of stationSlotIndices('UPGRADE_CHIP')){
     if(occupied.UPGRADE_CHIP.has(chipSlot))continue;
-    const best=units.filter(unit=>{const key=`${unit.source}:${unit.unit}`;return !assigned.has(key)&&!lockedKeys.has(key)&&!chipPicks.has(key)&&chipRateOf(unit)>0}).sort((a,b)=>chipRateOf(b)-chipRateOf(a)||Number(current.get(`${b.source}:${b.unit}`)?.station==='UPGRADE_CHIP')-Number(current.get(`${a.source}:${a.unit}`)?.station==='UPGRADE_CHIP'))[0];
+    const best=units.filter(unit=>{const key=`${unit.source}:${unit.unit}`;return !assigned.has(key)&&!lockedKeys.has(key)&&!chipPicks.has(key)&&chipRateOf(unit)>0&&(roomsFull||current.get(key)?.station==='UPGRADE_CHIP')}).sort((a,b)=>chipRateOf(b)-chipRateOf(a)||Number(current.get(`${b.source}:${b.unit}`)?.station==='UPGRADE_CHIP')-Number(current.get(`${a.source}:${a.unit}`)?.station==='UPGRADE_CHIP'))[0];
     if(!best)break;
     chipPicks.add(`${best.source}:${best.unit}`);claim(best,'UPGRADE_CHIP',chipSlot);
   }
@@ -3109,7 +3133,7 @@ function optimisedPlacementsPass(baseP,plan,consumed=new Set(),{tanks=false}={})
       }
       sell.push({...unit,sellReason:cycleStatus.label});continue;
     }
-    const productiveFallback=PRODUCTIVE_STATIONS.includes(d?.type)?[d.type,...['WORKER','ASTROMECH','BATTLE'].filter(x=>x!==d.type)]:['WORKER','ASTROMECH','BATTLE'],fallbacks=[...loungeLikeStations(),'UPGRADE_CHIP',...(strictKeepBuild?[]:['BUILD']),...productiveFallback],old=current.get(key),betterStorageOpen=old?.station==='BUILD'&&(strictKeepBuild||['LOUNGE','COMPANION','UPGRADE_CHIP'].some(station=>free(station)>=0));
+    const productiveFallback=PRODUCTIVE_STATIONS.includes(d?.type)?[d.type,...['WORKER','ASTROMECH','BATTLE'].filter(x=>x!==d.type)]:['WORKER','ASTROMECH','BATTLE'],fallbacks=[...loungeLikeStations(),...(roomsFull||current.get(key)?.station==='UPGRADE_CHIP'?['UPGRADE_CHIP']:[]),...(strictKeepBuild?[]:['BUILD']),...productiveFallback],old=current.get(key),betterStorageOpen=old?.station==='BUILD'&&(strictKeepBuild||['LOUNGE','COMPANION','UPGRADE_CHIP'].some(station=>free(station)>=0));
     candidates.push({unit,fallbacks,old,betterStorageOpen,kept:false})
   }
   if(strictKeepBuild)candidates.sort((a,b)=>optimiseStorageKeepScore(b)-optimiseStorageKeepScore(a));
