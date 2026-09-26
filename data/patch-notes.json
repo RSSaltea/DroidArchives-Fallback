@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-26-crafting-toggle",
+      "date": "2026-09-26",
+      "title": "Base toolbar fixes",
+      "summary": "Added Show / Hide Crafting with a matching icon and fixed the Detail toggle highlight.",
+      "changes": [
+        "Crafting panel visibility is remembered between visits.",
+        "The Detail button now highlights only when card details are shown."
+      ]
+    },
+    {
       "id": "2026-09-26-live-base-map",
       "date": "2026-09-26",
       "title": "New Base map is live",
