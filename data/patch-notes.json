@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-26-live-base-map",
+      "date": "2026-09-26",
+      "title": "New Base map is live",
+      "summary": "The new interactive map now replaces the old map on Base.",
+      "changes": [
+        "Manage droids through the circular map slots, with drag-to-swap, keyboard shortcuts and variant details on hover.",
+        "Click an empty slot to choose a droid. Use Show Cards / Hide Cards to keep the traditional controls alongside the map.",
+        "Upper Battle slots are shown separately for easier access. Build colours and unlock prices make slot status clearer."
+      ]
+    },
+    {
       "id": "2026-09-26-base-crafting-optimise",
       "date": "2026-09-26",
       "title": "Base, crafting and Optimise improvements",
