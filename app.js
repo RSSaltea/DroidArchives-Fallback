@@ -1889,7 +1889,7 @@ const MAP_SPOTS={
     LOUNGE_REBIRTH:[[77.8,23.2],[76.7,19.6],[74.2,17.2],[70.9,16.6]],
     LOUNGE_NOVA:[[67.8,17.8],[65.7,20.7],[65.2,24.4],[66.3,28]],
     // Three Place Droid pads on the table, the build tanks behind them.
-    FUSION:[[49.9,68.3],[53.2,68.3],[56.6,68.3]],FUSION_BUILD:[[49.4,72.7],[53.2,73.9],[57.1,72.7]]
+    FUSION:[[49.9,68.3],[53.2,68.3],[56.6,68.3]],FUSION_BUILD:[[57.1,72.7],[53.2,73.9],[49.4,72.7]]
   },
   // rb17 down to rb22 on the mezzanine, drawn as a strip beside the Battle
   // building so the whole base is one view.
