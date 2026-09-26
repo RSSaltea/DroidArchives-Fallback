@@ -9,6 +9,17 @@ const context=vm.createContext({state:{novaShop:shop}});
 vm.runInContext(src.slice(src.indexOf('const NOVA_ICON='),src.indexOf('function baseRebirthSummaryHtml()')),context);
 const totals=n=>context.novaRebirthTotals(n);
 
+test('ranks 36–40 include regular Nova and verified Super Rebirth bonuses',()=>{
+  for(const [index,payout] of [407,436,466,497,529].entries()){
+    const rank=36+index,row=shop.rebirthRewards.find(r=>r.rebirth===rank),result=totals(rank);
+    assert.equal(result.regularNovaCrystals,300);
+    assert.equal(result.regularTotal,1475+300*(index+1));
+    assert.equal(result.superRebirthNova,payout);
+    assert.equal(row.creditMultPercent,payout*2);
+    assert.equal(row.xpMultPercent,payout*10);
+  }
+});
+
 test('all supplied regular rewards and cumulative totals match the completed rank',()=>{
   const regular=[5,10,15,20,25,40,50,60,70,80,120,140,160,180,200,300];
   const running=[5,15,30,50,75,115,165,225,295,375,495,635,795,975,1175,1475];

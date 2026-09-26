@@ -2,6 +2,22 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-26-kyber",
+      "date": "2026-09-26",
+      "title": "Kyber droids and Rebirth 40",
+      "summary": "The September 26 update is now included across Droid Archives.",
+      "changes": [
+        "Droid pages now include Kyber blueprint costs, income and crafting times, with separate Green, Blue and Purple income figures and Huyang activation prices.",
+        "Record dormant or activated Kyber droids in Base. Optimise and income calculators use the selected colour; all colours share the Kyber upgrade tier. Saved profiles keep their existing droids and goals.",
+        "All five Rebirth paths now include levels 36-40, their Kyber requirements and credit costs. Nova planning includes the new regular rewards and Super Rebirth payouts.",
+        "Added the Kyber update guide with event reward stages, crystal sources, World Mission timing and currently unconfirmed details. Open the guide using the link below.",
+        "Updated Nova and Cantina surge prices, added Kyber Surge and Blueprint Scrap level 5, and updated LOW-MO income.",
+        "Kyber colours can be tracked in Droidex. Activated-colour fusion results remain unconfirmed, so the site does not assume their colours survive fusion.",
+        "Corrected Cantina Luck Boost to 400 V-Bucks / 200 Nova and Crafting Boost to 150 Nova. Blueprint Scrap level 5 costs 400 Nova (473 total across all five levels).",
+        "<a href=\"#/kyber\">Read the Kyber update guide &rarr;</a>"
+      ]
+    },
+    {
       "id": "2026-09-24-optimise-chip-route",
       "date": "2026-09-24",
       "title": "Optimise route fix",

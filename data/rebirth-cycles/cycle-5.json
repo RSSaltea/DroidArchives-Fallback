@@ -103,5 +103,95 @@
   ]},
   { "to": 35, "creditsCost": 778000000000000, "requiredDroids": [
     { "droidName": "MECHA-DROID", "variant": "STELLAR" }, { "droidName": "RIC-1200", "variant": "STELLAR" }, { "droidName": "MO-TRAK", "variant": "STELLAR" }
-  ]}
+  ]},
+  {
+    "to": 36,
+    "creditsCost": 1200000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "ROLL-R",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "HOV-R",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "MOUSE",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 37,
+    "creditsCost": 2500000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "BB",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "R2",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "R6",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 38,
+    "creditsCost": 4500000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "LO",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "TRAK-R",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "MECHA-DROID",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 39,
+    "creditsCost": 8000000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "CYCLO-GRAV",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "OPTI-STRIKE",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "RIC",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 40,
+    "creditsCost": 15000000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "LOADLIFTER",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "LEP",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "RIC-1200",
+        "variant": "KYBER"
+      }
+    ]
+  }
 ]

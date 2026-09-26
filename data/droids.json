@@ -33,6 +33,26 @@
         "cost": 19000,
         "income": 48,
         "craftingSeconds": 452.385
+      },
+      "KYBER": {
+        "cost": 34200,
+        "income": 70.4,
+        "craftingSeconds": 1085.724
+      },
+      "KYBER_GREEN": {
+        "cost": 34200,
+        "income": 211.2,
+        "craftingSeconds": 1085.724
+      },
+      "KYBER_BLUE": {
+        "cost": 34200,
+        "income": 228.8,
+        "craftingSeconds": 1085.724
+      },
+      "KYBER_PURPLE": {
+        "cost": 34200,
+        "income": 253.44,
+        "craftingSeconds": 1085.724
       }
     }
   },
@@ -70,6 +90,26 @@
         "cost": 22000,
         "income": 48,
         "craftingSeconds": 452.385
+      },
+      "KYBER": {
+        "cost": 39600,
+        "income": 70.4,
+        "craftingSeconds": 1085.724
+      },
+      "KYBER_GREEN": {
+        "cost": 39600,
+        "income": 211.2,
+        "craftingSeconds": 1085.724
+      },
+      "KYBER_BLUE": {
+        "cost": 39600,
+        "income": 228.8,
+        "craftingSeconds": 1085.724
+      },
+      "KYBER_PURPLE": {
+        "cost": 39600,
+        "income": 253.44,
+        "craftingSeconds": 1085.724
       }
     }
   },
@@ -107,6 +147,26 @@
         "cost": 60000,
         "income": 96,
         "craftingSeconds": 499.77
+      },
+      "KYBER": {
+        "cost": 108000,
+        "income": 140.8,
+        "craftingSeconds": 1199.448
+      },
+      "KYBER_GREEN": {
+        "cost": 108000,
+        "income": 422.4,
+        "craftingSeconds": 1199.448
+      },
+      "KYBER_BLUE": {
+        "cost": 108000,
+        "income": 457.6,
+        "craftingSeconds": 1199.448
+      },
+      "KYBER_PURPLE": {
+        "cost": 108000,
+        "income": 506.88,
+        "craftingSeconds": 1199.448
       }
     }
   },
@@ -144,6 +204,26 @@
         "cost": 40000,
         "income": 72,
         "craftingSeconds": 476.0775
+      },
+      "KYBER": {
+        "cost": 72000,
+        "income": 105.6,
+        "craftingSeconds": 1142.586
+      },
+      "KYBER_GREEN": {
+        "cost": 72000,
+        "income": 316.8,
+        "craftingSeconds": 1142.586
+      },
+      "KYBER_BLUE": {
+        "cost": 72000,
+        "income": 343.2,
+        "craftingSeconds": 1142.586
+      },
+      "KYBER_PURPLE": {
+        "cost": 72000,
+        "income": 380.16,
+        "craftingSeconds": 1142.586
       }
     }
   },
@@ -181,6 +261,26 @@
         "cost": 40000,
         "income": 72,
         "craftingSeconds": 476.0775
+      },
+      "KYBER": {
+        "cost": 72000,
+        "income": 105.6,
+        "craftingSeconds": 1142.586
+      },
+      "KYBER_GREEN": {
+        "cost": 72000,
+        "income": 316.8,
+        "craftingSeconds": 1142.586
+      },
+      "KYBER_BLUE": {
+        "cost": 72000,
+        "income": 343.2,
+        "craftingSeconds": 1142.586
+      },
+      "KYBER_PURPLE": {
+        "cost": 72000,
+        "income": 380.16,
+        "craftingSeconds": 1142.586
       }
     }
   },
@@ -218,6 +318,26 @@
         "cost": 40000,
         "income": 72,
         "craftingSeconds": 476.0775
+      },
+      "KYBER": {
+        "cost": 72000,
+        "income": 105.6,
+        "craftingSeconds": 1142.586
+      },
+      "KYBER_GREEN": {
+        "cost": 72000,
+        "income": 316.8,
+        "craftingSeconds": 1142.586
+      },
+      "KYBER_BLUE": {
+        "cost": 72000,
+        "income": 343.2,
+        "craftingSeconds": 1142.586
+      },
+      "KYBER_PURPLE": {
+        "cost": 72000,
+        "income": 380.16,
+        "craftingSeconds": 1142.586
       }
     }
   },
@@ -255,6 +375,26 @@
         "cost": 60000,
         "income": 96,
         "craftingSeconds": 499.77
+      },
+      "KYBER": {
+        "cost": 108000,
+        "income": 140.8,
+        "craftingSeconds": 1199.448
+      },
+      "KYBER_GREEN": {
+        "cost": 108000,
+        "income": 422.4,
+        "craftingSeconds": 1199.448
+      },
+      "KYBER_BLUE": {
+        "cost": 108000,
+        "income": 457.6,
+        "craftingSeconds": 1199.448
+      },
+      "KYBER_PURPLE": {
+        "cost": 108000,
+        "income": 506.88,
+        "craftingSeconds": 1199.448
       }
     }
   },
@@ -292,6 +432,26 @@
         "cost": 100000,
         "income": 144,
         "craftingSeconds": 547.155
+      },
+      "KYBER": {
+        "cost": 180000,
+        "income": 211.2,
+        "craftingSeconds": 1313.172
+      },
+      "KYBER_GREEN": {
+        "cost": 180000,
+        "income": 633.6,
+        "craftingSeconds": 1313.172
+      },
+      "KYBER_BLUE": {
+        "cost": 180000,
+        "income": 686.4,
+        "craftingSeconds": 1313.172
+      },
+      "KYBER_PURPLE": {
+        "cost": 180000,
+        "income": 760.32,
+        "craftingSeconds": 1313.172
       }
     }
   },
@@ -329,6 +489,26 @@
         "cost": 80000,
         "income": 120,
         "craftingSeconds": 523.4625
+      },
+      "KYBER": {
+        "cost": 144000,
+        "income": 176.0,
+        "craftingSeconds": 1256.31
+      },
+      "KYBER_GREEN": {
+        "cost": 144000,
+        "income": 528.0,
+        "craftingSeconds": 1256.31
+      },
+      "KYBER_BLUE": {
+        "cost": 144000,
+        "income": 572.0,
+        "craftingSeconds": 1256.31
+      },
+      "KYBER_PURPLE": {
+        "cost": 144000,
+        "income": 633.6,
+        "craftingSeconds": 1256.31
       }
     }
   },
@@ -366,6 +546,26 @@
         "cost": 60000,
         "income": 72,
         "craftingSeconds": 476.0775
+      },
+      "KYBER": {
+        "cost": 108000,
+        "income": 105.6,
+        "craftingSeconds": 1142.586
+      },
+      "KYBER_GREEN": {
+        "cost": 108000,
+        "income": 316.8,
+        "craftingSeconds": 1142.586
+      },
+      "KYBER_BLUE": {
+        "cost": 108000,
+        "income": 343.2,
+        "craftingSeconds": 1142.586
+      },
+      "KYBER_PURPLE": {
+        "cost": 108000,
+        "income": 380.16,
+        "craftingSeconds": 1142.586
       }
     }
   },
@@ -403,6 +603,26 @@
         "cost": 80000,
         "income": 96,
         "craftingSeconds": 499.77
+      },
+      "KYBER": {
+        "cost": 144000,
+        "income": 140.8,
+        "craftingSeconds": 1199.448
+      },
+      "KYBER_GREEN": {
+        "cost": 144000,
+        "income": 422.4,
+        "craftingSeconds": 1199.448
+      },
+      "KYBER_BLUE": {
+        "cost": 144000,
+        "income": 457.6,
+        "craftingSeconds": 1199.448
+      },
+      "KYBER_PURPLE": {
+        "cost": 144000,
+        "income": 506.88,
+        "craftingSeconds": 1199.448
       }
     }
   },
@@ -440,6 +660,26 @@
         "cost": 500000,
         "income": 360,
         "craftingSeconds": 760.3875
+      },
+      "KYBER": {
+        "cost": 900000,
+        "income": 528.0,
+        "craftingSeconds": 1824.93
+      },
+      "KYBER_GREEN": {
+        "cost": 900000,
+        "income": 1584.0,
+        "craftingSeconds": 1824.93
+      },
+      "KYBER_BLUE": {
+        "cost": 900000,
+        "income": 1716.0,
+        "craftingSeconds": 1824.93
+      },
+      "KYBER_PURPLE": {
+        "cost": 900000,
+        "income": 1900.8,
+        "craftingSeconds": 1824.93
       }
     }
   },
@@ -477,6 +717,26 @@
         "cost": 1760000,
         "income": 1008,
         "craftingSeconds": 1400.085
+      },
+      "KYBER": {
+        "cost": 3168000,
+        "income": 1478.4,
+        "craftingSeconds": 3360.204
+      },
+      "KYBER_GREEN": {
+        "cost": 3168000,
+        "income": 4435.2,
+        "craftingSeconds": 3360.204
+      },
+      "KYBER_BLUE": {
+        "cost": 3168000,
+        "income": 4804.8,
+        "craftingSeconds": 3360.204
+      },
+      "KYBER_PURPLE": {
+        "cost": 3168000,
+        "income": 5322.24,
+        "craftingSeconds": 3360.204
       }
     }
   },
@@ -514,6 +774,26 @@
         "cost": 2000000,
         "income": 1104,
         "craftingSeconds": 1494.855
+      },
+      "KYBER": {
+        "cost": 3600000,
+        "income": 1619.2,
+        "craftingSeconds": 3587.652
+      },
+      "KYBER_GREEN": {
+        "cost": 3600000,
+        "income": 4857.6,
+        "craftingSeconds": 3587.652
+      },
+      "KYBER_BLUE": {
+        "cost": 3600000,
+        "income": 5262.4,
+        "craftingSeconds": 3587.652
+      },
+      "KYBER_PURPLE": {
+        "cost": 3600000,
+        "income": 5829.12,
+        "craftingSeconds": 3587.652
       }
     }
   },
@@ -551,6 +831,26 @@
         "cost": 2600000,
         "income": 1392,
         "craftingSeconds": 1779.165
+      },
+      "KYBER": {
+        "cost": 4680000,
+        "income": 2041.6,
+        "craftingSeconds": 4269.996
+      },
+      "KYBER_GREEN": {
+        "cost": 4680000,
+        "income": 6124.8,
+        "craftingSeconds": 4269.996
+      },
+      "KYBER_BLUE": {
+        "cost": 4680000,
+        "income": 6635.2,
+        "craftingSeconds": 4269.996
+      },
+      "KYBER_PURPLE": {
+        "cost": 4680000,
+        "income": 7349.76,
+        "craftingSeconds": 4269.996
       }
     }
   },
@@ -588,6 +888,26 @@
         "cost": 860000,
         "income": 552,
         "craftingSeconds": 949.9275
+      },
+      "KYBER": {
+        "cost": 1548000,
+        "income": 809.6,
+        "craftingSeconds": 2279.826
+      },
+      "KYBER_GREEN": {
+        "cost": 1548000,
+        "income": 2428.8,
+        "craftingSeconds": 2279.826
+      },
+      "KYBER_BLUE": {
+        "cost": 1548000,
+        "income": 2631.2,
+        "craftingSeconds": 2279.826
+      },
+      "KYBER_PURPLE": {
+        "cost": 1548000,
+        "income": 2914.56,
+        "craftingSeconds": 2279.826
       }
     }
   },
@@ -625,6 +945,26 @@
         "cost": 1240000,
         "income": 744,
         "craftingSeconds": 1139.4675
+      },
+      "KYBER": {
+        "cost": 2232000,
+        "income": 1091.2,
+        "craftingSeconds": 2734.722
+      },
+      "KYBER_GREEN": {
+        "cost": 2232000,
+        "income": 3273.6,
+        "craftingSeconds": 2734.722
+      },
+      "KYBER_BLUE": {
+        "cost": 2232000,
+        "income": 3546.4,
+        "craftingSeconds": 2734.722
+      },
+      "KYBER_PURPLE": {
+        "cost": 2232000,
+        "income": 3928.32,
+        "craftingSeconds": 2734.722
       }
     }
   },
@@ -662,6 +1002,26 @@
         "cost": 600000,
         "income": 408,
         "craftingSeconds": 807.7725
+      },
+      "KYBER": {
+        "cost": 1080000,
+        "income": 598.4,
+        "craftingSeconds": 1938.654
+      },
+      "KYBER_GREEN": {
+        "cost": 1080000,
+        "income": 1795.2,
+        "craftingSeconds": 1938.654
+      },
+      "KYBER_BLUE": {
+        "cost": 1080000,
+        "income": 1944.8,
+        "craftingSeconds": 1938.654
+      },
+      "KYBER_PURPLE": {
+        "cost": 1080000,
+        "income": 2154.24,
+        "craftingSeconds": 1938.654
       }
     }
   },
@@ -699,6 +1059,26 @@
         "cost": 1480000,
         "income": 864,
         "craftingSeconds": 1257.93
+      },
+      "KYBER": {
+        "cost": 2664000,
+        "income": 1267.2,
+        "craftingSeconds": 3019.032
+      },
+      "KYBER_GREEN": {
+        "cost": 2664000,
+        "income": 3801.6,
+        "craftingSeconds": 3019.032
+      },
+      "KYBER_BLUE": {
+        "cost": 2664000,
+        "income": 4118.4,
+        "craftingSeconds": 3019.032
+      },
+      "KYBER_PURPLE": {
+        "cost": 2664000,
+        "income": 4561.92,
+        "craftingSeconds": 3019.032
       }
     }
   },
@@ -736,6 +1116,26 @@
         "cost": 2200000,
         "income": 1200,
         "craftingSeconds": 1589.625
+      },
+      "KYBER": {
+        "cost": 3960000,
+        "income": 1760.0,
+        "craftingSeconds": 3815.1
+      },
+      "KYBER_GREEN": {
+        "cost": 3960000,
+        "income": 5280.0,
+        "craftingSeconds": 3815.1
+      },
+      "KYBER_BLUE": {
+        "cost": 3960000,
+        "income": 5720.0,
+        "craftingSeconds": 3815.1
+      },
+      "KYBER_PURPLE": {
+        "cost": 3960000,
+        "income": 6336.0,
+        "craftingSeconds": 3815.1
       }
     }
   },
@@ -773,6 +1173,26 @@
         "cost": 2400000,
         "income": 1296,
         "craftingSeconds": 1684.395
+      },
+      "KYBER": {
+        "cost": 4320000,
+        "income": 1900.8,
+        "craftingSeconds": 4042.548
+      },
+      "KYBER_GREEN": {
+        "cost": 4320000,
+        "income": 5702.4,
+        "craftingSeconds": 4042.548
+      },
+      "KYBER_BLUE": {
+        "cost": 4320000,
+        "income": 6177.6,
+        "craftingSeconds": 4042.548
+      },
+      "KYBER_PURPLE": {
+        "cost": 4320000,
+        "income": 6842.88,
+        "craftingSeconds": 4042.548
       }
     }
   },
@@ -810,6 +1230,26 @@
         "cost": 3000000,
         "income": 1584,
         "craftingSeconds": 1968.705
+      },
+      "KYBER": {
+        "cost": 5400000,
+        "income": 2323.2,
+        "craftingSeconds": 4724.892
+      },
+      "KYBER_GREEN": {
+        "cost": 5400000,
+        "income": 6969.6,
+        "craftingSeconds": 4724.892
+      },
+      "KYBER_BLUE": {
+        "cost": 5400000,
+        "income": 7550.4,
+        "craftingSeconds": 4724.892
+      },
+      "KYBER_PURPLE": {
+        "cost": 5400000,
+        "income": 8363.52,
+        "craftingSeconds": 4724.892
       }
     }
   },
@@ -847,6 +1287,26 @@
         "cost": 720000,
         "income": 432,
         "craftingSeconds": 831.465
+      },
+      "KYBER": {
+        "cost": 1296000,
+        "income": 633.6,
+        "craftingSeconds": 1995.516
+      },
+      "KYBER_GREEN": {
+        "cost": 1296000,
+        "income": 1900.8,
+        "craftingSeconds": 1995.516
+      },
+      "KYBER_BLUE": {
+        "cost": 1296000,
+        "income": 2059.2,
+        "craftingSeconds": 1995.516
+      },
+      "KYBER_PURPLE": {
+        "cost": 1296000,
+        "income": 2280.96,
+        "craftingSeconds": 1995.516
       }
     }
   },
@@ -884,6 +1344,26 @@
         "cost": 1040000,
         "income": 648,
         "craftingSeconds": 1044.6975
+      },
+      "KYBER": {
+        "cost": 1872000,
+        "income": 950.4,
+        "craftingSeconds": 2507.274
+      },
+      "KYBER_GREEN": {
+        "cost": 1872000,
+        "income": 2851.2,
+        "craftingSeconds": 2507.274
+      },
+      "KYBER_BLUE": {
+        "cost": 1872000,
+        "income": 3088.8,
+        "craftingSeconds": 2507.274
+      },
+      "KYBER_PURPLE": {
+        "cost": 1872000,
+        "income": 3421.44,
+        "craftingSeconds": 2507.274
       }
     }
   },
@@ -921,6 +1401,26 @@
         "cost": 2800000,
         "income": 1488,
         "craftingSeconds": 1873.935
+      },
+      "KYBER": {
+        "cost": 5040000,
+        "income": 2182.4,
+        "craftingSeconds": 4497.444
+      },
+      "KYBER_GREEN": {
+        "cost": 5040000,
+        "income": 6547.2,
+        "craftingSeconds": 4497.444
+      },
+      "KYBER_BLUE": {
+        "cost": 5040000,
+        "income": 7092.8,
+        "craftingSeconds": 4497.444
+      },
+      "KYBER_PURPLE": {
+        "cost": 5040000,
+        "income": 7856.64,
+        "craftingSeconds": 4497.444
       }
     }
   },
@@ -958,6 +1458,26 @@
         "cost": 270000000,
         "income": 6240,
         "craftingSeconds": 3248.1
+      },
+      "KYBER": {
+        "cost": 4050000000,
+        "income": 10560,
+        "craftingSeconds": 7795.44
+      },
+      "KYBER_GREEN": {
+        "cost": 4050000000,
+        "income": 31680,
+        "craftingSeconds": 7795.44
+      },
+      "KYBER_BLUE": {
+        "cost": 4050000000,
+        "income": 34320.0,
+        "craftingSeconds": 7795.44
+      },
+      "KYBER_PURPLE": {
+        "cost": 4050000000,
+        "income": 38016.0,
+        "craftingSeconds": 7795.44
       }
     }
   },
@@ -995,6 +1515,26 @@
         "cost": 630000000,
         "income": 12480,
         "craftingSeconds": 6091.2
+      },
+      "KYBER": {
+        "cost": 9450000000,
+        "income": 21120,
+        "craftingSeconds": 14618.88
+      },
+      "KYBER_GREEN": {
+        "cost": 9450000000,
+        "income": 63360,
+        "craftingSeconds": 14618.88
+      },
+      "KYBER_BLUE": {
+        "cost": 9450000000,
+        "income": 68640.0,
+        "craftingSeconds": 14618.88
+      },
+      "KYBER_PURPLE": {
+        "cost": 9450000000,
+        "income": 76032.0,
+        "craftingSeconds": 14618.88
       }
     }
   },
@@ -1032,6 +1572,26 @@
         "cost": 1620000000,
         "income": 29640,
         "craftingSeconds": 13909.725
+      },
+      "KYBER": {
+        "cost": 24300000000,
+        "income": 50160,
+        "craftingSeconds": 33383.34
+      },
+      "KYBER_GREEN": {
+        "cost": 24300000000,
+        "income": 150480,
+        "craftingSeconds": 33383.34
+      },
+      "KYBER_BLUE": {
+        "cost": 24300000000,
+        "income": 163020.0,
+        "craftingSeconds": 33383.34
+      },
+      "KYBER_PURPLE": {
+        "cost": 24300000000,
+        "income": 180576.0,
+        "craftingSeconds": 33383.34
       }
     }
   },
@@ -1069,6 +1629,26 @@
         "cost": 1440000000,
         "income": 26520,
         "craftingSeconds": 12488.175
+      },
+      "KYBER": {
+        "cost": 21600000000,
+        "income": 44880,
+        "craftingSeconds": 29971.62
+      },
+      "KYBER_GREEN": {
+        "cost": 21600000000,
+        "income": 134640,
+        "craftingSeconds": 29971.62
+      },
+      "KYBER_BLUE": {
+        "cost": 21600000000,
+        "income": 145860.0,
+        "craftingSeconds": 29971.62
+      },
+      "KYBER_PURPLE": {
+        "cost": 21600000000,
+        "income": 161568.0,
+        "craftingSeconds": 29971.62
       }
     }
   },
@@ -1106,6 +1686,26 @@
         "cost": 1080000000,
         "income": 20280,
         "craftingSeconds": 9645.075
+      },
+      "KYBER": {
+        "cost": 16200000000,
+        "income": 34320,
+        "craftingSeconds": 23148.18
+      },
+      "KYBER_GREEN": {
+        "cost": 16200000000,
+        "income": 102960,
+        "craftingSeconds": 23148.18
+      },
+      "KYBER_BLUE": {
+        "cost": 16200000000,
+        "income": 111540.0,
+        "craftingSeconds": 23148.18
+      },
+      "KYBER_PURPLE": {
+        "cost": 16200000000,
+        "income": 123552.0,
+        "craftingSeconds": 23148.18
       }
     }
   },
@@ -1143,6 +1743,26 @@
         "cost": 1890000000,
         "income": 34320,
         "craftingSeconds": 16042.05
+      },
+      "KYBER": {
+        "cost": 56700000000,
+        "income": 58080,
+        "craftingSeconds": 38500.92
+      },
+      "KYBER_GREEN": {
+        "cost": 56700000000,
+        "income": 174240,
+        "craftingSeconds": 38500.92
+      },
+      "KYBER_BLUE": {
+        "cost": 56700000000,
+        "income": 188760.0,
+        "craftingSeconds": 38500.92
+      },
+      "KYBER_PURPLE": {
+        "cost": 56700000000,
+        "income": 209088.0,
+        "craftingSeconds": 38500.92
       }
     }
   },
@@ -1180,6 +1800,26 @@
         "cost": 360000000,
         "income": 7800,
         "craftingSeconds": 3958.875
+      },
+      "KYBER": {
+        "cost": 5400000000,
+        "income": 13200,
+        "craftingSeconds": 9501.3
+      },
+      "KYBER_GREEN": {
+        "cost": 5400000000,
+        "income": 39600,
+        "craftingSeconds": 9501.3
+      },
+      "KYBER_BLUE": {
+        "cost": 5400000000,
+        "income": 42900.0,
+        "craftingSeconds": 9501.3
+      },
+      "KYBER_PURPLE": {
+        "cost": 5400000000,
+        "income": 47520.0,
+        "craftingSeconds": 9501.3
       }
     }
   },
@@ -1217,6 +1857,26 @@
         "cost": 990000000,
         "income": 18720,
         "craftingSeconds": 8934.3
+      },
+      "KYBER": {
+        "cost": 14850000000,
+        "income": 31680,
+        "craftingSeconds": 21442.32
+      },
+      "KYBER_GREEN": {
+        "cost": 14850000000,
+        "income": 95040,
+        "craftingSeconds": 21442.32
+      },
+      "KYBER_BLUE": {
+        "cost": 14850000000,
+        "income": 102960.0,
+        "craftingSeconds": 21442.32
+      },
+      "KYBER_PURPLE": {
+        "cost": 14850000000,
+        "income": 114048.0,
+        "craftingSeconds": 21442.32
       }
     }
   },
@@ -1254,6 +1914,26 @@
         "cost": 810000000,
         "income": 15600,
         "craftingSeconds": 7512.75
+      },
+      "KYBER": {
+        "cost": 12150000000,
+        "income": 26400,
+        "craftingSeconds": 18030.6
+      },
+      "KYBER_GREEN": {
+        "cost": 12150000000,
+        "income": 79200,
+        "craftingSeconds": 18030.6
+      },
+      "KYBER_BLUE": {
+        "cost": 12150000000,
+        "income": 85800.0,
+        "craftingSeconds": 18030.6
+      },
+      "KYBER_PURPLE": {
+        "cost": 12150000000,
+        "income": 95040.0,
+        "craftingSeconds": 18030.6
       }
     }
   },
@@ -1291,6 +1971,26 @@
         "cost": 900000000,
         "income": 17160,
         "craftingSeconds": 8223.525
+      },
+      "KYBER": {
+        "cost": 13500000000,
+        "income": 29040,
+        "craftingSeconds": 19736.46
+      },
+      "KYBER_GREEN": {
+        "cost": 13500000000,
+        "income": 87120,
+        "craftingSeconds": 19736.46
+      },
+      "KYBER_BLUE": {
+        "cost": 13500000000,
+        "income": 94380.0,
+        "craftingSeconds": 19736.46
+      },
+      "KYBER_PURPLE": {
+        "cost": 13500000000,
+        "income": 104544.0,
+        "craftingSeconds": 19736.46
       }
     }
   },
@@ -1328,6 +2028,26 @@
         "cost": 450000000,
         "income": 9360,
         "craftingSeconds": 4669.65
+      },
+      "KYBER": {
+        "cost": 6750000000,
+        "income": 15840,
+        "craftingSeconds": 11207.16
+      },
+      "KYBER_GREEN": {
+        "cost": 6750000000,
+        "income": 47520,
+        "craftingSeconds": 11207.16
+      },
+      "KYBER_BLUE": {
+        "cost": 6750000000,
+        "income": 51480.0,
+        "craftingSeconds": 11207.16
+      },
+      "KYBER_PURPLE": {
+        "cost": 6750000000,
+        "income": 57024.0,
+        "craftingSeconds": 11207.16
       }
     }
   },
@@ -1365,6 +2085,26 @@
         "cost": 540000000,
         "income": 10920,
         "craftingSeconds": 5380.425
+      },
+      "KYBER": {
+        "cost": 8100000000,
+        "income": 18480,
+        "craftingSeconds": 12913.02
+      },
+      "KYBER_GREEN": {
+        "cost": 8100000000,
+        "income": 55440,
+        "craftingSeconds": 12913.02
+      },
+      "KYBER_BLUE": {
+        "cost": 8100000000,
+        "income": 60060.0,
+        "craftingSeconds": 12913.02
+      },
+      "KYBER_PURPLE": {
+        "cost": 8100000000,
+        "income": 66528.0,
+        "craftingSeconds": 12913.02
       }
     }
   },
@@ -1402,6 +2142,26 @@
         "cost": 1800000000,
         "income": 31200,
         "craftingSeconds": 14620.5
+      },
+      "KYBER": {
+        "cost": 27000000000,
+        "income": 55440,
+        "craftingSeconds": 35089.2
+      },
+      "KYBER_GREEN": {
+        "cost": 27000000000,
+        "income": 166320,
+        "craftingSeconds": 35089.2
+      },
+      "KYBER_BLUE": {
+        "cost": 27000000000,
+        "income": 180180.0,
+        "craftingSeconds": 35089.2
+      },
+      "KYBER_PURPLE": {
+        "cost": 27000000000,
+        "income": 199584.0,
+        "craftingSeconds": 35089.2
       }
     }
   },
@@ -1439,6 +2199,26 @@
         "cost": 1170000000,
         "income": 21840,
         "craftingSeconds": 10355.85
+      },
+      "KYBER": {
+        "cost": 17550000000,
+        "income": 36960,
+        "craftingSeconds": 24854.04
+      },
+      "KYBER_GREEN": {
+        "cost": 17550000000,
+        "income": 110880,
+        "craftingSeconds": 24854.04
+      },
+      "KYBER_BLUE": {
+        "cost": 17550000000,
+        "income": 120120.0,
+        "craftingSeconds": 24854.04
+      },
+      "KYBER_PURPLE": {
+        "cost": 17550000000,
+        "income": 133056.0,
+        "craftingSeconds": 24854.04
       }
     }
   },
@@ -1476,6 +2256,26 @@
         "cost": 1350000000,
         "income": 24960,
         "craftingSeconds": 11777.4
+      },
+      "KYBER": {
+        "cost": 20250000000,
+        "income": 42240,
+        "craftingSeconds": 28265.76
+      },
+      "KYBER_GREEN": {
+        "cost": 20250000000,
+        "income": 126720,
+        "craftingSeconds": 28265.76
+      },
+      "KYBER_BLUE": {
+        "cost": 20250000000,
+        "income": 137280.0,
+        "craftingSeconds": 28265.76
+      },
+      "KYBER_PURPLE": {
+        "cost": 20250000000,
+        "income": 152064.0,
+        "craftingSeconds": 28265.76
       }
     }
   },
@@ -1513,6 +2313,26 @@
         "cost": 1530000000,
         "income": 28080,
         "craftingSeconds": 13198.95
+      },
+      "KYBER": {
+        "cost": 22950000000,
+        "income": 47520,
+        "craftingSeconds": 31677.48
+      },
+      "KYBER_GREEN": {
+        "cost": 22950000000,
+        "income": 142560,
+        "craftingSeconds": 31677.48
+      },
+      "KYBER_BLUE": {
+        "cost": 22950000000,
+        "income": 154440.0,
+        "craftingSeconds": 31677.48
+      },
+      "KYBER_PURPLE": {
+        "cost": 22950000000,
+        "income": 171072.0,
+        "craftingSeconds": 31677.48
       }
     }
   },
@@ -1550,6 +2370,26 @@
         "cost": 720000000,
         "income": 14040,
         "craftingSeconds": 6801.975
+      },
+      "KYBER": {
+        "cost": 10800000000,
+        "income": 23760,
+        "craftingSeconds": 16324.74
+      },
+      "KYBER_GREEN": {
+        "cost": 10800000000,
+        "income": 71280,
+        "craftingSeconds": 16324.74
+      },
+      "KYBER_BLUE": {
+        "cost": 10800000000,
+        "income": 77220.0,
+        "craftingSeconds": 16324.74
+      },
+      "KYBER_PURPLE": {
+        "cost": 10800000000,
+        "income": 85536.0,
+        "craftingSeconds": 16324.74
       }
     }
   },
@@ -1587,6 +2427,26 @@
         "cost": 1260000000,
         "income": 23400,
         "craftingSeconds": 11066.625
+      },
+      "KYBER": {
+        "cost": 18900000000,
+        "income": 39600,
+        "craftingSeconds": 26559.9
+      },
+      "KYBER_GREEN": {
+        "cost": 18900000000,
+        "income": 118800,
+        "craftingSeconds": 26559.9
+      },
+      "KYBER_BLUE": {
+        "cost": 18900000000,
+        "income": 128700.0,
+        "craftingSeconds": 26559.9
+      },
+      "KYBER_PURPLE": {
+        "cost": 18900000000,
+        "income": 142560.0,
+        "craftingSeconds": 26559.9
       }
     }
   },
@@ -1624,6 +2484,26 @@
         "cost": 52800000000,
         "income": 58320,
         "craftingSeconds": 23434.11
+      },
+      "KYBER": {
+        "cost": 1914000000000,
+        "income": 160380,
+        "craftingSeconds": 56241.864
+      },
+      "KYBER_GREEN": {
+        "cost": 1914000000000,
+        "income": 481140,
+        "craftingSeconds": 56241.864
+      },
+      "KYBER_BLUE": {
+        "cost": 1914000000000,
+        "income": 521235.0,
+        "craftingSeconds": 56241.864
+      },
+      "KYBER_PURPLE": {
+        "cost": 1914000000000,
+        "income": 577368.0,
+        "craftingSeconds": 56241.864
       }
     }
   },
@@ -1661,6 +2541,26 @@
         "cost": 69600000000,
         "income": 74640,
         "craftingSeconds": 29878.47
+      },
+      "KYBER": {
+        "cost": 2523000000000,
+        "income": 205260,
+        "craftingSeconds": 71708.328
+      },
+      "KYBER_GREEN": {
+        "cost": 2523000000000,
+        "income": 615780,
+        "craftingSeconds": 71708.328
+      },
+      "KYBER_BLUE": {
+        "cost": 2523000000000,
+        "income": 667095.0,
+        "craftingSeconds": 71708.328
+      },
+      "KYBER_PURPLE": {
+        "cost": 2523000000000,
+        "income": 738936.0,
+        "craftingSeconds": 71708.328
       }
     }
   },
@@ -1698,6 +2598,26 @@
         "cost": 88800000000,
         "income": 90000,
         "craftingSeconds": 35943.75
+      },
+      "KYBER": {
+        "cost": 2262000000000,
+        "income": 247500,
+        "craftingSeconds": 86265.0
+      },
+      "KYBER_GREEN": {
+        "cost": 2262000000000,
+        "income": 742500,
+        "craftingSeconds": 86265.0
+      },
+      "KYBER_BLUE": {
+        "cost": 2262000000000,
+        "income": 804375.0,
+        "craftingSeconds": 86265.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 2262000000000,
+        "income": 891000.0,
+        "craftingSeconds": 86265.0
       }
     }
   },
@@ -1735,6 +2655,26 @@
         "cost": 67200000000,
         "income": 78000,
         "craftingSeconds": 31205.25
+      },
+      "KYBER": {
+        "cost": 2436000000000,
+        "income": 214500,
+        "craftingSeconds": 74892.6
+      },
+      "KYBER_GREEN": {
+        "cost": 2436000000000,
+        "income": 643500,
+        "craftingSeconds": 74892.6
+      },
+      "KYBER_BLUE": {
+        "cost": 2436000000000,
+        "income": 697125.0,
+        "craftingSeconds": 74892.6
+      },
+      "KYBER_PURPLE": {
+        "cost": 2436000000000,
+        "income": 772200.0,
+        "craftingSeconds": 74892.6
       }
     }
   },
@@ -1772,6 +2712,26 @@
         "cost": 88800000000,
         "income": 90000,
         "craftingSeconds": 35943.75
+      },
+      "KYBER": {
+        "cost": 3219000000000,
+        "income": 247500,
+        "craftingSeconds": 86265.0
+      },
+      "KYBER_GREEN": {
+        "cost": 3219000000000,
+        "income": 742500,
+        "craftingSeconds": 86265.0
+      },
+      "KYBER_BLUE": {
+        "cost": 3219000000000,
+        "income": 804375.0,
+        "craftingSeconds": 86265.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 3219000000000,
+        "income": 891000.0,
+        "craftingSeconds": 86265.0
       }
     }
   },
@@ -1809,6 +2769,26 @@
         "cost": 74400000000,
         "income": 78240,
         "craftingSeconds": 31300.02
+      },
+      "KYBER": {
+        "cost": 2697000000000,
+        "income": 215160,
+        "craftingSeconds": 75120.048
+      },
+      "KYBER_GREEN": {
+        "cost": 2697000000000,
+        "income": 645480,
+        "craftingSeconds": 75120.048
+      },
+      "KYBER_BLUE": {
+        "cost": 2697000000000,
+        "income": 699270.0,
+        "craftingSeconds": 75120.048
+      },
+      "KYBER_PURPLE": {
+        "cost": 2697000000000,
+        "income": 774576.0,
+        "craftingSeconds": 75120.048
       }
     }
   },
@@ -1846,6 +2826,26 @@
         "cost": 72000000000,
         "income": 75600,
         "craftingSeconds": 30257.55
+      },
+      "KYBER": {
+        "cost": 2610000000000,
+        "income": 207900,
+        "craftingSeconds": 72618.12
+      },
+      "KYBER_GREEN": {
+        "cost": 2610000000000,
+        "income": 623700,
+        "craftingSeconds": 72618.12
+      },
+      "KYBER_BLUE": {
+        "cost": 2610000000000,
+        "income": 675675.0,
+        "craftingSeconds": 72618.12
+      },
+      "KYBER_PURPLE": {
+        "cost": 2610000000000,
+        "income": 748440.0,
+        "craftingSeconds": 72618.12
       }
     }
   },
@@ -1883,6 +2883,26 @@
         "cost": 88800000000,
         "income": 90000,
         "craftingSeconds": 35943.75
+      },
+      "KYBER": {
+        "cost": 3219000000000,
+        "income": 247500,
+        "craftingSeconds": 86265.0
+      },
+      "KYBER_GREEN": {
+        "cost": 3219000000000,
+        "income": 742500,
+        "craftingSeconds": 86265.0
+      },
+      "KYBER_BLUE": {
+        "cost": 3219000000000,
+        "income": 804375.0,
+        "craftingSeconds": 86265.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 3219000000000,
+        "income": 891000.0,
+        "craftingSeconds": 86265.0
       }
     }
   },
@@ -1920,6 +2940,26 @@
         "cost": 846000000000,
         "income": 193600,
         "craftingSeconds": 70470
+      },
+      "KYBER": {
+        "cost": 30240000000000,
+        "income": 605000.0,
+        "craftingSeconds": 169128
+      },
+      "KYBER_GREEN": {
+        "cost": 30240000000000,
+        "income": 1815000.0,
+        "craftingSeconds": 169128
+      },
+      "KYBER_BLUE": {
+        "cost": 30240000000000,
+        "income": 1966250.0,
+        "craftingSeconds": 169128
+      },
+      "KYBER_PURPLE": {
+        "cost": 30240000000000,
+        "income": 2178000.0,
+        "craftingSeconds": 169128
       }
     }
   },
@@ -1957,6 +2997,26 @@
         "cost": 958800000000,
         "income": 224400,
         "craftingSeconds": 77085
+      },
+      "KYBER": {
+        "cost": 34272000000000,
+        "income": 701250.0,
+        "craftingSeconds": 185004
+      },
+      "KYBER_GREEN": {
+        "cost": 34272000000000,
+        "income": 2103750.0,
+        "craftingSeconds": 185004
+      },
+      "KYBER_BLUE": {
+        "cost": 34272000000000,
+        "income": 2279062.5,
+        "craftingSeconds": 185004
+      },
+      "KYBER_PURPLE": {
+        "cost": 34272000000000,
+        "income": 2524500.0,
+        "craftingSeconds": 185004
       }
     }
   },
@@ -1994,6 +3054,26 @@
         "cost": 1410000000000,
         "income": 316800,
         "craftingSeconds": 96930
+      },
+      "KYBER": {
+        "cost": 50400000000000,
+        "income": 990000.0,
+        "craftingSeconds": 232632
+      },
+      "KYBER_GREEN": {
+        "cost": 50400000000000,
+        "income": 2970000.0,
+        "craftingSeconds": 232632
+      },
+      "KYBER_BLUE": {
+        "cost": 50400000000000,
+        "income": 3217500.0,
+        "craftingSeconds": 232632
+      },
+      "KYBER_PURPLE": {
+        "cost": 50400000000000,
+        "income": 3564000.0,
+        "craftingSeconds": 232632
       }
     }
   },
@@ -2031,6 +3111,26 @@
         "cost": 1184400000000,
         "income": 286000,
         "craftingSeconds": 90315
+      },
+      "KYBER": {
+        "cost": 42336000000000,
+        "income": 893750.0,
+        "craftingSeconds": 216756
+      },
+      "KYBER_GREEN": {
+        "cost": 42336000000000,
+        "income": 2681250.0,
+        "craftingSeconds": 216756
+      },
+      "KYBER_BLUE": {
+        "cost": 42336000000000,
+        "income": 2904687.5,
+        "craftingSeconds": 216756
+      },
+      "KYBER_PURPLE": {
+        "cost": 42336000000000,
+        "income": 3217500.0,
+        "craftingSeconds": 216756
       }
     }
   },
@@ -2068,6 +3168,26 @@
         "cost": 1071600000000,
         "income": 255200,
         "craftingSeconds": 83700
+      },
+      "KYBER": {
+        "cost": 38304000000000,
+        "income": 797500.0,
+        "craftingSeconds": 200880
+      },
+      "KYBER_GREEN": {
+        "cost": 38304000000000,
+        "income": 2392500.0,
+        "craftingSeconds": 200880
+      },
+      "KYBER_BLUE": {
+        "cost": 38304000000000,
+        "income": 2591875.0,
+        "craftingSeconds": 200880
+      },
+      "KYBER_PURPLE": {
+        "cost": 38304000000000,
+        "income": 2871000.0,
+        "craftingSeconds": 200880
       }
     }
   },
@@ -2105,6 +3225,26 @@
         "cost": 1071600000000,
         "income": 255200,
         "craftingSeconds": 83700
+      },
+      "KYBER": {
+        "cost": 38304000000000,
+        "income": 797500.0,
+        "craftingSeconds": 200880
+      },
+      "KYBER_GREEN": {
+        "cost": 38304000000000,
+        "income": 2392500.0,
+        "craftingSeconds": 200880
+      },
+      "KYBER_BLUE": {
+        "cost": 38304000000000,
+        "income": 2591875.0,
+        "craftingSeconds": 200880
+      },
+      "KYBER_PURPLE": {
+        "cost": 38304000000000,
+        "income": 2871000.0,
+        "craftingSeconds": 200880
       }
     }
   },
@@ -2142,6 +3282,26 @@
         "cost": 846000000000,
         "income": 193600,
         "craftingSeconds": 70470
+      },
+      "KYBER": {
+        "cost": 30240000000000,
+        "income": 605000.0,
+        "craftingSeconds": 169128
+      },
+      "KYBER_GREEN": {
+        "cost": 30240000000000,
+        "income": 1815000.0,
+        "craftingSeconds": 169128
+      },
+      "KYBER_BLUE": {
+        "cost": 30240000000000,
+        "income": 1966250.0,
+        "craftingSeconds": 169128
+      },
+      "KYBER_PURPLE": {
+        "cost": 30240000000000,
+        "income": 2178000.0,
+        "craftingSeconds": 169128
       }
     }
   },
@@ -2179,6 +3339,26 @@
         "cost": 1410000000000,
         "income": 316800,
         "craftingSeconds": 96930
+      },
+      "KYBER": {
+        "cost": 50400000000000,
+        "income": 990000.0,
+        "craftingSeconds": 232632
+      },
+      "KYBER_GREEN": {
+        "cost": 50400000000000,
+        "income": 2970000.0,
+        "craftingSeconds": 232632
+      },
+      "KYBER_BLUE": {
+        "cost": 50400000000000,
+        "income": 3217500.0,
+        "craftingSeconds": 232632
+      },
+      "KYBER_PURPLE": {
+        "cost": 50400000000000,
+        "income": 3564000.0,
+        "craftingSeconds": 232632
       }
     }
   },
@@ -2216,6 +3396,26 @@
         "cost": 1184400000000,
         "income": 286000,
         "craftingSeconds": 90315
+      },
+      "KYBER": {
+        "cost": 42336000000000,
+        "income": 893750.0,
+        "craftingSeconds": 216756
+      },
+      "KYBER_GREEN": {
+        "cost": 42336000000000,
+        "income": 2681250.0,
+        "craftingSeconds": 216756
+      },
+      "KYBER_BLUE": {
+        "cost": 42336000000000,
+        "income": 2904687.5,
+        "craftingSeconds": 216756
+      },
+      "KYBER_PURPLE": {
+        "cost": 42336000000000,
+        "income": 3217500.0,
+        "craftingSeconds": 216756
       }
     }
   },
@@ -2253,6 +3453,26 @@
         "cost": 1071600000000,
         "income": 255200,
         "craftingSeconds": 83700
+      },
+      "KYBER": {
+        "cost": 38304000000000,
+        "income": 797500.0,
+        "craftingSeconds": 200880
+      },
+      "KYBER_GREEN": {
+        "cost": 38304000000000,
+        "income": 2392500.0,
+        "craftingSeconds": 200880
+      },
+      "KYBER_BLUE": {
+        "cost": 38304000000000,
+        "income": 2591875.0,
+        "craftingSeconds": 200880
+      },
+      "KYBER_PURPLE": {
+        "cost": 38304000000000,
+        "income": 2871000.0,
+        "craftingSeconds": 200880
       }
     }
   },
@@ -2290,6 +3510,26 @@
         "cost": 1410000000000,
         "income": 316800,
         "craftingSeconds": 96930
+      },
+      "KYBER": {
+        "cost": 50400000000000,
+        "income": 990000.0,
+        "craftingSeconds": 232632
+      },
+      "KYBER_GREEN": {
+        "cost": 50400000000000,
+        "income": 2970000.0,
+        "craftingSeconds": 232632
+      },
+      "KYBER_BLUE": {
+        "cost": 50400000000000,
+        "income": 3217500.0,
+        "craftingSeconds": 232632
+      },
+      "KYBER_PURPLE": {
+        "cost": 50400000000000,
+        "income": 3564000.0,
+        "craftingSeconds": 232632
       }
     }
   },
@@ -2643,6 +3883,26 @@
         "cost": 7800000,
         "income": 2304,
         "craftingSeconds": 2814.48
+      },
+      "KYBER": {
+        "cost": 11700000,
+        "income": 2534.4,
+        "craftingSeconds": 5628.96
+      },
+      "KYBER_GREEN": {
+        "cost": 11700000,
+        "income": 7603.2,
+        "craftingSeconds": 5628.96
+      },
+      "KYBER_BLUE": {
+        "cost": 11700000,
+        "income": 8236.8,
+        "craftingSeconds": 5628.96
+      },
+      "KYBER_PURPLE": {
+        "cost": 11700000,
+        "income": 9123.84,
+        "craftingSeconds": 5628.96
       }
     }
   },
@@ -2686,6 +3946,26 @@
         "cost": 7800000,
         "income": 2304,
         "craftingSeconds": 2814.48
+      },
+      "KYBER": {
+        "cost": 11700000,
+        "income": 2534.4,
+        "craftingSeconds": 5628.96
+      },
+      "KYBER_GREEN": {
+        "cost": 11700000,
+        "income": 7603.2,
+        "craftingSeconds": 5628.96
+      },
+      "KYBER_BLUE": {
+        "cost": 11700000,
+        "income": 8236.8,
+        "craftingSeconds": 5628.96
+      },
+      "KYBER_PURPLE": {
+        "cost": 11700000,
+        "income": 9123.84,
+        "craftingSeconds": 5628.96
       }
     }
   },
@@ -2729,6 +4009,26 @@
         "cost": 7800000,
         "income": 2304,
         "craftingSeconds": 2814.48
+      },
+      "KYBER": {
+        "cost": 11700000,
+        "income": 2534.4,
+        "craftingSeconds": 5628.96
+      },
+      "KYBER_GREEN": {
+        "cost": 11700000,
+        "income": 7603.2,
+        "craftingSeconds": 5628.96
+      },
+      "KYBER_BLUE": {
+        "cost": 11700000,
+        "income": 8236.8,
+        "craftingSeconds": 5628.96
+      },
+      "KYBER_PURPLE": {
+        "cost": 11700000,
+        "income": 9123.84,
+        "craftingSeconds": 5628.96
       }
     }
   },
@@ -2772,6 +4072,26 @@
         "cost": 10200000000,
         "income": 86400,
         "craftingSeconds": 23284.8
+      },
+      "KYBER": {
+        "cost": 61200000000,
+        "income": 95040,
+        "craftingSeconds": 46569.6
+      },
+      "KYBER_GREEN": {
+        "cost": 61200000000,
+        "income": 285120,
+        "craftingSeconds": 46569.6
+      },
+      "KYBER_BLUE": {
+        "cost": 61200000000,
+        "income": 308880.0,
+        "craftingSeconds": 46569.6
+      },
+      "KYBER_PURPLE": {
+        "cost": 61200000000,
+        "income": 342144.0,
+        "craftingSeconds": 46569.6
       }
     }
   },
@@ -2815,6 +4135,26 @@
         "cost": 10200000000,
         "income": 86400,
         "craftingSeconds": 23284.8
+      },
+      "KYBER": {
+        "cost": 61200000000,
+        "income": 95040,
+        "craftingSeconds": 46569.6
+      },
+      "KYBER_GREEN": {
+        "cost": 61200000000,
+        "income": 285120,
+        "craftingSeconds": 46569.6
+      },
+      "KYBER_BLUE": {
+        "cost": 61200000000,
+        "income": 308880.0,
+        "craftingSeconds": 46569.6
+      },
+      "KYBER_PURPLE": {
+        "cost": 61200000000,
+        "income": 342144.0,
+        "craftingSeconds": 46569.6
       }
     }
   },
@@ -2858,6 +4198,26 @@
         "cost": 9937500000,
         "income": 82800,
         "craftingSeconds": 22337.1
+      },
+      "KYBER": {
+        "cost": 59625000000,
+        "income": 91080,
+        "craftingSeconds": 44674.2
+      },
+      "KYBER_GREEN": {
+        "cost": 59625000000,
+        "income": 273240,
+        "craftingSeconds": 44674.2
+      },
+      "KYBER_BLUE": {
+        "cost": 59625000000,
+        "income": 296010.0,
+        "craftingSeconds": 44674.2
+      },
+      "KYBER_PURPLE": {
+        "cost": 59625000000,
+        "income": 327888.0,
+        "craftingSeconds": 44674.2
       }
     }
   },
@@ -2901,6 +4261,26 @@
         "cost": 9900000000,
         "income": 86400,
         "craftingSeconds": 23284.8
+      },
+      "KYBER": {
+        "cost": 59400000000,
+        "income": 95040,
+        "craftingSeconds": 46569.6
+      },
+      "KYBER_GREEN": {
+        "cost": 59400000000,
+        "income": 285120,
+        "craftingSeconds": 46569.6
+      },
+      "KYBER_BLUE": {
+        "cost": 59400000000,
+        "income": 308880.0,
+        "craftingSeconds": 46569.6
+      },
+      "KYBER_PURPLE": {
+        "cost": 59400000000,
+        "income": 342144.0,
+        "craftingSeconds": 46569.6
       }
     }
   },
@@ -2944,6 +4324,26 @@
         "cost": 1044000000000,
         "income": 337500,
         "craftingSeconds": 47925
+      },
+      "KYBER": {
+        "cost": 6264000000000,
+        "income": 371250,
+        "craftingSeconds": 95850.0
+      },
+      "KYBER_GREEN": {
+        "cost": 6264000000000,
+        "income": 1113750,
+        "craftingSeconds": 95850.0
+      },
+      "KYBER_BLUE": {
+        "cost": 6264000000000,
+        "income": 1206562.5,
+        "craftingSeconds": 95850.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 6264000000000,
+        "income": 1336500.0,
+        "craftingSeconds": 95850.0
       }
     }
   },
@@ -2987,6 +4387,26 @@
         "cost": 1160000000000,
         "income": 360000,
         "craftingSeconds": 51084
+      },
+      "KYBER": {
+        "cost": 6960000000000,
+        "income": 396000,
+        "craftingSeconds": 102168
+      },
+      "KYBER_GREEN": {
+        "cost": 6960000000000,
+        "income": 1188000,
+        "craftingSeconds": 102168
+      },
+      "KYBER_BLUE": {
+        "cost": 6960000000000,
+        "income": 1287000.0,
+        "craftingSeconds": 102168
+      },
+      "KYBER_PURPLE": {
+        "cost": 6960000000000,
+        "income": 1425600.0,
+        "craftingSeconds": 102168
       }
     }
   },
@@ -3030,6 +4450,26 @@
         "cost": 1160000000000,
         "income": 360000,
         "craftingSeconds": 51084
+      },
+      "KYBER": {
+        "cost": 6960000000000,
+        "income": 396000,
+        "craftingSeconds": 102168
+      },
+      "KYBER_GREEN": {
+        "cost": 6960000000000,
+        "income": 1188000,
+        "craftingSeconds": 102168
+      },
+      "KYBER_BLUE": {
+        "cost": 6960000000000,
+        "income": 1287000.0,
+        "craftingSeconds": 102168
+      },
+      "KYBER_PURPLE": {
+        "cost": 6960000000000,
+        "income": 1425600.0,
+        "craftingSeconds": 102168
       }
     }
   },
@@ -3073,6 +4513,26 @@
         "cost": 1160000000000,
         "income": 360000,
         "craftingSeconds": 51084
+      },
+      "KYBER": {
+        "cost": 6960000000000,
+        "income": 396000,
+        "craftingSeconds": 102168
+      },
+      "KYBER_GREEN": {
+        "cost": 6960000000000,
+        "income": 1188000,
+        "craftingSeconds": 102168
+      },
+      "KYBER_BLUE": {
+        "cost": 6960000000000,
+        "income": 1287000.0,
+        "craftingSeconds": 102168
+      },
+      "KYBER_PURPLE": {
+        "cost": 6960000000000,
+        "income": 1425600.0,
+        "craftingSeconds": 102168
       }
     }
   },
@@ -3116,6 +4576,26 @@
         "cost": 10080000000000,
         "income": 1575000,
         "craftingSeconds": 144360
+      },
+      "KYBER": {
+        "cost": 60480000000000,
+        "income": 1732500.0,
+        "craftingSeconds": 288720
+      },
+      "KYBER_GREEN": {
+        "cost": 60480000000000,
+        "income": 5197500.0,
+        "craftingSeconds": 288720
+      },
+      "KYBER_BLUE": {
+        "cost": 60480000000000,
+        "income": 5630625.0,
+        "craftingSeconds": 288720
+      },
+      "KYBER_PURPLE": {
+        "cost": 60480000000000,
+        "income": 6237000.0,
+        "craftingSeconds": 288720
       }
     }
   },
@@ -3159,6 +4639,26 @@
         "cost": 8960000000000,
         "income": 1425000,
         "craftingSeconds": 134280
+      },
+      "KYBER": {
+        "cost": 53760000000000,
+        "income": 1567500.0,
+        "craftingSeconds": 268560
+      },
+      "KYBER_GREEN": {
+        "cost": 53760000000000,
+        "income": 4702500.0,
+        "craftingSeconds": 268560
+      },
+      "KYBER_BLUE": {
+        "cost": 53760000000000,
+        "income": 5094375.0,
+        "craftingSeconds": 268560
+      },
+      "KYBER_PURPLE": {
+        "cost": 53760000000000,
+        "income": 5643000.0,
+        "craftingSeconds": 268560
       }
     }
   },
@@ -3170,38 +4670,58 @@
     "variants": {
       "DEFAULT": {
         "cost": 340000000,
-        "income": 12600,
+        "income": 11700.0,
         "craftingSeconds": 7600
       },
       "GOLD": {
         "cost": 1360000000,
-        "income": 25200,
+        "income": 23400.0,
         "craftingSeconds": 30400
       },
       "DIAMOND": {
         "cost": 2720000000,
-        "income": 50400,
+        "income": 46800.0,
         "craftingSeconds": 45600
       },
       "RAINBOW": {
         "cost": 8160000000,
-        "income": 100800,
+        "income": 93600.0,
         "craftingSeconds": 60800
       },
       "BESKAR": {
         "cost": 272000000000,
-        "income": 201600,
+        "income": 187200.0,
         "craftingSeconds": 76000
       },
       "GALACTIC": {
         "cost": 1598000000000,
-        "income": 554400,
+        "income": 514800.0,
         "craftingSeconds": 106400
       },
       "STELLAR": {
         "cost": 9520000000000,
-        "income": 1575000,
+        "income": 1462500.0,
         "craftingSeconds": 136800
+      },
+      "KYBER": {
+        "cost": 57120000000000,
+        "income": 1608750.0,
+        "craftingSeconds": 273600
+      },
+      "KYBER_GREEN": {
+        "cost": 57120000000000,
+        "income": 4826250.0,
+        "craftingSeconds": 273600
+      },
+      "KYBER_BLUE": {
+        "cost": 57120000000000,
+        "income": 5228437.5,
+        "craftingSeconds": 273600
+      },
+      "KYBER_PURPLE": {
+        "cost": 57120000000000,
+        "income": 5791500.0,
+        "craftingSeconds": 273600
       }
     }
   },
@@ -3245,6 +4765,26 @@
         "cost": 10080000000000,
         "income": 1500000,
         "craftingSeconds": 139320
+      },
+      "KYBER": {
+        "cost": 60480000000000,
+        "income": 1650000.0,
+        "craftingSeconds": 278640
+      },
+      "KYBER_GREEN": {
+        "cost": 60480000000000,
+        "income": 4950000.0,
+        "craftingSeconds": 278640
+      },
+      "KYBER_BLUE": {
+        "cost": 60480000000000,
+        "income": 5362500.0,
+        "craftingSeconds": 278640
+      },
+      "KYBER_PURPLE": {
+        "cost": 60480000000000,
+        "income": 5940000.0,
+        "craftingSeconds": 278640
       }
     }
   },
@@ -3288,6 +4828,26 @@
         "cost": 8960000000000,
         "income": 1425000,
         "craftingSeconds": 134280
+      },
+      "KYBER": {
+        "cost": 53760000000000,
+        "income": 1567500.0,
+        "craftingSeconds": 268560
+      },
+      "KYBER_GREEN": {
+        "cost": 53760000000000,
+        "income": 4702500.0,
+        "craftingSeconds": 268560
+      },
+      "KYBER_BLUE": {
+        "cost": 53760000000000,
+        "income": 5094375.0,
+        "craftingSeconds": 268560
+      },
+      "KYBER_PURPLE": {
+        "cost": 53760000000000,
+        "income": 5643000.0,
+        "craftingSeconds": 268560
       }
     }
   },
@@ -3331,6 +4891,26 @@
         "cost": 10080000000000,
         "income": 1500000,
         "craftingSeconds": 139320
+      },
+      "KYBER": {
+        "cost": 60480000000000,
+        "income": 1650000.0,
+        "craftingSeconds": 278640
+      },
+      "KYBER_GREEN": {
+        "cost": 60480000000000,
+        "income": 4950000.0,
+        "craftingSeconds": 278640
+      },
+      "KYBER_BLUE": {
+        "cost": 60480000000000,
+        "income": 5362500.0,
+        "craftingSeconds": 278640
+      },
+      "KYBER_PURPLE": {
+        "cost": 60480000000000,
+        "income": 5940000.0,
+        "craftingSeconds": 278640
       }
     }
   },
@@ -3401,6 +4981,34 @@
         "protocolCpsBonusPercent": 56,
         "protocolCraftingBonusPercent": 840,
         "sellUpgradeChips": 21
+      },
+      "KYBER": {
+        "cost": 6480000.0,
+        "income": 492.8,
+        "craftingSeconds": 1964.52,
+        "protocolCpsBonusPercent": 64,
+        "protocolCraftingBonusPercent": 960
+      },
+      "KYBER_GREEN": {
+        "cost": 6480000.0,
+        "income": 1478.4,
+        "craftingSeconds": 1964.52,
+        "protocolCpsBonusPercent": 64,
+        "protocolCraftingBonusPercent": 960
+      },
+      "KYBER_BLUE": {
+        "cost": 6480000.0,
+        "income": 1601.6,
+        "craftingSeconds": 1964.52,
+        "protocolCpsBonusPercent": 64,
+        "protocolCraftingBonusPercent": 960
+      },
+      "KYBER_PURPLE": {
+        "cost": 6480000.0,
+        "income": 1774.08,
+        "craftingSeconds": 1964.52,
+        "protocolCpsBonusPercent": 64,
+        "protocolCraftingBonusPercent": 960
       }
     },
     "portraits": {
@@ -3484,6 +5092,34 @@
         "protocolCpsBonusPercent": 84,
         "protocolCraftingBonusPercent": 1260,
         "sellUpgradeChips": 45
+      },
+      "KYBER": {
+        "cost": 31500000000.0,
+        "income": 9240,
+        "craftingSeconds": 7713.9,
+        "protocolCpsBonusPercent": 96,
+        "protocolCraftingBonusPercent": 1440
+      },
+      "KYBER_GREEN": {
+        "cost": 31500000000.0,
+        "income": 27720,
+        "craftingSeconds": 7713.9,
+        "protocolCpsBonusPercent": 96,
+        "protocolCraftingBonusPercent": 1440
+      },
+      "KYBER_BLUE": {
+        "cost": 31500000000.0,
+        "income": 30030.0,
+        "craftingSeconds": 7713.9,
+        "protocolCpsBonusPercent": 96,
+        "protocolCraftingBonusPercent": 1440
+      },
+      "KYBER_PURPLE": {
+        "cost": 31500000000.0,
+        "income": 33264.0,
+        "craftingSeconds": 7713.9,
+        "protocolCpsBonusPercent": 96,
+        "protocolCraftingBonusPercent": 1440
       }
     },
     "portraits": {
@@ -3567,6 +5203,34 @@
         "protocolCpsBonusPercent": 112,
         "protocolCraftingBonusPercent": 1680,
         "sellUpgradeChips": 99
+      },
+      "KYBER": {
+        "cost": 3219000000000.0,
+        "income": 148500,
+        "craftingSeconds": 57942.0,
+        "protocolCpsBonusPercent": 128,
+        "protocolCraftingBonusPercent": 1920
+      },
+      "KYBER_GREEN": {
+        "cost": 3219000000000.0,
+        "income": 445500,
+        "craftingSeconds": 57942.0,
+        "protocolCpsBonusPercent": 128,
+        "protocolCraftingBonusPercent": 1920
+      },
+      "KYBER_BLUE": {
+        "cost": 3219000000000.0,
+        "income": 482625.0,
+        "craftingSeconds": 57942.0,
+        "protocolCpsBonusPercent": 128,
+        "protocolCraftingBonusPercent": 1920
+      },
+      "KYBER_PURPLE": {
+        "cost": 3219000000000.0,
+        "income": 534600.0,
+        "craftingSeconds": 57942.0,
+        "protocolCpsBonusPercent": 128,
+        "protocolCraftingBonusPercent": 1920
       }
     },
     "portraits": {
@@ -3650,6 +5314,34 @@
         "protocolCpsBonusPercent": 140,
         "protocolCraftingBonusPercent": 2100,
         "sellUpgradeChips": 207
+      },
+      "KYBER": {
+        "cost": 67200000000000.0,
+        "income": 550000.0,
+        "craftingSeconds": 177840,
+        "protocolCpsBonusPercent": 160,
+        "protocolCraftingBonusPercent": 2400
+      },
+      "KYBER_GREEN": {
+        "cost": 67200000000000.0,
+        "income": 1650000.0,
+        "craftingSeconds": 177840,
+        "protocolCpsBonusPercent": 160,
+        "protocolCraftingBonusPercent": 2400
+      },
+      "KYBER_BLUE": {
+        "cost": 67200000000000.0,
+        "income": 1787500.0,
+        "craftingSeconds": 177840,
+        "protocolCpsBonusPercent": 160,
+        "protocolCraftingBonusPercent": 2400
+      },
+      "KYBER_PURPLE": {
+        "cost": 67200000000000.0,
+        "income": 1980000.0,
+        "craftingSeconds": 177840,
+        "protocolCpsBonusPercent": 160,
+        "protocolCraftingBonusPercent": 2400
       }
     },
     "portraits": {

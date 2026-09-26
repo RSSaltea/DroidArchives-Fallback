@@ -551,5 +551,95 @@
       { "droidName": "IG", "variant": "STELLAR" },
       { "droidName": "SNOW MOUSE", "variant": "STELLAR" }
     ]
+  },
+  {
+    "to": 36,
+    "creditsCost": 1200000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "BDX EXPLORER",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "2BB",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "A-LT",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 37,
+    "creditsCost": 2500000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "B1 HEAVY",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "GROUNDMECH",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "BB",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 38,
+    "creditsCost": 4500000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "R2",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "R6",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "BB9",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 39,
+    "creditsCost": 8000000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "R7",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "PROTO-ROLLER",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "IG",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 40,
+    "creditsCost": 15000000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "SNOW MOUSE",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "DRFT-R",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "CYCLENS",
+        "variant": "KYBER"
+      }
+    ]
   }
 ]

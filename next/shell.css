@@ -54,8 +54,8 @@ html[data-ui-style="next"] footer{min-height:36px;padding:8px 14px;background:va
 html[data-ui-style="next"] footer button{background:var(--panel);border:1px solid var(--line);color:var(--text-soft);border-radius:var(--radius);padding:2px 8px;font-size:11px;cursor:pointer}
 
 /* Base settings drawer (the old sidebar's controls) */
-html[data-ui-style="next"][data-ui-fixed] .sidebar{display:block;position:fixed;top:0;right:0;bottom:0;left:auto;width:min(400px,94vw);padding:14px 16px 24px;background:var(--panel);border-left:1px solid var(--line);border-right:0;box-shadow:-12px 0 32px rgba(0,0,0,.45);z-index:70;overflow:auto;transform:translateX(102%);transition:transform .18s ease;visibility:visible;opacity:1}
-html[data-ui-style="next"][data-ui-fixed] .sidebar.mobile-open{transform:none}
+html[data-ui-style="next"][data-ui-fixed] .sidebar{display:block;position:fixed;top:0;right:0;bottom:0;left:auto;width:min(400px,94vw);padding:14px 16px 24px;background:var(--panel);border-left:1px solid var(--line);border-right:0;box-shadow:-12px 0 32px rgba(0,0,0,.45);z-index:70;overflow:auto;transform:translateX(102%);transition:transform .18s ease,visibility 0s linear .18s;visibility:hidden;opacity:1}
+html[data-ui-style="next"][data-ui-fixed] .sidebar.mobile-open{transform:none;visibility:visible;transition:transform .18s ease,visibility 0s}
 html[data-ui-style="next"] .drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 html[data-ui-style="next"] .drawer-head .side-title{margin:0;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
 html[data-ui-style="next"] .drawer-close{width:28px;height:28px;border-radius:var(--radius);background:var(--panel-2);border:1px solid var(--line);color:var(--text);font-size:16px;line-height:1;cursor:pointer}

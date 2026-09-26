@@ -20,7 +20,7 @@ const server=http.createServer((req,res)=>{
   else if(process.env.BEAM_WIDTH)await page.route('**/optimise-route.js*',r=>r.fulfill({contentType:'text/javascript',body:fs.readFileSync(path.join(root,'optimise-route.js'),'utf8').replace('options.beamWidth || 64',`options.beamWidth || ${Number(process.env.BEAM_WIDTH)}`)}));
   await page.goto(`http://127.0.0.1:${server.address().port}/#/base`);await page.waitForFunction(()=>window.randomTest?.state.droids.length);
   for(const seed of (process.env.SEEDS||'3501,3502,3503,3504,3505,3506,3507,3508').split(',').map(Number)){
-   const result=await page.evaluate(({seed,stress})=>{
+   const result=await page.evaluate(({seed,stress,kyber})=>{
     const t=window.randomTest;t.applyProfileData(t.blankProfileData());
     let rng=seed;const random=()=>((rng=Math.imul(rng,1664525)+1013904223>>>0)/4294967296);
     const pick=xs=>xs[Math.floor(random()*xs.length)];
@@ -29,7 +29,7 @@ const server=http.createServer((req,res)=>{
     const pool=t.state.droids.filter(d=>(stress||!d.fusion)&&['LEGENDARY','MYTHIC'].includes(d.rarity)&&['WORKER','ASTROMECH','BATTLE'].includes(d.type));
     const fusionNames=['RIV-3T','LUG-G','AXI-POD','SRV-O','X-ONK','RO-TOR'];
     const rows=[];
-    const add=(station,slot,d,extra={})=>{const variants=['GALACTIC','STELLAR'].filter(v=>d.variants[v]);if(!variants.length)throw Error('Missing high variants '+d.name);rows.push({name:d.name,variant:pick(variants),qty:1,preferred:station,preferredSlot:slot,built:true,...extra});};
+    const add=(station,slot,d,extra={})=>{const variants=(kyber?['GALACTIC','STELLAR','KYBER','KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE']:['GALACTIC','STELLAR']).filter(v=>d.variants[v]);if(!variants.length)throw Error('Missing high variants '+d.name);rows.push({name:d.name,variant:pick(variants),qty:1,preferred:station,preferredSlot:slot,built:true,...extra});};
     // Mostly working in their own room, with some cross-room occupants and
     // upgrades waiting in storage or finished tanks. Preserve real capacities.
     for(const station of ['WORKER','ASTROMECH','BATTLE'])for(const slot of t.stationSlotIndices(station)){
@@ -51,7 +51,7 @@ const server=http.createServer((req,res)=>{
     const visits=steps.filter((s,i)=>!i||s.visit!==steps[i-1].visit).map(s=>s.at);
     const distance=visits.reduce((sum,r,i)=>sum+(i?rules.distance(visits[i-1],r):0),0);
     return {seed,profile,base,targetBefore,projected,steps,complete:projected.planComplete,issues:projected.planIssues,validation,unchanged:before===JSON.stringify(t.state.owned),targetIncome:t.incomeForPlaced(targetBefore.placed),finalIncome:t.incomeForPlaced(projected.placed),visits,distance,commands:steps.filter(s=>s.type!=='note').length,buffers:steps.filter(s=>s.buffer).length,assumed:steps.filter(s=>s.assumed).length,ms};
-   },{seed,stress:process.env.STRESS==='1'});
+   },{seed,stress:process.env.STRESS==='1',kyber:process.env.KYBER==='1'});
    reports.push(result);
    console.log(JSON.stringify({seed,complete:result.complete,units:result.base.placed.length,stops:result.visits.length,commands:result.commands,buffers:result.buffers,assumed:result.assumed,distance:Math.round(result.distance*100)/100,ms:Math.round(result.ms),visits:result.visits,issues:result.issues}));
    assert(result.unchanged,'planning changed the roster');

@@ -1,0 +1,19 @@
+.kyber-guide{max-width:1000px;margin-inline:auto;line-height:1.65}.kyber-guide h2,.kyber-detail h2{margin-top:1.7em}.kyber-links{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}.kyber-table{max-width:100%;overflow-x:auto;margin:16px 0}.kyber-table table{width:100%;min-width:360px}.kyber-table th,.kyber-table td{padding:10px 14px;text-align:left}.kyber-detail{margin-block:24px;padding:18px;border:1px solid #7481a655;border-radius:12px}.kyber-update-link{display:block;text-decoration:none;margin-bottom:20px}.variant-kyber,.quality-kyber{color:#a4b7cf}.variant-kyber_green,.quality-kyber_green{color:#62d697}.variant-kyber_blue,.quality-kyber_blue{color:#69b9ff}.variant-kyber_purple,.quality-kyber_purple{color:#c397ff}[data-theme="light"] .variant-kyber_green{color:#176b3e}[data-theme="light"] .variant-kyber_blue{color:#165d99}[data-theme="light"] .variant-kyber_purple{color:#7232a3}
+
+/* Manual Rebirth tracking has eight tiers; activation colours share Kyber. */
+.rebirth-quality-strip{grid-template-columns:repeat(4,minmax(0,1fr))}
+.rebirth-quality-option{font-size:9px}
+.rebirth-quality-option.quality-kyber{color:#d4f6ff;border-color:#76d5e8;background:linear-gradient(135deg,#263444,#345c66)}
+
+#app .kyber-guide{max-width:1120px;padding:clamp(20px,3vw,44px);border-radius:16px;box-sizing:border-box}
+#app .kyber-guide h1{font-size:clamp(28px,3vw,40px);line-height:1.15;margin:10px 0 18px}
+#app .kyber-guide .lead{font-size:17px;max-width:800px;line-height:1.7}
+#app .kyber-guide h2{font-size:21px;line-height:1.35;padding-bottom:12px;margin-top:36px}
+.kyber-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding:0;list-style:none;margin:24px 0}
+.kyber-steps li{padding:20px;border:1px solid var(--line,#7481a655);border-radius:10px;background:var(--panel)}
+.kyber-steps strong{display:block;font-size:16px;margin-bottom:10px}.kyber-steps span{display:block;line-height:1.7}
+.kyber-example{padding:18px 20px;border-left:3px solid #76d5e8;background:color-mix(in srgb,var(--panel) 88%,#76d5e8)}
+.kyber-evidence{font-size:13px;color:var(--muted);line-height:1.7}.kyber-swatch{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:9px}.kyber-swatch.green{background:#62d697}.kyber-swatch.blue{background:#69b9ff}.kyber-swatch.purple{background:#c397ff}
+@media(max-width:760px){.kyber-steps{grid-template-columns:1fr}#app .kyber-guide{padding:20px 16px}.kyber-table th,.kyber-table td{padding:10px}.kyber-links .btn{white-space:normal}}
+
+.rebirth-quality-option.quality-kyber{color:#baffca;border-color:#48e478;background:linear-gradient(135deg,#123622,#246b35);box-shadow:inset 0 0 9px #57ed7340,0 0 7px #39dc5140}

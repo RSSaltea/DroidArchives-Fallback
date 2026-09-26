@@ -23,8 +23,8 @@
       "name": "Luck Boost",
       "category": "boosts",
       "icon": "assets/nova-shop/SandcrawlerLuckBoost.png",
-      "vbucksCost": 500,
-      "novaCost": 40,
+      "vbucksCost": 400,
+      "novaCost": 200,
       "novaUpgradeId": "luck-boost-token",
       "durationMinutes": 15,
       "description": "Increases the odds of higher-rarity droids appearing on the Sandcrawler conveyor.",
@@ -42,10 +42,10 @@
       "category": "boosts",
       "icon": "assets/nova-shop/CraftingBoost.png",
       "vbucksCost": 250,
-      "novaCost": 30,
+      "novaCost": 150,
       "novaUpgradeId": "crafting-boost-token",
       "durationMinutes": 15,
-      "description": "Increases Droid Depot crafting speed and Pickaxe level by 50% for everyone in the session."
+      "description": "Boosts Droid Depot crafting speed and Pickaxe level for everyone in the session for 15 minutes."
     },
     {
       "id": "companion-pack",
@@ -142,8 +142,8 @@
       "name": "Beskar Surge",
       "category": "surges",
       "icon": "assets/nova-shop/SurgeBoost.png",
-      "vbucksCost": 300,
-      "novaCost": 30,
+      "vbucksCost": 200,
+      "novaCost": 100,
       "novaUpgradeId": "beskar-surge-token",
       "durationMinutes": 5,
       "description": "Sends a wave of Beskar Variant energy across the Sandcrawler conveyor every 30 seconds.",
@@ -157,8 +157,8 @@
       "name": "Galactic Surge",
       "category": "surges",
       "icon": "assets/nova-shop/SurgeBoost.png",
-      "vbucksCost": 400,
-      "novaCost": 40,
+      "vbucksCost": 300,
+      "novaCost": 150,
       "novaUpgradeId": "galactic-surge-token",
       "durationMinutes": 5,
       "description": "Sends a wave of Galactic Variant energy across the Sandcrawler conveyor every 30 seconds.",
@@ -197,6 +197,30 @@
       "novaLevels": {
         "fusion-tank": 2
       }
+    },
+    {
+      "id": "stellar-surge",
+      "name": "Stellar Surge",
+      "category": "surges",
+      "icon": "assets/nova-shop/SurgeBoost.png",
+      "durationMinutes": 5,
+      "description": "Sends Stellar energy across the conveyor for 5 minutes.",
+      "details": [],
+      "vbucksCost": 400,
+      "novaCost": 300,
+      "novaUpgradeId": "stellar-surge-token"
+    },
+    {
+      "id": "kyber-surge",
+      "name": "Kyber Surge",
+      "category": "surges",
+      "icon": "assets/nova-shop/SurgeBoost.png",
+      "durationMinutes": 5,
+      "description": "Sends Kyber energy across the conveyor for 5 minutes.",
+      "details": [],
+      "vbucksCost": 500,
+      "novaCost": 450,
+      "novaUpgradeId": "kyber-surge-token"
     }
   ]
 }

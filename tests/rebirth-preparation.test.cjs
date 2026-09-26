@@ -3,8 +3,8 @@ const root=path.resolve(__dirname,'..'),src=fs.readFileSync(path.join(root,'app.
 const line=key=>src.split(/\r?\n/).find(s=>s.startsWith(key));
 const fn=name=>{const start=src.indexOf('function '+name+'(');assert(start>=0,name);let depth=0,end=src.indexOf('{',start);for(;end<src.length;end++){if(src[end]==='{')depth++;if(src[end]==='}'&&!--depth)return src.slice(start,end+1)}};
 const state={droids:JSON.parse(fs.readFileSync(path.join(root,'data/droids.json'))),fusion:JSON.parse(fs.readFileSync(path.join(root,'data/fusion.json'))),cycle:0,rebirth:34,rebirths:{0:[{to:35,requiredDroids:[{droidName:'CYCLENS',variant:'STELLAR'},{droidName:'R7',variant:'STELLAR'},{droidName:'DRFT-R',variant:'STELLAR'}]}]}};
-const sb={state,console,novaLevelFor:()=>4,isBuilding:u=>['BUILD','FUSION_BUILD'].includes(u.station)&&!u.built};vm.createContext(sb);
-for(const name of ['VARIANTS','RARITY_LADDER','isIconic','isFusion','fusionDroid','fusionRecipes','fusionKey','fusionRecipeFor','variantStep','nextVariant','nextRarity','rarityStep','lowestVariant','droidRarity','CHIP_COSTS','baseChipSellValue','chipSellBonusMultiplier','chipSellValue','knownNumber'])vm.runInContext(line('const '+name+'='),sb);
+const sb={state,console,kyberIsReleased:()=>true,novaLevelFor:()=>4,isBuilding:u=>['BUILD','FUSION_BUILD'].includes(u.station)&&!u.built};vm.createContext(sb);
+for(const name of ['ALL_VARIANTS','VARIANTS','OWNED_VARIANTS','baseVariant','variantRank','RARITY_LADDER','isIconic','isFusion','fusionDroid','fusionRecipes','fusionKey','fusionRecipeFor','variantStep','nextVariant','nextRarity','rarityStep','lowestVariant','droidRarity','CHIP_COSTS','baseChipSellValue','chipSellBonusMultiplier','chipSellValue','knownNumber'])vm.runInContext(line('const '+name+'=')||line('let '+name+'='),sb);
 const sellStart=src.indexOf('const CHIP_SELL_VALUES=');vm.runInContext(src.slice(sellStart,src.indexOf('\n};',sellStart)+3),sb);
 for(const name of ['fusionOutcome','chipsToVariant','nextRebirthHoldBacks','rebirthFusionOptions','parseGalacticNumber','rebirthFusionCreditBudget'])vm.runInContext(fn(name),sb);
 const run=code=>vm.runInContext(code,sb);

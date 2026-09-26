@@ -20,7 +20,7 @@ function optimise({units,preferred=['CHOPPER'],goals=['pickaxe'],assignments=[],
   droidexGapsAbove:()=>[],droidAttribute:()=> 'boost',
   optimisedRows:placed=>placed
  });
- for(const prefix of ['const COMPANION_GOALS=','const companionGoals=','const companionSlotCount=','const preferredCompanions=']){
+ for(const prefix of ['const ALL_VARIANTS=','const baseVariant=','const variantRank=','const COMPANION_GOALS=','const companionGoals=','const companionSlotCount=','const preferredCompanions=']){
   const line=src.split(/\r?\n/).find(x=>x.startsWith(prefix));assert(line,prefix);vm.runInContext(line,ctx);
  }
  for(const name of ['droidAttributeValue','stabiliseProjectedPlacements','optimisedPlacements','fusionFreesSlots','fusionConsumesAll','optimisedPlacementsPass','planHonoured'])vm.runInContext(fn(name),ctx);

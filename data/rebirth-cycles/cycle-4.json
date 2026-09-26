@@ -551,5 +551,95 @@
       { "droidName": "LOADLIFTER", "variant": "STELLAR" },
       { "droidName": "LEP", "variant": "STELLAR" }
     ]
+  },
+  {
+    "to": 36,
+    "creditsCost": 1200000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "NAV-EX",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "BAL-CORE",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "VECT-ARM",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 37,
+    "creditsCost": 2500000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "SEN-TRI",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "OPTI-POD",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "GUNRUNNER",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 38,
+    "creditsCost": 4500000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "B1 HEAVY",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "GROUNDMECH",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "R7",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 39,
+    "creditsCost": 8000000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "PROTO-ROLLER",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "B2-RP",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "SNOW MOUSE",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 40,
+    "creditsCost": 15000000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "DRFT-R",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "CYCLENS",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "KX",
+        "variant": "KYBER"
+      }
+    ]
   }
 ]

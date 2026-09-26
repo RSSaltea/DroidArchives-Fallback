@@ -51,7 +51,10 @@ const server=http.createServer((req,res)=>{
  assert.equal(types.filter(t=>t==='fuse-in').length,3,JSON.stringify(result.steps));
  assert.equal(types.filter(t=>t==='fuse').length,1);
  assert(!types.includes('note'),JSON.stringify(result.steps));
- assert(types.indexOf('fuse')<types.lastIndexOf('move'),'the batch clears the slots before the moves that need them');
+ // Sending the inputs to the Fusion room is what clears their slots; the Fuse
+ // press itself waits until the droid in its Fusion Build tank has gone to work.
+ assert(types.lastIndexOf('fuse-in')<types.indexOf('move'),'the batch clears the slots before the moves that need them');
+ assert(types.indexOf('fuse')>result.steps.findIndex(s=>s.unit==='SNOW MOUSE GALACTIC'),'the result builds in a tank that has been emptied');
  const toWork=result.steps.find(s=>s.type==='move'&&s.unit==='TRI-TEK STELLAR');
  assert(toWork&&toWork.to==='ASTROMECH',JSON.stringify(toWork));
  // Nothing a fusion did not take is moved into a Build tank, and no swap is asked for.

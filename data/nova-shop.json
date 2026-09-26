@@ -849,7 +849,7 @@
       "name": "Rainbow Surge Token",
       "category": "lobby-boosts",
       "icon": "assets/nova-shop/SurgeBoost.png",
-      "description": "Sends Rainbow Variant energy across the Sandcrawler conveyor every 30 seconds for 5 minutes. Use in the Cantina Shop.",
+      "description": "Unavailable in the current Nova Shop. Existing ownership is retained.",
       "uncapped": true,
       "repeatable": true,
       "costBase": 100,
@@ -860,7 +860,8 @@
           "cost": 100,
           "reward": "One 5-minute Rainbow Surge token"
         }
-      ]
+      ],
+      "unavailable": true
     },
     {
       "id": "beskar-surge-token",
@@ -871,12 +872,12 @@
       "description": "Sends Beskar Variant energy across the Sandcrawler conveyor every 30 seconds for 5 minutes. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
-      "costBase": 150,
+      "costBase": 100,
       "costScale": 0,
       "levels": [
         {
           "level": 1,
-          "cost": 150,
+          "cost": 100,
           "reward": "One 5-minute Beskar Surge token"
         }
       ]
@@ -890,12 +891,12 @@
       "description": "Sends Galactic Variant energy across the Sandcrawler conveyor every 30 seconds for 5 minutes. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
-      "costBase": 300,
+      "costBase": 150,
       "costScale": 0,
       "levels": [
         {
           "level": 1,
-          "cost": 300,
+          "cost": 150,
           "reward": "One 5-minute Galactic Surge token"
         }
       ]
@@ -909,12 +910,12 @@
       "description": "Sends a wave of 'Stellar Variant' energy across the Sandcrawler conveyor every 30 seconds for 5 minutes. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
-      "costBase": 450,
+      "costBase": 300,
       "costScale": 0,
       "levels": [
         {
           "level": 1,
-          "cost": 450,
+          "cost": 300,
           "reward": "One 5-minute Stellar Surge token"
         }
       ]
@@ -1550,17 +1551,17 @@
         {
           "level": 1,
           "cost": 10,
-          "reward": "Unlock Gold Crates · Gold 100%"
+          "reward": "Unlock Gold Crates Â· Gold 100%"
         },
         {
           "level": 2,
           "cost": 25,
-          "reward": "Unlock Diamond Crates · Gold 66.67% · Diamond 33.33%"
+          "reward": "Unlock Diamond Crates Â· Gold 66.67% Â· Diamond 33.33%"
         },
         {
           "level": 3,
           "cost": 50,
-          "reward": "Unlock Rainbow Crates · Gold 60% · Diamond 30% · Rainbow 10%"
+          "reward": "Unlock Rainbow Crates Â· Gold 60% Â· Diamond 30% Â· Rainbow 10%"
         }
       ]
     },
@@ -1948,6 +1949,11 @@
           "level": 4,
           "cost": 36,
           "reward": "Chance to find Rainbow Blueprints"
+        },
+        {
+          "level": 5,
+          "cost": 400,
+          "reward": "Chance to find Beskar Blueprints"
         }
       ]
     },
@@ -2603,6 +2609,25 @@
       ],
       "costBase": 10,
       "costScale": 25
+    },
+    {
+      "id": "kyber-surge-token",
+      "sourceId": "KYBER_SURGE",
+      "name": "Kyber Surge Token",
+      "category": "lobby-boosts",
+      "icon": "assets/nova-shop/SurgeBoost.png",
+      "description": "Sends Kyber energy across the conveyor for 5 minutes. Use in the Cantina Shop.",
+      "uncapped": true,
+      "repeatable": true,
+      "costBase": 450,
+      "costScale": 0,
+      "levels": [
+        {
+          "level": 1,
+          "cost": 450,
+          "reward": "One 5-minute Kyber Surge token"
+        }
+      ]
     }
   ],
   "rebirthRewards": [
@@ -2779,8 +2804,43 @@
       "regularNovaCrystals": 300,
       "creditMultPercent": 758,
       "xpMultPercent": 3790
+    },
+    {
+      "rebirth": 36,
+      "novaCrystals": 407,
+      "regularNovaCrystals": 300,
+      "creditMultPercent": 814,
+      "xpMultPercent": 4070
+    },
+    {
+      "rebirth": 37,
+      "novaCrystals": 436,
+      "regularNovaCrystals": 300,
+      "creditMultPercent": 872,
+      "xpMultPercent": 4360
+    },
+    {
+      "rebirth": 38,
+      "novaCrystals": 466,
+      "regularNovaCrystals": 300,
+      "creditMultPercent": 932,
+      "xpMultPercent": 4660
+    },
+    {
+      "rebirth": 39,
+      "novaCrystals": 497,
+      "regularNovaCrystals": 300,
+      "creditMultPercent": 994,
+      "xpMultPercent": 4970
+    },
+    {
+      "rebirth": 40,
+      "novaCrystals": 529,
+      "regularNovaCrystals": 300,
+      "creditMultPercent": 1058,
+      "xpMultPercent": 5290
     }
   ],
-  "rebirthRewardsNote": "Rebirth is the completed rank. regularNovaCrystals is paid on reaching that rank; novaCrystals is the separate Super Rebirth payout at that rank. Regular rewards and ranks 31-35 updated from player-provided reward table and in-game screenshots, 14 September 2026. Credit and XP percentages for ranks 31-35 supplied by a player, 16 September 2026.",
-  "pricesReviewedAt": "2026-09-18"
+  "rebirthRewardsNote": "Rebirth is the completed rank. regularNovaCrystals is paid on reaching that rank; novaCrystals is the separate Super Rebirth payout at that rank. Regular rewards and ranks 31-35 updated from player-provided reward table and in-game screenshots, 14 September 2026. Credit and XP percentages for ranks 31-35 supplied by a player, 16 September 2026. Ranks 36â€“40 added from v1.32.0 configuration; SRB bonuses use the verified 2% credits and 10% XP per Nova Crystal formulas.",
+  "pricesReviewedAt": "2026-09-26"
 }

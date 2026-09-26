@@ -551,5 +551,95 @@
       { "droidName": "DRFT-R", "variant": "STELLAR" },
       { "droidName": "CYCLENS", "variant": "STELLAR" }
     ]
+  },
+  {
+    "to": 36,
+    "creditsCost": 1200000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "B1 SECURITY",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "R4",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "R9",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 37,
+    "creditsCost": 2500000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "LO",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "TRAK-R",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "ORB-WALKER",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 38,
+    "creditsCost": 4500000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "B2 SUPER",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "B2 HEAVY",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "B2-RP",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 39,
+    "creditsCost": 8000000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "MECHA-DROID",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "CYCLO-GRAV",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "KX",
+        "variant": "KYBER"
+      }
+    ]
+  },
+{
+    "to": 40,
+    "creditsCost": 15000000000000000,
+    "requiredDroids": [
+      {
+        "droidName": "RIC",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "LOADLIFTER",
+        "variant": "KYBER"
+      },
+      {
+        "droidName": "LEP",
+        "variant": "KYBER"
+      }
+    ]
   }
 ]

@@ -35,10 +35,10 @@ function setup(){
  vm.runInContext(src.slice(src.indexOf('const optimisedRows='),src.indexOf('function optimisedPlacements(')),ctx);
  return {state,caps,run:code=>vm.runInContext(code,ctx),ctx};
 }
-test('new source stats, all seven qualities, portraits and C-3PO type',()=>{
+test('new source stats, eight qualities and three activated Kyber forms, portraits and C-3PO type',()=>{
  assert.equal(data.find(d=>d.name==='C-3PO').type,'PROTOCOL');
  assert.equal(new Set(data.map(d=>d.name)).size,data.length);
- for(const name of ['SA-5','LOM','PZ','TDA']){const d=data.find(x=>x.name===name);assert.equal(d.type,'PROTOCOL');assert.equal(Object.keys(d.variants).length,7);for(const p of Object.values(d.portraits))assert(fs.existsSync(path.join(__dirname,'..',p)));}
+ for(const name of ['SA-5','LOM','PZ','TDA']){const d=data.find(x=>x.name===name);assert.equal(d.type,'PROTOCOL');assert.equal(Object.keys(d.variants).length,11);for(const p of Object.values(d.portraits))assert(fs.existsSync(path.join(__dirname,'..',p)));}
  assert.equal(data.find(d=>d.name==='SA-5').variants.STELLAR.protocolCpsBonusPercent,56);
  assert.equal(data.find(d=>d.name==='LOM').variants.DIAMOND.protocolCraftingBonusPercent,540);
 });
