@@ -17,9 +17,25 @@
   <link rel="stylesheet" href="archive-experience.css?v=2026-09-16-card-redesign">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="kyber.css?v=2026-09-26-stats">
+  <link rel="stylesheet" href="kyber.css?v=2026-09-26-portraits">
 </head>
 <body>
+  <!-- Recolour crystal-green pixels while retaining the original metal and accents. -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" aria-hidden="true" style="position:absolute;pointer-events:none"><defs>
+    <filter id="kyber-portrait-blue" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
+      <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -4 4 -1 0 0" result="crystalMask"/>
+      <feColorMatrix in="SourceGraphic" type="hueRotate" values="100" result="coloured"/>
+      <feComposite in="coloured" in2="crystalMask" operator="in" result="crystal"/>
+      <feComposite in="crystal" in2="SourceGraphic" operator="atop"/>
+    </filter>
+    <filter id="kyber-portrait-purple" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
+      <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -4 4 -1 0 0" result="crystalMask"/>
+      <feColorMatrix in="SourceGraphic" type="hueRotate" values="155" result="coloured"/>
+      <feComposite in="coloured" in2="crystalMask" operator="in" result="crystal"/>
+      <feComposite in="crystal" in2="SourceGraphic" operator="atop"/>
+    </filter>
+  </defs></svg>
+
   <header class="site-header">
     <a class="brand" href="#/">
       <span class="brand-mark"><img src="assets/other/icon.png?v=2026-07-20-1" alt="Droid Archives"></span>
@@ -70,6 +86,6 @@
   <footer><span>Unofficial community tool for Fortnite: Droid Tycoon · Protocol data checked 13 September 2026</span><span>Issues, feedback or corrections? Add <strong>.saltea</strong> on Discord. <button id="copyDiscord" type="button">Copy username</button></span></footer>
   <div id="toast" role="status"></div>
   <div id="modalRoot"></div>
-  <script type="module" src="app.js?v=2026-09-26-stats"></script>
+  <script type="module" src="app.js?v=2026-09-26-portraits"></script>
 </body>
 </html>

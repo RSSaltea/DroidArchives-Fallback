@@ -671,7 +671,7 @@ function imageFor(droid,variant='DEFAULT'){
   let match=entries.find(([k])=>imageVariant==='DEFAULT'?!new RegExp(`\\(${qualityPattern}\\)`,'i').test(k):new RegExp(`\\(${imageVariant}\\)`,'i').test(k));
   match ||= entries.find(([k])=>!new RegExp(`\\(${qualityPattern}\\)`,'i').test(k)) || entries[0]; return match?.[1]||'';
 }
-function picture(droid,variant='DEFAULT'){const src=imageFor(droid,variant),fallback=imageFor(droid,'DEFAULT');return src?`<img src="${escapeAttr(src)}" alt="${escapeAttr(droid.name)} ${variant.toLowerCase()} variant" data-portrait-fallback="${escapeAttr(fallback)}" loading="lazy">`:`<span class="fallback">${droid.name.slice(0,3)}</span>`}
+function picture(droid,variant='DEFAULT'){const src=imageFor(droid,variant),fallback=imageFor(droid,'DEFAULT');return src?`<img src="${escapeAttr(src)}" alt="${escapeAttr(droid.name)} ${variant.toLowerCase()} variant" data-portrait-fallback="${escapeAttr(fallback)}"${['KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE'].includes(variant)&&!isIconic(droid)?` data-kyber-colour="${variant.slice(6).toLowerCase()}"`: ""} loading="lazy">`:`<span class="fallback">${droid.name.slice(0,3)}</span>`}
 // Retry a failed portrait once without the cached response, then use its default
 // portrait. A failed fallback ends in a readable label, never a retry loop.
 document.addEventListener('error',event=>{
@@ -679,7 +679,7 @@ document.addEventListener('error',event=>{
   const attempt=Number(img.dataset.portraitAttempt||0);img.dataset.portraitAttempt=String(attempt+1);
   if(attempt===0){const url=new URL(img.src,document.baseURI);url.searchParams.set('portraitRetry',Date.now());img.src=url.href;return;}
   const fallback=img.dataset.portraitFallback;
-  if(attempt===1&&fallback&&new URL(fallback,document.baseURI).pathname!==new URL(img.src,document.baseURI).pathname){img.src=fallback;return;}
+  if(attempt===1&&fallback&&new URL(fallback,document.baseURI).pathname!==new URL(img.src,document.baseURI).pathname){delete img.dataset.kyberColour;img.src=fallback;return;}
   const label=document.createElement('span');label.className='fallback';label.textContent=img.alt;img.replaceWith(label);
 },true);
 
