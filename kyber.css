@@ -21,6 +21,8 @@
 /* Activated Kyber colours use the shared green portrait and a crystal-only mask. */
 /* Inactive Kyber retains the fractured surface, with neutral grey shading. */
 img[data-kyber-colour="inactive"]{filter:grayscale(1) brightness(.82) contrast(.85)}
+.spawn-kyber>img{filter:grayscale(1)}
+.spawn-kyber strong{color:#e0e2e5}
 img[data-kyber-colour="blue"]{filter:url(#kyber-portrait-blue)}
 img[data-kyber-colour="purple"]{filter:url(#kyber-portrait-purple)}
 

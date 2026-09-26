@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-26-kyber-timer",
+      "date": "2026-09-26",
+      "title": "Kyber blueprint countdown",
+      "summary": "Added the hourly Kyber blueprint countdown alongside Stellar and Mythic.",
+      "changes": [
+        "The three blueprint timers are spaced 20 minutes apart, matching the in-game signs.",
+        "Clock alignment is marked estimated, using the existing Mythic timer as its anchor."
+      ]
+    },
+    {
       "id": "2026-09-26-income-scrap-kyber",
       "date": "2026-09-26",
       "title": "Income, scrap and Kyber updates",

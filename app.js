@@ -115,9 +115,12 @@ const MINI_EVENTS=[
 function windowStarts(windows,now){const midnight=Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()),day=now.getUTCDay(),starts=[];for(const w of windows)for(let week=-1;week<=1;week+=1)starts.push(midnight+(w.day-day+week*7)*86400000+w.hour*3600000);return starts.sort((a,b)=>a-b)}
 function windowState(timer,now=new Date()){if(timer.events)return timer.events.map(event=>({...windowState(event,now),event})).sort((a,b)=>Number(b.active)-Number(a.active)||a.ms-b.ms)[0];const t=now.getTime(),duration=timer.durationMs||DJ_EVENT_DURATION_MS,starts=windowStarts(timer.windows,now),open=starts.find(start=>t>=start&&t<start+duration);if(open!==undefined)return{active:true,ms:open+duration-t};return{active:false,ms:starts.find(start=>start>t)-t}}
 const SPAWN_TIMERS=[
-  {id:'stellar',name:'Stellar Spawn',intervalMinutes:60,offsetMinutes:0,note:'Every 60 minutes',image:'assets/events/stellar-spawn.png'},
-  {id:'mythic',name:'Mythic Spawn',intervalMinutes:60,offsetMinutes:55,note:'Every 60 minutes',image:'assets/events/mythic-spawn.png'},
-  // Keep the Galactic schedule for a possible Kyber replacement; hide it from the timer bar.
+  {id:'stellar',name:'Stellar Spawn (est.)',intervalMinutes:60,offsetMinutes:35,note:'Hourly at :35 UTC - estimated clock alignment',image:'assets/events/stellar-spawn.png'},
+  {id:'mythic',name:'Mythic Spawn (est.)',intervalMinutes:60,offsetMinutes:55,note:'Hourly at :55 UTC - existing clock anchor',image:'assets/events/mythic-spawn.png'},
+  // Hourly period and 20-minute spacing confirmed in game. Clock alignment
+  // provisionally retains the existing Mythic :55 anchor.
+  {id:'kyber',name:'Kyber Spawn (est.)',intervalMinutes:60,offsetMinutes:15,note:'Hourly at :15 UTC - estimated clock alignment',image:'assets/events/kyber-spawn.png'},
+  // Preserve the retired Galactic schedule without showing it in the timer bar.
   {id:'galactic',enabled:false,name:'Galactic Spawn',intervalMinutes:60,offsetMinutes:45,note:'Every 60 minutes',image:'assets/events/galactic-spawn.png'},
   {id:'dj',name:'Mini Events',events:MINI_EVENTS,note:'Next event',image:'assets/events/Dance-Party-Mini-Event.png'}
 ];
