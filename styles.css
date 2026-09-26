@@ -1138,3 +1138,10 @@ html[data-ui-style] .companion-activity .btn.companion-activity-button.active,ht
 .companion-activity small{flex:1 1 100%;color:var(--muted);font-size:12px;line-height:1.45}
 /* Keep for fusion and Fusion settings sit side by side in the settings panel. */
 .side-fusion-buttons{display:flex;flex-wrap:wrap;gap:6px}.side-fusion-buttons .btn{flex:1 1 auto}
+.scrap-activity{grid-column:1/-1;min-width:0;border-top:1px solid var(--line);padding-top:12px}
+.scrap-activity summary,.income-breakdown summary{cursor:pointer;font-weight:700;padding:8px 0}
+.scrap-activity .protocol-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:12px 0}
+.scrap-activity label{display:flex;flex-direction:column;gap:6px;min-width:0}
+.scrap-activity input,.scrap-activity select{width:100%;box-sizing:border-box}
+.income-breakdown{margin:16px 0;padding:12px 18px;border:1px solid var(--line);background:var(--panel);border-radius:8px;overflow-x:auto}
+.income-breakdown p{line-height:1.5}

@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-26-income-scrap-kyber",
+      "date": "2026-09-26",
+      "title": "Income, scrap and Kyber updates",
+      "summary": "Clearer income estimates, optional scrap settings and grey inactive Kyber portraits.",
+      "changes": [
+        "Corrected Iconic matching-station income and stacked Astromech companion bonuses. Added a per-droid income breakdown and clearer credit multiplier guidance.",
+        "Scrap estimates now use exact quality factors. Optionally enter a station level to include minimum rewards, or use measured swings and time to estimate active scrap earnings.",
+        "Inactive Kyber portraits and tier buttons now appear grey; activated Green, Blue and Purple keep their colours."
+      ]
+    },
+    {
       "id": "2026-09-26-map-extra-slots",
       "date": "2026-09-26",
       "title": "Companions and blueprints on the map",

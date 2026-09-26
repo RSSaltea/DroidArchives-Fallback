@@ -26,6 +26,7 @@ function setup(){
   optimiseCreditBase:()=>({income:0,assignments:[],moves:[]}),
   unitName:x=>x.name,slotLabel:x=>x?`${x.station} ${x.slot+1}`:'Roster',withFusionSteps:x=>x
  });
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'../economy.js'),'utf8').replace(/^export /gm,''),ctx);
  vm.runInContext(src.slice(src.indexOf('const PROTOCOL_REGIONS='),src.indexOf('const SLOT_RULES=')),ctx);
  vm.runInContext(fn('stabiliseProjectedPlacements'),ctx);
  vm.runInContext(fn('normaliseProjectedForSteps'),ctx);
