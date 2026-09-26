@@ -3004,8 +3004,8 @@ function basePageV2(){
       production:x=>slotProductionHtml(state.droids.find(d=>d.name===x.name),x.variant,x.station,baseIncome,p.placed,x.slot),
       building:isBuilding
     }});
-    const toggle=document.createElement('button');toggle.className='btn secondary tm-cards-toggle';toggle.id='tmCardsToggle';toggle.setAttribute('aria-controls','tmTraditionalCards');cards.id='tmTraditionalCards';cards.before(toggle);
-    const setCards=()=>{const hidden=localStorage.getItem('droid-archive-testmap-cards-hidden')==='1';cards.hidden=hidden;toggle.innerHTML=`<img src="assets/nav/Cards.png" alt=""><span>${hidden?'Show':'Hide'} Cards</span>`;toggle.setAttribute('aria-expanded',String(!hidden));};
+    const toggle=document.createElement('button');toggle.className='btn secondary base-panel-toggle';toggle.id='tmCardsToggle';toggle.setAttribute('aria-controls','tmTraditionalCards');cards.id='tmTraditionalCards';document.querySelector('#toggleBaseDetail').before(toggle);
+    const setCards=()=>{const hidden=localStorage.getItem('droid-archive-testmap-cards-hidden')==='1';cards.hidden=hidden;toggle.innerHTML=`<img class="command-icon command-art" src="assets/nav/Cards.png" alt=""><span>${hidden?'Show':'Hide'} Cards</span>`;toggle.setAttribute('aria-expanded',String(!hidden));toggle.classList.toggle('active',!hidden);};
     toggle.onclick=()=>{localStorage.setItem('droid-archive-testmap-cards-hidden',cards.hidden?'0':'1');setCards();};setCards();
   }
   requestAnimationFrame(()=>decorateCommandDeck('/base'));
