@@ -116,7 +116,8 @@ function windowState(timer,now=new Date()){if(timer.events)return timer.events.m
 const SPAWN_TIMERS=[
   {id:'stellar',name:'Stellar Spawn',intervalMinutes:60,offsetMinutes:0,note:'Every 60 minutes',image:'assets/events/stellar-spawn.png'},
   {id:'mythic',name:'Mythic Spawn',intervalMinutes:60,offsetMinutes:55,note:'Every 60 minutes',image:'assets/events/mythic-spawn.png'},
-  {id:'galactic',name:'Galactic Spawn',intervalMinutes:60,offsetMinutes:45,note:'Every 60 minutes',image:'assets/events/galactic-spawn.png'},
+  // Keep the Galactic schedule for a possible Kyber replacement; hide it from the timer bar.
+  {id:'galactic',enabled:false,name:'Galactic Spawn',intervalMinutes:60,offsetMinutes:45,note:'Every 60 minutes',image:'assets/events/galactic-spawn.png'},
   {id:'dj',name:'Mini Events',events:MINI_EVENTS,note:'Next event',image:'assets/events/Dance-Party-Mini-Event.png'}
 ];
 const activeSpawnTimers=()=>SPAWN_TIMERS.filter(timer=>timer.enabled!==false);
