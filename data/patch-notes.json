@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-26-map-extra-slots",
+      "date": "2026-09-26",
+      "title": "Companions and blueprints on the map",
+      "summary": "Manage Companions and Blueprint Storage above the map, even with cards hidden.",
+      "changes": [
+        "Click an empty circle to add a companion or blueprint.",
+        "Swap or remove companions, and craft or remove stored blueprints. Locked slots show their unlock costs."
+      ]
+    },
+    {
       "id": "2026-09-26-crafting-toggle",
       "date": "2026-09-26",
       "title": "Base toolbar fixes",

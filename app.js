@@ -1,5 +1,5 @@
 import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-09-26-crafting';
-import { testMapPage } from './test-map.js?v=2026-09-26-live';
+import { testMapPage } from './test-map.js?v=2026-09-26-extra-slots';
 import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-09-26-stats';
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
@@ -3004,6 +3004,22 @@ function basePageV2(){
       production:x=>slotProductionHtml(state.droids.find(d=>d.name===x.name),x.variant,x.station,baseIncome,p.placed,x.slot),
       building:isBuilding
     }});
+    const extras=document.createElement('div');extras.className='tm-extra-slots';
+    const companionSlots=Array.from({length:SLOT_RULES.COMPANION.initial+SLOT_RULES.COMPANION.unlocks.length},(_,slot)=>{
+      const unit=p.placed.find(x=>x.station==='COMPANION'&&x.slot===slot),open=isSlotEligible('COMPANION',slot)&&isSlotPurchased('COMPANION',slot),d=unit&&state.droids.find(x=>x.name===unit.name);
+      return `<div class="tm-extra-slot"><button class="tm-extra-circle" data-map-companion="${slot}" ${!unit&&!open?'disabled':''} title="${escapeAttr(unit?`${unit.name} ${variantLabel(unit.variant)} ? change companion`:open?'Add companion':lockedSlotLabel('COMPANION',slot))}">${unit?picture(d,unit.variant):stationIcon('COMPANION')}</button><small>${unit?`${escapeAttr(unit.name)} ? ${variantLabel(unit.variant)}`:open?'Add companion':slotPriceLabel('COMPANION',slot)}</small>${unit?`<button class="btn secondary" data-map-remove-companion="${unit.source}">Remove</button>`:''}</div>`;
+    }).join('');
+    const storedBlueprints=Array.from({length:blueprintTotal},(_,slot)=>{
+      const bp=state.blueprints.find(x=>Number(x.slot)===slot),open=slot<capacity('BLUEPRINT_STORAGE'),d=bp&&state.droids.find(x=>x.name===bp.name),index=bp?state.blueprints.indexOf(bp):-1;
+      return `<div class="tm-extra-slot"><button class="tm-extra-circle" data-map-blueprint="${slot}" ${!open?'disabled':''} title="${escapeAttr(bp?`${bp.name} ${variantLabel(bp.variant)} blueprint ? replace`:open?'Add blueprint':'Unlock Blueprint Storage in Nova Shop')}">${bp?picture(d,bp.variant):stationIcon('BLUEPRINT_STORAGE')}</button><small>${bp?`${escapeAttr(bp.name)} ? ${variantLabel(bp.variant)}`:open?'Add blueprint':slotPriceLabel('BLUEPRINT_STORAGE',slot)}</small>${bp?`<div><button class="btn secondary" data-map-craft="${index}">Craft</button> <button class="btn secondary" data-map-remove-blueprint="${index}">Remove</button></div>`:''}</div>`;
+    }).join('');
+    extras.innerHTML=`<section><h3>Companions</h3><div>${companionSlots}</div></section><section><h3>Blueprint Storage</h3><div>${storedBlueprints}</div></section>`;
+    host.querySelector('.tm-tools').after(extras);
+    extras.querySelectorAll('[data-map-companion]').forEach(button=>button.onclick=()=>{const slot=Number(button.dataset.mapCompanion),unit=p.placed.find(x=>x.station==='COMPANION'&&x.slot===slot);if(unit)showSwapModal({source:unit.source,unit:unit.unit},render);else showSlotPicker('COMPANION',render,slot);});
+    extras.querySelectorAll('[data-map-blueprint]').forEach(button=>button.onclick=()=>showBlueprintPicker(Number(button.dataset.mapBlueprint),render));
+    extras.querySelectorAll('[data-map-remove-companion]').forEach(button=>button.onclick=()=>{removeOwnedUnit(Number(button.dataset.mapRemoveCompanion));render();});
+    extras.querySelectorAll('[data-map-remove-blueprint]').forEach(button=>button.onclick=()=>{state.blueprints.splice(Number(button.dataset.mapRemoveBlueprint),1);save();render();});
+    extras.querySelectorAll('[data-map-craft]').forEach(button=>button.onclick=()=>craftBlueprint(Number(button.dataset.mapCraft),render));
     const toggle=document.createElement('button');toggle.className='btn secondary base-panel-toggle';toggle.id='tmCardsToggle';toggle.setAttribute('aria-controls','tmTraditionalCards');cards.id='tmTraditionalCards';document.querySelector('#toggleBaseDetail').before(toggle);
     const setCards=()=>{const hidden=localStorage.getItem('droid-archive-testmap-cards-hidden')==='1';cards.hidden=hidden;toggle.innerHTML=`<img class="command-icon command-art" src="assets/nav/Cards.png" alt=""><span>${hidden?'Show':'Hide'} Cards</span>`;toggle.setAttribute('aria-expanded',String(!hidden));toggle.classList.toggle('active',!hidden);};
     toggle.onclick=()=>{localStorage.setItem('droid-archive-testmap-cards-hidden',cards.hidden?'0':'1');setCards();};setCards();
