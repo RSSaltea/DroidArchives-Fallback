@@ -2,6 +2,20 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-26-base-crafting-optimise",
+      "date": "2026-09-26",
+      "title": "Base, crafting and Optimise improvements",
+      "summary": "More accurate droid stats, crafting estimates and Base planning.",
+      "changes": [
+        "Updated droid costs, income, crafting times and companion bonuses. Crafting estimates now account for Nova upgrades, companions, Protocol boosts and active crafting events.",
+        "Rebirths now update your entered credit multiplier automatically. Super Rebirth removes the current regular Rebirth bonus and adds its permanent reward.",
+        "Added slot unlock prices and corrected Astromech slot positions.",
+        "Fixed Optimise incorrectly saying Already optimal when a better layout is blocked by storage settings. Added a shortcut to allow Fusion storage and recalculate.",
+        "Improved Kyber portraits and guide wording, and corrected variant portraits in fusion result selection.",
+        "The new map remains a preview at <a href=\"#/testmap\">Test Map</a>, with quick keys, clearer slot details, build status colours and a Show Cards / Hide Cards toggle."
+      ]
+    },
+    {
       "id": "2026-09-26-kyber",
       "date": "2026-09-26",
       "title": "Kyber droids and Rebirth 40",

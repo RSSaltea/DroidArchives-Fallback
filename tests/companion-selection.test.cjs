@@ -9,7 +9,7 @@ function optimise({units,preferred=['CHOPPER'],goals=['pickaxe'],assignments=[],
  const state={droids,owned,preferredCompanions:preferred,companionGoals:goals,optimiseKeepDroidex:false};
  const caps={COMPANION:slots,LOUNGE:10,WORKER:2,ASTROMECH:2,BATTLE:2,BUILD:1,UPGRADE_CHIP:0};
  const indices=s=>Array.from({length:caps[s]||0},(_,i)=>i);
- const ctx=vm.createContext({state,base:{placed:owned.filter(x=>x.station)},plan:{assignments},
+ const ctx=vm.createContext({companionAttributeValue:require('../crafting.js').companionAttributeValue,state,base:{placed:owned.filter(x=>x.station)},plan:{assignments},
   VARIANTS:['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR'],SLOT_RULES:caps,
   PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],ASTROMECH_MISSION_SLOTS:[],
   stationSlotIndices:indices,slotFillOrder:indices,expandedOwned:()=>owned,

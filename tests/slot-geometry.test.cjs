@@ -134,3 +134,14 @@ test('validator carries an uncertain Lounge landing into the following Work comm
   const rejected=validateOptimisePlan(input);assert.equal(rejected.ok,false);assert.match(rejected.issues.join(' '),/uncertain work/);
   steps[1].assumed=true;assert.equal(validateOptimisePlan(input).ok,true);
 });
+
+
+test('Astromech credit slots follow visible row numbering rather than prefab numbering',async()=>{
+  const {slotDistanceSquared}=await load();
+  const distance=(a,b)=>slotDistanceSquared({station:'ASTROMECH',slot:a-1},{station:'ASTROMECH',slot:b-1});
+  // Reference rows: 3,2,4,5 and 9,8,6,7. Each pair must stay by its own bays.
+  for(const slot of [2,4]) assert(distance(slot,3)+distance(slot,5)<distance(slot,9)+distance(slot,7));
+  for(const slot of [8,6]) assert(distance(slot,9)+distance(slot,7)<distance(slot,3)+distance(slot,5));
+  assert(distance(2,3)<distance(4,3));
+  assert(distance(8,9)<distance(6,9));
+});

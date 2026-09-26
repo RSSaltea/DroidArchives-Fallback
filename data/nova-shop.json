@@ -830,7 +830,7 @@
       "name": "Crafting Boost Token",
       "category": "lobby-boosts",
       "icon": "assets/nova-shop/CraftingBoost.png",
-      "description": "Increases Droid Depot crafting speed and Pickaxe level by 50% for everyone in the session for 15 minutes. Use in the Cantina Shop.",
+      "description": "Doubles passive Droid Depot crafting speed and boosts pickaxe crafting progress by 100% for everyone in the session for 15 minutes. Does not boost passive fusion speed. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
       "costBase": 150,
@@ -1963,7 +1963,7 @@
       "name": "Crafting Speed",
       "category": "workshop",
       "icon": "assets/nova-shop/T_Icon_CraftingSpeed.png",
-      "description": "+10% Droid Crafting Speed per level.",
+      "description": "+10% passive Droid Depot crafting speed per level. Adds to Worker companion and regional Protocol speed bonuses; does not affect fusion.",
       "uncapped": true,
       "costBase": 3,
       "costScale": 15,
@@ -2354,7 +2354,7 @@
       "category": "workshop",
       "uncapped": true,
       "icon": "assets/nova-shop/T_Icon_FusionEfficiency.png",
-      "description": "+1/sec Droid fusion progress per level.",
+      "description": "+1/sec passive fusion progress per level: level 1 gives 2x speed, level 2 gives 3x. D-O halves the time separately.",
       "levels": [
         {
           "level": 1,

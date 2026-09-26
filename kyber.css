@@ -21,3 +21,9 @@
 /* Activated Kyber colours use the shared green portrait and a crystal-only mask. */
 img[data-kyber-colour="blue"]{filter:url(#kyber-portrait-blue)}
 img[data-kyber-colour="purple"]{filter:url(#kyber-portrait-purple)}
+
+/* Reserve equal label space so activated colours do not shift their portraits. */
+.variant-choice{grid-auto-rows:1fr}
+.variant-choice button{display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+.variant-choice button>img,.variant-choice button>.fallback{flex:0 0 82px;height:82px}
+.variant-choice button>strong{min-height:32px;display:flex;align-items:center;justify-content:center;line-height:16px}

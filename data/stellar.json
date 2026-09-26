@@ -1,6 +1,6 @@
 {
   "_source": "https://gonk.tools/wiki?section=droids",
-  "_sourceBuild": "1.26.0-aug-15",
+  "_sourceBuild": "1.32.0",
   "_rules": {
     "craftingMultiplier": 18,
     "costMultiplier": {
@@ -19,34 +19,482 @@
     }
   },
   "_images": {
-    "MOUSE": "Mouse.png", "PIT": "Pit.png", "GONK": "Gonk.png", "CB": "CB.png",
-    "R3": "R3.png", "R5": "R5.png", "R8": "R8.png", "IMPERIAL PROBE": "Imperial_Probe.png",
-    "B1 BATTLE": "B1_Battle.png", "DRK-1 PROBE": "DRK-1_Probe.png", "ID10": "ID10.png",
-    "BDX EXPLORER": "BDX_Explorer.png", "ARG": "ARG.png", "SENATE HOVERCAM": "Senate_Hovercam.png",
-    "B-U4D": "B-U4D.png", "BAL-CORE": "Bal-Core.png", "ROLL-R": "Roll-R.png", "2BB": "2BB.png",
-    "A-LT": "A-LT.png", "R4": "R4.png", "R9": "R9.png", "B1 SECURITY": "B1_Security.png",
-    "NAV-EX": "Nav-Ex.png", "VECT-ARM": "Vect-ARM.png", "HOV-R": "Hov-R.png",
-    "GROUNDMECH": "Groundmech.png", "LO": "LO.png", "AMP WALKER": "Amp_Walker.png",
-    "SEN-TRI": "Sen-Tri.png", "OPTI-POD": "Opti-Pod.png", "GUNRUNNER": "Gunrunner.png",
-    "BB": "BB.png", "R2": "R2.png", "R6": "R6.png", "TRAK-R": "Trak-R.png",
-    "ORB-WALKER": "Orb-Walker.png", "UTIL-TEC": "Util-Tec.png", "B1 HEAVY": "B1_Heavy.png",
-    "B2 SUPER": "B2_Super.png", "B2 HEAVY": "B2_Heavy.png", "STRIKE-ORB": "Strike-Orb.png",
-    "HAUL-R": "Haul-R.png", "LNG-SHOT": "LNG-Shot.png", "PROTO-ROLLER": "Proto-Roller.png",
-    "MECHA-DROID": "Mecha-Droid.png", "MONO-WALKER": "Mono-WLKR.png", "BB9": "BB9.png",
-    "R7": "R7.png", "B2-RP": "B2-RP.png", "CYCLO-GRAV": "Cyclo-Grav.png",
-    "OPTI-STRIKE": "Opti-STRK.png", "SNOW MOUSE": "Snow_Mouse.png", "RIC": "RIC.png",
-    "LOADLIFTER": "Loadlifter.png", "LEP": "Lep.png", "RIC-1200": "RIC-1200.png",
-    "DRFT-R": "DRFT-R.png", "CYCLENS": "Cyclens.png", "MO-TRAK": "Mo-Trak.png",
-    "TRI-TEK": "Tri-Tek.png", "IG": "IG.png", "KX": "KX.png"
+    "MOUSE": "Mouse.png",
+    "PIT": "Pit.png",
+    "GONK": "Gonk.png",
+    "CB": "CB.png",
+    "R3": "R3.png",
+    "R5": "R5.png",
+    "R8": "R8.png",
+    "IMPERIAL PROBE": "Imperial_Probe.png",
+    "B1 BATTLE": "B1_Battle.png",
+    "DRK-1 PROBE": "DRK-1_Probe.png",
+    "ID10": "ID10.png",
+    "BDX EXPLORER": "BDX_Explorer.png",
+    "ARG": "ARG.png",
+    "SENATE HOVERCAM": "Senate_Hovercam.png",
+    "B-U4D": "B-U4D.png",
+    "BAL-CORE": "Bal-Core.png",
+    "ROLL-R": "Roll-R.png",
+    "2BB": "2BB.png",
+    "A-LT": "A-LT.png",
+    "R4": "R4.png",
+    "R9": "R9.png",
+    "B1 SECURITY": "B1_Security.png",
+    "NAV-EX": "Nav-Ex.png",
+    "VECT-ARM": "Vect-ARM.png",
+    "HOV-R": "Hov-R.png",
+    "GROUNDMECH": "Groundmech.png",
+    "LO": "LO.png",
+    "AMP WALKER": "Amp_Walker.png",
+    "SEN-TRI": "Sen-Tri.png",
+    "OPTI-POD": "Opti-Pod.png",
+    "GUNRUNNER": "Gunrunner.png",
+    "BB": "BB.png",
+    "R2": "R2.png",
+    "R6": "R6.png",
+    "TRAK-R": "Trak-R.png",
+    "ORB-WALKER": "Orb-Walker.png",
+    "UTIL-TEC": "Util-Tec.png",
+    "B1 HEAVY": "B1_Heavy.png",
+    "B2 SUPER": "B2_Super.png",
+    "B2 HEAVY": "B2_Heavy.png",
+    "STRIKE-ORB": "Strike-Orb.png",
+    "HAUL-R": "Haul-R.png",
+    "LNG-SHOT": "LNG-Shot.png",
+    "PROTO-ROLLER": "Proto-Roller.png",
+    "MECHA-DROID": "Mecha-Droid.png",
+    "MONO-WALKER": "Mono-WLKR.png",
+    "BB9": "BB9.png",
+    "R7": "R7.png",
+    "B2-RP": "B2-RP.png",
+    "CYCLO-GRAV": "Cyclo-Grav.png",
+    "OPTI-STRIKE": "Opti-STRK.png",
+    "SNOW MOUSE": "Snow_Mouse.png",
+    "RIC": "RIC.png",
+    "LOADLIFTER": "Loadlifter.png",
+    "LEP": "Lep.png",
+    "RIC-1200": "RIC-1200.png",
+    "DRFT-R": "DRFT-R.png",
+    "CYCLENS": "Cyclens.png",
+    "MO-TRAK": "Mo-Trak.png",
+    "TRI-TEK": "Tri-Tek.png",
+    "IG": "IG.png",
+    "KX": "KX.png"
   },
-  "MOUSE": { "cost": 22800, "income": 64 },
-  "PIT": { "cost": 26400, "income": 64 },
-  "GONK": { "cost": 72000, "income": 128 },
-  "IMPERIAL PROBE": { "cost": 120000, "income": 192 },
-  "DRK-1 PROBE": { "cost": 72000, "income": 96 },
-  "ID10": { "cost": 96000, "income": 128 },
-  "SENATE HOVERCAM": { "cost": 2400000, "income": 1470 },
-  "TRAK-R": { "cost": 2250000000, "income": 26400 },
-  "DRFT-R": { "cost": 6380000000000, "income": 725000 },
-  "B1 HEAVY": { "income": 48000 }
+  "MOUSE": {
+    "cost": 22800.0,
+    "income": 64.0,
+    "craftingSeconds": 603.18
+  },
+  "PIT": {
+    "cost": 26400.0,
+    "income": 64.0,
+    "craftingSeconds": 603.18
+  },
+  "GONK": {
+    "cost": 72000.0,
+    "income": 128.0,
+    "craftingSeconds": 666.36
+  },
+  "IMPERIAL PROBE": {
+    "cost": 120000.0,
+    "income": 192.0,
+    "craftingSeconds": 729.54
+  },
+  "DRK-1 PROBE": {
+    "cost": 72000.0,
+    "income": 96.0,
+    "craftingSeconds": 634.77
+  },
+  "ID10": {
+    "cost": 96000.0,
+    "income": 128.0,
+    "craftingSeconds": 666.36
+  },
+  "SENATE HOVERCAM": {
+    "cost": 2400000.0,
+    "income": 1472.0,
+    "craftingSeconds": 1993.14
+  },
+  "TRAK-R": {
+    "cost": 2250000000.0,
+    "income": 26400.0,
+    "craftingSeconds": 10964.7
+  },
+  "DRFT-R": {
+    "cost": 6384000000000.0,
+    "income": 725000.0,
+    "craftingSeconds": 111600.0
+  },
+  "B1 HEAVY": {
+    "income": 48000.0,
+    "cost": 4500000000.0,
+    "craftingSeconds": 19494.0
+  },
+  "CB": {
+    "cost": 48000.0,
+    "income": 96.0,
+    "craftingSeconds": 634.77
+  },
+  "R3": {
+    "cost": 48000.0,
+    "income": 96.0,
+    "craftingSeconds": 634.77
+  },
+  "R5": {
+    "cost": 48000.0,
+    "income": 96.0,
+    "craftingSeconds": 634.77
+  },
+  "R8": {
+    "cost": 72000.0,
+    "income": 128.0,
+    "craftingSeconds": 666.36
+  },
+  "B1 BATTLE": {
+    "cost": 96000.0,
+    "income": 160.0,
+    "craftingSeconds": 697.95
+  },
+  "BDX EXPLORER": {
+    "cost": 600000.0,
+    "income": 480.0,
+    "craftingSeconds": 1013.85
+  },
+  "ARG": {
+    "cost": 2112000.0,
+    "income": 1344.0,
+    "craftingSeconds": 1866.78
+  },
+  "B-U4D": {
+    "cost": 3120000.0,
+    "income": 1856.0,
+    "craftingSeconds": 2372.22
+  },
+  "BAL-CORE": {
+    "cost": 1032000.0,
+    "income": 736.0,
+    "craftingSeconds": 1266.57
+  },
+  "ROLL-R": {
+    "cost": 1488000.0,
+    "income": 992.0,
+    "craftingSeconds": 1519.29
+  },
+  "2BB": {
+    "cost": 720000.0,
+    "income": 544.0,
+    "craftingSeconds": 1077.03
+  },
+  "A-LT": {
+    "cost": 1776000.0,
+    "income": 1152.0,
+    "craftingSeconds": 1677.24
+  },
+  "R4": {
+    "cost": 2640000.0,
+    "income": 1600.0,
+    "craftingSeconds": 2119.5
+  },
+  "R9": {
+    "cost": 2880000.0,
+    "income": 1728.0,
+    "craftingSeconds": 2245.86
+  },
+  "B1 SECURITY": {
+    "cost": 3600000.0,
+    "income": 2112.0,
+    "craftingSeconds": 2624.94
+  },
+  "NAV-EX": {
+    "cost": 864000.0,
+    "income": 576.0,
+    "craftingSeconds": 1108.62
+  },
+  "VECT-ARM": {
+    "cost": 1248000.0,
+    "income": 864.0,
+    "craftingSeconds": 1392.93
+  },
+  "HOV-R": {
+    "cost": 3360000.0,
+    "income": 1984.0,
+    "craftingSeconds": 2498.58
+  },
+  "GROUNDMECH": {
+    "cost": 675000000.0,
+    "income": 9600.0,
+    "craftingSeconds": 4330.8
+  },
+  "LO": {
+    "cost": 1575000000.0,
+    "income": 19200.0,
+    "craftingSeconds": 8121.6
+  },
+  "AMP WALKER": {
+    "cost": 4050000000.0,
+    "income": 45600.0,
+    "craftingSeconds": 18546.3
+  },
+  "SEN-TRI": {
+    "cost": 3600000000.0,
+    "income": 40800.0,
+    "craftingSeconds": 16650.9
+  },
+  "OPTI-POD": {
+    "cost": 2700000000.0,
+    "income": 31200.0,
+    "craftingSeconds": 12860.1
+  },
+  "GUNRUNNER": {
+    "cost": 4725000000.0,
+    "income": 52800.0,
+    "craftingSeconds": 21389.4
+  },
+  "BB": {
+    "cost": 900000000.0,
+    "income": 12000.0,
+    "craftingSeconds": 5278.5
+  },
+  "R2": {
+    "cost": 2475000000.0,
+    "income": 28800.0,
+    "craftingSeconds": 11912.4
+  },
+  "R6": {
+    "cost": 2025000000.0,
+    "income": 24000.0,
+    "craftingSeconds": 10017.0
+  },
+  "ORB-WALKER": {
+    "cost": 1125000000.0,
+    "income": 14400.0,
+    "craftingSeconds": 6226.2
+  },
+  "UTIL-TEC": {
+    "cost": 1350000000.0,
+    "income": 16800.0,
+    "craftingSeconds": 7173.9
+  },
+  "B2 SUPER": {
+    "cost": 2925000000.0,
+    "income": 33600.0,
+    "craftingSeconds": 13807.8
+  },
+  "B2 HEAVY": {
+    "cost": 3375000000.0,
+    "income": 38400.0,
+    "craftingSeconds": 15703.2
+  },
+  "STRIKE-ORB": {
+    "cost": 3825000000.0,
+    "income": 43200.0,
+    "craftingSeconds": 17598.6
+  },
+  "HAUL-R": {
+    "cost": 1800000000.0,
+    "income": 21600.0,
+    "craftingSeconds": 9069.3
+  },
+  "LNG-SHOT": {
+    "cost": 3150000000.0,
+    "income": 36000.0,
+    "craftingSeconds": 14755.5
+  },
+  "PROTO-ROLLER": {
+    "cost": 319000000000.0,
+    "income": 145800.0,
+    "craftingSeconds": 31245.48
+  },
+  "MECHA-DROID": {
+    "cost": 420500000000.0,
+    "income": 186600.0,
+    "craftingSeconds": 39837.96
+  },
+  "MONO-WALKER": {
+    "cost": 536500000000.0,
+    "income": 225000.0,
+    "craftingSeconds": 47925.0
+  },
+  "BB9": {
+    "cost": 406000000000.0,
+    "income": 195000.0,
+    "craftingSeconds": 41607.0
+  },
+  "R7": {
+    "cost": 536500000000.0,
+    "income": 225000.0,
+    "craftingSeconds": 47925.0
+  },
+  "B2-RP": {
+    "cost": 449500000000.0,
+    "income": 195600.0,
+    "craftingSeconds": 41733.36
+  },
+  "CYCLO-GRAV": {
+    "cost": 435000000000.0,
+    "income": 189000.0,
+    "craftingSeconds": 40343.4
+  },
+  "OPTI-STRIKE": {
+    "cost": 536500000000.0,
+    "income": 225000.0,
+    "craftingSeconds": 47925.0
+  },
+  "SNOW MOUSE": {
+    "cost": 5040000000000.0,
+    "income": 550000.0,
+    "craftingSeconds": 93960.0
+  },
+  "RIC": {
+    "cost": 5712000000000.0,
+    "income": 637500.0,
+    "craftingSeconds": 102780.0
+  },
+  "LOADLIFTER": {
+    "cost": 8400000000000.0,
+    "income": 900000.0,
+    "craftingSeconds": 129240.0
+  },
+  "LEP": {
+    "cost": 7056000000000.0,
+    "income": 812500.0,
+    "craftingSeconds": 120420.0
+  },
+  "RIC-1200": {
+    "cost": 6384000000000.0,
+    "income": 725000.0,
+    "craftingSeconds": 111600.0
+  },
+  "CYCLENS": {
+    "cost": 5040000000000.0,
+    "income": 550000.0,
+    "craftingSeconds": 93960.0
+  },
+  "MO-TRAK": {
+    "cost": 8400000000000.0,
+    "income": 900000.0,
+    "craftingSeconds": 129240.0
+  },
+  "TRI-TEK": {
+    "cost": 7056000000000.0,
+    "income": 812500.0,
+    "craftingSeconds": 120420.0
+  },
+  "IG": {
+    "cost": 6384000000000.0,
+    "income": 725000.0,
+    "craftingSeconds": 111600.0
+  },
+  "KX": {
+    "cost": 8400000000000.0,
+    "income": 900000.0,
+    "craftingSeconds": 129240.0
+  },
+  "WHL-EX": {
+    "cost": 7800000.0,
+    "income": 2304.0,
+    "craftingSeconds": 2814.48
+  },
+  "ZRO-TEC": {
+    "cost": 7800000.0,
+    "income": 2304.0,
+    "craftingSeconds": 2814.48
+  },
+  "BTL-R": {
+    "cost": 7800000.0,
+    "income": 2304.0,
+    "craftingSeconds": 2814.48
+  },
+  "N-UL": {
+    "cost": 10200000000.0,
+    "income": 86400.0,
+    "craftingSeconds": 34657.2
+  },
+  "SCRP-R": {
+    "cost": 10200000000.0,
+    "income": 86400.0,
+    "craftingSeconds": 34657.2
+  },
+  "ARM-CORE": {
+    "cost": 9937500000.0,
+    "income": 82800.0,
+    "craftingSeconds": 33235.65
+  },
+  "OPT-AR": {
+    "cost": 9900000000.0,
+    "income": 86400.0,
+    "craftingSeconds": 34657.2
+  },
+  "RO-TOR": {
+    "cost": 1044000000000.0,
+    "income": 337500.0,
+    "craftingSeconds": 66870.0
+  },
+  "FUS-3": {
+    "cost": 1160000000000.0,
+    "income": 360000.0,
+    "craftingSeconds": 68760.0
+  },
+  "QIK-BIT": {
+    "cost": 1160000000000.0,
+    "income": 360000.0,
+    "craftingSeconds": 68760.0
+  },
+  "ORB-XL": {
+    "cost": 1160000000000.0,
+    "income": 360000.0,
+    "craftingSeconds": 68760.0
+  },
+  "RIV-3T": {
+    "cost": 10080000000000.0,
+    "income": 1575000.0,
+    "craftingSeconds": 197280.0
+  },
+  "LUG-G": {
+    "cost": 8960000000000.0,
+    "income": 1425000.0,
+    "craftingSeconds": 182160.0
+  },
+  "LOW-MO": {
+    "cost": 9520000000000.0,
+    "income": 1462500.0,
+    "craftingSeconds": 185940.0
+  },
+  "AXI-POD": {
+    "cost": 10080000000000.0,
+    "income": 1500000.0,
+    "craftingSeconds": 189720.0
+  },
+  "SRV-O": {
+    "cost": 8960000000000.0,
+    "income": 1425000.0,
+    "craftingSeconds": 182160.0
+  },
+  "X-ONK": {
+    "cost": 10080000000000.0,
+    "income": 1500000.0,
+    "craftingSeconds": 189720.0
+  },
+  "SA-5": {
+    "cost": 4320000.0,
+    "income": 448.0,
+    "craftingSeconds": 982.26
+  },
+  "LOM": {
+    "cost": 5250000000.0,
+    "income": 8400.0,
+    "craftingSeconds": 3856.95
+  },
+  "PZ": {
+    "cost": 536500000000.0,
+    "income": 135000.0,
+    "craftingSeconds": 28971.0
+  },
+  "TDA": {
+    "cost": 11200000000000.0,
+    "income": 500000.0,
+    "craftingSeconds": 88920.0
+  }
 }

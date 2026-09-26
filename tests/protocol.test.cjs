@@ -178,3 +178,28 @@ test('with more Protocol droids than slots the weakest is the one left over to s
  const untouched=kept.run(`optimiseBase({placed:${placed}},0)`);
  assert(!untouched.assignments.some(x=>x.name==='TDA'));assert.equal(untouched.assignments.filter(x=>x.name==='SA-5').length,6);
 });
+
+test('Protocol search reports moves when no mission or activity reservations exist',()=>{
+ const {state,ctx,run}=setup();
+ vm.runInContext(fn('optimiseAssignmentMoves'),ctx);
+ state.owned=[{name:'LOM',variant:'STELLAR'}];
+ const plan=run(`optimiseBase({placed:[{...state.owned[0],source:0,unit:0,station:'LOUNGE',slot:0}]},0)`);
+ assert(plan.gain>0);
+ assert(plan.moves.some(move=>move.unit.name==='LOM'&&move.current==='LOUNGE'&&move.targetStation!=='LOUNGE'));
+});
+
+test('a better layout never becomes Already optimal when move details are absent',()=>{
+ const {ctx,run,state}=setup();
+ Object.assign(ctx,{escapeAttr:String,variantLabel:String,stationName:String,fmt:String});
+ vm.runInContext(fn('optimiseSettledHtml'),ctx);
+ let html=run(`optimiseSettledHtml({gain:100,moves:[]},{placed:[]})`);
+ assert.match(html,/A better layout was found/);
+ assert.doesNotMatch(html,/Already optimal/);
+ // Fusion storage remains an explicit opt-in, not a hidden settings change.
+ state.fusionAsLounge=false;ctx.stationSlotIndices=()=>[0,1,2];
+ html=run(`optimiseSettledHtml({gain:100,moves:[]},{placed:[]})`);
+ assert.match(html,/Allow Fusion storage and recalculate/);
+ assert.equal(state.fusionAsLounge,false);
+ state.fusionAsLounge=true;
+ assert.doesNotMatch(run(`optimiseSettledHtml({gain:100,moves:[]},{placed:[]})`),/optimiseAllowFusionStorage/);
+});
