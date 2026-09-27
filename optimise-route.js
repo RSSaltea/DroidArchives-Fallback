@@ -356,7 +356,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       if (assumed && !allowAssumed) return null;
       const to = { station: 'FUSION', slot, positionUncertain: assumed };
       state.pos.set(key, to);
-      return { ...step, type: 'move', kind: 'park', buffer: true, assumed, to };
+      return { ...step, type: 'move', kind: 'park', buffer: goal.kind !== 'place' || goal.station !== 'FUSION', assumed, to };
     }
     if (kind === 'companion') {
       const slot = bookSlot('COMPANION', null, free, rules);
@@ -445,7 +445,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     return null;
   };
   const commandFor = goal => goal.kind === 'sell' ? 'sell' : goal.kind === 'fusion' ? 'fusion'
-    : goal.station === 'LOUNGE' ? 'lounge' : goal.station === 'COMPANION' ? 'companion' : 'work';
+    : goal.station === 'LOUNGE' ? 'lounge' : goal.station === 'FUSION' ? 'park' : goal.station === 'COMPANION' ? 'companion' : 'work';
   const tryFuse = (state, region) => {
     if (region !== 'FUSION') return null;
     for (const fusion of fusions) {
@@ -488,7 +488,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         // Swap, so that droid is swapped in; Work or Lounge would empty the tank.
         const here = state.pos.get(key);
         // Only those two empty it: a sale, a fusion or the droid's own Companion swap go ahead.
-        if (here && ['BUILD', 'FUSION_BUILD'].includes(here.station) && arrivalsInto(state, here.station) > 0 && ['work', 'lounge'].includes(commandFor(goal))) continue;
+        if (here && ['BUILD', 'FUSION_BUILD'].includes(here.station) && arrivalsInto(state, here.station) > 0 && ['work', 'lounge', 'park'].includes(commandFor(goal))) continue;
         const step = tryCommand(state, key, commandFor(goal), policy.assumed);
         if (step) { steps.push(step); progress = true; }
       }

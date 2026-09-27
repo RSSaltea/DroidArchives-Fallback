@@ -32,6 +32,23 @@ const at=(u,station,slot=0)=>({...u,station,slot});
 const stops=steps=>steps.reduce((n,step,i)=>n+(i===0||step.visit!==steps[i-1].visit?1:0),0);
 const summary=steps=>steps.map(s=>`${s.at}:${s.type}${s.kind?'/'+s.kind:''}:${s.unit?.name||''}${s.to?'->'+(typeof s.to==='string'?s.to:s.to.station+(s.to.cls?'('+s.to.cls+')':'')):''}${s.buffer?'*':''}${s.assumed?'?':''}`);
 
+for(const station of ['BUILD','FUSION_BUILD'])test(`finished ${station} droid can go directly to Fusion storage with locked companions`,async()=>{
+  const {planOptimiseRoute,predictWorkLanding,validateOptimisePlan}=await load();
+  const rules=rulesFor({[station]:1,LOUNGE:1,FUSION:3,COMPANION:2});
+  rules.workLanding=(u,p)=>predictWorkLanding(u,p,rules);
+  rules.canPark=()=>true;
+  const droid=unit('ASTRO-R6',station,0,{built:true});
+  const fixed=[unit('WORK-kept','LOUNGE',0,{lockedSlot:true}),unit('WORK-companion','COMPANION',0,{lockedSlot:true}),unit('ASTRO-companion','COMPANION',1,{lockedSlot:true})];
+  const initial={placed:[droid,...fixed]},target={placed:[at(droid,'FUSION',0),...fixed],sell:[]};
+  const route=planOptimiseRoute({initial,target,rules});
+  assert(route.complete,route.issues.join('; '));assert.equal(route.steps.length,1);
+  assert.equal(route.steps[0].kind,'park');assert.equal(route.steps[0].buffer,false,'Fusion storage is the destination, not a temporary detour');
+  assert.equal(route.steps[0].to.station,'FUSION');
+  assert(validateOptimisePlan({initial,projected:{placed:route.finalPlaced,sell:[]},steps:route.steps,rules}).ok);
+  rules.canPark=()=>false;
+  assert.equal(planOptimiseRoute({initial,target,rules}).complete,false,'cannot park an ineligible droid');
+});
+
 test('visit shortening matches exhaustive minimum for six independent room visits',async()=>{
   const {shortenOptimiseWalk,validateOptimisePlan}=await load();
   const xy={WORKER:[0,0],BATTLE:[8,0],ASTROMECH:[2,0],LOUNGE:[10,0],FUSION:[4,0],BATTLE_UP:[6,0]};
