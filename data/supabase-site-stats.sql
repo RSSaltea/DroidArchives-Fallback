@@ -50,9 +50,11 @@ begin
     'signed_up', (select count(*) from auth.users where deleted_at is null and not coalesce(is_anonymous,false)),
     'confirmed', (select count(*) from auth.users where deleted_at is null and not coalesce(is_anonymous,false) and email_confirmed_at is not null),
     'accounts_now', (select count(*) from public.droid_site_account_activity where last_seen >= now()-interval '5 minutes'),
+    'accounts_1h', (select count(*) from public.droid_site_account_activity where last_seen >= now()-interval '1 hour'),
     'accounts_24h', (select count(*) from public.droid_site_account_activity where last_seen >= now()-interval '24 hours'),
     'accounts_7d', (select count(*) from public.droid_site_account_activity where last_seen >= now()-interval '7 days'),
     'browsers_now', (select count(*) from public.droid_site_visitors where last_seen >= now()-interval '5 minutes'),
+    'browsers_1h', (select count(*) from public.droid_site_visitors where last_seen >= now()-interval '1 hour'),
     'browsers_24h', (select count(*) from public.droid_site_visitors where last_seen >= now()-interval '24 hours'),
     'browsers_7d', (select count(*) from public.droid_site_visitors where last_seen >= now()-interval '7 days'),
     'updated_at', now()

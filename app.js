@@ -1,7 +1,7 @@
 import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES } from './economy.js?v=2026-09-26-income';
 import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-09-26-crafting';
 import { testMapPage } from './test-map.js?v=2026-09-27-map-toggle';
-import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-09-26-stats';
+import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-09-28-hour';
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-09-23-background';
@@ -2078,7 +2078,9 @@ function mapSlots(){
 // ─── Critical strike model ──────────────────────────────────────────────────
 // Every figure here is derived from measurements rather than guessed.
 //
-// Pickaxe: eight readings across levels 14-17 with and without a +7 Astromech
+// Verified against September 27 v1.32.3: GetDroidDepotPickaxeAmount,
+// RollPickaxeCritCount and CalculatePickaxeAttack. Eight readings across
+// levels 14-17 with and without a +7 Astromech
 // fall exactly on one line, and an Astromech's levels stack onto your own, so
 // 14+7 behaves identically to a native 21.
 //   seconds per hit = 1.2 x (your level + astromech + 1)
@@ -2131,9 +2133,18 @@ function critMultiplier(chance,amount,rolls){
   const p=Math.min(1,chance);
   return(1-p)+p*onCrit;
 }
-const critProfile=({chanceLevel=0,amountLevel=0,multiLevel=0,chopper=false,pickaxe=0,astromech=0}={})=>{
+// Reaching each roll requires every earlier roll to succeed.
+function critRollBreakdown(chance,rolls){
+  let reach=1;const rows=[];
+  for(let k=0;k<rolls;k++){
+    const rollChance=Math.max(0,Math.min(1,chance/Math.pow(2,k)));
+    reach*=rollChance;rows.push({count:k+1,rollChance,reach});
+  }
+  return rows;
+}
+const critProfile=({chanceLevel=0,amountLevel=0,multiLevel=0,chopper=false,pickaxe=0,astromech=0,boost=1}={})=>{
   const chance=critChanceFor(chanceLevel,chopper),amount=critAmountFor(amountLevel,chopper),rolls=multiCritRolls(multiLevel);
-  const base=pickaxeHitSeconds(pickaxe+astromech),multiplier=critMultiplier(chance,amount,rolls);
+  const base=pickaxeHitSeconds(pickaxe+astromech)*Math.max(1,Number(boost)||1),multiplier=critMultiplier(chance,amount,rolls);
   return{chance,amount,rolls,base,multiplier,perHit:base*multiplier};
 };
 // Pickaxe Mastery only decides how many levels survive a Super Rebirth. That is
@@ -3869,6 +3880,7 @@ function critCalcPage(){
       // Read straight off the Base rather than typed in — whatever Astromech is
       // in your Companion slot is the answer.
       astromech:autoAstro,
+      boost:Math.max(1,critSetting('boost',1)),
     };
     // What each perk has cost you so far, and what the next rank adds.
     const spent=id=>{const u=novaUpgrade(id);return(u?.levels||[]).filter(l=>Number(l.level)<=novaLevelFor(id)).reduce((s,l)=>s+(l.cost||0),0)};
@@ -3898,7 +3910,7 @@ function critCalcPage(){
       <div class="base-top crit-stats">
         <div class="stat"><small>Base hit</small><strong>${p.base.toFixed(1)}s</strong><em>level ${current.pickaxe}${current.astromech?` + ${current.astromech}`:''} = ${current.pickaxe+current.astromech}</em></div>
         <div class="stat"><small>Average per swing</small><strong>${p.perHit.toFixed(1)}s</strong><em>×${p.multiplier.toFixed(3)} from crits</em></div>
-        <div class="stat"><small>Chance to crit</small><strong>${(p.chance*100).toFixed(0)}%</strong><em>${p.chance>1?'guaranteed, and carries into the chain':'per swing'}</em></div>
+        <div class="stat"><small>Critical Chance</small><strong>${(p.chance*100).toFixed(0)}%</strong><em>${p.chance>=1?'100% first roll; overflow helps later rolls':'chance of the first crit'}</em></div>
         <div class="stat"><small>Crit amount</small><strong>${(p.amount*100).toFixed(0)}%</strong><em>a crit does ×${(1+p.amount).toFixed(2)}</em></div>
       </div>
       ${best?`<div class="notice crit-best"><strong>Best next buy: ${best.name} ${best.to}</strong> — ${fmt(best.cost)} Nova for ${(best.gain*100).toFixed(2)}% more damage, working out at ${fmt(Math.round(best.cost/(best.gain*100)))} Nova for each 1%.</div>`:''}
@@ -3906,16 +3918,25 @@ function critCalcPage(){
       <table><thead><tr><th>Upgrade</th><th>To</th><th>Cost</th><th>Seconds/hit</th><th>Extra damage</th><th>Nova per 1% damage</th></tr></thead><tbody>
       ${options.map((o,i)=>{const after=critProfile({...current,...(o.id===CRIT_UPGRADE_IDS.chance?{chanceLevel:o.to}:o.id===CRIT_UPGRADE_IDS.amount?{amountLevel:o.to}:{multiLevel:o.to})});
         return `<tr class="${o===best?String.fromCharCode(99,114,105,116,45,112,105,99,107):o.locked?String.fromCharCode(99,114,105,116,45,108,111,99,107,101,100):String()}"><th>${o.name}${o.note?`<small class="crit-note">${o.note}</small>`:''}</th><td>${o.to}</td><td>${fmt(o.cost)}</td><td>${after.perHit.toFixed(1)}s<small class="crit-note">from ${p.perHit.toFixed(1)}s</small></td><td>+${(o.gain*100).toFixed(2)}%</td><td>${fmt(Math.round(o.cost/(o.gain*100)))}</td></tr>`}).join('')||'<tr><td colspan="6">Everything is maxed.</td></tr>'}
-      </tbody></table></section>`;
+      </tbody></table></section>
+      <section class="scrap-calculator crit-table" id="critBreakdown">
+        <h2>How your crits work</h2>
+        <p>Each successful crit adds ${(p.amount*100).toFixed(0)}% of your base hit. The next roll has half the previous chance, and the chain ends on the first failed roll or after ${p.rolls} ${p.rolls===1?'crit':'crits'}.</p>
+        <p>${p.chance>=1?'Your first crit is already guaranteed. More Critical Chance only improves later rolls that are not yet guaranteed; Multi Crit adds another possible roll.':'Below 100%, Critical Chance improves both the first roll and the later rolls.'} Upgrade rankings compare the average gain per Nova, not just the biggest hit.</p>
+        <table><thead><tr><th>Crit</th><th>Chance if reached</th><th>Chance per swing of at least this many</th></tr></thead><tbody>${critRollBreakdown(p.chance,p.rolls).map(row=>`<tr><th>${row.count}</th><td>${fmt(row.rollChance*100)}%</td><td>${fmt(row.reach*100)}%</td></tr>`).join('')}</tbody></table>
+        <label class="crit-field"><span>Temporary pickaxe multiplier</span><input type="number" id="critBoost" value="${current.boost}" min="1" step="0.1"><small>Normally 1. Enter the combined crafting/event pickaxe multiplier if active; this is not detected from your Base.</small></label>
+        <p>Average per swing is a long-run average of crafting time removed, before capping at the time remaining on a droid. Temporary pickaxe multipliers change seconds per hit, but not the upgrade ranking.</p>
+      </section>
+      `;
     const bind=(id,key)=>{const el=document.querySelector('#'+id);if(el)el.onchange=()=>{setCritSetting(key,Number(el.type==='checkbox'?(el.checked?1:0):el.value)||0);render()}};
-    bind('critPickaxe','pickaxe');bind('critChopper','chopper');bind('critPerks','perks');
+    bind('critBoost','boost');bind('critPickaxe','pickaxe');bind('critChopper','chopper');bind('critPerks','perks');
     // Perk levels write through to the Nova Shop itself.
     const setPerk=(id,level)=>{setNovaLevel(id,Math.max(0,level),false);save();render()};
     [['critChance',CRIT_UPGRADE_IDS.chance],['critAmount',CRIT_UPGRADE_IDS.amount],['critMulti',CRIT_UPGRADE_IDS.multi]]
       .forEach(([field,id])=>{const el=document.querySelector('#'+field);if(el)el.onchange=()=>setPerk(id,Number(el.value)||0)});
     document.querySelectorAll('[data-perk-up]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkUp,novaLevelFor(b.dataset.perkUp)+1));
     document.querySelectorAll('[data-perk-down]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkDown,novaLevelFor(b.dataset.perkDown)-1));
-    document.querySelector('#critReset').onclick=()=>{['chopper','pickaxe','perks'].forEach(k=>localStorage.removeItem('droid-archive-crit-'+k));render();toast('Pickaxe and companion reset to your Base')};
+    document.querySelector('#critReset').onclick=()=>{['chopper','pickaxe','perks','boost'].forEach(k=>localStorage.removeItem('droid-archive-crit-'+k));render();toast('Pickaxe and companion reset to your Base')};
   };
   render();
 }

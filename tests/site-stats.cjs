@@ -27,6 +27,11 @@ let result=await stats();assert.equal(result.signed_up,3);assert.equal(result.co
 await db.exec('reset role');
 await db.exec("update public.droid_site_visitors set last_seen=now()-interval '2 days' where visitor_id='10000000-0000-0000-0000-000000000001'");
 await asUser('00000000-0000-0000-0000-000000000001');result=await stats();assert.equal(result.browsers_now,2);assert.equal(result.browsers_24h,2);assert.equal(result.browsers_7d,3);
+await db.exec('reset role');
+await db.exec("update public.droid_site_visitors set last_seen=now()-interval '30 minutes' where visitor_id='10000000-0000-0000-0000-000000000002'; update public.droid_site_visitors set last_seen=now()-interval '61 minutes' where visitor_id='10000000-0000-0000-0000-000000000003'; update public.droid_site_account_activity set last_seen=now()-interval '30 minutes'");
+await asUser('00000000-0000-0000-0000-000000000001');result=await stats();assert.equal(result.browsers_now,0);assert.equal(result.browsers_1h,1);assert.equal(result.browsers_24h,2);assert.equal(result.accounts_now,0);assert.equal(result.accounts_1h,1);
+await db.exec('reset role');await db.exec("update public.droid_site_account_activity set last_seen=now()-interval '61 minutes'");
+await asUser('00000000-0000-0000-0000-000000000001');result=await stats();assert.equal(result.accounts_1h,0);assert.equal(result.accounts_24h,1);
 await db.exec('reset role');await db.exec("update auth.users set email_confirmed_at=null where email='xraffo@gmail.com'");await asUser('00000000-0000-0000-0000-000000000001');await assert.rejects(stats,/Owner access required/);
 console.log('PASS database: idempotent migration, aggregate counts, time windows, deduplication, anonymous/other/unverified owner denied, raw tables denied');
 }finally{await db.close();}
