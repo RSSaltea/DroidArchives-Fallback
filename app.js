@@ -23,7 +23,7 @@ const rebirthVariantReady=(have,required,active=false)=>Boolean(have&&variantRan
 const requirementVariantText=v=>variantText(v)+(baseVariant(v)==='KYBER'?' (active)':'');
 const activationNeeded=(have,required)=>have==='KYBER'&&baseVariant(required)==='KYBER';
 const activationCostText=d=>kyberActivationCost(d)===null?'Activation cost unavailable':`${fmt(kyberActivationCost(d))} Kyber Crystal${kyberActivationCost(d)===1?'':'s'}`;
-const rebirthActionText=(d,have,required,chips=0)=>activationNeeded(have,required)?`Activate · ${activationCostText(d)}`:`Upgrade · ${fmt(chips)} chips${baseVariant(required)==='KYBER'?` · then activate for ${activationCostText(d)}`:''}`;
+const rebirthActionText=(d,have,required,chips=0)=>activationNeeded(have,required)?`Activate · ${activationCostText(d)}`:`Upgrade from ${variantLabel(have)} · ${fmt(chips)} chips${baseVariant(required)==='KYBER'?` · then activate for ${activationCostText(d)}`:''}`;
 let DISPLAY_VARIANTS=kyberIsReleased()?OWNED_VARIANTS:VARIANTS;
 const GOOGLE_CLIENT_ID='639634997022-sla3g6plurr364s6liq4vouj003rcaus.apps.googleusercontent.com';
 const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.appdata';
