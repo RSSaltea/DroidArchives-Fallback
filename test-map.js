@@ -21,14 +21,14 @@ export function testMapPage({host,slots,placed,droids,picture,label,available,es
   canvas.addEventListener('pointerleave',()=>{hovered=null;});
   shortcutController?.abort();shortcutController=new AbortController();
   window.addEventListener('click',event=>{
-    if(!host.isConnected||suppressClick||(!selected&&!target&&!moving))return;
+    if(!host.isConnected||host.hidden||suppressClick||(!selected&&!target&&!moving))return;
     // Let slot selection, move destinations, and explicit controls finish their action.
     if(event.target.closest?.('[data-slot],[data-action],[data-near],#tmClear,.tm-tools,#modalRoot'))return;
     selected=target=moving=null;
     render();
   },{signal:shortcutController.signal});
   window.addEventListener('keydown',event=>{
-    if(!host.isConnected||!manage||mode!=='manage'||suppressClick||event.repeat||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey||event.isComposing)return;
+    if(!host.isConnected||host.hidden||!manage||mode!=='manage'||suppressClick||event.repeat||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey||event.isComposing)return;
     if(document.querySelector('#modalRoot')?.childElementCount||event.target.closest?.('input,textarea,select,[contenteditable="true"],[role="textbox"]'))return;
     const focused=canvas.contains(document.activeElement),slotKey=hovered||(focused?(document.activeElement.dataset.slot||selected):null);
     if(!slotKey)return;

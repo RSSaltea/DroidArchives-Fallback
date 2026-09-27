@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-27-map-controls-scroll",
+      "date": "2026-09-27",
+      "title": "Map controls and scrolling",
+      "summary": "Restored Show Map / Hide Map in the Base toolbar.",
+      "changes": [
+        "Map visibility is remembered and works independently of Show Cards / Hide Cards.",
+        "Droid edits now preserve page scroll and map pan position to help prevent the view jumping. Map shortcuts are disabled while the map is hidden."
+      ]
+    },
+    {
       "id": "2026-09-26-kyber-timer",
       "date": "2026-09-26",
       "title": "Kyber blueprint countdown",
