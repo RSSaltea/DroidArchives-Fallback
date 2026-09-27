@@ -94,3 +94,8 @@ tests/**/*.png
 /proposed-notes.json
 /assets/events/mega-crate-mini.png
 /assets/other/stellar-droid.png
+
+# Private backup imports
+release/
+__pycache__/
+/Exports/
