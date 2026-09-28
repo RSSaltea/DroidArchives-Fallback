@@ -19,4 +19,18 @@ const input='{chanceLevel:10,amountLevel:8,multiLevel:1,chopper:true,pickaxe:29}
 near(run(`critProfile(${input}).perHit`),133.524);
 for(const on of [0,1]){perks=on;const options=run(`critUpgradeOptions(${input})`);assert.equal(options[0].id,on?'multi-crit':'critical-amount');console.log(on?'Rebirth perks ON':'Rebirth perks OFF',options.map(o=>({id:o.id,gain:o.gain*100,cost:o.cost,novaPerPercent:o.cost/(o.gain*100)})));}
 perks=0;near(run(`critProfile({...${input},boost:2}).perHit`),267.048);near(run('pickaxeHitSeconds(29)'),36);
+// Reward boundaries from the September 27 export: R38 adds 0.15 amount,
+// R40 adds 0.20. They add to the three earlier 0.10 rewards, not to chance.
+perks=1;
+for(const [rank,amount] of [[30,.30],[31,.30],[34,.30],[35,.30],[36,.30],[37,.30],[38,.45],[39,.45],[40,.65]]){
+ state.rebirth=rank;const bonus=run('rebirthCritBonus()');near(bonus.chance,.15);near(bonus.amount,amount);
+ const profile=run(`critProfile(${input})`);near(profile.chance,1.16);near(profile.amount,1.8+amount);
+ near(profile.perHit,36*enumerate(1.16,1.8+amount,2));
+}
+state.rebirth=37;assert.equal(run('rebirthCritPerks({after:state.rebirth})[0].at'),38);
+state.rebirth=38;assert.equal(run('rebirthCritPerks({after:state.rebirth})[0].at'),40);
+state.rebirth=40;assert.equal(run('rebirthCritPerks({after:state.rebirth}).length'),0);
+perks=0;near(run(`critProfile(${input}).perHit`),133.524);
+perks=1;state.rebirth=0;near(run('rebirthCritBonus().chance'),0);near(run('rebirthCritBonus().amount'),0);
 console.log('PASS 240 exhaustive roll comparisons, overflow thresholds, screenshot values, rebirth rankings and temporary boost');
+console.log('PASS Rebirth 35-40 rewards, cumulative totals, next-perk hints, toggle off and fresh Super Rebirth');

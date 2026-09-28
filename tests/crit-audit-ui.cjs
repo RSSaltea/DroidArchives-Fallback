@@ -13,5 +13,14 @@ await page.locator('#critPerks').check();assert.match(await page.locator('.crit-
 await page.locator('#critBoost').fill('2');await page.locator('#critBoost').dispatchEvent('change');assert.match(await page.locator('.crit-stats').innerText(),/267.0s/);assert.match(await page.locator('.crit-best').innerText(),/Critical Amount 9/);
 await page.locator('#critReset').click();assert.equal(await page.locator('#critBoost').inputValue(),'1');
 await page.locator('#critPerks').uncheck();await page.locator('#critChopper').check();await page.screenshot({path:path.join(root,'research/uefn/crit-audit',shell+'.png'),fullPage:true});
+await page.locator('#critPerks').check();
+for(const [rank,total,next] of [[37,30,38],[38,45,40],[39,45,40],[40,65,null]]){
+ await page.evaluate(rank=>{window.critTest.state.rebirth=rank;window.critTest.route()},rank);
+ const text=await page.locator('label.crit-toggle').filter({has:page.locator('#critPerks')}).innerText();
+ assert(text.includes('+15% / +'+total+'%'),text);
+ assert(text.includes(next?'Next at R: '+next:'Every rebirth crit perk is banked'),text);
+ assert.match(await page.locator('.crit-stats').innerText(),new RegExp((180+total)+'%'));
+}
+await page.locator('#critPerks').uncheck();assert.match(await page.locator('.crit-stats').innerText(),/133.5s/);
 await page.setViewportSize({width:390,height:844});assert(await page.locator('#critBoost').isVisible());assert.deepEqual(errors,[]);console.log('PASS crit page: screenshot inputs, rebirth toggle, overflow table, boost, reset, narrow layout:',shell);await context.close();}
 }finally{await browser.close();server.close();}})().catch(e=>{console.error(e);process.exitCode=1;server.close();});

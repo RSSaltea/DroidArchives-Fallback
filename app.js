@@ -2126,7 +2126,7 @@ const CRIT_AMOUNT_BASE=0.50,CRIT_AMOUNT_PER_LEVEL=0.10;
 const CHOPPER_CRIT_BONUS=0.50;
 const CRIT_UPGRADE_IDS={chance:'critical-chance',amount:'critical-amount',multi:'multi-crit'};
 // Some rebirths hand out a permanent crit buff on top of the Nova Shop levels:
-// crit chance at 23, 26 and 29, crit amount at 24, 27 and 30. Each one is listed
+// crit chance at 23, 26 and 29; crit amount at 24, 27, 30, 38 and 40. Each is listed
 // against its rebirth in nova-shop.json and they stack, so the bonus is the
 // running total for every rebirth you have already reached in this cycle.
 function rebirthCritBonus(rebirth=state.rebirth){
@@ -5287,7 +5287,7 @@ function refreshKyberRelease(rerender=true){
 }
 setInterval(()=>refreshKyberRelease(),10000);
 siteActivity=startSiteActivity({client:()=>supabaseClient});
-const DATA_VERSION='2026-09-26-crafting-audit';
+const DATA_VERSION='2026-09-28-rebirth-crit-rewards';
 const loadJson=async path=>{const response=await fetch(`${path}${path.includes('?')?'&':'?'}v=${DATA_VERSION}`);if(!response.ok)throw Error(`Unable to load ${path}`);return response.json()};
 function applyStellarData(droids,stellarStats={}){const rules=stellarStats._rules||{},images=stellarStats._images||{},round=value=>Math.round(value*1e6)/1e6;for(const droid of droids){if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;if(droid.rarity==='ICONIC'||droid.variants.STELLAR)continue;const base=droid.variants.DEFAULT,known=stellarStats[droid.name]||{},costMultiplier=rules.costMultiplier?.[droid.rarity],incomeMultiplier=rules.incomeMultiplier?.[droid.rarity],craftingMultiplier=rules.craftingMultiplier;droid.variants.STELLAR={cost:known.cost??(knownNumber(base?.cost)&&knownNumber(costMultiplier)?round(base.cost*costMultiplier):null),income:known.income??(knownNumber(base?.income)&&knownNumber(incomeMultiplier)?round(base.income*incomeMultiplier):null),craftingSeconds:known.craftingSeconds??(knownNumber(base?.craftingSeconds)&&knownNumber(craftingMultiplier)?round(base.craftingSeconds*craftingMultiplier):null)};if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;}return droids}
 async function loadEvents(){try{const index=await loadJson('data/events/index.json');if(!Array.isArray(index.events))return[];return Promise.all(index.events.map(file=>loadJson(`data/events/${file}`)))}catch{return[]}}

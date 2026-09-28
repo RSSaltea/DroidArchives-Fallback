@@ -2821,6 +2821,7 @@
     },
     {
       "rebirth": 38,
+      "critAmountPercent": 15,
       "novaCrystals": 466,
       "regularNovaCrystals": 300,
       "creditMultPercent": 932,
@@ -2835,6 +2836,7 @@
     },
     {
       "rebirth": 40,
+      "critAmountPercent": 20,
       "novaCrystals": 529,
       "regularNovaCrystals": 300,
       "creditMultPercent": 1058,
