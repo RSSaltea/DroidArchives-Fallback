@@ -2,6 +2,116 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-28-responsive-optimise",
+      "date": "2026-09-28",
+      "title": "Fixed freezing after Base updates",
+      "summary": "Expensive Iconic comparisons now run in the background so you can keep using the site while Optimise calculates.",
+      "changes": [
+        "Fixed long page freezes after changing your Base or Optimise settings. Both layout comparisons and the separate Iconic purchase recommendations now run away from the page controls.",
+        "Iconic recommendations are calculated once for a layout instead of being recalculated whenever the page redraws. A verified route can appear while those recommendations are still being checked.",
+        "Changing your Base cancels the old calculation, and results from an older profile or set of settings cannot replace the current plan. Complex Bases can still take time to calculate; the controls remain available while they do."
+      ]
+    },
+    {
+      "id": "2026-09-28-iconic-purchases-returns",
+      "date": "2026-09-28",
+      "title": "Plan Iconic purchases and returns",
+      "summary": "A new optional Optimise setting includes unlocked Iconics you have not bought yet, with a route to buy them and make room.",
+      "changes": [
+        "Enable Plan Iconic purchases and returns in Base settings or Optimise. It starts off and is saved with your profile, including imports and exports. Only Iconics marked as unlocked in Nova Shop are considered.",
+        "Optimise compares those purchases with your existing droids, companion choices, mission priorities and Protocol settings. It can use eligible fusions or sales to make room while respecting locks, Keep rules and future Rebirth needs.",
+        "Routes buy Iconics at the Cantina into a free Companion seat, then send them to the Lounge where possible. Purchases are grouped to reduce trips to the Cantina, and temporarily displaced locked Companions return to their original seats.",
+        "Purchase routes can include Apply steps up to this point. This saves the completed part of the route and opens your Base map so you can correct where the new droids landed, then continue planning from their actual positions.",
+        "Optimise can recommend returning an owned Iconic when keeping it does not improve your selected priorities. Return can be done where the droid is standing; its permanent unlock is retained so you can buy it again later.",
+        "To help smaller Bases hold future Rebirth droids, Iconic planning aims to leave up to two Lounge spaces free when you still have required droids to collect. A planned purchase is not added to your saved Base until you apply the completed steps or layout."
+      ]
+    },
+    {
+      "id": "2026-09-28-fusion-progression",
+      "date": "2026-09-28",
+      "title": "Fusion progress and Kyber results",
+      "summary": "Optimise can now plan useful fusion progress without an immediate income gain, and Mythic and Kyber predictions have been corrected.",
+      "changes": [
+        "With Fuse instead of selling enabled, eligible spare batches can be fused even when they do not increase current income. Your Fusion settings, locks, Keep rules and required Rebirth copies still decide which inputs are available.",
+        "Fusion planning accounts for three inputs becoming one result. It can reuse the space released by one batch to arrange the next, including moving completed droids out of Fusion Build tanks when a valid route exists. Unfinished or locked tanks are not cleared.",
+        "Fixed mixed-name Mythic triples incorrectly predicting the same variant. Two Galactic RIC plus a Galactic CYCLENS produce a random Stellar Mythic. Mixed-name Beskar triples advance to Galactic, and mixed-name Stellar triples advance to dormant Kyber, with a random Mythic result unless a named recipe takes priority.",
+        "Three identical Green Kybers can upgrade to Blue, and three identical Blue Kybers to Purple. Mixed-name Mythics at matching Green or Blue also advance one colour, with a random Mythic result. Below Mythic, mixed-name Kyber rarity rolls now account for the input colours; the resulting droid remains random. Named recipes involving activated Kybers are excluded from these predictions.",
+        "Dormant Kyber Mythics reroll at dormant Kyber. Capped Purple or mixed-colour Mythic results, and named recipes using activated Kybers, remain unpredicted rather than being presented as certain.",
+        "Fusion settings, My fusions and result descriptions now distinguish known droid upgrades, random Mythic variant upgrades and dormant Kyber rerolls. Random results still need you to select the droid you actually received when applying the plan."
+      ]
+    },
+    {
+      "id": "2026-09-28-optimise-routes",
+      "date": "2026-09-28",
+      "title": "More practical Optimise routes",
+      "summary": "Better Companion detours, Protocol placement and movement order within each room.",
+      "changes": [
+        "Optimise can temporarily swap locked Companions to complete a route, then restores the same droids to their original Companion seats. Applying a partial route is blocked while those locked Companions are still displaced.",
+        "When a direct Work command would send a Protocol droid to the wrong console, the route can make it your Companion first and tell you to walk right beside the intended console before putting it to work. This also supports other droids where their work priorities and free slots permit it.",
+        "Independent steps within a room can now be reordered using individual slot distances, including room entry and exit, to reduce running back and forth across the Lounge. Move dependencies are preserved, and the route is checked again after reordering.",
+        "Improved placement comparisons so idle droids can fill free work slots and strong earners are evaluated with their region's Protocol bonuses, including C-3PO. This also reduces unnecessary moves between regions.",
+        "Fixed routes that failed when sending droids to Fusion storage, including completed Build and Fusion Build droids. A usable verified route is kept while Optimise searches for a shorter one.",
+        "Expected landings remain estimates where the starting position is uncertain. If a droid lands somewhere else, record its actual position in Base before continuing; Optimise does not guarantee the shortest possible walk."
+      ]
+    },
+    {
+      "id": "2026-09-28-base-map-panels",
+      "date": "2026-09-28",
+      "title": "Map storage and Base panel controls",
+      "summary": "Companions and Blueprint Storage are now part of the map, with clearer Rebirth controls and searches.",
+      "changes": [
+        "Moved Companions and Blueprint Storage into a labelled panel at the bottom right of the map. Their circles are centred under their labels and remain available when viewing either floor.",
+        "Drag Companions between valid droid slots to move or swap them. Stored blueprints can be moved or swapped between storage slots, or dragged onto a free Build slot to start crafting there. Invalid drops leave your Base unchanged.",
+        "Blueprint slots support their own add, craft and remove controls, including keyboard removal. Companion and storage circles do not pretend to have measured in-game positions in Distance view.",
+        "Added a separate Show / Hide Rebirth Outlook control and fixed Rebirth Prep visibility, including on an empty profile. Regional production also has its own visibility setting.",
+        "Moved the Needed later in this cycle search below the What is still left collapsible panel, and added a separate search inside that panel for its remaining needs and spare droids."
+      ]
+    },
+    {
+      "id": "2026-09-28-active-kyber-rebirths",
+      "date": "2026-09-28",
+      "title": "Active Kyber requirements and clearer upgrade costs",
+      "summary": "Rebirth checks now require an activated Kyber droid and explain the remaining activation step.",
+      "changes": [
+        "Kyber requirements are labelled Kyber (active) across Rebirth paths and planning. Green, Blue or Purple qualifies; owning a dormant Kyber alone no longer marks the requirement ready.",
+        "Rebirth Outlook and preparation show when an owned droid still needs activation, with its Kyber Crystal cost. Droid pages include activation costs too, so the requirement can be checked before upgrading.",
+        "Upgrade instructions now name the starting variant used for the chip calculation. Costs follow rarity and variant, and planning uses the best qualifying owned copy, including copies in the Lounge.",
+        "Abbreviated numbers retain up to three decimal places, with trailing zeros hidden, so values such as 1.425M stay visible instead of rounding to 1.43M."
+      ]
+    },
+    {
+      "id": "2026-09-28-critical-calculator-details",
+      "date": "2026-09-28",
+      "title": "Critical Calculator: chances above 100%",
+      "summary": "A new breakdown explains chained crits and why Multi Crit can become a better Nova purchase than more Critical Chance.",
+      "changes": [
+        "Added a roll-by-roll table showing each crit's chance if reached and the chance per swing of reaching at least that many crits. Each later roll has half the previous chance, and a failed roll ends the chain.",
+        "Clarified that 100% guarantees the first crit. Extra Critical Chance improves later rolls that are not yet guaranteed, while Multi Crit adds another possible roll. Recommendations compare average damage gain per Nova spent.",
+        "Added a manual temporary pickaxe multiplier for active crafting or event boosts. It changes estimated time removed per swing, not which crit upgrade gives the best relative value, and is not automatically detected from your Base.",
+        "Clarified that average time removed per swing is a long-run estimate before it is capped by the build time remaining on the droid. Resetting the calculator also clears the temporary multiplier."
+      ]
+    },
+    {
+      "id": "2026-09-28-branding-patch-dialog",
+      "date": "2026-09-28",
+      "title": "Gonk-o-Ween branding and patch note fix",
+      "summary": "The site has its green-and-purple seasonal logo, and update notes stay open while you read them.",
+      "changes": [
+        "Added the animated Gonk-o-Ween Droid Archives logo to the main and Classic site headers, with matching icons and branding on supporting pages and progress cards.",
+        "Fixed patch notes opening and then immediately closing during background account or release checks. The dialog and reading position are preserved until you dismiss it, and dismissal is remembered."
+      ]
+    },
+    {
+      "id": "2026-09-28-owner-hourly-statistics",
+      "date": "2026-09-28",
+      "title": "Owner statistics: last hour",
+      "summary": "Added a Last hour column to the owner-only Site Statistics page.",
+      "showOnStartup": false,
+      "changes": [
+        "Hourly activity is shown for both visitor browsers and signed-in accounts alongside the existing five-minute, 24-hour and seven-day windows. This page remains restricted to the site owner."
+      ]
+    },
+    {
       "id": "2026-09-27-map-controls-scroll",
       "date": "2026-09-27",
       "title": "Map controls and scrolling",
