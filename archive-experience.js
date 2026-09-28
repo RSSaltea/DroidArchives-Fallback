@@ -1,4 +1,4 @@
-import { renderProgressCard } from './progress-card.js?v=2026-09-16-card-redesign';
+import { renderProgressCard } from './progress-card.js?v=2026-09-28-gonkoween';
 // Profile tools share the existing planner's calculations and save path.
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clone = value => JSON.parse(JSON.stringify(value));

@@ -1,7 +1,7 @@
 // One renderer for the editor preview, downloaded PNG and shared snapshot page.
 // Artwork is bundled with the site; no profile image URLs or external requests.
 const ART = {
-  emblem:'assets/other/icon.png',
+  emblem:'assets/other/icon-gonkoween.webp?v=2026-09-28-gonkoween',
   income:'assets/events/Credits.png',
   progress:'assets/nav/Rebirth.png',
   collection:'assets/nav/Droidex.png'
