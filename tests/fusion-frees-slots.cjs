@@ -36,7 +36,7 @@ const server=http.createServer((req,res)=>{
    income:d.incomeForPlaced(target.placed),currentIncome:d.incomeForPlaced(base.placed),
    triTek:target.placed.filter(x=>x.name==='TRI-TEK'&&x.variant==='STELLAR').map(x=>x.station),
    fusing:(target.fusing||[]).map(x=>x.name+' '+x.variant),
-   steps:steps.map(s=>({type:s.type,unit:s.unit&&(s.unit.name+' '+s.unit.variant),to:s.to?.station,text:String(s.text).replace(/<[^>]+>/g,'')}))};
+   steps:steps.map(s=>({type:s.type,unit:s.unit&&(s.unit.name+' '+s.unit.variant),from:s.from?.station,to:s.to?.station,text:String(s.text).replace(/<[^>]+>/g,'')}))};
  },[profile,fuseFirst]);
  const result=await run(true);
  assert.equal(errors.length,0,errors.join('\n'));
@@ -45,36 +45,35 @@ const server=http.createServer((req,res)=>{
  assert.equal(result.overflow,0);
  assert.deepEqual(result.sell,[],'kept droids are fused, never sold');
  assert.deepEqual(result.triTek,['ASTROMECH'],'the Stellar TRI-TEK leaves its Build tank for a credit slot');
- assert.equal(result.fusing.length,3,'one batch of three kept droids is consumed: '+result.fusing.join(', '));
+ assert.equal(result.fusing.length,9,'all three batches progress, including the random Mythic variant upgrade: '+result.fusing.join(', '));
  assert(result.income>result.currentIncome*1.1,'the layout the walk reaches earns the gain: '+result.income+' vs '+result.currentIncome);
  const types=result.steps.map(s=>s.type);
- assert.equal(types.filter(t=>t==='fuse-in').length,3,JSON.stringify(result.steps));
- assert.equal(types.filter(t=>t==='fuse').length,1);
+ assert.equal(types.filter(t=>t==='fuse-in').length,9,JSON.stringify(result.steps));
+ assert.equal(types.filter(t=>t==='fuse').length,3);
+ assert(result.steps.some(s=>s.type==='fuse'&&/Mythic droid at Beskar/.test(s.text)),'Rainbow Mythic spares upgrade to random Beskar');
  assert(!types.includes('note'),JSON.stringify(result.steps));
  // Sending the inputs to the Fusion room is what clears their slots; the Fuse
  // press itself waits until the droid in its Fusion Build tank has gone to work.
- assert(types.lastIndexOf('fuse-in')<types.indexOf('move'),'the batch clears the slots before the moves that need them');
- assert(types.indexOf('fuse')>result.steps.findIndex(s=>s.unit==='SNOW MOUSE GALACTIC'),'the result builds in a tank that has been emptied');
+ assert(types.indexOf('fuse-in')<types.indexOf('move'),'staging frees space before the moves that need it');
+ assert(result.steps.slice(0,types.indexOf('fuse')).some(s=>s.type==='move'&&s.from==='FUSION_BUILD'),'empty a finished tank before the first fusion');
  const toWork=result.steps.find(s=>s.type==='move'&&s.unit==='TRI-TEK STELLAR');
  assert(toWork&&toWork.to==='ASTROMECH',JSON.stringify(toWork));
  // Nothing a fusion did not take is moved into a Build tank, and no swap is asked for.
  assert(!result.steps.some(s=>s.type==='swap'||s.to==='BUILD'||s.to==='FUSION_BUILD'),JSON.stringify(result.steps));
- // With fusion switched off nothing can be fused and the Lounge is still full,
- // so the walk goes through the Companion seat instead: the card of a finished
- // droid in a tank offers Swap with a Companion slot, the Companion takes the
- // tank, is swapped into the slot the displaced droid leaves, and swaps back
- // out once that droid is the Companion. Nothing is sold and no tank is emptied.
+ // With fusion off, the verified route may use storage and companion approach
+ // moves as well as swaps, but it must not consume or sell any droids.
  const off=await run(false);
  assert.equal(off.complete,true,JSON.stringify(off.issues));
  assert.equal(off.fusing.length,0);assert.deepEqual(off.sell,[]);assert.equal(off.overflow,0);
  assert.deepEqual(off.triTek,['ASTROMECH'],'the Stellar TRI-TEK still reaches a credit slot');
- assert.ok(off.steps.length>=3&&off.steps.every(s=>s.type==='swap'),JSON.stringify(off.steps));
- assert.ok(off.steps.every(s=>/press Swap, Slot/.test(s.text)),JSON.stringify(off.steps));
+ assert.ok(off.steps.length>=3&&off.steps.every(s=>['swap','move'].includes(s.type)),JSON.stringify(off.steps));
+ assert.ok(off.steps.some(s=>s.type==='swap'),'companion swaps provide temporary space');
+ assert.ok(off.steps.filter(s=>s.type==='swap').every(s=>/press Swap, Slot/.test(s.text)),JSON.stringify(off.steps));
  assert.equal(errors.length,0,errors.join('\n'));
  // The same base a day on: rebirth 32, two droids with no further use, and the
  // three Legendary Galactics the player has already put on the Fusion table.
  // Those three are fused first, exactly as staged; the two dead ends are sold;
- // OPTI-STRIKE takes TRI-TEK's tank through the Companion; nothing is invented.
+ // Additional Mythic fusions may free enough space to avoid a tank swap.
  const staged=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/fusion-staged-table.json'),'utf8'));
  const later=await page.evaluate(([profile])=>{
   const d=window.testPlan;d.applyProfileData(profile.base);d.state.optimiseFuseFirst=true;d.save();
@@ -92,7 +91,6 @@ const server=http.createServer((req,res)=>{
  assert.ok(held.every(s=>s.from==='FUSION'),'the staged batch uses the copies on the table');
  const fuse=later.steps.find(s=>s.type==='fuse');
  assert.ok(fuse&&/already on the table/.test(fuse.text),fuse&&fuse.text);
- assert.ok(later.steps.some(s=>s.type==='swap'),'the tank swap is part of the walk');
  assert.ok(!later.steps.some(s=>s.type==='note'),JSON.stringify(later.steps));
  assert.equal(errors.length,0,errors.join('\n'));
  // Two PROTO-ROLLER Galactics already on the table and a third on the Upgrade Chip,

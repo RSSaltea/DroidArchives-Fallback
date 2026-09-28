@@ -1,0 +1,353 @@
+{
+  "novaUpgrades": {
+    "credits": 2,
+    "multi-crit": 1,
+    "collect-all": 1,
+    "fusion-tank": 2,
+    "lounge-slot": 4,
+    "scrap-value": 5,
+    "fusion-speed": 3,
+    "companion-slot": 1,
+    "daily-crystals": 1,
+    "blueprint-scrap": 4,
+    "chip-sell-bonus": 2,
+    "critical-amount": 2,
+    "critical-chance": 4,
+    "pickaxe-mastery": 11,
+    "blueprint-vendor": 1,
+    "blueprint-storage": 2,
+    "upgrade-chip-scrap": 10,
+    "double-daily-quests": 0,
+    "rebirth-droid-alert": 1,
+    "upgrade-chip-station": 1
+  },
+  "multiplier": 12.8,
+  "cycle": 4,
+  "rebirth": 22,
+  "superRebirthGoal": 40,
+  "astromechIconicRoles": {},
+  "fusionKeepRules": [
+    {
+      "rarity": "LEGENDARY",
+      "variant": "BESKAR"
+    },
+    {
+      "rarity": "EPIC",
+      "variant": "STELLAR"
+    },
+    {
+      "rarity": "MYTHIC",
+      "variant": "RAINBOW"
+    }
+  ],
+  "fusionPreferences": {
+    "goal": "rarity",
+    "mythics": "variant",
+    "recipes": true
+  },
+  "protocolPriority": "credits",
+  "optimiseFreeBuild": false,
+  "optimiseFuseFirst": true,
+  "fusionAsLounge": false,
+  "optimiseFreeBuildMode": "upgrade-cost",
+  "optimiseMinGainPercent": 0.5,
+  "optimiseKeepDroidex": false,
+  "optimiseKeepProtocol": true,
+  "autoPurchaseSlots": true,
+  "purchasedSlots": [
+    "WORKER:4",
+    "BUILD:1",
+    "PROTOCOL_WORKER_CREDITS:0",
+    "ASTROMECH:3",
+    "BUILD:2",
+    "FUSION:0",
+    "FUSION:1",
+    "FUSION:2",
+    "FUSION_BUILD:0",
+    "BATTLE:2",
+    "WORKER:5",
+    "ASTROMECH:4",
+    "PROTOCOL_ASTROMECH_CREDITS:0",
+    "BATTLE:3",
+    "WORKER:6",
+    "ASTROMECH:5",
+    "BATTLE:4",
+    "PROTOCOL_BATTLE_CREDITS:0",
+    "WORKER:7",
+    "ASTROMECH:6",
+    "WORKER:8",
+    "ASTROMECH:7",
+    "PROTOCOL_WORKER_CRAFTING:0",
+    "WORKER:9",
+    "ASTROMECH:8",
+    "WORKER:10",
+    "BATTLE:5",
+    "LOUNGE:5",
+    "PROTOCOL_ASTROMECH_CRAFTING:0",
+    "BATTLE:6",
+    "LOUNGE:6",
+    "BATTLE:7",
+    "LOUNGE:7",
+    "BATTLE:8",
+    "LOUNGE:8",
+    "BATTLE:9",
+    "PROTOCOL_BATTLE_CRAFTING:0",
+    "BATTLE:10"
+  ],
+  "loungePurchased": 0,
+  "owned": [
+    {
+      "name": "GROUNDMECH",
+      "variant": "STELLAR",
+      "qty": 1,
+      "preferred": "WORKER",
+      "preferredSlot": 10
+    },
+    {
+      "name": "ROLL-R",
+      "variant": "RAINBOW",
+      "qty": 1,
+      "preferred": "LOUNGE",
+      "preferredSlot": 1
+    },
+    {
+      "name": "OPTI-POD",
+      "variant": "GALACTIC",
+      "qty": 1,
+      "preferred": "WORKER",
+      "preferredSlot": 6
+    },
+    {
+      "name": "A-LT",
+      "variant": "GALACTIC",
+      "qty": 1,
+      "preferred": "ASTROMECH",
+      "preferredSlot": 2
+    },
+    {
+      "name": "2BB",
+      "variant": "STELLAR",
+      "qty": 1,
+      "preferred": "ASTROMECH",
+      "preferredSlot": 0
+    },
+    {
+      "name": "MONO-WALKER",
+      "variant": "BESKAR",
+      "qty": 1,
+      "preferred": "WORKER",
+      "preferredSlot": 0
+    },
+    {
+      "name": "B2 HEAVY",
+      "variant": "GALACTIC",
+      "qty": 1,
+      "preferred": "BATTLE",
+      "preferredSlot": 4
+    },
+    {
+      "name": "R6",
+      "variant": "GALACTIC",
+      "qty": 1,
+      "preferred": "ASTROMECH",
+      "preferredSlot": 3
+    },
+    {
+      "name": "B2 HEAVY",
+      "variant": "STELLAR",
+      "qty": 1,
+      "preferred": "BATTLE",
+      "preferredSlot": 9
+    },
+    {
+      "name": "B1 SECURITY",
+      "variant": "GALACTIC",
+      "qty": 1,
+      "preferred": "BATTLE",
+      "preferredSlot": 3
+    },
+    {
+      "name": "C-3PO",
+      "variant": "DEFAULT",
+      "qty": 1,
+      "preferred": "PROTOCOL_WORKER_CREDITS",
+      "preferredSlot": 0
+    },
+    {
+      "name": "CHOPPER",
+      "variant": "DEFAULT",
+      "qty": 1,
+      "preferred": "COMPANION",
+      "preferredSlot": 0,
+      "lockedSlot": true
+    },
+    {
+      "name": "BB-8",
+      "variant": "DEFAULT",
+      "qty": 1,
+      "preferred": "COMPANION",
+      "preferredSlot": 1,
+      "lockedSlot": true
+    },
+    {
+      "name": "CYCLO-GRAV",
+      "variant": "GALACTIC",
+      "qty": 1,
+      "preferred": "BATTLE",
+      "preferredSlot": 8,
+      "built": true
+    },
+    {
+      "name": "R7",
+      "variant": "GALACTIC",
+      "qty": 1,
+      "preferred": "ASTROMECH",
+      "preferredSlot": 4
+    },
+    {
+      "name": "R2",
+      "variant": "GOLD",
+      "qty": 1,
+      "preferred": "LOUNGE",
+      "preferredSlot": 10,
+      "built": true
+    },
+    {
+      "name": "MONO-WALKER",
+      "variant": "STELLAR",
+      "qty": 1,
+      "preferred": "WORKER",
+      "preferredSlot": 5
+    },
+    {
+      "name": "PROTO-ROLLER",
+      "variant": "BESKAR",
+      "qty": 1,
+      "preferred": "WORKER",
+      "preferredSlot": 9
+    },
+    {
+      "name": "B2-RP",
+      "variant": "KYBER_BLUE",
+      "qty": 1,
+      "preferred": "BATTLE",
+      "preferredSlot": 7,
+      "built": true
+    },
+    {
+      "name": "OPTI-STRIKE",
+      "variant": "BESKAR",
+      "qty": 1,
+      "preferred": "BATTLE",
+      "preferredSlot": 0
+    },
+    {
+      "name": "LO",
+      "variant": "BESKAR",
+      "qty": 1,
+      "preferred": "WORKER",
+      "preferredSlot": 1
+    },
+    {
+      "name": "B2-RP",
+      "variant": "BESKAR",
+      "qty": 1,
+      "preferred": "BATTLE",
+      "preferredSlot": 1
+    },
+    {
+      "name": "MONO-WALKER",
+      "variant": "GALACTIC",
+      "qty": 1,
+      "preferred": "WORKER",
+      "preferredSlot": 7
+    },
+    {
+      "name": "UTIL-TEC",
+      "variant": "BESKAR",
+      "qty": 1,
+      "preferred": "LOUNGE",
+      "preferredSlot": 5
+    },
+    {
+      "name": "SEN-TRI",
+      "variant": "BESKAR",
+      "qty": 1,
+      "preferred": "WORKER",
+      "preferredSlot": 8,
+      "built": true
+    },
+    {
+      "name": "TRAK-R",
+      "variant": "BESKAR",
+      "qty": 1,
+      "preferred": "UPGRADE_CHIP",
+      "preferredSlot": 0
+    },
+    {
+      "name": "GUNRUNNER",
+      "variant": "STELLAR",
+      "qty": 1,
+      "preferred": "WORKER",
+      "preferredSlot": 3
+    },
+    {
+      "name": "MECHA-DROID",
+      "variant": "BESKAR",
+      "qty": 1,
+      "preferred": "WORKER",
+      "preferredSlot": 4
+    },
+    {
+      "name": "AMP WALKER",
+      "variant": "GALACTIC",
+      "qty": 1,
+      "preferred": "WORKER",
+      "preferredSlot": 2
+    },
+    {
+      "name": "OPTI-STRIKE",
+      "variant": "BESKAR",
+      "qty": 1,
+      "preferred": "BATTLE",
+      "preferredSlot": 6
+    },
+    {
+      "name": "HAUL-R",
+      "variant": "BESKAR",
+      "qty": 1,
+      "preferred": "LOUNGE",
+      "preferredSlot": 11,
+      "built": true
+    },
+    {
+      "name": "STRIKE-ORB",
+      "variant": "BESKAR",
+      "qty": 1,
+      "preferred": "BATTLE",
+      "preferredSlot": 10,
+      "built": true
+    },
+    {
+      "name": "BB9",
+      "variant": "GALACTIC",
+      "qty": 1,
+      "preferred": "ASTROMECH",
+      "preferredSlot": 1
+    },
+    {
+      "name": "R2-D2",
+      "variant": "DEFAULT",
+      "qty": 1,
+      "preferred": "ASTROMECH",
+      "preferredSlot": 8
+    },
+    {
+      "name": "TRAK-R",
+      "variant": "GALACTIC",
+      "qty": 1,
+      "preferred": "ASTROMECH",
+      "preferredSlot": 6
+    }
+  ]
+}

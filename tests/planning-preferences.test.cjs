@@ -180,7 +180,7 @@ steps=chain([batch('MECHA-DROID')],{goal:'rarity'});assert.equal(steps.length,0,
 steps=chain([batch('MECHA-DROID'),batch('BB9',2),batch('CYCLO-GRAV',1)],{goal:'rarity'});assert.equal(steps.length,2,'mix all six Legendaries into two Mythic rolls');assert(steps.every(s=>s.kind==='rarity'&&s.rarity==='MYTHIC'&&s.variant==='GALACTIC'));
 for(const step of steps){sb.inputs=step.spend.flatMap(p=>Array.from({length:p.count},()=>({name:p.name,variant:p.variant})));assert.equal(run('fusionOutcome(inputs).kind'),'rarity');assert.equal(run('fusionOutcome(inputs).rarity'),'MYTHIC');}
 steps=chain([batch('MECHA-DROID'),batch('BB9',2)],{goal:'variant'});assert(steps.every(s=>s.kind==='quality'));
-steps=chain([batch('KX',2,'DIAMOND'),batch('RIC',1,'DIAMOND')],{mythics:'reroll'});assert.equal(steps.length,1);assert.equal(steps[0].rarity,'MYTHIC');assert.equal(steps[0].variant,'DIAMOND');assert.equal(steps[0].out,null);
+steps=chain([batch('KX',2,'DIAMOND'),batch('RIC',1,'DIAMOND')],{mythics:'reroll'});assert.equal(steps.length,1);assert.equal(steps[0].rarity,'MYTHIC');assert.equal(steps[0].variant,'RAINBOW');assert.equal(steps[0].out,null);
 assert.equal(chain([batch('KX',3,'DIAMOND')],{mythics:'reroll'}).length,0,'same-name lower variants are not rerolls');
 assert.equal(chain([batch('KX',3,'KYBER')],{mythics:'reroll'})[0].rarity,'MYTHIC');
 assert.equal(chain([batch('KX',3,'KYBER')],{mythics:'off'}).length,0);
@@ -188,3 +188,38 @@ assert.equal(chain([batch('KX',1),batch('IG',1),batch('RIC',1)],{mythics:'reroll
 steps=chain([batch('KX',1),batch('IG',1),batch('RIC',1),batch('LOADLIFTER',1)],{mythics:'reroll'});assert(steps.length>0,'alternative triple bypasses named recipe');
 const counts=new Map();for(const step of steps)for(const part of step.spend)counts.set(part.name,(counts.get(part.name)||0)+part.count);assert([...counts.values()].every(n=>n===1),'no repeated spend');
 console.log('PASS: exact fusion batches, rarity versus variant goals, Mythic rerolls, recipe collisions and stock consumption');
+
+// An already-collected result below every earner still advances fusion goals.
+state.droidex=[{name:'KX',variant:'STELLAR'},{name:'MECHA-DROID',variant:'STELLAR'}];
+for(const [name,settings] of [['KX',{mythics:'variant'}],['MECHA-DROID',{goal:'balanced'}]]){
+ state.fusionPreferences=settings;sb.stock=new Map([[name,new Map([['GALACTIC',3]])]]);
+ assert.equal(run('fusionBestFrom(stock,Number.MAX_VALUE,new Map(),null).out.variant'),'STELLAR');
+}
+const kybers=[batch('SEN-TRI',1,'KYBER_GREEN'),batch('GUNRUNNER',1,'KYBER_BLUE'),batch('OPTI-POD',1,'KYBER_PURPLE')];
+steps=chain(kybers,{goal:'rarity'});
+assert.equal(steps.length,1);assert.equal(steps[0].rarity,'LEGENDARY');assert.equal(steps[0].variant,'KYBER_BLUE');
+assert.deepEqual(Array.from(steps[0].spend,p=>p.variant).sort(),['KYBER_BLUE','KYBER_GREEN','KYBER_PURPLE']);
+assert.equal(chain(kybers,{goal:'variant'}).length,0,'a rarity roll cannot satisfy same-droid variant preference');
+steps=chain([batch('SEN-TRI',3,'KYBER_GREEN')],{goal:'variant'});
+assert.equal(steps[0].out.name,'SEN-TRI');assert.equal(steps[0].out.variant,'KYBER_BLUE');
+assert.equal(chain([batch('SEN-TRI',3,'KYBER_BLUE')],{goal:'variant'})[0].out.variant,'KYBER_PURPLE');
+assert.equal(chain([batch('SEN-TRI',3,'KYBER_PURPLE')],{goal:'rarity'})[0].variant,'KYBER_PURPLE');
+const greenMythics=[batch('KX',2,'KYBER_GREEN'),batch('CYCLENS',1,'KYBER_GREEN')];
+assert.equal(chain(greenMythics,{mythics:'variant'})[0].variant,'KYBER_BLUE','matching Green Mythics advance to a random Blue Mythic');
+assert.equal(chain(greenMythics,{mythics:'reroll'}).length,1,'explicit Mythic rerolls still permit Green');
+steps=chain([batch('SEN-TRI',1,'KYBER'),batch('GUNRUNNER',1,'KYBER_GREEN'),batch('OPTI-POD',1,'KYBER_BLUE')],{goal:'rarity'});
+assert.equal(steps[0].variant,'KYBER_GREEN','dormant colour ID is minus one');
+console.log('PASS: zero-income fusion goals, Kyber colour upgrades, mixed colours and exact input consumption');
+
+// Mythic rarity is capped: the mined rarity-average fallback raises the variant.
+for(const [from,to] of [['DEFAULT','GOLD'],['GOLD','DIAMOND'],['DIAMOND','RAINBOW'],['RAINBOW','BESKAR'],['BESKAR','GALACTIC'],['GALACTIC','STELLAR'],['STELLAR','KYBER'],['KYBER_GREEN','KYBER_BLUE'],['KYBER_BLUE','KYBER_PURPLE']]){
+ const inputs=[batch('RIC',2,from),batch('CYCLENS',1,from)];
+ const result=chain(inputs,{goal:'rarity',mythics:'variant'});
+ assert.equal(result.length,1,from);assert.equal(result[0].variant,to);assert.equal(result[0].rarity,'MYTHIC');assert.equal(result[0].out,null,'random identity must not be promised');assert.equal(result[0].variantUpgrade,true);
+ assert.equal(chain(inputs,{mythics:'off'}).length,0);
+ sb.inputs=inputs.flatMap(p=>Array.from({length:p.qty},()=>({name:p.name,variant:p.variant})));
+ assert.equal(run('fusionOutcome(inputs).variant'),to,'table preview and planner agree');
+}
+assert.equal(chain([batch('RIC',2,'KYBER_PURPLE'),batch('CYCLENS',1,'KYBER_PURPLE')],{mythics:'reroll'}).length,0,'Purple Mythics have no next rarity or live colour in the export');
+assert.equal(chain([batch('RIC',2,'KYBER_BLUE'),batch('CYCLENS',1,'KYBER_GREEN')],{mythics:'reroll'}).length,0,'mixed Mythic colours cannot use the matching-colour fallback');
+console.log('PASS: random Mythic variant upgrades, exact Galactic RIC/CYCLENS regression, preference eligibility and capped colours');

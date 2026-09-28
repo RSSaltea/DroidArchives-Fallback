@@ -1,10 +1,11 @@
 import { slotDistanceSquared } from './slot-geometry.js?v=2026-09-26-slot-order';
-import { predictWorkLanding, predictStationLanding } from './optimise-route.js?v=2026-09-27-fusion-storage';
+import { predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding } from './optimise-route.js?v=2026-09-28-slot-walks';
 
 // Functions cannot cross a worker boundary. Rebuild them from the exact slots,
 // permissions and room costs captured by the app for this profile.
 export function workerRules(data) {
   const rules = {
+    allowTemporaryCompanionSwaps:Boolean(data.allowTemporaryCompanionSwaps),
     slots: station => data.slots[station] || [],
     canUse: (unit, station) => Boolean(data.droids[unit.name]?.allowed.includes(station)),
     canPark: unit => Boolean(data.droids[unit.name]?.canPark),
@@ -16,6 +17,8 @@ export function workerRules(data) {
     protocolStations: () => data.protocol,
     slotDistanceSquared
   };
+  rules.companionWorkLanding=(unit,placed,target)=>predictCompanionWorkLanding(unit,placed,target,rules);
+  rules.protocolCompanionLanding = (unit, placed, target) => predictProtocolCompanionLanding(unit, placed, target, rules);
   rules.workLanding = (unit, placed) => predictWorkLanding(unit, placed, rules);
   rules.stationLanding = (unit, placed, station) => predictStationLanding(unit, placed, station, rules);
   return rules;

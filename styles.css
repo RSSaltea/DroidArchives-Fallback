@@ -1145,3 +1145,6 @@ html[data-ui-style] .companion-activity .btn.companion-activity-button.active,ht
 .scrap-activity input,.scrap-activity select{width:100%;box-sizing:border-box}
 .income-breakdown{margin:16px 0;padding:12px 18px;border:1px solid var(--line);background:var(--panel);border-radius:8px;overflow-x:auto}
 .income-breakdown p{line-height:1.5}
+
+.needed-search{max-width:360px;margin:0 0 16px auto}
+#outstandingPanel [hidden]{display:none!important}

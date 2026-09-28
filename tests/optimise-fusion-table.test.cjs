@@ -9,7 +9,7 @@ const batch=name=>({spend:[{name,variant:'DIAMOND',count:3}],out:{name,variant:'
 function setup(units,batches){
  let scored=0;
  const context=vm.createContext({
-  state:{optimiseFuseFirst:true},soldInsteadOfFusion:()=>[],fusionRebirthProtectedKeys:()=>new Set(),
+  state:{optimiseFuseFirst:true},soldInsteadOfFusion:()=>[],fusionRebirthProtectedKeys:()=>new Set(),isBuilding:()=>false,
   // Fix the scorer's order so these tests isolate whether execution respects
   // the existing table, independently of income and Droidex scoring changes.
   fusionChainFromSpares:()=>{scored++;assert(scored<3,'table conflicts must not recursively retry an unchanged pool');return batches;},

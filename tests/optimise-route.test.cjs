@@ -76,6 +76,63 @@ test('visit shortening preserves command dependencies and joins compatible repea
   const locked=shortenOptimiseWalk(steps,{distance,isValid:rows=>rows.every((r,i)=>r.id===i)});
   assert.equal(locked.stops,4);assert.equal(locked.travelDistance,40);
 });
+
+test('orders Lounge interactions by slot distance including entry and exit, replaying every change',async()=>{
+  const mod=await load();nextSource=0;
+  const placed=[unit('WORK-ENTRY','WORKER',0),...['A','B','C','D'].map((n,i)=>unit('WORK-'+n,'LOUNGE',i)),unit('WAR-EXIT','BATTLE',0)];
+  const points={WORKER:[0],LOUNGE:[100,10,90,20],BATTLE:[110]};
+  const rules={...rulesFor({WORKER:1,LOUNGE:4,BATTLE:1}),workLanding:()=>null};
+  const distance=()=>50,slotDistanceSquared=(a,b)=>(points[a.station][a.slot]-points[b.station][b.slot])**2;
+  const steps=placed.map(u=>({type:'sell',unit:u,from:{station:u.station,slot:u.slot},at:u.station,visit:u.station}));
+  const isValid=rows=>rows[0].unit.source===placed[0].source&&rows.at(-1).unit.source===placed.at(-1).source&&mod.validateOptimisePlan({initial:{placed},projected:{placed:[],sell:placed},steps:rows,rules}).ok;
+  const before=mod.optimiseWalkDistance(steps,{distance,slotDistanceSquared});
+  const result=mod.shortenOptimiseWalk(steps,{distance,slotDistanceSquared,isValid});
+  assert(isValid(result.steps));assert(result.travelDistance<before);assert.equal(result.travelDistance,110);
+  assert.deepEqual(result.steps.filter(s=>s.at==='LOUNGE').map(s=>s.from.slot),[1,3,2,0]);
+  const companion={...steps[0],from:{station:'COMPANION',slot:0},at:'WORKER'};
+  assert.equal(mod.optimiseWalkDistance([steps[0],companion,steps.at(-1)],{distance,slotDistanceSquared}),110,'Companion menu commands do not move the player');
+});
+
+test('a nearer Lounge droid cannot move before its destination is freed',async()=>{
+  const mod=await load();nextSource=0;
+  const a=unit('WORK-A','LOUNGE',0),b=unit('WORK-B','LOUNGE',1),entry=unit('WORK-ENTRY','WORKER',0);
+  const points={WORKER:[0],LOUNGE:[100,10,200]},rules={...rulesFor({WORKER:1,LOUNGE:3}),workLanding:()=>null};
+  const steps=[{type:'sell',unit:entry,from:at(entry,'WORKER'),at:'WORKER',visit:'entry'},
+    {type:'move',kind:'lounge',unit:a,from:at(a,'LOUNGE',0),to:at(a,'LOUNGE',2),at:'LOUNGE',visit:'lounge'},
+    {type:'move',kind:'lounge',unit:b,from:at(b,'LOUNGE',1),to:at(b,'LOUNGE',0),at:'LOUNGE',visit:'lounge'}];
+  const isValid=rows=>mod.validateOptimisePlan({initial:{placed:[entry,a,b]},projected:{placed:[at(a,'LOUNGE',2),at(b,'LOUNGE',0)],sell:[entry]},steps:rows,rules}).ok;
+  assert(!isValid([steps[0],steps[2],steps[1]]));
+  const result=mod.shortenOptimiseWalk(steps,{distance:()=>0,slotDistanceSquared:(a,b)=>(points[a.station][a.slot]-points[b.station][b.slot])**2,isValid});
+  assert(isValid(result.steps));assert(result.steps.findIndex(s=>s.unit===a)<result.steps.findIndex(s=>s.unit===b));
+});
+
+test('Companion approach respects work type, mission priority, occupancy and chip overflow',async()=>{
+  const {predictCompanionWorkLanding}=await load();nextSource=0;
+  const worker=unit('WORK-A','COMPANION',0),astro=unit('ASTRO-A','COMPANION',0),proto=unit('PROTO-A','COMPANION',0);
+  const rules=rulesFor({WORKER:1,ASTROMECH:2,BATTLE:1,UPGRADE_CHIP:1,PROTOCOL_WORKER_CREDITS:1});
+  const land=(u,p,station,slot=0)=>predictCompanionWorkLanding(u,p,{station,slot},rules);
+  assert(land(worker,[],'WORKER'));assert.equal(land(worker,[],'BATTLE'),null,'own room first');
+  assert(land(astro,[],'ASTROMECH',0));assert.equal(land(astro,[],'ASTROMECH',1),null,'mission before credits');
+  assert.equal(land(proto,[],'WORKER'),null,'Protocol slots first');assert(land(proto,[],'PROTOCOL_WORKER_CREDITS'));
+  const occupied=[unit('WORK-FILL','WORKER',0),unit('ASTRO-FILL','ASTROMECH',0)];
+  assert(land(worker,occupied,'BATTLE'));assert(land(astro,occupied,'ASTROMECH',1));
+  assert.equal(land(worker,occupied,'WORKER'),null);assert.equal(land(worker,occupied,'UPGRADE_CHIP'),null);
+  occupied.push(unit('ASTRO-FILL2','ASTROMECH',1),unit('WAR-FILL','BATTLE',0));assert(land(worker,occupied,'UPGRADE_CHIP'));
+  assert.equal(land(at(worker,'LOUNGE'),[],'WORKER'),null,'must follow the player as a Companion');
+});
+
+test('ordinary droid uses a Companion to reach the intended overflow slot and restores the seat',async()=>{
+  const mod=await load();nextSource=0;
+  const worker=unit('WORK-A','LOUNGE',0),fill=unit('WORK-FILL','WORKER',0,{lockedSlot:true}),pal=unit('ASTRO-PAL','COMPANION',0,{lockedSlot:true});
+  const rules={...rulesFor({WORKER:1,ASTROMECH:2,BATTLE:1,LOUNGE:1,COMPANION:1}),allowTemporaryCompanionSwaps:true,
+    slotDistanceSquared:(a,b)=>a.station==='COMPANION'?null:b.station==='ASTROMECH'?b.slot+1:100};
+  rules.workLanding=(u,p)=>mod.predictWorkLanding(u,p,rules);
+  rules.companionWorkLanding=(u,p,t)=>mod.predictCompanionWorkLanding(u,p,t,rules);
+  const initial={placed:[worker,fill,pal]},target={placed:[at(worker,'BATTLE'),fill,pal],sell:[]};
+  const route=mod.planOptimiseRoute({initial,target,rules});assert(route.complete,route.issues.join('; '));
+  const approach=route.steps.find(s=>s.approachSlot);assert(approach,JSON.stringify(route.steps));assert.equal(approach.unit.name,'WORK-A');assert.equal(approach.at,'BATTLE');assert.equal(approach.assumed,false);
+  const replay=mod.validateOptimisePlan({initial,projected:{placed:route.finalPlaced,sell:[]},steps:route.steps,rules});assert(replay.ok,replay.issues.join('; '));assert(replay.companionsRestored);
+});
 async function plan(placed,targetPlaced,caps,options={}){
   const mod=await load(),rules=rulesFor(caps,options);
   const initial={placed,overflow:options.overflow||[]};
@@ -174,12 +231,36 @@ test('nothing is ever moved into a Build slot',async()=>{
   assert.equal(route.complete,false);assert.match(route.issues.join(' '),/Build slot/);
 });
 
-test('a Protocol droid takes the open slot in its own room for certain, elsewhere it is a guess',async()=>{
+test('a Protocol droid can use a known landing but cannot choose an ambiguous console',async()=>{
   nextSource=0;const p=unit('PROTO-P','LOUNGE',0),q=unit('PROTO-Q','PROTOCOL_WORKER_CREDITS',0);
   const local=await plan([q],[at(q,'PROTOCOL_WORKER_CRAFTING',0)],{PROTOCOL_WORKER_CREDITS:1,PROTOCOL_WORKER_CRAFTING:1,PROTOCOL_ASTROMECH_CREDITS:1,LOUNGE:5});
   assert.equal(local.route.complete,true);assert.equal(local.route.assumed,0);
   const far=await plan([p],[at(p,'PROTOCOL_BATTLE_CREDITS',0)],{PROTOCOL_WORKER_CREDITS:1,PROTOCOL_BATTLE_CREDITS:1,LOUNGE:5});
-  assert.equal(far.route.complete,true);assert.equal(far.route.assumed,1);
+  assert.equal(far.route.complete,false,'no Companion seat or known origin can establish this landing');
+});
+
+test('Protocol companion walks beside the target console and restores locked companions',async()=>{
+  const mod=await load();nextSource=0;
+  const c3po=unit('PROTO-C3PO','LOUNGE',0),pal=unit('WAR-PAL','COMPANION',0,{lockedSlot:true}),keep=unit('ASTRO-KEEP','COMPANION',1,{lockedSlot:true});
+  const rules={...rulesFor({LOUNGE:1,COMPANION:2,PROTOCOL_WORKER_CREDITS:1,PROTOCOL_BATTLE_CREDITS:1}),allowTemporaryCompanionSwaps:true};
+  rules.workLanding=(u,p)=>mod.predictWorkLanding(u,p,rules);
+  rules.protocolCompanionLanding=(u,p,t)=>mod.predictProtocolCompanionLanding(u,p,t,rules);
+  const initial={placed:[c3po,pal,keep]},target={placed:[at(c3po,'PROTOCOL_BATTLE_CREDITS'),pal,keep],sell:[]};
+  const route=mod.planOptimiseRoute({initial,target,rules});assert(route.complete,route.issues.join('; '));
+  const approach=route.steps.find(s=>s.approachProtocol);assert(approach);
+  assert.equal(approach.from.station,'COMPANION');assert.equal(approach.at,'BATTLE');assert.equal(approach.to.station,'PROTOCOL_BATTLE_CREDITS');assert.equal(approach.assumed,false);
+  const projected={placed:route.finalPlaced,sell:[]},replay=steps=>mod.validateOptimisePlan({initial,projected,steps,rules});
+  assert(replay(route.steps).ok);assert(replay(route.steps).companionsRestored);
+  assert.equal(replay(route.steps.map(s=>s===approach?{...s,at:'LOUNGE'}:s)).ok,false,'must walk to the console');
+  assert.equal(replay(route.steps.map(s=>s===approach?{...s,approachProtocol:false,assumed:true}:s)).ok,false,'cannot replace the approach with a guess');
+  assert.equal(rules.protocolCompanionLanding(c3po,[],approach.to),null,'must first be a Companion');
+  assert.equal(rules.protocolCompanionLanding(at(c3po,'COMPANION'),[at(pal,'PROTOCOL_BATTLE_CREDITS')],approach.to),null,'console must be free');
+  assert.equal(rules.protocolCompanionLanding(pal,[],approach.to),null,'ordinary Companions cannot use Protocol consoles');
+  const freeSeat=mod.planOptimiseRoute({initial:{placed:[c3po]},target:{placed:[at(c3po,'PROTOCOL_BATTLE_CREDITS')],sell:[]},rules});
+  assert(freeSeat.complete);assert(freeSeat.steps.some(s=>s.to?.station==='COMPANION'));assert(freeSeat.steps.some(s=>s.approachProtocol),'can use an empty Companion seat too');
+  const blocker=unit('PROTO-BLOCK','PROTOCOL_WORKER_CREDITS',0,{lockedSlot:true});
+  const only={placed:[c3po,blocker]},oneTarget={placed:[at(c3po,'PROTOCOL_BATTLE_CREDITS'),blocker],sell:[]};
+  const direct=mod.planOptimiseRoute({initial:only,target:oneTarget,rules});assert(direct.complete);assert.equal(direct.steps.length,1);assert(!direct.steps[0].approachProtocol,'only one free console needs no Companion detour');
 });
 
 test('sells happen in the room the droid stands in, grouped with that stop',async()=>{
@@ -313,6 +394,36 @@ test('a locked Companion is no seat to swap through, so the tank stays out of re
   nextSource=0;const pal=unit('WAR-PAL','COMPANION',0,{lockedSlot:true}),done=unit('ASTRO-DONE','BUILD',0,{built:true}),weak=unit('WORK-WEAK','ASTROMECH',0);
   const {route}=await plan([pal,done,weak],[pal,at(done,'ASTROMECH',0),at(weak,'BUILD',0)],{ASTROMECH:1,BUILD:1,COMPANION:1,LOUNGE:0,FUSION:0});
   assert.equal(route.complete,false);assert.match(route.issues.join(' '),/Build slot/);
+});
+
+test('temporary swaps restore both locked Companions to their exact seats',async()=>{
+  const mod=await load();nextSource=0;
+  const pal=unit('WAR-PAL','COMPANION',0,{lockedSlot:true}),keep=unit('ASTRO-KEEP','COMPANION',1,{lockedSlot:true});
+  const done=unit('ASTRO-DONE','BUILD',0,{built:true}),weak=unit('WORK-WEAK','ASTROMECH',0);
+  const rules={...rulesFor({ASTROMECH:1,BUILD:1,COMPANION:2}),allowTemporaryCompanionSwaps:true};
+  rules.workLanding=(u,p)=>mod.predictWorkLanding(u,p,rules);
+  const initial={placed:[pal,keep,done,weak]},target={placed:[pal,keep,at(done,'ASTROMECH'),at(weak,'BUILD')],sell:[]};
+  const route=mod.planOptimiseRoute({initial,target,rules});
+  assert(route.complete,route.issues.join('; '));
+  assert(route.steps.some(s=>s.type==='swap'&&s.withUnit.lockedSlot),'use a locked Companion as a temporary seat');
+  const projected={placed:route.finalPlaced,sell:[]};
+  const replay=mod.validateOptimisePlan({initial,projected,steps:route.steps,rules});
+  assert(replay.ok,replay.issues.join('; '));assert(replay.companionsRestored);
+  for(const companion of [pal,keep]){
+    const final=route.finalPlaced.find(u=>u.source===companion.source);
+    assert.equal(final.station,'COMPANION');assert.equal(final.slot,companion.slot);assert.equal(final.lockedSlot,true);
+  }
+  const firstSwap=route.steps.findIndex(s=>s.type==='swap'&&s.withUnit.lockedSlot);
+  const partial=mod.validateOptimisePlan({initial,projected,steps:route.steps.slice(0,firstSwap+1),rules});
+  assert.equal(partial.companionsRestored,false);assert.equal(partial.ok,false);
+  for(const type of ['sell','fuse-in','fuse-held']){
+    const invalid=mod.validateOptimisePlan({initial,projected:initial,steps:[{type,unit:pal,from:{station:'COMPANION',slot:0}}],rules});
+    assert.equal(invalid.ok,false);assert.match(invalid.issues.join('; '),/reserved Companion/);
+  }
+  const changed=mod.planOptimiseRoute({initial,target:{...target,placed:[at(pal,'COMPANION',1),at(keep,'COMPANION',0),at(done,'ASTROMECH'),at(weak,'BUILD')]},rules});
+  assert.equal(changed.complete,false,'the final seats cannot be exchanged');
+  weak.lockedSlot=true;
+  assert.equal(mod.planOptimiseRoute({initial,target,rules}).complete,false,'ordinary slot locks remain fixed');
 });
 
 test('an empty Build tank is still never a target: there is no occupant to swap a droid in',async()=>{

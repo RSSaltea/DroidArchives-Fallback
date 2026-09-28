@@ -73,24 +73,44 @@ export function predictStationLanding(unit, placed, station, rules) {
   return candidates.length ? { ...candidates[0], assumed: false, options: [station] } : null;
 }
 
-function predictWorkByDistance(unit, placed, rules) {
+// A Protocol companion follows the player. Standing beside the chosen empty
+// console before Work supplies an explicit origin instead of guessing from Lounge.
+export function predictProtocolCompanionLanding(unit, placed, target, rules) {
+  if (unit.station !== 'COMPANION' || rules.typeOf(unit) !== 'PROTOCOL' ||
+      !rules.protocolStations().includes(target?.station) || !rules.canUse(unit,target.station) ||
+      !occupancy(placed,rules).free(target.station).includes(target.slot)) return null;
+  return {station:target.station,slot:target.slot,cls:null,assumed:false,options:[target.station]};
+}
+
+// Standing beside a slot only chooses distance within the eligible priority
+// group. It cannot bypass the droid's own room or Astromech mission priority.
+export function predictCompanionWorkLanding(unit, placed, target, rules) {
+  if(unit.station!=='COMPANION')return null;
+  const pick=workCandidates(unit,placed,rules).find(candidate=>same(candidate,target));
+  return pick?{...pick,assumed:false,options:[pick.station]}:null;
+}
+
+function workCandidates(unit, placed, rules) {
   const { free } = occupancy(placed, rules), type = rules.typeOf(unit);
-  const choose = candidates => chooseSlot(unit, candidates, rules, placed.some(x => x.positionUncertain));
   const slots = station => rules.canUse(unit, station) ? free(station).map(slot => ({
     station, slot, cls: classOf(station, slot, rules)
   })) : [];
   if (type === 'PROTOCOL') {
     const protocol = rules.protocolStations().flatMap(slots);
-    if (protocol.length) return choose(protocol);
-  } else if (!PRODUCTIVE.includes(type)) return null;
+    if (protocol.length) return protocol;
+  } else if (!PRODUCTIVE.includes(type)) return [];
   const work = PRODUCTIVE.flatMap(slots).map(candidate => ({ ...candidate,
     priority: candidate.station === type ? (type === 'ASTROMECH' && candidate.cls === 'mission' ? 2 : 1) : 0
   }));
   if (work.length) {
     const priority = Math.max(...work.map(x => x.priority));
-    return choose(work.filter(x => x.priority === priority));
+    return work.filter(x => x.priority === priority);
   }
-  return choose(slots('UPGRADE_CHIP'));
+  return slots('UPGRADE_CHIP');
+}
+
+function predictWorkByDistance(unit, placed, rules) {
+  return chooseSlot(unit,workCandidates(unit,placed,rules),rules,placed.some(x=>x.positionUncertain));
 }
 
 // Which of several open stations the droid reaches first. A measured order for
@@ -156,6 +176,7 @@ function goalFor(unit, rules) {
 }
 
 const goalMet = (position, goal, rules) => Boolean(position) && position.station === goal.station &&
+  (goal.restoreSlot === undefined || position.slot === goal.restoreSlot) &&
   (goal.station !== 'ASTROMECH' || classOf(position.station, position.slot, rules) === goal.cls);
 
 // A fusion batch needs a free Fusion Build slot for its result at the moment it
@@ -182,10 +203,27 @@ export function planOptimiseRoute(args = {}) {
   return waiting.length && result.complete ? { ...result, later: [...result.later, ...waiting] } : result;
 }
 
-// Reorder whole visits only when replay confirms every command still lands in
-// the same slot. Joining visits saves a room trip without changing the result.
+// Reorder visits and nearby interactions only when replay confirms every
+// command still lands in the same slot. Include entry and exit slot positions.
 // This bounded local improvement preserves all commands and their uncertainty.
-export function shortenOptimiseWalk(steps, { distance, isValid }) {
+export function optimiseWalkDistance(steps, {distance,slotDistanceSquared}) {
+  let total=0,previous=null,previousRegion=null;
+  for(const step of steps){
+    const approach=step.approachSlot||step.approachProtocol;
+    const point=approach?step.to:step.from;
+    // A Companion menu command is issued where the player already stands.
+    if(!approach&&point?.station==='COMPANION')continue;
+    const region=step.at==='ANY'?previousRegion:step.at;
+    if(previousRegion!==null){
+      const squared=previous&&point&&!previous.positionUncertain&&!point.positionUncertain?slotDistanceSquared?.(previous,point):null;
+      total+=typeof squared==='number'&&Number.isFinite(squared)&&squared>=0?Math.sqrt(squared):Number(distance(previousRegion,region))||0;
+    }
+    previous=point||null;previousRegion=region;
+  }
+  return total;
+}
+
+export function shortenOptimiseWalk(steps, { distance, isValid, slotDistanceSquared, withinOnly=false, maxPasses=12 }) {
   const groups = [];
   for (const step of steps) {
     if (!groups.length || groups.at(-1)[0].visit !== step.visit) groups.push([]);
@@ -199,23 +237,33 @@ export function shortenOptimiseWalk(steps, { distance, isValid }) {
     }
     return joined;
   };
-  const length = order => order.reduce((sum, group, i) => sum + (i ? distance(order[i-1][0].at, group[0].at) : 0), 0);
+  const length = order => slotDistanceSquared?optimiseWalkDistance(order.flat(),{distance,slotDistanceSquared})
+    :order.reduce((sum, group, i) => sum + (i ? distance(order[i-1][0].at, group[0].at) : 0), 0);
   const flatten = order => order.flatMap((group, stop) => group.map(step => ({ ...step, stop, visit: `route-${stop}` }))).map((step, index) => ({ ...step, index }));
   let best = normalize(groups), bestDistance = length(best);
-  for (let pass = 0; pass < 12; pass++) {
+  for (let pass = 0; pass < maxPasses; pass++) {
     let improved = null, improvedDistance = bestDistance;
     const consider = order => {
       order = normalize(order);
       const current = improved || best, gap = length(order);
-      if (order.length > current.length || order.length === current.length && gap >= improvedDistance - 1e-6) return;
+      if(slotDistanceSquared ? gap>=improvedDistance-1e-6 : order.length > current.length || order.length === current.length && gap >= improvedDistance - 1e-6)return;
       if (!isValid(flatten(order))) return;
       improved = order; improvedDistance = gap;
     };
-    for (let i = 0; i < best.length; i++) for (let j = 0; j < best.length; j++) {
+    if(!withinOnly)for (let i = 0; i < best.length; i++) for (let j = 0; j < best.length; j++) {
       if (i === j) continue;
       const order = [...best], [group] = order.splice(i, 1);
       order.splice(j, 0, group); consider(order);
       if (j > i) consider([...best.slice(0, i), ...best.slice(i, j+1).reverse(), ...best.slice(j+1)]);
+    }
+    // Within a room, include the previous stop's exit and next stop's entry.
+    // Replay the entire plan before accepting an insertion or reversal: a nearby
+    // droid may still have to wait until another droid frees its destination.
+    if(slotDistanceSquared)for(let g=0;g<best.length;g++)for(let i=0;i<best[g].length;i++)for(let j=0;j<best[g].length;j++){
+      if(i===j)continue;
+      const moved=[...best[g]],[step]=moved.splice(i,1);moved.splice(j,0,step);
+      const order=[...best];order[g]=moved;consider(order);
+      if(j>i){const reversed=[...best];reversed[g]=[...best[g].slice(0,i),...best[g].slice(i,j+1).reverse(),...best[g].slice(j+1)];consider(reversed);}
     }
     if (!improved) break;
     best = improved; bestDistance = improvedDistance;
@@ -246,7 +294,16 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     const key = keyOf(unit);
     if (units.has(key) && units.get(key).station) issues.push(`${unit.name} has no slot to go to: free a Lounge slot or sell it, then run Optimise again.`);
   }
-  const fixed = key => { const unit = units.get(key); return unit.lockedSlot || rules.isBuilding(unit); };
+  // These locks reserve the final companions, while allowing their seats to
+  // break movement cycles. Keep the original identities and exact seat numbers.
+  const companionLocks = new Map([...units].filter(([,unit])=>rules.allowTemporaryCompanionSwaps&&unit.lockedSlot&&unit.station==='COMPANION').map(([key,unit])=>[key,unit.slot]));
+  for(const [key,slot] of companionLocks){
+    const targetUnit=(target?.placed||[]).find(unit=>keyOf(unit)===key);
+    if(targetUnit&&(targetUnit.station!=='COMPANION'||targetUnit.slot!==slot))issues.push(`${units.get(key).name} must return to its locked Companion slot.`);
+    if(goals.get(key)?.kind==='sell'||goals.get(key)?.kind==='fusion')issues.push(`${units.get(key).name} is a reserved Companion and cannot be consumed.`);
+    goals.set(key,{kind:'place',station:'COMPANION',restoreSlot:slot});
+  }
+  const fixed = key => { const unit = units.get(key); return unit.lockedSlot&&!companionLocks.has(key) || rules.isBuilding(unit); };
   // A seated Companion that can be swapped out is the only way into a Build
   // tank: the droid waits in the seat until the tank's finished occupant swaps
   // it in. So a tank is a target only while it holds such an occupant.
@@ -323,7 +380,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
 
   const landedInTank = (state, key, station) => { if (['BUILD', 'FUSION_BUILD'].includes(station)) state.built.add(key); };
   // One command, applied to a copied state. Returns the step or null.
-  const tryCommand = (state, key, kind, allowAssumed) => {
+  const tryCommand = (state, key, kind, allowAssumed, commandRegion) => {
     const unit = units.get(key), from = state.pos.get(key);
     let goal = state.goals.get(key);
     const placed = placedOf(state), { free } = occupancy(placed, rules);
@@ -359,7 +416,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       return { ...step, type: 'move', kind: 'park', buffer: goal.kind !== 'place' || goal.station !== 'FUSION', assumed, to };
     }
     if (kind === 'companion') {
-      const slot = bookSlot('COMPANION', null, free, rules);
+      const slot = goal.restoreSlot===undefined?bookSlot('COMPANION', null, free, rules):free('COMPANION').find(slot=>slot===goal.restoreSlot);
       if (slot === undefined) {
         // Both Companion slots taken: the droid's card offers Swap with a slot
         // instead, and the Companion in that slot takes the droid's old place.
@@ -368,9 +425,13 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         // Companion then takes the tank.
         if (!from || from.station === 'COMPANION') return null;
         const leaving = [...state.pos].find(([other, position]) => {
+          if(goal.restoreSlot!==undefined&&position.slot!==goal.restoreSlot)return false;
           if (position.station !== 'COMPANION' || other === key || fixed(other) || state.sold.has(other) || state.staged.has(other)) return false;
           const otherGoal = state.goals.get(other);
           if (!otherGoal || otherGoal.kind !== 'place' || otherGoal.station === 'COMPANION') return false;
+          // Let a passenger reach its work slot before restoring the borrowed
+          // seat; swapping it back into Lounge would undo the pickup.
+          if((rules.companionWorkLanding||rules.protocolCompanionLanding&&rules.typeOf(units.get(other))==='PROTOCOL') && commandFor(otherGoal)==='work' && !goalMet(from,otherGoal,rules))return false;
           // A finished tank is a room to wait in too: the old Companion can be told
           // Work or Lounge from there like any finished droid.
           return rules.canUse(units.get(other), from.station) && (['LOUNGE', 'FUSION', 'BUILD', 'FUSION_BUILD'].includes(from.station) || goalMet(from, otherGoal, rules));
@@ -408,7 +469,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         // No Companion to trade with, but a seat is free: a droid bound for a
         // tank takes it with the Companion command and waits there for the
         // tank's occupant to swap it in.
-        const freeSeat = ['BUILD', 'FUSION_BUILD'].includes(goal?.station) ? bookSlot('COMPANION', null, free, rules) : undefined;
+        const freeSeat = goal?.kind==='place' && commandFor(goal)==='work' ? bookSlot('COMPANION', null, free, rules) : undefined;
         if (freeSeat === undefined) return null;
         state.pos.set(key, { station: 'COMPANION', slot: freeSeat });
         return { ...step, type: 'move', kind: 'direct', buffer: true, to: { station: 'COMPANION', slot: freeSeat } };
@@ -421,6 +482,19 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     }
     if (kind === 'work' || kind === 'transit') {
       let landing = predictWorkLanding({ ...unit, ...(from || {}) }, placed, rules);
+      const protocolGoal = rules.typeOf(unit)==='PROTOCOL' && rules.protocolStations().includes(goal.station);
+      const ambiguousProtocol = protocolGoal && landing?.assumed && (landing.candidates?.length ?? landing.options?.length ?? 0)>1;
+      if(kind==='work'&&from?.station==='COMPANION'&&(rules.companionWorkLanding||protocolGoal&&rules.protocolCompanionLanding)&&(!goalMet(landing,goal,rules)||landing?.assumed)){
+        const slot=free(goal.station).find(slot=>rules.regionOf(goal.station,slot)===commandRegion&&goalMet({station:goal.station,slot},goal,rules)),to={station:goal.station,slot};
+        if(slot===undefined||commandRegion!==rules.regionOf(goal.station,slot))return null;
+        const controlled=(rules.companionWorkLanding||rules.protocolCompanionLanding)?.({...unit,...from},placed,to);
+        if(!controlled)return null;
+        state.pos.set(key,{...to,positionUncertain:false});
+        return {...step,type:'move',kind:'work',workCommand:true,approachSlot:Boolean(rules.companionWorkLanding),approachProtocol:protocolGoal,at:commandRegion,assumed:false,to:controlled};
+      }
+      // An uncertain Protocol origin cannot be promoted to whichever console
+      // the target wants. Use the Companion approach instead.
+      if(ambiguousProtocol)return null;
       if (!landing) return null;
       // A guessed landing is planned towards the goal when the goal is one of
       // the rooms the game may pick; the step tells the player to check.
@@ -433,7 +507,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       if (kind !== 'transit' && !goalMet(landing, goal, rules)) {
         // An identical droid may be waiting for exactly this landing: let the
         // two swap jobs rather than walk one past the other.
-        const twin = [...state.goals].find(([other, otherGoal]) => other !== key && otherGoal.kind === 'place' && twins(units.get(other), unit) && !fixed(other) &&
+        const twin = [...state.goals].find(([other, otherGoal]) => !companionLocks.has(key) && !companionLocks.has(other) && other !== key && otherGoal.kind === 'place' && twins(units.get(other), unit) && !fixed(other) &&
           !state.sold.has(other) && !state.staged.has(other) && !goalMet(state.pos.get(other), otherGoal, rules) && goalMet(landing, otherGoal, rules));
         if (!twin) return null;
         state.goals.set(twin[0], goal); state.goals.set(key, twin[1]); goal = twin[1];
@@ -489,7 +563,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         const here = state.pos.get(key);
         // Only those two empty it: a sale, a fusion or the droid's own Companion swap go ahead.
         if (here && ['BUILD', 'FUSION_BUILD'].includes(here.station) && arrivalsInto(state, here.station) > 0 && ['work', 'lounge', 'park'].includes(commandFor(goal))) continue;
-        const step = tryCommand(state, key, commandFor(goal), policy.assumed);
+        const step = tryCommand(state, key, commandFor(goal), policy.assumed, region);
         if (step) { steps.push(step); progress = true; }
       }
       const fuse = tryFuse(state, region);
@@ -515,15 +589,17 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
             // An empty tank takes nobody, so a free tank slot is no room for
             // the droids bound there: the occupant still has to swap them in.
             const station = state.pos.get(key).station, room = ['BUILD', 'FUSION_BUILD'].includes(station) ? 0 : free(station).length;
-            const distanceBlocked = typeof rules.slotDistanceSquared === 'function' && !['BUILD', 'FUSION_BUILD'].includes(station) && (policy.reposition || !['LOUNGE', 'FUSION'].includes(station)) &&
-              commandFor(goal) === 'work' && !goalMet(predictWorkLanding({ ...units.get(key), ...state.pos.get(key) }, placedOf(state), rules), goal, rules);
+            const companionReposition = (rules.companionWorkLanding||rules.protocolCompanionLanding&&rules.typeOf(units.get(key))==='PROTOCOL') && commandFor(goal)==='work';
+            const prediction = predictWorkLanding({ ...units.get(key), ...state.pos.get(key) }, placedOf(state), rules);
+            const distanceBlocked = (companionReposition || typeof rules.slotDistanceSquared === 'function') && !['BUILD', 'FUSION_BUILD'].includes(station) && (companionReposition || policy.reposition || !['LOUNGE', 'FUSION'].includes(station)) &&
+              commandFor(goal) === 'work' && (!goalMet(prediction, goal, rules) || companionReposition && prediction?.assumed && (prediction.candidates?.length??prediction.options?.length??0)>1);
             return arrivalsInto(state, station) > room || ['BUILD', 'FUSION_BUILD'].includes(goal.station) || distanceBlocked;
           });
         if (policy.reverseTies) candidates.reverse();
         for (const pick of candidates) {
           const inTank = ['BUILD', 'FUSION_BUILD'].includes(state.pos.get(pick[0]).station);
           const fromStation = state.pos.get(pick[0]).station;
-          const step = rooms.filter(room => (!inTank || room === 'seat') && !(fromStation === 'LOUNGE' && room === 'buffer') && !(fromStation === 'FUSION' && room === 'park')).reduce((found, room) => found || tryCommand(state, pick[0], room, policy.assumed), null);
+          const step = rooms.filter(room => (!inTank || room === 'seat') && !(fromStation === 'LOUNGE' && room === 'buffer') && !(fromStation === 'FUSION' && room === 'park')).reduce((found, room) => found || tryCommand(state, pick[0], room, policy.assumed, region), null);
           if (step) { buffered.add(pick[0]); steps.push(step); progress = true; break; }
         }
       }
@@ -543,7 +619,9 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     for (const [key, goal] of state.goals) {
       if (idle(goal) || fixed(key) || state.sold.has(key) || state.staged.has(key)) continue;
       if (goal.kind === 'place' && goalMet(state.pos.get(key), goal, rules)) continue;
-      regions.add(regionOfKey(state, key) || 'ANY');
+      if(state.pos.get(key)?.station==='COMPANION'&&commandFor(goal)==='work'&&(rules.companionWorkLanding||rules.typeOf(units.get(key))==='PROTOCOL'&&rules.protocolCompanionLanding)){
+        for(const slot of rules.slots(goal.station))if(goalMet({station:goal.station,slot},goal,rules))regions.add(rules.regionOf(goal.station,slot));
+      }else regions.add(regionOfKey(state, key) || 'ANY');
     }
     // 'Anywhere' is only a stop of its own when no room has work to join.
     if (regions.size > 1) regions.delete('ANY');
@@ -573,7 +651,9 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   const cost = (a, b) => a.commands - b.commands || a.assumed - b.assumed || a.walk - b.walk || a.buffers - b.buffers;
   const better = (a, b) => a.stopsLeft - b.stopsLeft || a.pendingLeft - b.pendingLeft || cost(a, b);
   if (bestPending === 0) return finish(root);
-  for (const POLICIES of options.advancedOnly && searches.length > 2 ? searches.slice(2) : searches) {
+  const searchOrder = options.advancedOnly && searches.length > 2 ? searches.slice(2)
+    : options.firstComplete ? [ALL_POLICIES, ...searches.filter(policies=>policies!==ALL_POLICIES)] : searches;
+  for (const POLICIES of searchOrder) {
   let beam = [root];
   const seen = new Map();
   for (let depth = 0; depth < Math.min(maxStops, found?.stops ?? maxStops); depth++) {
@@ -613,6 +693,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     next.sort(better);
     const complete = next.filter(node => node.pendingLeft === 0).sort(cost);
     if (complete.length) {
+      if (options.firstComplete) return finish(complete[0]);
       const rank = node => [node.stops, node.commands, node.assumed, node.walk, node.buffers];
       const lexLess = (a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] < b[i]; return false; };
       if (!found || lexLess(rank(complete[0]), rank(found))) found = complete[0];

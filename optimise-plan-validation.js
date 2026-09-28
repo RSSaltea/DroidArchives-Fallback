@@ -3,6 +3,7 @@
 export function validateOptimisePlan({ initial, projected, steps, rules } = {}) {
   const issues = [], units = new Map(), positions = new Map(), staged = new Map();
   const generated = new Set(), seen = new Set(), sold = new Set();
+  const companionLocks = new Map();
   const issue = message => issues.push(message);
   const keyOf = unit => unit && (typeof unit.source === 'string' || Number.isFinite(unit.source)) &&
     Number.isInteger(unit.unit) && unit.unit >= 0 ? `${unit.source}:${unit.unit}` : null;
@@ -32,7 +33,7 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
   const current = key => ({ ...units.get(key), ...(positions.get(key) || {}) });
   const movable = (key, label) => {
     const unit = current(key);
-    if (unit.lockedSlot || rule('isBuilding', unit)) {
+    if (unit.lockedSlot&&!companionLocks.has(key) || rule('isBuilding', unit)) {
       issue(`${label}: ${key} is locked or still building.`); return false;
     }
     return true;
@@ -64,6 +65,7 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
       seen.add(key);
       const { station, slot, ...unit } = input;
       units.set(key, { ...unit });
+      if(positioned&&rules?.allowTemporaryCompanionSwaps&&unit.lockedSlot&&station==='COMPANION')companionLocks.set(key,{station,slot});
       if (positioned) {
         const place = { station, slot, ...(input.positionUncertain ? { positionUncertain: true } : {}) };
         if (!validPlace(place)) issue(`Initial base contains an invalid slot for ${key}.`);
@@ -77,6 +79,7 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
   for (let index = 0; index < plan.length; index++) {
     const step = plan[index], label = `Step ${index + 1}`;
     if (!step || typeof step !== 'object') { issue(`${label}: malformed instruction.`); continue; }
+    if(['sell','fuse-in','fuse-held'].includes(step.type)&&companionLocks.has(keyOf(step.unit))){issue(`${label}: a reserved Companion cannot be sold or fused.`);continue;}
     const prefix = ['sell', 'fuse-in', 'fuse-held', 'fuse-result', 'fuse'].includes(step.type);
     if (prefix && step.type !== 'sell' && batchStart === null) batchStart = prefixIndex;
     if (prefix) prefixIndex++;
@@ -93,7 +96,13 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
       if (occupant(to)) { issue(`${label}: destination is occupied.`); continue; }
       if (!rule('canUse', current(key), to.station)) { issue(`${label}: incompatible destination station.`); continue; }
       if (step.workCommand || step.kind === 'work') {
-        const landing = rule('workLanding', current(key), placed());
+        if((step.approachSlot||step.approachProtocol) && (current(key).station!=='COMPANION' || step.at!==rule('regionOf',to.station,to.slot))){
+          issue(`${label}: approach the destination slot with this droid as a Companion first.`);continue;
+        }
+        const landing = step.approachSlot ? rule('companionWorkLanding',current(key),placed(),to) : step.approachProtocol ? rule('protocolCompanionLanding',current(key),placed(),to) : rule('workLanding', current(key), placed());
+        if(!step.approachProtocol&&rule('typeOf',current(key))==='PROTOCOL'&&rule('protocolStations')?.includes(to.station)&&landing?.assumed&&(landing.candidates?.length??landing.options?.length??0)>1){
+          issue(`${label}: an ambiguous Protocol landing needs a Companion approach.`);continue;
+        }
         // A conditional prediction may use only one of the predictor's
         // eligible slots; an assumed flag cannot bypass a known nearer slot.
         const guessed = Boolean(step.assumed && landing?.assumed) && (Array.isArray(landing.candidates)
@@ -234,5 +243,7 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
   for (const key of units.keys()) if (!targetUnits.has(key)) issue(`Replay leaves an unexpected droid ${key}.`);
   for (const key of targetSold) if (!sold.has(key)) issue(`Projected sale ${key} was not performed.`);
   for (const key of sold) if (!targetSold.has(key)) issue(`Replay sells an unexpected droid ${key}.`);
-  return { ok: issues.length === 0, issues, placed: placed() };
+  const companionsRestored=[...companionLocks].every(([key,place])=>samePlace(positions.get(key),place));
+  if(!companionsRestored)issue('Locked Companions must return to their original slots before applying the layout.');
+  return { ok: issues.length === 0, issues, placed: placed(), companionsRestored };
 }
