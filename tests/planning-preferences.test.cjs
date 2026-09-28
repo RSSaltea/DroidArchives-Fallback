@@ -5,7 +5,7 @@ const fn=key=>{const start=src.indexOf('function '+key+'(');assert(start>=0,key)
 const state={droids:JSON.parse(fs.readFileSync(path.join(root,'data/droids.json'))),fusion:JSON.parse(fs.readFileSync(path.join(root,'data/fusion.json'))),owned:[],droidex:[],novaUpgrades:{},rebirth:20,rebirths:{},cycle:0,superRebirthGoal:35};
 const sb={state,console,kyberIsReleased:()=>true,capacity:()=>1,rebirthGoal:()=>state.superRebirthGoal,futureRequirements:()=>state.requirements||[],rebirthTrackerStatus:(at,req)=>({selected:state.manualVariant,ready:state.manualReady})};vm.createContext(sb);
 for(const name of ['CHIP_COSTS','ALL_VARIANTS','VARIANTS','OWNED_VARIANTS','baseVariant','variantRank','RARITY_LADDER','isIconic','isFusion','fusionDroid','fusionRecipes','fusionRecipeWants','fusionKey','fusionRecipeFor','variantStep','rarityStep','nextVariant','nextRarity','lowestVariant','droidRarity','droidIncomeAt','droidexGapFor','PRODUCTIVE_STATIONS'])vm.runInContext(line('const '+name+'=')||line('let '+name+'='),sb);
-for(const name of ['chipsToVariant','normaliseNotificationPreferences','normaliseFusionPreferences','notificationCyclePlan','notificationRecommendations','fusionOutcome','fusionCountFrom','fusionBestVariant','fusionQualitySteps','fusionRaritySteps','fusionSpendFrom','fusionBestFrom','fusionChainFromSpares','typicalIncomeFor','droidexEntry'])vm.runInContext(fn(name),sb);
+for(const name of ['normaliseFusionKeepRules','fusionReservedForUpgrade','fusionUpgradeTarget','chipsToVariant','normaliseNotificationPreferences','normaliseFusionPreferences','notificationCyclePlan','notificationRecommendations','fusionOutcome','fusionCountFrom','fusionBestVariant','fusionQualitySteps','fusionRaritySteps','fusionSpendFrom','fusionBestFrom','fusionChainFromSpares','typicalIncomeFor','droidexEntry'])vm.runInContext(fn(name),sb);
 const run=code=>vm.runInContext(code,sb);
 const requirements=[{droidName:'R6',variant:'GALACTIC',at:22},{droidName:'KX',variant:'STELLAR',at:34},{droidName:'RIC',variant:'GALACTIC',at:30},{droidName:'R6',variant:'STELLAR',at:35}];
 state.requirements=requirements;
@@ -223,3 +223,27 @@ for(const [from,to] of [['DEFAULT','GOLD'],['GOLD','DIAMOND'],['DIAMOND','RAINBO
 assert.equal(chain([batch('RIC',2,'KYBER_PURPLE'),batch('CYCLENS',1,'KYBER_PURPLE')],{mythics:'reroll'}).length,0,'Purple Mythics have no next rarity or live colour in the export');
 assert.equal(chain([batch('RIC',2,'KYBER_BLUE'),batch('CYCLENS',1,'KYBER_GREEN')],{mythics:'reroll'}).length,0,'mixed Mythic colours cannot use the matching-colour fallback');
 console.log('PASS: random Mythic variant upgrades, exact Galactic RIC/CYCLENS regression, preference eligibility and capped colours');
+
+// Exact upgrade reservations take precedence over broad keep rules and goals.
+state.fusionKeepRules=[{rarity:'MYTHIC',variant:'BESKAR'},{name:'SNOW MOUSE',variant:'STELLAR',upgradeOnly:true}];
+assert.equal(run('normaliseFusionKeepRules(state.fusionKeepRules)[1].upgradeOnly'),true);
+const mice=n=>batch('SNOW MOUSE',n,'STELLAR');
+steps=chain([mice(2),batch('RIC',1,'STELLAR')],{mythics:'variant'});
+assert.equal(steps.length,0,'two reserved mice cannot enter a mixed Mythic batch');
+steps=chain([mice(3),batch('RIC',2,'KYBER')],{mythics:'reroll'});
+assert.equal(steps.length,1,'the named upgrade result is retained, not rerolled');
+assert.equal(steps[0].out.name,'SNOW MOUSE');assert.equal(steps[0].out.variant,'KYBER');
+assert.equal(chain([mice(3)],{mythics:'off'}).length,0,'explicit Mythic off still applies');
+steps=chain([mice(2),batch('RIC',2,'STELLAR'),batch('CYCLENS',1,'STELLAR')],{mythics:'variant'});
+assert.equal(steps.length,1);assert(steps[0].spend.every(p=>p.name!=='SNOW MOUSE'),'other legal fusions remain available');
+state.fusionKeepRules=[];
+assert.equal(chain([mice(2),batch('RIC',1,'STELLAR')],{mythics:'variant'}).length,1,'removing rule restores mixed fusions');
+state.fusionKeepRules=[{name:'SNOW MOUSE',variant:'STELLAR'}];
+assert.equal(chain([mice(2),batch('RIC',1,'STELLAR')],{mythics:'variant'}).length,1,'legacy keep rules retain their any-fusion meaning');
+state.fusionKeepRules=[{name:'KX',variant:'GALACTIC',upgradeOnly:true}];
+assert.equal(chain([batch('KX',1),batch('IG',1),batch('RIC',1)],{mythics:'variant',recipes:true}).length,0,'reserved copies cannot enter named recipes');
+state.fusionKeepRules=[{name:'SEN-TRI',variant:'KYBER_GREEN',upgradeOnly:true}];
+assert.equal(chain([batch('SEN-TRI',2,'KYBER_GREEN'),batch('GUNRUNNER',1,'KYBER_GREEN')],{goal:'rarity'}).length,0);
+assert.equal(chain([batch('SEN-TRI',3,'KYBER_GREEN')],{goal:'rarity'})[0].out.variant,'KYBER_BLUE','specific upgrade overrides general rarity goal');
+assert.equal(run("fusionUpgradeTarget('KYBER')"),null);assert.equal(run("fusionUpgradeTarget('KYBER_PURPLE')"),null);
+console.log('PASS: exact upgrade reserves, overlapping rules, named recipes, next-variant results, preference precedence and removal');

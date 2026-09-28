@@ -9,7 +9,7 @@ const batch=name=>({spend:[{name,variant:'DIAMOND',count:3}],out:{name,variant:'
 function setup(units,batches){
  let scored=0;
  const context=vm.createContext({
-  state:{optimiseFuseFirst:true},soldInsteadOfFusion:()=>[],fusionRebirthProtectedKeys:()=>new Set(),isBuilding:()=>false,
+  state:{optimiseFuseFirst:true},soldInsteadOfFusion:()=>[],fusionRebirthProtectedKeys:()=>new Set(),isBuilding:()=>false,fusionReservedForUpgrade:()=>false,
   // Fix the scorer's order so these tests isolate whether execution respects
   // the existing table, independently of income and Droidex scoring changes.
   fusionChainFromSpares:()=>{scored++;assert(scored<3,'table conflicts must not recursively retry an unchanged pool');return batches;},
@@ -17,7 +17,7 @@ function setup(units,batches){
   rarityLabel:rarity=>rarity,unitName:unit=>unit.name,fmt:String
  });
  vm.runInContext(source.split(/\r?\n/).find(line=>line.startsWith('const protocolFusionSpares=')),context);
- for(const name of ['optimiseFusionChain','withFusionSteps'])vm.runInContext(fn(name),context);
+ for(const name of ['optimiseFusionExcluded','optimiseFusionReserves','optimiseFusionChain','withFusionSteps'])vm.runInContext(fn(name),context);
  const base={placed:units,overflow:[]},projected={placed:units.filter(unit=>unit.keepReason),sell:units.filter(unit=>!unit.keepReason),overflow:[]};
  const steps=projected.sell.map(unit=>({type:'sell',unit,from:{station:unit.station,slot:unit.slot},text:`Sell ${unit.name}.`}));
  const before=JSON.stringify({base,projected,steps});

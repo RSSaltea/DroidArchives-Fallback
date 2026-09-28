@@ -1110,7 +1110,11 @@ function showFusionResultPrompt(names,onPick,outcome){
 // come out Rainbow. That is the whole reason a Fusion droid has to be fused at
 // the quality you want - unlike every other droid it cannot be upgraded after.
 const RARITY_LADDER=['COMMON','RARE','EPIC','LEGENDARY','MYTHIC'];
-function normaliseFusionKeepRules(value){return Array.isArray(value)?value.filter(x=>x&&OWNED_VARIANTS.includes(x.variant)&&(typeof x.name==='string'||RARITY_LADDER.includes(x.rarity))).map(x=>x.name?{name:x.name,variant:x.variant}:{rarity:x.rarity,variant:x.variant}):[];}
+function normaliseFusionKeepRules(value){return Array.isArray(value)?value.filter(x=>x&&OWNED_VARIANTS.includes(x.variant)&&(typeof x.name==='string'&&x.name.trim()||RARITY_LADDER.includes(x.rarity))).map(x=>x.name?{name:x.name,variant:x.variant,...(x.upgradeOnly===true?{upgradeOnly:true}:{})}:{rarity:x.rarity,variant:x.variant}):[];}
+function fusionReservedForUpgrade(unit){
+  return normaliseFusionKeepRules(state.fusionKeepRules).some(rule=>rule.upgradeOnly&&rule.name===unit.name&&rule.variant===unit.variant);
+}
+function fusionUpgradeTarget(variant){return variant==='KYBER_GREEN'?'KYBER_BLUE':variant==='KYBER_BLUE'?'KYBER_PURPLE':nextVariant(variant);}
 function keepForFusion(unit){
   const d=state.droids.find(d=>d.name===unit.name);if(!d||isIconic(d))return false;
   return normaliseFusionKeepRules(state.fusionKeepRules).some(rule=>rule.name?rule.name===unit.name&&rule.variant===unit.variant:RARITY_LADDER.indexOf(d.rarity)>=RARITY_LADDER.indexOf(rule.rarity)&&variantRank(unit.variant)>=variantRank(rule.variant));
@@ -1131,7 +1135,19 @@ function showAstromechSettings(){
 }
 function showFusionKeepSettings(){
   const root=document.querySelector('#modalRoot'),rules=normaliseFusionKeepRules(state.fusionKeepRules);
-  root.innerHTML=`<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true"><h2>Keep for fusion</h2><p>Keep matching spare droids until you have enough to fuse. They can still work, but Optimise will not sell them. Each rule is an alternative.</p><ul>${rules.map((r,i)=>`<li>${escapeAttr(r.name?`${r.name} / ${r.variant} (all copies)`:`${r.rarity}+ / ${r.variant}+`)} <button class="btn ghost" data-remove-fusion-rule="${i}">Remove</button></li>`).join('')||'<li>No rules yet.</li>'}</ul><label class="field">Minimum rarity<select class="form-control" id="fusionKeepRarity">${RARITY_LADDER.map(r=>`<option ${r==='LEGENDARY'?'selected':''}>${r}</option>`).join('')}</select></label><label class="field">Minimum quality<select class="form-control" id="fusionKeepVariant">${VARIANTS.map(v=>`<option ${v==='BESKAR'?'selected':''}>${v}</option>`).join('')}</select></label><p>For example, add Legendary+ / Beskar+, then Mythic+ / Diamond+.</p><div class="modal-actions"><button class="btn" id="addFusionKeepRule">Add rule</button><button class="btn secondary" id="closeFusionKeepRules">Done</button></div></section></div>`;
+  const choices=state.droids.filter(d=>!isIconic(d)).sort((a,b)=>a.name.localeCompare(b.name));
+  root.innerHTML=`<div class="modal-backdrop"><section class="modal planning-settings-modal" role="dialog" aria-modal="true" aria-labelledby="fusionKeepTitle"><h2 id="fusionKeepTitle">Keep for fusion</h2><p>Rules are saved with this profile. Matching droids can still work, but Optimise will not sell them.</p><ul>${rules.map((r,i)=>`<li>${escapeAttr(r.name?`${r.name} / ${variantLabel(r.variant)}${r.upgradeOnly?' — same-droid upgrade only':' (any fusion)'}`:`${r.rarity}+ / ${r.variant}+ (any fusion)`)} <button class="btn ghost" data-remove-fusion-rule="${i}" aria-label="Remove ${escapeAttr(r.name||r.rarity)} fusion rule">Remove</button></li>`).join('')||'<li>No rules yet.</li>'}</ul>
+    <h3>Save for same-droid upgrade</h3><p>Keep all copies of a specific droid and variant until three can upgrade together. No mixed-droid fusions or recipes will use them. The result is not used in another fusion in the same plan. This takes priority over general fusion goals. Fuse instead of selling must be enabled; Keep Mythics out of fusion still blocks Mythic upgrades.</p>
+    <label class="field">Search droids<input class="form-control" id="fusionUpgradeSearch" type="search" placeholder="Search droids…"></label>
+    <label class="field">Droid<select class="form-control" id="fusionUpgradeName">${choices.map(d=>`<option value="${escapeAttr(d.name)}">${escapeAttr(d.name)}</option>`).join('')}</select></label>
+    <label class="field">Variant to save<select class="form-control" id="fusionUpgradeVariant">${OWNED_VARIANTS.filter(v=>fusionUpgradeTarget(v)).map(v=>`<option value="${v}" ${v==='STELLAR'?'selected':''}>${variantLabel(v)} → ${variantLabel(fusionUpgradeTarget(v))}</option>`).join('')}</select></label>
+    <p class="picker-hint" id="fusionUpgradeCount" aria-live="polite"></p><button class="btn" id="addFusionUpgradeRule">Save for upgrade</button>
+    <h3>Keep spares for any fusion</h3><label class="field">Minimum rarity<select class="form-control" id="fusionKeepRarity">${RARITY_LADDER.map(r=>`<option ${r==='LEGENDARY'?'selected':''}>${r}</option>`).join('')}</select></label><label class="field">Minimum quality<select class="form-control" id="fusionKeepVariant">${VARIANTS.map(v=>`<option ${v==='BESKAR'?'selected':''}>${v}</option>`).join('')}</select></label><p>For example, add Legendary+ / Beskar+, then Mythic+ / Diamond+. Same-droid upgrade rules always protect their copies from mixed fusions.</p><div class="modal-actions"><button class="btn" id="addFusionKeepRule">Add rule</button><button class="btn secondary" id="closeFusionKeepRules">Done</button></div></section></div>`;
+  const nameSelect=root.querySelector('#fusionUpgradeName'),variantSelect=root.querySelector('#fusionUpgradeVariant');
+  const updateCount=()=>{const count=state.owned.filter(x=>x.name===nameSelect.value&&x.variant===variantSelect.value).reduce((n,x)=>n+(Number(x.qty)||1),0);root.querySelector('#fusionUpgradeCount').textContent=nameSelect.value?`${count} owned at this variant. Three matching, unlocked, finished copies are needed. Locked copies and unfinished builds stay protected.`:'No matching droids.';root.querySelector('#addFusionUpgradeRule').disabled=!nameSelect.value;};
+  root.querySelector('#fusionUpgradeSearch').oninput=event=>{const selected=nameSelect.value,query=event.target.value.trim().toLowerCase();nameSelect.innerHTML=choices.filter(d=>d.name.toLowerCase().includes(query)).map(d=>`<option value="${escapeAttr(d.name)}">${escapeAttr(d.name)}</option>`).join('');if([...nameSelect.options].some(x=>x.value===selected))nameSelect.value=selected;updateCount();};
+  nameSelect.onchange=updateCount;variantSelect.onchange=updateCount;updateCount();
+  root.querySelector('#addFusionUpgradeRule').onclick=()=>{if(!nameSelect.value)return;const rule={name:nameSelect.value,variant:variantSelect.value,upgradeOnly:true},existing=rules.find(r=>r.name===rule.name&&r.variant===rule.variant);if(existing)existing.upgradeOnly=true;else rules.push(rule);state.fusionKeepRules=rules;save();showFusionKeepSettings();};
   root.querySelector('#addFusionKeepRule').onclick=()=>{const rule={rarity:root.querySelector('#fusionKeepRarity').value,variant:root.querySelector('#fusionKeepVariant').value};if(!rules.some(r=>JSON.stringify(r)===JSON.stringify(rule)))rules.push(rule);state.fusionKeepRules=rules;save();showFusionKeepSettings();};
   root.querySelectorAll('[data-remove-fusion-rule]').forEach(b=>b.onclick=()=>{rules.splice(Number(b.dataset.removeFusionRule),1);state.fusionKeepRules=rules;save();showFusionKeepSettings();});
   root.querySelector('#closeFusionKeepRules').onclick=()=>{root.innerHTML='';route();};
@@ -1420,18 +1436,21 @@ function fusionSpendFrom(stock,name,variant,need){
 // that a certain result beats a roll, and then it is simply the bigger gain.
 function fusionBestFrom(stock,floor,made,protocolFloors){
   const options=[];
+  // Exact upgrade reserves may only enter their matching three-of-a-kind batch.
+  // Filter before scoring so a blocked batch cannot hide another legal recipe.
+  const mixedStock=new Map([...stock].map(([name,variants])=>[name,new Map([...variants].filter(([variant])=>!fusionReservedForUpgrade({name,variant}))) ]).filter(([,variants])=>variants.size));
   // A Protocol droid is worth making for the bonus it gives in a Protocol slot, not
   // for its credits, so it is measured against the weakest bonus slotted in each
   // role. A rarity roll names no droid, so it is judged as before.
   const protocolGain=(name,variant)=>{const pd=fusionDroid(name);if(!protocolFloors||pd?.type!=='PROTOCOL')return 0;return Math.max(protocolBonus(pd,variant,'CREDITS')-protocolFloors.CREDITS,protocolBonus(pd,variant,'CRAFTING')-protocolFloors.CRAFTING,0)};
   const usesMade=spend=>[...new Set(spend.map(part=>made.get(part.name+'|'+part.variant)).filter(i=>i!==undefined))];
   for(const recipe of fusionRecipes()){
-    const at=fusionBestVariant(recipe,stock);
+    const at=fusionBestVariant(recipe,mixedStock);
     if(!at)continue;
     const spend=[];
     let ok=true;
     for(const [name,need] of fusionRecipeWants(recipe)){
-      const part=fusionSpendFrom(stock,name,at,need);
+      const part=fusionSpendFrom(mixedStock,name,at,need);
       if(!part){ok=false;break}
       spend.push(...part);
     }
@@ -1445,7 +1464,7 @@ function fusionBestFrom(stock,floor,made,protocolFloors){
     options.push({kind:'quality',out:{name:step.name,variant:step.to},spend,sure:true,
       income:droidIncomeAt(step.name,step.to),fills:droidexGapFor(step.name,step.to),bonusGain:protocolGain(step.name,step.to),protocol:fusionDroid(step.name)?.type==='PROTOCOL',after:usesMade(spend)});
   }
-  for(const group of fusionRaritySteps(stock)){
+  for(const group of fusionRaritySteps(mixedStock)){
     const spend=group.spend;
     // A roll does not say which droid arrives, so nothing goes back in the pool
     // and no Droidex square can be promised.
@@ -1456,9 +1475,10 @@ function fusionBestFrom(stock,floor,made,protocolFloors){
   const permitted=options.filter(option=>{
     const inputRarities=option.spend.map(part=>droidRarity(part.name));
     const hasMythic=inputRarities.includes('MYTHIC');
+    if(hasMythic&&preferences.mythics==='off')return false;
+    if(option.kind==='quality'&&option.spend.some(fusionReservedForUpgrade))return true;
     if(option.kind==='recipe'&&!preferences.recipes)return false;
     if(hasMythic){
-      if(preferences.mythics==='off')return false;
       if(preferences.mythics==='reroll')return option.kind==='rarity'&&option.rarity==='MYTHIC';
       return option.kind!=='rarity'||option.variantUpgrade||option.variant==='KYBER';
     }
@@ -1501,7 +1521,8 @@ function fusionChainFromSpares(spares,placed){
     const pick=fusionBestFrom(stock,floor,made,protocolFloors);
     if(!pick)break;
     for(const part of pick.spend)take(part.name,part.variant,part.count);
-    if(pick.out){add(pick.out.name,pick.out.variant);made.set(pick.out.name+'|'+pick.out.variant,steps.length)}
+    // Keep the promised named upgrade; never feed it straight into another roll.
+    if(pick.out&&!pick.spend.some(fusionReservedForUpgrade)){add(pick.out.name,pick.out.variant);made.set(pick.out.name+'|'+pick.out.variant,steps.length)}
     steps.push({...pick,gain:pick.income-floor,step:steps.length+1});
   }
   return steps;
@@ -3548,10 +3569,20 @@ function fusionRebirthProtectedKeys(){
   // Below the required quality still means needed: keep the upgrade candidate.
   return new Set([...best.values()].map(x=>`${x.source}:${x.unit}`));
 }
-function optimiseFusionChain(projected,baseP){
-  const excluded=new Set([...soldInsteadOfFusion(),...fusionRebirthProtectedKeys()]);
+function optimiseFusionExcluded(baseP){
+  const upgradeKeys=new Set((baseP?.placed||[]).filter(fusionReservedForUpgrade).map(x=>`${x.source}:${x.unit}`));
+  // Replacing the required copy by the same droid at a higher variant is safe.
+  // Only exact upgrade rules permit this; the scorer forbids all mixed uses.
+  const excluded=new Set([...soldInsteadOfFusion(),...[...fusionRebirthProtectedKeys()].filter(key=>!upgradeKeys.has(key))]);
   for(const unit of baseP?.placed||[])if(unit.lockedSlot||isBuilding(unit))excluded.add(`${unit.source}:${unit.unit}`);
-  const pool=[...new Map([...(projected?.sell||[]),...protocolFusionSpares(projected)].map(unit=>[`${unit.source}:${unit.unit}`,unit])).values()];
+  return excluded;
+}
+function optimiseFusionReserves(projected){
+  return [...new Map([...protocolFusionSpares(projected),...[...(projected?.placed||[]),...(projected?.overflow||[]),...(projected?.fusing||[])].filter(fusionReservedForUpgrade)].map(unit=>[`${unit.source}:${unit.unit}`,unit])).values()];
+}
+function optimiseFusionChain(projected,baseP){
+  const excluded=optimiseFusionExcluded(baseP);
+  const pool=[...new Map([...(projected?.sell||[]),...optimiseFusionReserves(projected)].map(unit=>[`${unit.source}:${unit.unit}`,unit])).values()];
   const spares=pool.filter(x=>!excluded.has(`${x.source}:${x.unit}`));
   // A kept droid on the table must be moved by the ordinary layout plan first. A
   // kept Protocol spare is the exception: it is there to be fused.
@@ -3584,12 +3615,13 @@ function withFusionSteps(steps,projected,baseP){
   if(state.optimiseFuseFirst===false)return steps;
   const chain=optimiseFusionChain(projected,baseP);
   if(!chain.length)return steps;
-  const excluded=new Set([...soldInsteadOfFusion(),...fusionRebirthProtectedKeys()]),available=steps.filter(s=>s.type==='sell'&&s.unit&&!excluded.has(`${s.unit.source}:${s.unit.unit}`));
+  const excluded=optimiseFusionExcluded(baseP),available=steps.filter(s=>s.type==='sell'&&s.unit&&!excluded.has(`${s.unit.source}:${s.unit.unit}`));
   // A kept Protocol spare has no sell step to turn into a fusion step, so it gets a
   // stand-in. If a fusion uses it, it is sent to Fusion; if not, it is simply kept
   // and never appears in the plan. It is fused from wherever it stands right now.
-  for(const unit of protocolFusionSpares(projected)){
+  for(const unit of optimiseFusionReserves(projected)){
     if(excluded.has(`${unit.source}:${unit.unit}`))continue;
+    if(available.some(s=>s.unit.source===unit.source&&s.unit.unit===unit.unit))continue;
     const now=(baseP?.placed||[]).find(x=>x.source===unit.source&&x.unit===unit.unit)||(unit.station?unit:null);
     available.push({type:'protocol-spare',protocolSpare:true,unit,from:now?{station:now.station,slot:now.slot}:undefined,at:now?.station||'ROSTER',
       text:`Send ${unit.name} ${variantLabel(unit.variant)}${now?` from ${slotLabel(now)}`:''}.`});
@@ -3825,7 +3857,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-09-28-responsive-planning',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-09-28-fusion-reserves',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
   onResult:(message,stamp)=>{

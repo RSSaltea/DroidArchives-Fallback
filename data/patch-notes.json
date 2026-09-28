@@ -2,6 +2,18 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-28-fusion-upgrade-reserves",
+      "date": "2026-09-28",
+      "title": "Save specific droids for matching fusion upgrades",
+      "summary": "Keep copies of a chosen droid and variant until you have three to upgrade together.",
+      "changes": [
+        "Open Keep for fusion, then use Save for same-droid upgrade to search for a droid and choose its starting variant. Rules are saved per profile and included in imports and exports.",
+        "Optimise will not sell those copies or use them in mixed-droid fusions or named recipes. For example, two Stellar Snow Mice stay available for a third to make a Kyber Snow Mouse.",
+        "A matching triple can include the copy saved for a future Rebirth, because the result keeps the same droid at a higher variant. Locked droids and unfinished builds remain protected, and the result is not reused in another fusion in the same plan.",
+        "Specific upgrade rules take priority over general fusion goals. Fuse instead of selling must still be enabled, and Keep Mythics out of fusion still prevents Mythic upgrades. Remove a rule to allow those copies in other fusions again."
+      ]
+    },
+    {
       "id": "2026-09-28-rebirth-crit-rewards",
       "date": "2026-09-28",
       "title": "Missing Rebirth crit rewards corrected",
