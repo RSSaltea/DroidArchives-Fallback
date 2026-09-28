@@ -71,7 +71,7 @@ const server=http.createServer((req,res)=>{
     assert.match(await page.locator('.nova-iconic-purchases').innerText(),/Buy for credit gain/);
     const images=fs.mkdtempSync(path.join(os.tmpdir(),'nova-iconics-'));
     await page.locator('.nova-iconic-purchases').screenshot({path:path.join(images,'optimise-desktop.png')});
-    await page.locator('[data-manage-iconic-unlocks]').click();await page.locator('#novaIconicUnlocked').waitFor();
+    await page.locator('.nova-iconic-purchases [data-manage-iconic-unlocks]').click();await page.locator('#novaIconicUnlocked').waitFor();
     await page.locator('[data-nova-select="iconic-dj-r-3x"]').click();
     await page.locator('.nova-command').screenshot({path:path.join(images,'shop-desktop.png')});
     await page.setViewportSize({width:390,height:844});
@@ -84,7 +84,7 @@ const server=http.createServer((req,res)=>{
     await page.locator('#transferJson').fill(JSON.stringify({base:{owned:[],novaIconicUnlocks:['R2-D2']}}));
     await page.locator('#importSave').click();
     assert.deepEqual(await page.evaluate(()=>window.novaTest.state.novaIconicUnlocks),['R2-D2']);
-    await page.evaluate(()=>window.novaTest.showSuperRebirthConfirm(()=>{},true));await page.locator('#confirmSuperRebirth').click();
+    await page.evaluate(()=>{window.novaTest.state.rebirth=12;window.novaTest.state.multiplier=100;window.novaTest.showSuperRebirthConfirm(()=>{},true)});await page.locator('#confirmSuperRebirth').click();
     assert.deepEqual(await page.evaluate(()=>window.novaTest.state.novaIconicUnlocks),['R2-D2'],'permanent unlock survives super rebirth');
     await page.goto(url+'/#/nova-shop');await page.locator('[data-nova-select="iconic-r2-d2"]').click();await page.locator('#novaIconicUnlocked').uncheck();
     await page.reload();await page.waitForFunction(()=>window.novaTest?.state.droids.length);assert(!(await page.locator('#novaIconicUnlocked').isChecked()));

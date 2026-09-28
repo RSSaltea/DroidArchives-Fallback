@@ -2,7 +2,7 @@
 // Inputs are copied; a rejected step never changes the simulated base.
 export function validateOptimisePlan({ initial, projected, steps, rules } = {}) {
   const issues = [], units = new Map(), positions = new Map(), staged = new Map();
-  const generated = new Set(), seen = new Set(), sold = new Set();
+  const generated = new Set(), seen = new Set(), sold = new Set(), returned = new Set();
   const companionLocks = new Map();
   const issue = message => issues.push(message);
   const keyOf = unit => unit && (typeof unit.source === 'string' || Number.isFinite(unit.source)) &&
@@ -74,19 +74,38 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
       }
     }
   }
+  const purchases = new Map();
+  for (const input of array(initial?.purchases, 'Iconic purchases', true)) {
+    const key = keyOf(input);
+    if (!key || seen.has(key) || purchases.has(key) || input.station || !rule('canPurchase', input)) {
+      issue('Invalid Iconic purchase identity or unlock.'); continue;
+    }
+    purchases.set(key, input);
+  }
   let prefixIndex = 0, batchStart = null;
   const plan = array(steps, 'Plan steps');
   for (let index = 0; index < plan.length; index++) {
     const step = plan[index], label = `Step ${index + 1}`;
     if (!step || typeof step !== 'object') { issue(`${label}: malformed instruction.`); continue; }
-    if(['sell','fuse-in','fuse-held'].includes(step.type)&&companionLocks.has(keyOf(step.unit))){issue(`${label}: a reserved Companion cannot be sold or fused.`);continue;}
+    if(['sell','return','fuse-in','fuse-held'].includes(step.type)&&companionLocks.has(keyOf(step.unit))){issue(`${label}: a reserved Companion cannot be sold, returned or fused.`);continue;}
     const prefix = ['sell', 'fuse-in', 'fuse-held', 'fuse-result', 'fuse'].includes(step.type);
     if (prefix && step.type !== 'sell' && batchStart === null) batchStart = prefixIndex;
     if (prefix) prefixIndex++;
     if (step.fusionBlocked || step.partial || step.type === 'note' || step.type === 'fuse-deferred') {
       issue(`${label}: incomplete or blocked plan.`); continue;
     }
-    if (step.type === 'move') {
+    if (step.type === 'buy') {
+      const key = keyOf(step.unit), purchase = purchases.get(key), to = positionOf(step, 'to');
+      if (!purchase || seen.has(key) || !sameDroid(purchase, step.unit) || !rule('canPurchase', purchase) ||
+          step.unit.built !== true || step.unit.lockedSlot || step.at !== 'ICONIC_SHOP' || step.from ||
+          [...units.values()].some(unit => unit.name === purchase.name)) {
+        issue(`${label}: invalid, duplicate or locked Iconic purchase.`); continue;
+      }
+      if (!validPlace(to) || to.station !== 'COMPANION' || occupant(to) || !rule('canUse', purchase, 'COMPANION')) {
+        issue(`${label}: buying an Iconic requires a free Companion slot.`); continue;
+      }
+      units.set(key, { ...purchase }); seen.add(key); positions.set(key, { ...to });
+    } else if (step.type === 'move') {
       const key = resolve(step.unit, label), from = positionOf(step, 'from'), to = positionOf(step, 'to');
       if (!key || !checkFrom(key, from, label, true) || !movable(key, label)) continue;
       if (!validPlace(to)) { issue(`${label}: invalid destination slot.`); continue; }
@@ -138,6 +157,11 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
       const fromUncertain = positions.get(key)?.positionUncertain, otherUncertain = positions.get(other)?.positionUncertain;
       positions.set(key, { station: withFrom.station, slot: withFrom.slot, positionUncertain: otherUncertain });
       positions.set(other, { station: from.station, slot: from.slot, positionUncertain: fromUncertain });
+    } else if (step.type === 'return') {
+      const key = resolve(step.unit, label);
+      if (!key || !checkFrom(key, positionOf(step, 'from'), label, true) || !movable(key, label)) continue;
+      if (purchases.has(key) || !rule('canReturn', current(key))) { issue(`${label}: this droid cannot be returned.`); continue; }
+      returned.add(key); remove(key);
     } else if (step.type === 'sell') {
       const key = resolve(step.unit, label);
       if (!key || !checkFrom(key, positionOf(step, 'from'), label) || !movable(key, label)) continue;
@@ -243,6 +267,14 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
   for (const key of units.keys()) if (!targetUnits.has(key)) issue(`Replay leaves an unexpected droid ${key}.`);
   for (const key of targetSold) if (!sold.has(key)) issue(`Projected sale ${key} was not performed.`);
   for (const key of sold) if (!targetSold.has(key)) issue(`Replay sells an unexpected droid ${key}.`);
+  const targetReturned = new Set();
+  for (const unit of array(projected?.returns, 'Projected returns', true)) {
+    const key=keyOf(unit),original=[...initialPlaced,...initialOverflow].find(u=>keyOf(u)===key);
+    if(!key||targetReturned.has(key)||targetUnits.has(key)||targetSold.has(key)||!original||!sameDroid(unit,original))issue('Projected returns contain an invalid or duplicate droid.');
+    targetReturned.add(key);
+  }
+  for(const key of targetReturned)if(!returned.has(key))issue(`Projected return ${key} was not performed.`);
+  for(const key of returned)if(!targetReturned.has(key))issue(`Replay returns an unexpected droid ${key}.`);
   const companionsRestored=[...companionLocks].every(([key,place])=>samePlace(positions.get(key),place));
   if(!companionsRestored)issue('Locked Companions must return to their original slots before applying the layout.');
   return { ok: issues.length === 0, issues, placed: placed(), companionsRestored };

@@ -239,6 +239,7 @@ export function shortenOptimiseWalk(steps, { distance, isValid, slotDistanceSqua
   };
   const length = order => slotDistanceSquared?optimiseWalkDistance(order.flat(),{distance,slotDistanceSquared})
     :order.reduce((sum, group, i) => sum + (i ? distance(order[i-1][0].at, group[0].at) : 0), 0);
+  const shoppingTrips = order => order.filter(group => group.some(step => step.at === 'ICONIC_SHOP')).length;
   const flatten = order => order.flatMap((group, stop) => group.map(step => ({ ...step, stop, visit: `route-${stop}` }))).map((step, index) => ({ ...step, index }));
   let best = normalize(groups), bestDistance = length(best);
   for (let pass = 0; pass < maxPasses; pass++) {
@@ -246,7 +247,10 @@ export function shortenOptimiseWalk(steps, { distance, isValid, slotDistanceSqua
     const consider = order => {
       order = normalize(order);
       const current = improved || best, gap = length(order);
-      if(slotDistanceSquared ? gap>=improvedDistance-1e-6 : order.length > current.length || order.length === current.length && gap >= improvedDistance - 1e-6)return;
+      // Cantina coordinates are not mapped. Prefer fewer trips there without
+      // inventing a distance, then shorten the measured part of the base walk.
+      if(shoppingTrips(order)>shoppingTrips(current))return;
+      if(shoppingTrips(order)===shoppingTrips(current)&&(slotDistanceSquared ? gap>=improvedDistance-1e-6 : order.length > current.length || order.length === current.length && gap >= improvedDistance - 1e-6))return;
       if (!isValid(flatten(order))) return;
       improved = order; improvedDistance = gap;
     };
@@ -276,11 +280,19 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   const issues = [], later = [];
   const units = new Map();
   for (const unit of [...(initial?.placed || []), ...(initial?.overflow || [])]) units.set(keyOf(unit), { ...unit });
+  const purchases = new Set();
+  for (const unit of initial?.purchases || []) {
+    const key = keyOf(unit);
+    if (units.has(key) || unit.station || !rules.canPurchase?.(unit)) { issues.push('Invalid Iconic purchase.'); continue; }
+    units.set(key, { ...unit }); purchases.add(key);
+  }
 
   // ---- goals -------------------------------------------------------------
   const goals = new Map();
   for (const unit of target?.placed || []) if (units.has(keyOf(unit))) goals.set(keyOf(unit), { kind: 'place', ...goalFor(unit, rules) });
   for (const unit of target?.sell || []) if (units.has(keyOf(unit))) goals.set(keyOf(unit), { kind: 'sell' });
+  for (const unit of target?.returns || []) if (units.has(keyOf(unit))) goals.set(keyOf(unit), { kind: 'return' });
+  for (const key of purchases) if (goals.get(key)?.kind !== 'place') issues.push('A purchased Iconic needs a destination.');
   const fusions = [];
   for (const [index, batch] of (target?.fusions || []).entries()) {
     const inputs = (batch.inputs || []).map(keyOf);
@@ -300,7 +312,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   for(const [key,slot] of companionLocks){
     const targetUnit=(target?.placed||[]).find(unit=>keyOf(unit)===key);
     if(targetUnit&&(targetUnit.station!=='COMPANION'||targetUnit.slot!==slot))issues.push(`${units.get(key).name} must return to its locked Companion slot.`);
-    if(goals.get(key)?.kind==='sell'||goals.get(key)?.kind==='fusion')issues.push(`${units.get(key).name} is a reserved Companion and cannot be consumed.`);
+    if(['sell','return','fusion'].includes(goals.get(key)?.kind))issues.push(`${units.get(key).name} is a reserved Companion and cannot be consumed.`);
     goals.set(key,{kind:'place',station:'COMPANION',restoreSlot:slot});
   }
   const fixed = key => { const unit = units.get(key); return unit.lockedSlot&&!companionLocks.has(key) || rules.isBuilding(unit); };
@@ -360,7 +372,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   const pending = state => {
     let count = 0;
     for (const [key, goal] of state.goals) {
-      if (goal.kind === 'sell') { if (!state.sold.has(key)) count++; }
+      if (goal.kind === 'sell' || goal.kind === 'return') { if (!state.sold.has(key)) count++; }
       else if (goal.kind === 'fusion') { if (!state.fused.has(goal.fusion) && !state.staged.has(key)) count++; }
       else if (goal.kind === 'place') { if (!goalMet(state.pos.get(key), goal, rules)) count++; }
     }
@@ -371,7 +383,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   // Twin goal swaps and finished tanks also affect which commands remain legal.
   const signature = state => [...state.pos].map(([key, p]) => `${key}@${p.station}:${p.slot}:${!!p.positionUncertain}`).sort().join(',') + '|' + [...state.sold].sort().join(',') + '|' + [...state.staged.keys()].sort().join(',') + '|' + [...state.fused].sort().join(',')
     + '|' + state.region + '|' + [...state.built].sort().join(',') + '|' + [...state.goals].map(([key, goal]) => `${key}:${goal.kind}:${goal.station || ''}:${goal.cls || ''}:${goal.fusion ?? ''}`).sort().join(',');
-  const regionOfKey = (state, key) => { const p = state.pos.get(key); return p ? rules.regionOf(p.station, p.slot) : null; };
+  const regionOfKey = (state, key) => { const p = state.pos.get(key); return p ? rules.regionOf(p.station, p.slot) : purchases.has(key) ? 'ICONIC_SHOP' : null; };
   const arrivalsInto = (state, station) => {
     let count = 0;
     for (const [key, goal] of state.goals) if (goal.kind === 'place' && goal.station === station && !goalMet(state.pos.get(key), goal, rules) && !state.sold.has(key) && !state.staged.has(key)) count++;
@@ -385,7 +397,26 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     let goal = state.goals.get(key);
     const placed = placedOf(state), { free } = occupancy(placed, rules);
     const step = { unit: { ...unit }, from: from ? { ...from } : undefined, at: (from && rules.regionOf(from.station, from.slot)) || 'ANY' };
+    if (purchases.has(key) && !from) {
+      if (commandRegion !== 'ICONIC_SHOP' || goal?.kind !== 'place' || !rules.canPurchase?.(unit)) return null;
+      const slot = free('COMPANION')[0];
+      if (slot === undefined) return null;
+      const to = { station: 'COMPANION', slot };
+      state.pos.set(key, to);
+      return { ...step, type: 'buy', at: 'ICONIC_SHOP', to };
+    }
+    if (purchases.has(key) && ['sell','return','fusion','park'].includes(kind)) return null;
+    // The Cantina is a separate trip. Send bought followers to storage from
+    // here when possible, freeing the seat for the rest of the shopping list.
+    if (purchases.has(key) && from?.station === 'COMPANION' && commandRegion === 'ICONIC_SHOP' &&
+        kind !== 'buffer' && goal.station !== 'COMPANION') {
+      return free('LOUNGE').length ? tryCommand(state, key, 'buffer', allowAssumed, commandRegion) : null;
+    }
     if (kind === 'sell') { state.sold.add(key); state.pos.delete(key); return { ...step, type: 'sell' }; }
+    if (kind === 'return') {
+      if (!rules.canReturn?.(unit) || fixed(key) || companionLocks.has(key)) return null;
+      state.sold.add(key); state.pos.delete(key); return { ...step, type: 'return' };
+    }
     if (kind === 'fusion') {
       const onTable = placed.filter(x => x.station === 'FUSION' && keyOf(x) !== key).length;
       if (state.staged.size + onTable >= 3) return null;
@@ -518,7 +549,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     }
     return null;
   };
-  const commandFor = goal => goal.kind === 'sell' ? 'sell' : goal.kind === 'fusion' ? 'fusion'
+  const commandFor = goal => ['sell','return'].includes(goal.kind) ? goal.kind : goal.kind === 'fusion' ? 'fusion'
     : goal.station === 'LOUNGE' ? 'lounge' : goal.station === 'FUSION' ? 'park' : goal.station === 'COMPANION' ? 'companion' : 'work';
   const tryFuse = (state, region) => {
     if (region !== 'FUSION') return null;
@@ -549,6 +580,22 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     let progress = true;
     while (progress) {
       progress = false;
+      // Purchases arrive as Companions. Free one seat, then buy immediately so
+      // restoring a reserved Companion cannot take the seat back first.
+      if (region === 'ICONIC_SHOP') {
+        const waiting = [...purchases].find(key => !state.pos.has(key));
+        if (waiting && !occupancy(placedOf(state), rules).free('COMPANION').length) {
+          const passengers = [...state.pos].filter(([key, p]) => p.station === 'COMPANION' && !fixed(key));
+          const passenger = passengers.find(([key]) => purchases.has(key)) || passengers[0];
+          if (passenger) {
+            const buffer = tryCommand(state, passenger[0], 'buffer', policy.assumed, region);
+            if (buffer) {
+              steps.push(buffer, tryCommand(state, waiting, 'buy', policy.assumed, region));
+              progress = true;
+            }
+          }
+        }
+      }
       // A droid bound for another type of room can only leave while its own
       // room is full, so those go first, before anything opens a slot here.
       const choices = open();
@@ -611,7 +658,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   const stopsLeft = state => regionsWithWork(state).length;
   // A droid bound for a tank must be in the seat before the tank's occupant
   // moves, so it comes right after the storage commands.
-  const rank = (goal, unit) => goal.kind === 'sell' ? 0 : goal.kind === 'fusion' ? 1 : goal.station === 'COMPANION' ? 2 : goal.station === 'LOUNGE' ? 3 : ['BUILD', 'FUSION_BUILD'].includes(goal.station) ? 3.5
+  const rank = (goal, unit) => ['sell','return'].includes(goal.kind) ? 0 : goal.kind === 'fusion' ? 1 : goal.station === 'COMPANION' ? 2 : goal.station === 'LOUNGE' ? 3 : ['BUILD', 'FUSION_BUILD'].includes(goal.station) ? 3.5
     : goal.station === 'UPGRADE_CHIP' ? 7 : PRODUCTIVE.includes(goal.station) && goal.station !== rules.typeOf(unit) ? 4 : goal.cls === 'credit' ? 6 : 5;
   const idle = goal => goal.kind === 'stay' || goal.kind === 'done';
   const regionsWithWork = state => {
@@ -726,6 +773,6 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     // Goals as they ended up, after any identical droids traded jobs.
     const resolvedGoals = [...node.state.goals].filter(([, goal]) => goal.kind === 'place').map(([key, goal]) => ({ ...unitAs(node.state, key), ...(node.state.pos.get(key) || { station: goal.station, slot: -1 }) }));
     return { steps, finalPlaced, resolvedGoals, complete: complete && issues.length === 0, stops: node.stops, commands: node.commands, assumed: node.assumed, travelDistance: node.walk, buffers: node.buffers, issues, later,
-      sold: [...node.state.sold], staged: [...node.state.staged.keys()], fused: [...node.state.fused] };
+      sold: [...node.state.sold].filter(key=>goals.get(key)?.kind!=='return'), returned:[...node.state.sold].filter(key=>goals.get(key)?.kind==='return'), staged: [...node.state.staged.keys()], fused: [...node.state.fused] };
   }
 }

@@ -32,6 +32,61 @@ const at=(u,station,slot=0)=>({...u,station,slot});
 const stops=steps=>steps.reduce((n,step,i)=>n+(i===0||step.visit!==steps[i-1].visit?1:0),0);
 const summary=steps=>steps.map(s=>`${s.at}:${s.type}${s.kind?'/'+s.kind:''}:${s.unit?.name||''}${s.to?'->'+(typeof s.to==='string'?s.to:s.to.station+(s.to.cls?'('+s.to.cls+')':'')):''}${s.buffer?'*':''}${s.assumed?'?':''}`);
 
+test('return frees a slot without treating an Iconic as a sale, and cannot bypass locks',async()=>{
+  const mod=await load(),rules=rulesFor({WORKER:1,LOUNGE:1});
+  rules.canReturn=u=>u.name==='WORK-iconic';rules.workLanding=(u,p)=>mod.predictWorkLanding(u,p,rules);
+  const iconic=unit('WORK-iconic','WORKER',0),regular=unit('WORK-earner','LOUNGE',0);
+  const initial={placed:[iconic,regular]},target={placed:[at(regular,'WORKER')],returns:[iconic],sell:[]};
+  const route=mod.planOptimiseRoute({initial,target,rules});assert(route.complete,route.issues.join('; '));
+  assert.equal(route.steps[0].type,'return');assert.equal(route.sold.length,0);assert.equal(route.returned.length,1);
+  const projected={...target,placed:route.finalPlaced};
+  assert(mod.validateOptimisePlan({initial,projected,steps:route.steps,rules}).ok);
+  assert(!mod.validateOptimisePlan({initial,projected,steps:route.steps,rules:{...rules,canReturn:()=>false}}).ok);
+  const locked={placed:[{...iconic,lockedSlot:true},regular]};
+  assert(!mod.validateOptimisePlan({initial:locked,projected,steps:route.steps,rules}).ok);
+  assert(!mod.planOptimiseRoute({initial:locked,target,rules}).complete);
+});
+
+test('fusion frees storage for two Iconic purchases without consuming the reserved companion',async()=>{
+  const mod=await load(),rules=rulesFor({WORKER:2,LOUNGE:3,COMPANION:1,FUSION:3,FUSION_BUILD:1});
+  rules.allowTemporaryCompanionSwaps=true;rules.canPurchase=u=>u.name.startsWith('WORK-iconic');
+  rules.workLanding=(u,p)=>mod.predictWorkLanding(u,p,rules);rules.stationLanding=(u,p,s)=>mod.predictStationLanding(u,p,s,rules);
+  const pal=unit('WORK-kept','COMPANION',0,{lockedSlot:true}),inputs=[0,1,2].map(i=>unit('WORK-spare','LOUNGE',i));
+  const purchases=[0,1].map(i=>unit(`WORK-iconic${i}`,null,null,{built:true}));
+  const resultUnit={source:'fusion-result-buy',unit:0,name:'WORK-result',variant:'GOLD',built:false,fusionResult:true};
+  const fusion={spend:[{name:'WORK-spare',variant:'DEFAULT',count:3}],out:{name:'WORK-result',variant:'GOLD'},after:[]};
+  const initial={placed:[pal,...inputs],purchases},target={placed:[pal,...purchases.map((u,i)=>at(u,'WORKER',i))],sell:[],fusions:[{inputs,fusion,resultUnit,unit:fusion.out,text:'Fuse.'}]};
+  const route=mod.planOptimiseRoute({initial,target,rules});assert(route.complete,route.issues.join('; '));
+  assert.equal(route.steps.filter(s=>s.type==='buy').length,2);assert.equal(new Set(route.steps.filter(s=>s.type==='buy').map(s=>s.visit)).size,1,'buy both on the same Cantina visit');assert.equal(route.steps.filter(s=>s.type==='fuse').length,1);
+  assert(route.steps.findIndex(s=>s.type==='fuse-in')<route.steps.findIndex(s=>s.type==='buy'));
+  const replay=mod.validateOptimisePlan({initial,projected:{placed:route.finalPlaced,sell:[]},steps:route.steps,rules});assert(replay.ok,replay.issues.join('; '));
+  assert(replay.companionsRestored);assert.equal(replay.placed.length,4,'three fusion inputs become one, plus two purchases and the companion');
+});
+
+test('unlocked Iconic is bought into a free Companion seat, with locked companions restored',async()=>{
+  const {planOptimiseRoute,predictWorkLanding,predictStationLanding,validateOptimisePlan}=await load();
+  const rules=rulesFor({WORKER:1,COMPANION:2,LOUNGE:1});
+  rules.allowTemporaryCompanionSwaps=true;
+  rules.canPurchase=u=>u.name==='WORK-iconic'&&u.variant==='DEFAULT'&&u.built===true;
+  rules.workLanding=(u,p)=>predictWorkLanding(u,p,rules);
+  rules.stationLanding=(u,p,s)=>predictStationLanding(u,p,s,rules);
+  const companions=[unit('WORK-kept','COMPANION',0,{lockedSlot:true}),unit('ASTRO-kept','COMPANION',1,{lockedSlot:true})];
+  const surplus=unit('WORK-surplus','LOUNGE',0),purchase=unit('WORK-iconic',null,null,{built:true});
+  const initial={placed:[...companions,surplus],purchases:[purchase]},target={placed:[...companions,at(purchase,'WORKER')],sell:[surplus]};
+  const route=planOptimiseRoute({initial,target,rules});
+  assert(route.complete,route.issues.join('; '));
+  const buy=route.steps.findIndex(s=>s.type==='buy');assert(buy>0);assert(route.steps.slice(0,buy).some(s=>s.type==='sell'));
+  assert(route.steps.slice(0,buy).some(s=>s.buffer&&s.from.station==='COMPANION'));
+  const projected={placed:route.finalPlaced,sell:[surplus]};
+  const replay=steps=>validateOptimisePlan({initial,projected,steps,rules});
+  assert(replay(route.steps).ok,JSON.stringify(replay(route.steps).issues));
+  for(const u of companions)assert(route.finalPlaced.some(x=>x.source===u.source&&x.slot===u.slot&&x.station==='COMPANION'&&x.lockedSlot));
+  assert(!replay([route.steps[buy],...route.steps.filter((_,i)=>i!==buy)]).ok,'cannot buy with occupied seats');
+  assert(!replay([...route.steps,route.steps[buy]]).ok,'cannot buy twice');
+  assert(!validateOptimisePlan({initial,projected,steps:route.steps,rules:{...rules,canPurchase:()=>false}}).ok,'unlock is independently checked');
+  const before=replay(route.steps.slice(0,buy));assert(!before.placed.some(u=>u.name===purchase.name),'unbought copies do not appear in partial saves');
+});
+
 for(const station of ['BUILD','FUSION_BUILD'])test(`finished ${station} droid can go directly to Fusion storage with locked companions`,async()=>{
   const {planOptimiseRoute,predictWorkLanding,validateOptimisePlan}=await load();
   const rules=rulesFor({[station]:1,LOUNGE:1,FUSION:3,COMPANION:2});

@@ -1,11 +1,13 @@
 import { slotDistanceSquared } from './slot-geometry.js?v=2026-09-26-slot-order';
-import { predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding } from './optimise-route.js?v=2026-09-28-slot-walks';
+import { predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding } from './optimise-route.js?v=2026-09-28-iconic-purchases';
 
 // Functions cannot cross a worker boundary. Rebuild them from the exact slots,
 // permissions and room costs captured by the app for this profile.
 export function workerRules(data) {
   const rules = {
     allowTemporaryCompanionSwaps:Boolean(data.allowTemporaryCompanionSwaps),
+    canPurchase: unit => Boolean(data.purchasable?.includes(unit.name) && unit.variant === 'DEFAULT' && unit.built === true && !unit.lockedSlot),
+    canReturn: unit => Boolean(data.returnable?.includes(unit.name) && !unit.lockedSlot),
     slots: station => data.slots[station] || [],
     canUse: (unit, station) => Boolean(data.droids[unit.name]?.allowed.includes(station)),
     canPark: unit => Boolean(data.droids[unit.name]?.canPark),
