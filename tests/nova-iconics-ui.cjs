@@ -68,6 +68,7 @@ const server=http.createServer((req,res)=>{
     assert.deepEqual(outcomes.notUnlocked,[]);assert.equal(outcomes.unprofitable[0].gain,0);
     console.log('PASS: income gains, replacement opportunity cost, empty/locked bases, owned copies, Protocol bonuses, independent alternatives and unchanged state');
     await page.goto(url+'/#/optimise');await page.locator('.nova-iconic-purchases').waitFor();
+    await page.waitForFunction(()=>document.querySelector('.nova-iconic-purchases')?.textContent.includes('Buy for credit gain'),{},{timeout:65000});
     assert.match(await page.locator('.nova-iconic-purchases').innerText(),/Buy for credit gain/);
     const images=fs.mkdtempSync(path.join(os.tmpdir(),'nova-iconics-'));
     await page.locator('.nova-iconic-purchases').screenshot({path:path.join(images,'optimise-desktop.png')});

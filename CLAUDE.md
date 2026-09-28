@@ -27,7 +27,19 @@ branch automatically, with no build command, whenever `deploy.ps1` pushes a
 snapshot. Nothing deploys to Cloudflare from this machine directly. The
 fallback repo stays on GitHub Pages as the backup copy.
 
-## Interfaces
+## Optimise worker generation
+
+Expensive layout comparisons and Iconic recommendations run inside
+`optimise-worker.js`, using a private snapshot of gameplay inputs.
+`optimise-layout-context.js` is generated from the pure functions in `app.js`;
+do not hand-edit it or call the allocator from UI rendering.
+
+Run `npm ci` inside `tools/` once to install the development-only parser.
+After editing `app.js`, run `node tools/build-optimise-layout.cjs` from the repo root to regenerate
+the worker context. Run `node --test tests/optimise-layout-source.test.cjs` to
+check that the two copies match. Deployment also checks this fingerprint.
+
+## Page shells
 
 `index.html` is the main interface since 2026-09-21: the toolbar shell
 (`data-ui-style="next"`, `data-ui-fixed`) with `next/shell.css` and

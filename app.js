@@ -7,7 +7,7 @@ import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './releas
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-09-28-iconic-purchases';
 import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-09-28-iconic-purchases';
 import { slotDistanceSquared, slotPosition } from './slot-geometry.js?v=2026-09-26-slot-order';
-import { createOptimiseBackground } from './optimise-background.js?v=2026-09-23-background';
+import { createOptimiseBackground } from './optimise-background.js?v=2026-09-28-responsive-planning';
 import { createArchiveExperience } from './archive-experience.js?v=2026-09-28-gonkoween';
 import { kyberGuide, kyberDroidDetails, kyberActivationCost } from './kyber-guide.js?v=2026-09-27-active-rebirth';
 let archiveExperience=null;
@@ -3381,7 +3381,8 @@ async function collectOptimiseFusionResults(projected){
 }
 async function applyOptimisedLayout(preview){
   if(state.sharedView&&!state.sharedView.canEdit)return toast('This shared profile is read only');
-  const candidate=preview?.projected?preview:createOptimisePreview();
+  const candidate=preview?.projected?preview:backgroundOptimisePreview();
+  if(!candidate)return toast('Optimise is still calculating. Wait for the route before applying.');
   if(candidate.inputStamp!==optimiseInputStamp())return toast('Your Base or settings changed. Regenerate Optimise before applying.');
   const projected=structuredClone(candidate.projected);
   if(!projected.planComplete)return toast(projected.planIssues?.[0]||'Regenerate Optimise before applying this layout');
@@ -3824,48 +3825,56 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-09-28-iconic-purchases',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-09-28-responsive-planning',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
+  onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
   onResult:(message,stamp)=>{
     if(stamp!==optimiseInputStamp()||optimiseBackgroundJob?.stamp!==stamp)return;
-    const {baseP,plan,targets}=optimiseBackgroundJob,projected=structuredClone(targets[message.index]);
+    const {baseP,plan,targets}=optimiseBackgroundJob;if(!targets)return;
+    const projected=structuredClone(targets[message.index]);
+    const recommendations=optimiseBackgroundJob.recommendations??=new Map();
+    if(message.iconicOptions)recommendations.set(message.index,message.iconicOptions);
+    projected.iconicOptions=recommendations.get(message.index);
     const steps=safeOptimiseStepPlan(baseP,projected,message.route);
     if(!projected.planComplete)return;
     const preview=finishOptimisePreview(baseP,plan,projected,steps,stamp);
     optimisePreviewCache={stamp,preview};renderBackgroundOptimise();
   }
 });
+// Pure preparation also feeds the isolated layout worker. Keep it free of UI,
+// profile writes and account state; the generated worker context shares these rules.
+function prepareOptimiseWorkerJob(){
+  const prepared=prepareOptimiseLayout(),{baseP,plan}=prepared,targets=[];
+  let projected=prepared.projected;
+  while(projected){targets.push(structuredClone(projected));projected=projected.fallback;}
+  const rules=optimiseRouteRules(),stations=Object.keys(SLOT_RULES),slots=Object.fromEntries(stations.map(s=>[s,rules.slots(s)]));
+  const regions=Object.fromEntries(stations.flatMap(s=>slots[s].map(slot=>[`${s}:${slot}`,rules.regionOf(s,slot)])));
+  const rooms=[...new Set(Object.values(regions).filter(Boolean)),'ANY','ICONIC_SHOP'];
+  const ruleData={returnable:[...baseP.placed,...(baseP.overflow||[])].filter(rules.canReturn).map(unit=>unit.name),purchasable:(baseP.purchases||[]).filter(rules.canPurchase).map(unit=>unit.name),allowTemporaryCompanionSwaps:rules.allowTemporaryCompanionSwaps,slots,regions,protocol:rules.protocolStations(),missions:Object.fromEntries(stations.map(s=>[s,slots[s].filter(slot=>rules.isMissionSlot(s,slot))])),
+    distances:Object.fromEntries(rooms.map(a=>[a,Object.fromEntries(rooms.map(b=>[b,rules.distance(a,b)]))])),
+    droids:Object.fromEntries(state.droids.map(d=>[d.name,{type:d.type,canPark:rules.canPark({name:d.name}),allowed:stations.filter(s=>rules.canUse({name:d.name},s))}]))};
+  const workerTargets=targets.map(target=>{
+    Object.assign(target,normaliseProjectedForSteps(baseP,target));
+    const {batches,claimed}=optimiseFusionBatches(baseP,target,{arrange:true});
+    return {placed:target.placed,returns:target.returns||[],sell:target.sell.filter(u=>!claimed.has(`${u.source}:${u.unit}`)),overflow:target.overflow,fusions:batches};
+  });
+  return {baseP,plan,targets,snapshot:{initial:baseP,targets:workerTargets,rules:ruleData}};
+}
+function optimiseLayoutSnapshot(){
+  return {state:{...profileDataFromState(),droids:state.droids,rebirths:state.rebirths,fusion:state.fusion},
+    storage:Object.fromEntries(['droid-archive-companion-activity','droid-archive-optimise-spared','droid-archive-optimise-sell-instead'].map(key=>[key,localStorage.getItem(key)])),
+    variants:VARIANTS,displayVariants:DISPLAY_VARIANTS,kyberPreviewVerified,craftingEventMultiplier};
+}
 function refreshBackgroundOptimise(){
   if(!state.droids.length)return;
   const stamp=optimiseInputStamp();
   if(optimiseBackgroundJob?.stamp===stamp)return;
   optimiseBackground.cancel();optimiseDisplayedPreview=null;
   if(optimisePreviewCache?.stamp!==stamp)optimisePreviewCache=null;
-  // Scheduling is cheap; prepare the target after a short debounce so a burst
-  // of imports/slot edits does not repeatedly run even the layout allocator.
-  const job=optimiseBackgroundJob={stamp};
-  clearTimeout(refreshBackgroundOptimise.timer);
-  refreshBackgroundOptimise.timer=setTimeout(()=>{
-    if(optimiseBackgroundJob!==job||stamp!==optimiseInputStamp())return;
-    try{
-      const prepared=prepareOptimiseLayout(),{baseP,plan}=prepared,targets=[];
-      let projected=prepared.projected;
-      while(projected){targets.push(structuredClone(projected));projected=projected.fallback;}
-      const rules=optimiseRouteRules(),stations=Object.keys(SLOT_RULES),slots=Object.fromEntries(stations.map(s=>[s,rules.slots(s)]));
-      const regions=Object.fromEntries(stations.flatMap(s=>slots[s].map(slot=>[`${s}:${slot}`,rules.regionOf(s,slot)])));
-      const rooms=[...new Set(Object.values(regions).filter(Boolean)),'ANY','ICONIC_SHOP'];
-      const ruleData={returnable:[...baseP.placed,...(baseP.overflow||[])].filter(rules.canReturn).map(unit=>unit.name),purchasable:(baseP.purchases||[]).filter(rules.canPurchase).map(unit=>unit.name),allowTemporaryCompanionSwaps:rules.allowTemporaryCompanionSwaps,slots,regions,protocol:rules.protocolStations(),missions:Object.fromEntries(stations.map(s=>[s,slots[s].filter(slot=>rules.isMissionSlot(s,slot))])),
-        distances:Object.fromEntries(rooms.map(a=>[a,Object.fromEntries(rooms.map(b=>[b,rules.distance(a,b)]))])),
-        droids:Object.fromEntries(state.droids.map(d=>[d.name,{type:d.type,canPark:rules.canPark({name:d.name}),allowed:stations.filter(s=>rules.canUse({name:d.name},s))}]))};
-      const workerTargets=targets.map(target=>{
-        Object.assign(target,normaliseProjectedForSteps(baseP,target));
-        const {batches,claimed}=optimiseFusionBatches(baseP,target,{arrange:true});
-        return {placed:target.placed,returns:target.returns||[],sell:target.sell.filter(u=>!claimed.has(`${u.source}:${u.unit}`)),overflow:target.overflow,fusions:batches};
-      });
-      Object.assign(job,{baseP,plan,targets});
-      optimiseBackground.update(stamp,{initial:baseP,targets:workerTargets,rules:ruleData});
-    }catch(error){optimiseBackgroundStatus='error';renderBackgroundOptimise();console.warn('Background Optimise unavailable',error)}
-  },200);
+  optimiseBackgroundJob={stamp};
+  // Only copy inputs here. Both layout comparisons and route search run in the
+  // cancellable worker, so a Base edit never starts a long main-thread task.
+  optimiseBackground.update(stamp,{layout:optimiseLayoutSnapshot()});
 }
 function backgroundOptimisePreview(){
   refreshBackgroundOptimise();const stamp=optimiseInputStamp();
@@ -4129,11 +4138,11 @@ function novaIconicPurchasesHtml(baseP,projected){
     const purchases=baseP.purchases||[],returns=projected.returns||[];
     return `<section class="nova-iconic-purchases"><header><div><p class="eyebrow">Permanent Nova unlocks</p><h2>Iconic purchases and returns</h2></div><a class="btn secondary" href="#/nova-shop" data-manage-iconic-unlocks>Manage unlocks</a></header><p>${purchases.length?`This route buys ${purchases.map(u=>escapeAttr(u.name)).join(', ')} and makes room using your existing Keep, lock and fusion settings. Buy them at the Cantina and send them to the Lounge where space allows. Apply the purchase checkpoint to check their positions on your Base map before continuing.`:'No additional unlocked Iconic improves this layout with your current priorities and available space.'}</p>${returns.length?`<p>Return ${returns.map(u=>escapeAttr(u.name)).join(', ')} to free space. Their unlocks are kept, so you can get them from the Cantina again.</p>`:''}${projected.iconicReserve?`<p>Keeping up to ${projected.iconicReserve} Lounge spaces free for rebirth droids you have not collected yet. Locked droids and chosen companions stay protected.</p>`:''}</section>`;
   }
-  const options=novaIconicPurchaseOptions(baseP,projected);
+  const options=projected.iconicOptions||[];
   const unlocked=normaliseNovaIconicUnlocks(state.novaIconicUnlocks);
   return `<section class="nova-iconic-purchases"><header><div><p class="eyebrow">Permanent Nova unlocks</p><h2>Iconic purchases</h2></div><a class="btn secondary" href="#/nova-shop" data-manage-iconic-unlocks>Manage unlocks</a></header>
     <p>Buy a copy when it improves your credit income. Estimates include displaced earners, locked slots, Astromech priorities and Protocol bonuses.</p>
-    ${options.length?`<div class="nova-iconic-purchase-list">${options.map(option=>`<article class="nova-iconic-purchase ${option.gain>0?'worth-buying':''}"><a href="#/droid/${slug(option.name)}">${picture(state.droids.find(d=>d.name===option.name),'DEFAULT')}<strong>${escapeAttr(option.name)}</strong></a><div><strong>${option.gain>0?'Buy for credit gain':'Wait for credit gain'}</strong><span>${option.gain>0?`+${fmt(option.gain*3600)} credits/hour &middot; ${escapeAttr(stationName(option.destination.station))} slot ${option.destination.slot+1}`:'No estimated credit increase with your current base and priorities.'}</span></div></article>`).join('')}</div><p class="nova-iconic-purchase-note">Each option is compared separately with your optimised base. After buying one in game, add it to Base and recalculate. Gains show income, not purchase payback or affordability.</p>`:`<p class="nova-iconic-purchase-note">${unlocked.length?'Your Base already contains every iconic you marked as unlocked.':'Tick your permanent iconic unlocks in Nova Shop to check which copies would increase your income.'}</p>`}
+    ${options.length?`<div class="nova-iconic-purchase-list">${options.map(option=>`<article class="nova-iconic-purchase ${option.gain>0?'worth-buying':''}"><a href="#/droid/${slug(option.name)}">${picture(state.droids.find(d=>d.name===option.name),'DEFAULT')}<strong>${escapeAttr(option.name)}</strong></a><div><strong>${option.gain>0?'Buy for credit gain':'Wait for credit gain'}</strong><span>${option.gain>0?`+${fmt(option.gain*3600)} credits/hour &middot; ${escapeAttr(stationName(option.destination.station))} slot ${option.destination.slot+1}`:'No estimated credit increase with your current base and priorities.'}</span></div></article>`).join('')}</div><p class="nova-iconic-purchase-note">Each option is compared separately with your optimised base. After buying one in game, add it to Base and recalculate. Gains show income, not purchase payback or affordability.</p>`:`<p class="nova-iconic-purchase-note">${projected.iconicOptions===undefined&&unlocked.some(name=>!state.owned.some(u=>u.name===name&&u.qty>0))?(['idle','queued','searching'].includes(optimiseBackgroundStatus)?'Checking unlocked Iconics in the background...':'Iconic comparisons could not finish within this search. Your verified route is still available.'):unlocked.length?'Your Base already contains every iconic you marked as unlocked.':'Tick your permanent iconic unlocks in Nova Shop to check which copies would increase your income.'}</p>`}
   </section>`;
 }
 // What the page says when the walk has nothing to do. That is only "optimal"

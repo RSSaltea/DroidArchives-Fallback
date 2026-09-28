@@ -23,6 +23,11 @@ if ($files | Where-Object { $_ -match $privatePaths }) {
   throw 'The committed tree contains private app or local-only files. Remove them from Git tracking (keep local copies) before deploying.'
 }
 
+# The worker is generated from app.js. Never deploy different planning rules
+# to the UI validator and background calculation.
+node --test tests/optimise-layout-source.test.cjs
+if ($LASTEXITCODE -ne 0) { throw 'Regenerate the Optimise worker context before deploying.' }
+
 $message = 'Website: ' + (Invoke-Git log -1 --format=%s)
 $indexPath = Join-Path ([IO.Path]::GetTempPath()) ('da-deploy-index-' + [guid]::NewGuid().ToString('N'))
 $previousIndex = $env:GIT_INDEX_FILE

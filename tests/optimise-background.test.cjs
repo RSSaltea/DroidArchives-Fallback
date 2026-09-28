@@ -3,18 +3,23 @@ const assert=require('node:assert/strict');
 const pause=()=>new Promise(resolve=>setTimeout(resolve,15));
 test('background generations cancel stale workers, debounce edits and retain only current results',async()=>{
  const {createOptimiseBackground}=await import('../optimise-background.js');
- const workers=[],results=[];
+ const workers=[],results=[],prepared=[];
  const createWorker=()=>{const w={postMessage(data){this.job=data},terminate(){this.stopped=true}};workers.push(w);return w;};
- const manager=createOptimiseBackground({createWorker,onResult:(data,stamp)=>results.push([data.route,stamp]),delay:1,budget:1000});
+ const manager=createOptimiseBackground({createWorker,onPrepared:(data,stamp)=>prepared.push([data.prepared,stamp]),onResult:(data,stamp)=>results.push([data.route,stamp]),delay:1,budget:1000});
  manager.update('a',{});await pause();const first=workers[0];
  manager.update('b',{});manager.update('c',{});await pause();
  assert(first.stopped);assert.equal(workers.length,2);
  first.onmessage({data:{id:first.job.id,type:'result',route:'stale'}});
+ first.onmessage({data:{id:first.job.id,type:'prepared',prepared:'stale layout'}});
  const current=workers[1];current.onmessage({data:{id:current.job.id,type:'result',route:'best'}});
+ current.onmessage({data:{id:current.job.id,type:'prepared',prepared:'current layout'}});
  assert.deepEqual(results,[['best','c']]);
+ assert.deepEqual(prepared,[['current layout','c']]);
  manager.update('c',{});await pause();assert.equal(workers.length,2,'unchanged snapshots do not restart searches');
  manager.cancel();current.onmessage({data:{id:current.job.id,type:'result',route:'cancelled'}});
+ current.onmessage({data:{id:current.job.id,type:'prepared',prepared:'cancelled layout'}});
  assert.equal(results.length,1);
+ assert.equal(prepared.length,1);
 });
 test('deadline terminates computation and rejects late messages without discarding an earlier result',async()=>{
  const {createOptimiseBackground}=await import('../optimise-background.js');
@@ -24,4 +29,18 @@ test('deadline terminates computation and rejects late messages without discardi
  worker.onmessage({data:{id:worker.job.id,type:'result',route:'valid'}});
  await new Promise(resolve=>setTimeout(resolve,30));assert(worker.stopped);assert(statuses.includes('budget'));
  worker.onmessage({data:{id:worker.job.id,type:'result',route:'late'}});assert.equal(results.length,1);manager.cancel();
+});
+
+test('layout completion starts a full route budget, once per generation',async(t)=>{
+ const {createOptimiseBackground}=await import('../optimise-background.js');
+ t.mock.timers.enable({apis:['setTimeout']});
+ let worker;let preparations=0;
+ const manager=createOptimiseBackground({createWorker:()=>worker={postMessage(x){this.job=x},terminate(){this.stopped=true}},onPrepared:()=>preparations++,onResult:()=>{},delay:0,budget:100});
+ manager.update('base',{});t.mock.timers.tick(0);
+ t.mock.timers.tick(80);
+ worker.onmessage({data:{id:worker.job.id,type:'prepared',prepared:{}}});
+ t.mock.timers.tick(80);assert(!worker.stopped,'layout does not consume the route budget');
+ worker.onmessage({data:{id:worker.job.id,type:'prepared',prepared:{}}});
+ assert.equal(preparations,1,'duplicate preparation cannot extend the deadline');
+ t.mock.timers.tick(21);assert(worker.stopped);manager.cancel();
 });
