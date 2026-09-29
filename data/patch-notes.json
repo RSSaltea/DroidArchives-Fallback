@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-09-29-fusion-room-multiplier",
+      "date": "2026-09-29",
+      "title": "Fusion slots and multiplier fixes",
+      "summary": "Fixed Fusion slot unlocks and credit multiplier resets.",
+      "changes": [
+        "Buying the Fusion room now opens all included slots together, even with Auto Purchase off. Nova/V-Bucks tanks unlock without another purchase.",
+        "Credit multipliers still increase with Rebirths, but can no longer drop below 1 or block Super Rebirth."
+      ]
+    },
+    {
       "id": "2026-09-28-fusion-upgrade-reserves",
       "date": "2026-09-28",
       "title": "Save specific droids for matching fusion upgrades",
