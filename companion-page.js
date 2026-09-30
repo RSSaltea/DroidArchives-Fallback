@@ -1,5 +1,6 @@
+import { downloadVisitorId, trackCompanionDownload } from './site-stats.js?v=2026-09-30-downloads';
 // Companion lives inside the shared application shell in both site layouts.
-export function companionPage(host) {
+export function companionPage(host, client=()=>null) {
   host.innerHTML = ` <style>
 .companion-page{max-width:1120px;margin:0 auto;padding:20px 0 36px;color:var(--ink)}
 .companion-page p,.companion-page li{color:var(--muted);line-height:1.65}
@@ -95,6 +96,13 @@ export function companionPage(host) {
       const exe = !release.draft && release.assets?.find(asset => /\.exe$/i.test(asset.name));
       if (!exe || new URL(exe.browser_download_url).hostname !== 'downloads.droidarchives.co.uk') throw new Error('Release unavailable');
       button.href = exe.browser_download_url;
+      const visitor=downloadVisitorId();let lastStart=-Infinity;
+      const track=event=>{
+        if(event.type==='auxclick'&&event.button!==1)return;
+        const now=Date.now();if(now-lastStart<1500)return;lastStart=now;
+        trackCompanionDownload(client,release.tag_name.replace(/^v/,''),visitor);
+      };
+      button.addEventListener('click',track);button.addEventListener('auxclick',track);
       button.removeAttribute('aria-disabled');
       meta.textContent = `${release.tag_name.replace(/^v/, '')} - ${(exe.size / 1048576).toFixed(0)} MB - portable, no installer`;
     })
@@ -102,7 +110,7 @@ export function companionPage(host) {
       button.textContent = 'Retry loading download';
       button.href = '#/companion';
       button.removeAttribute('aria-disabled');
-      button.onclick = event => {event.preventDefault(); companionPage(host);};
+      button.onclick = event => {event.preventDefault(); companionPage(host,client);};
       meta.textContent = 'The download details could not be loaded. Please try again.';
     });
 }

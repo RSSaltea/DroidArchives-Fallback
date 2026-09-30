@@ -64,4 +64,55 @@ end;
 $$;
 revoke all on function public.droid_site_stats() from public, anon, authenticated;
 grant execute on function public.droid_site_stats() to authenticated;
+-- Download starts are separate from rolling site activity and retained for totals.
+create table if not exists public.droid_companion_downloads (
+  event_id uuid primary key,
+  visitor_id uuid not null,
+  user_id uuid references auth.users(id) on delete set null,
+  version text not null check (length(version) between 1 and 80),
+  started_at timestamptz not null default now()
+);
+create index if not exists droid_companion_downloads_started on public.droid_companion_downloads(started_at);
+alter table public.droid_companion_downloads enable row level security;
+revoke all on public.droid_companion_downloads from public, anon, authenticated;
+
+create or replace function public.droid_companion_download_start(event uuid, visitor uuid, release_version text)
+returns void language plpgsql security definer set search_path = '' as $$
+begin
+  if event is null or visitor is null or release_version is null
+    or release_version !~ '^[0-9][A-Za-z0-9._-]{0,79}$' then
+    raise exception 'Valid download identifiers and version required';
+  end if;
+  insert into public.droid_companion_downloads(event_id,visitor_id,user_id,version)
+  values(event,visitor,auth.uid(),release_version)
+  on conflict(event_id) do nothing;
+end;
+$$;
+revoke all on function public.droid_companion_download_start(uuid,uuid,text) from public, anon, authenticated;
+grant execute on function public.droid_companion_download_start(uuid,uuid,text) to anon, authenticated;
+
+create or replace function public.droid_companion_download_stats()
+returns jsonb language plpgsql security definer set search_path = '' as $$
+declare result jsonb;
+begin
+  if not exists(select 1 from auth.users where id=auth.uid()
+    and lower(email)='xraffo@gmail.com' and email_confirmed_at is not null and deleted_at is null) then
+    raise exception 'Owner access required' using errcode='42501';
+  end if;
+  select jsonb_build_object(
+    'total', count(*), 'unique_browsers', count(distinct visitor_id),
+    'unique_accounts', count(distinct user_id),
+    'last_24h', count(*) filter(where started_at >= now()-interval '24 hours'),
+    'last_7d', count(*) filter(where started_at >= now()-interval '7 days'),
+    'first_recorded_at', min(started_at),
+    'versions', (select coalesce(jsonb_agg(v order by v.last_started_at desc),'[]'::jsonb) from
+      (select version, count(*) as total, count(distinct visitor_id) as unique_browsers,
+       count(distinct user_id) as unique_accounts, max(started_at) as last_started_at
+       from public.droid_companion_downloads group by version) v)
+  ) into result from public.droid_companion_downloads;
+  return result;
+end;
+$$;
+revoke all on function public.droid_companion_download_stats() from public, anon, authenticated;
+grant execute on function public.droid_companion_download_stats() to authenticated;
 commit;
