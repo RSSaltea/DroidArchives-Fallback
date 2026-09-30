@@ -1,108 +1,87 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Download the Droid Archives Companion for Windows — spawn alerts, blueprint timers and an in-game overlay.">
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/other/icon-gonkoween-64.png?v=2026-09-28-gonkoween">
-  <title>Download · Droid Archives Companion</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Slab:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2026-07-28-1">
-  <!-- Applied before paint so the page never flashes the wrong theme. Same key
-       the main site uses, so the choice carries across. -->
-  <script>try{var t=localStorage.getItem('droid-archive-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
-  <style>
-    .dl-wrap{max-width:820px;margin:0 auto;padding:34px 20px 60px}
-    .dl-hero{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:26px;box-shadow:var(--shadow)}
-    .dl-hero h1{font:700 30px 'Roboto Slab',serif;margin:0 0 6px}
-    .dl-sub{color:var(--muted);margin:0 0 20px;font-size:15px;line-height:1.55}
-    .dl-beta{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:#1d1a15;font-weight:800;font-size:11px;letter-spacing:.09em;text-transform:uppercase;padding:5px 11px;border-radius:999px;margin-bottom:14px}
-    .dl-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:22px 0 8px}
-    .dl-button{display:inline-block;background:var(--green);color:#fff;font-weight:700;font-size:16px;text-decoration:none;padding:13px 24px;border-radius:9px;border:1px solid var(--green2)}
-    .dl-button:hover{background:var(--green2)}
-    .dl-meta{color:var(--muted);font-size:13px}
-    .dl-note{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:8px;padding:16px 18px;margin:24px 0}
-    .dl-note strong{display:block;margin-bottom:6px}
-    .dl-note p{margin:0 0 8px;line-height:1.6}
-    .dl-note p:last-child{margin-bottom:0}
-    .dl-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin-top:20px;box-shadow:var(--shadow)}
-    .dl-card h2{font:700 19px 'Roboto Slab',serif;margin:0 0 12px}
-    .dl-card ul{margin:0;padding-left:20px;line-height:1.75}
-    .dl-keys{width:100%;border-collapse:collapse;margin-top:6px}
-    .dl-keys td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-    .dl-keys tr:last-child td{border-bottom:0}
-    .dl-keys td:first-child{width:120px;font-weight:700;white-space:nowrap}
-    .dl-keys kbd{background:var(--paper);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:2px 7px;font:600 12px ui-monospace,monospace}
-    .dl-back{display:inline-block;margin-top:26px;color:var(--muted);text-decoration:none;font-size:14px}
-    .dl-back:hover{color:var(--ink);text-decoration:underline}
-    @media(max-width:600px){.dl-hero h1{font-size:24px}.dl-keys td:first-child{width:auto}}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Download the Droid Archives Companion for Windows: droid alerts, blueprint timers, fishing cues and Archives panels. Available now in Open Beta.">
+<title>Companion Download | Droid Archives</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0f1728;color:#eef3fc;font:16px/1.6 Segoe UI,sans-serif}header{padding:16px 5%;border-bottom:1px solid #303a4e;background:#0b1120;display:flex;justify-content:space-between}a{color:#42eca0}main{max-width:1120px;margin:auto;padding:45px 24px}.eyebrow{color:#41eca0;text-transform:uppercase;font-size:12px;letter-spacing:2px;font-weight:800}.hero{max-width:790px;padding:22px 0 8px}.hero p{max-width:690px;font-size:18px}.hero .meta{font-size:13px}h1{font-size:43px;line-height:1.12;margin:15px 0}h2{font-size:25px;margin:0 0 12px}h3{margin:0 0 8px;font-size:18px}p{color:#acb9ce;margin:8px 0 20px}.button{display:inline-block;background:#39e68d;color:#07190f;padding:13px 23px;border-radius:6px;font-weight:750;text-decoration:none}.meta{font-size:12px;margin-top:10px}.beta{margin:32px 0;padding:18px 22px;background:#29251e;border:1px solid #655236;border-left:4px solid #ffc970;border-radius:8px}.beta strong{color:#ffd18a}.beta p{margin:4px 0;color:#d2c8b8}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{background:#171f2f;border:1px solid #303b50;border-radius:9px;padding:22px}.card p{font-size:14px;margin-bottom:0}.section{margin-top:40px}.keys{display:flex;flex-wrap:wrap;gap:24px;margin-top:20px}kbd{padding:4px 9px;border:1px solid #53617a;border-bottom-width:3px;border-radius:5px;background:#101829;margin-right:6px}li{margin:10px 0;color:#acb9ce}@media(max-width:700px){.grid{grid-template-columns:1fr}header{gap:16px;flex-wrap:wrap}h1{font-size:34px}main{padding-top:25px}}
+</style>
 </head>
 <body>
-  <header class="site-header">
-    <a class="brand" href="index.html#/">
-      <span class="brand-mark"><picture style="display:contents"><source media="(prefers-reduced-motion: no-preference)" srcset="assets/other/icon-gonkoween-header.webp?v=2026-09-28-gonkoween" type="image/webp"><img src="assets/other/icon-gonkoween.webp?v=2026-09-28-gonkoween" alt="Droid Archives"></picture></span>
-      <span><strong>Droid Archives</strong><small>Tycoon wiki &amp; planner</small></span>
-    </a>
-    <a class="discord-button" href="https://discord.com/invite/6db7Kg8Wre" target="_blank" rel="noopener noreferrer" aria-label="Join the Droid Archives Discord" title="Join our Discord">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 5.3A16 16 0 0 0 15.7 4l-.5 1.1a14 14 0 0 0-6.4 0L8.3 4a16 16 0 0 0-3.8 1.3C2.1 8.8 1.4 12.2 1.7 15.6A15 15 0 0 0 6.4 18l1.2-1.7-1.8-.9.4-.3a10 10 0 0 0 8.6 0l.4.3-1.8.9L15.6 18a15 15 0 0 0 4.7-2.4c.4-4-.7-7.3-2.8-10.3ZM8.3 13.8c-.9 0-1.7-.8-1.7-1.9s.8-1.9 1.7-1.9 1.7.9 1.7 1.9-.8 1.9-1.7 1.9Zm7.4 0c-.9 0-1.7-.8-1.7-1.9s.8-1.9 1.7-1.9 1.7.9 1.7 1.9-.8 1.9-1.7 1.9Z"/></svg>
-    </a>
-  </header>
-
-  <div class="dl-wrap">
-    <div class="dl-hero">
-      <span class="dl-beta">Open Beta</span>
-      <h1>Droid Archives Companion</h1>
-      <p class="dl-sub">A Windows app that watches for droid spawns, keeps your blueprint timers, and puts the Archives and Optimise pages over the game.</p>
-
-      <div class="dl-cta">
-        <!-- Static fallback is updated with the verified release feed. -->
-        <a class="dl-button" id="dlButton" href="https://downloads.droidarchives.co.uk/DroidArchivesCompanion-0.5.36-Beta.exe">Download for Windows</a>
-        <span class="dl-meta" id="dlMeta">Portable — no installer</span>
-      </div>
-
-      <div class="dl-note">
-        <strong>This is an open beta — expect bugs.</strong>
-        <p>It is still being actively worked on, and things do break between versions. If something misbehaves, it is far more likely to be the app than anything you did.</p>
-        <p>The app keeps an activity log of everything it does. Open it from <em>Overview → Activity log</em> and send it over on Discord — that log is usually what makes a bug findable.</p>
-      </div>
-    </div>
-
-    <div class="dl-card">
-      <h2>What it does</h2>
-      <ul>
-        <li>Alerts you when a droid spawns, filtered by quality and rarity</li>
-        <li>Blueprint countdowns for Stellar, Mythic and Kyber</li>
-        <li>CB23 Mission and Rebirth Droid alerts</li>
-        <li>Optional notifications to your phone, so you get alerts with the game closed</li>
-        <li>The Archives and Optimise pages as panels over the game, sharing your login</li>
-      </ul>
-    </div>
-
-    <div class="dl-card">
-      <h2>Getting started</h2>
-      <ul>
-        <li>Run the exe — there is no installer, and it does not need admin</li>
-        <li>Windows may warn about an unrecognised app. Choose <em>More info → Run anyway</em>.</li>
-        <li>Fortnite works best in <strong>Windowed Fullscreen</strong>. Exclusive fullscreen can hide overlays.</li>
-        <li>In <em>Spawn alerts</em>, use <em>Select on screen</em> to draw a box around the chat area where spawn messages appear.</li>
-      </ul>
-    </div>
-
-    <div class="dl-card">
-      <h2>Keys</h2>
-      <p class="dl-sub" style="margin-bottom:4px">The overlay never takes your mouse unless you open a panel yourself, so panels open by key. The game does not receive these presses.</p>
-      <table class="dl-keys">
-        <tr><td><kbd>F8</kbd></td><td>Droid Archives panel</td></tr>
-        <tr><td><kbd>Alt</kbd> + <kbd>O</kbd></td><td>Optimise panel</td></tr>
-        <tr><td><kbd>F9</kbd></td><td>Quick settings over the game</td></tr>
-      </table>
-      <p class="dl-sub" style="margin:12px 0 0">More keys — clearing the recent-spawns list, adding a droid to your Droidex — can be set in <em>Overview → Keyboard shortcuts</em>.</p>
-    </div>
-
-    <a class="dl-back" href="index.html#/">← Back to Droid Archives</a>
-  </div>
-
+<header>
+<a href="index.html#/" style="color:inherit;text-decoration:none">
+<strong>Droid Archives</strong>
+</a>
+<a href="index.html#/">Back to the Archives</a>
+</header>
+<main>
+<div class="hero">
+<div>
+<span class="eyebrow">Windows Companion &middot; Open Beta</span>
+<h1>Droid Archives Companion</h1>
+<p style="color:#eef3fc;font-size:25px;margin-bottom:12px">Your Archives. Alongside your game.</p>
+<p>Keep useful droid alerts, blueprint countdowns and your base planner close at hand, with an overlay you can arrange around the way you play.</p>
+<a class="button" id="dlButton" href="https://downloads.droidarchives.co.uk/DroidArchivesCompanion-0.5.36-Beta.exe">Download for Windows</a>
+<p class="meta" id="dlMeta" aria-live="polite">0.5.36-Beta &middot; 171 MB &middot; Portable app, no installer</p>
+</div>
+</div>
+<div class="beta">
+<strong>Still in Beta &middot; your feedback helps.</strong>
+<p>Features are being improved and you may encounter bugs or missed detections. If something goes wrong, share what happened and the app's activity log on Discord.</p>
+</div>
+<section class="section">
+<h2>What you can do</h2>
+<div class="grid">
+<div class="card">
+<h3>Droid spawn alerts</h3>
+<p>Watch for spawn messages and filter alerts by quality and rarity, so you can focus on the droids you want.</p>
+</div>
+<div class="card">
+<h3>Blueprint countdowns</h3>
+<p>Keep Stellar, Mythic and Kyber timers visible alongside your recent spawn alerts.</p>
+</div>
+<div class="card">
+<h3>Archives &amp; Optimise</h3>
+<p>Open the Archives and Optimise panels over your game, using your existing Archives login.</p>
+</div>
+<div class="card">
+<h3>Fishing timing cues</h3>
+<p>Use a countdown and sound cues to help time your input. Timing can need adjustment for your setup.</p>
+</div>
+<div class="card">
+<h3>Your overlay layout</h3>
+<p>Move and resize the overlay, choose which components appear, and adjust alert sounds and volume.</p>
+</div>
+<div class="card">
+<h3>Optional phone alerts</h3>
+<p>Configure phone notifications if you want alerts away from your desk. Live spawn detection needs the game and Companion running.</p>
+</div>
+</div>
+</section>
+<section class="section card">
+<h2>Get started in a few minutes</h2>
+<ol>
+<li>Download the portable Windows app and run it.</li>
+<li>Use Fortnite in Windowed Fullscreen so the overlay can appear.</li>
+<li>Open Spawn alerts &rarr; Select on screen and mark the chat area containing spawn messages.</li>
+<li>Choose your alert filters and arrange your overlay.</li>
+</ol>
+<div class="keys">
+<span>
+<kbd>F8</kbd> Archives</span>
+<span>
+<kbd>Alt + O</kbd> Optimise</span>
+<span>
+<kbd>F9</kbd> Quick settings</span>
+</div>
+</section>
+<section class="section">
+<h2>Found a bug?</h2>
+<p>Open Overview &rarr; Activity log in the Companion and include the relevant details when reporting it in <a href="https://discord.gg/droidarchives">our Discord</a>.</p>
+</section>
+</main>
   <script>
     // Show the real version and file size from the latest release, so the page
     // stays current. The verified executable URL remains as the fallback.
