@@ -56,9 +56,8 @@
       <p class="dl-sub">A Windows app that watches for droid spawns, keeps your blueprint timers, and puts the Archives and Optimise pages over the game.</p>
 
       <div class="dl-cta">
-        <!-- Points at the releases list, not /releases/latest: that URL skips
-             pre-releases, and every companion build so far is a beta. -->
-        <a class="dl-button" id="dlButton" href="https://github.com/RSSaltea/DroidArchives/releases">Download for Windows</a>
+        <!-- Static fallback is updated with the verified release feed. -->
+        <a class="dl-button" id="dlButton" href="https://downloads.droidarchives.co.uk/DroidArchivesCompanion-0.5.36-Beta.exe">Download for Windows</a>
         <span class="dl-meta" id="dlMeta">Portable — no installer</span>
       </div>
 
@@ -73,7 +72,7 @@
       <h2>What it does</h2>
       <ul>
         <li>Alerts you when a droid spawns, filtered by quality and rarity</li>
-        <li>Blueprint countdowns for Mythic, Beskar and Galactic</li>
+        <li>Blueprint countdowns for Stellar, Mythic and Kyber</li>
         <li>CB23 Mission and Rebirth Droid alerts</li>
         <li>Optional notifications to your phone, so you get alerts with the game closed</li>
         <li>The Archives and Optimise pages as panels over the game, sharing your login</li>
@@ -106,18 +105,17 @@
 
   <script>
     // Show the real version and file size from the latest release, so the page
-    // never goes stale. If the request fails the button still works — it points
-    // at the releases page, which always resolves to the newest build.
+    // stays current. The verified executable URL remains as the fallback.
     (function () {
       var meta = document.getElementById("dlMeta");
       var button = document.getElementById("dlButton");
-      fetch("https://api.github.com/repos/RSSaltea/DroidArchives/releases?per_page=10", {
-        headers: { Accept: "application/vnd.github+json" }
+      fetch("data/companion-release.json", {
+        cache: "no-store", headers: { Accept: "application/json" }
       }).then(function (r) {
         if (!r.ok) throw new Error("http " + r.status);
         return r.json();
       }).then(function (list) {
-        var release = (list || []).filter(function (e) { return e && !e.draft; })[0];
+        var release = list && !list.draft ? list : null;
         if (!release) return;
         var exe = (release.assets || []).filter(function (a) { return /\.exe$/i.test(a.name); })[0];
         if (exe) {

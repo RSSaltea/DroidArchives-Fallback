@@ -9,6 +9,9 @@ superRebirthRewards-CgMNMGB4.js
 .agents/
 .claude/
 .vscode/
+.wrangler/
+.dev.vars
+.dev.vars.*
 .idea/
 *.code-workspace
 
@@ -40,6 +43,7 @@ Desktop.ini
 
 # Dependencies and generated output
 node_modules/
+__pycache__/
 dist/
 # Packaged app and release upload tools stay local.
 /release/
@@ -86,6 +90,7 @@ tests/**/*.png
 
 # Private gameplay reference videos and calibration material
 /references/
+/Exports/
 
 # Additional local design sources and draft material
 *.psd
@@ -94,8 +99,3 @@ tests/**/*.png
 /proposed-notes.json
 /assets/events/mega-crate-mini.png
 /assets/other/stellar-droid.png
-
-# Private backup imports
-release/
-__pycache__/
-/Exports/

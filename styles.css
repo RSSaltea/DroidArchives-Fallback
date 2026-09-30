@@ -1154,3 +1154,8 @@ html[data-ui-style] .companion-activity .btn.companion-activity-button.active,ht
 .iconic-planning-controls{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}.iconic-planning-controls small{display:block;margin-top:8px;color:var(--muted);line-height:1.5}
 
 [data-purchase-checkpoint]{scroll-margin-top:220px}
+/* Companion download is a navigation action, independent of Base controls. */
+.companion-download{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:6px 10px;min-height:30px;border:1px solid var(--green,#32df8a);border-radius:4px;background:rgba(40,190,120,.08);color:var(--green,#32df8a);font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap}
+.companion-download svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;flex:none}
+.companion-download:hover{background:rgba(40,190,120,.18)}
+.companion-download:focus-visible{outline:2px solid currentColor;outline-offset:3px}

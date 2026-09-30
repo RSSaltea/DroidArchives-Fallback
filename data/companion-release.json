@@ -1,0 +1,15 @@
+{
+  "tag_name": "0.5.36-Beta",
+  "draft": false,
+  "prerelease": true,
+  "html_url": "https://droidarchives.co.uk/download.html",
+  "body": "Windows portable Companion. Download the latest version from Droid Archives.",
+  "assets": [
+    {
+      "name": "DroidArchivesCompanion-0.5.36-Beta.exe",
+      "browser_download_url": "https://downloads.droidarchives.co.uk/DroidArchivesCompanion-0.5.36-Beta.exe",
+      "size": 179325858,
+      "sha256": "7555307758b87e113f6eda63befb056632fe3a27c2358f84c076e765f9cf5188"
+    }
+  ]
+}

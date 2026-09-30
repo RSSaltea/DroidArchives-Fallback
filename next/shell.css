@@ -350,3 +350,10 @@ html[data-ui-style="next"] .modern-station-layout>.station-lounge{align-self:str
 html[data-ui-style="next"] .modern-station-layout>.station-lounge>.slot-grid{flex:1;align-content:start}
 /* A disabled button has to look disabled */
 html[data-ui-style="next"] .btn:disabled,html[data-ui-style="next"] .btn[disabled]{opacity:.45;cursor:not-allowed;filter:saturate(.4)}
+/* Keep download and Settings together at the end of the navigation bar. */
+html[data-ui-style="next"] .toolbar:has(.toolbar-actions){padding:8px 14px;gap:14px}
+html[data-ui-style="next"] .toolbar:has(.toolbar-actions) #nav{flex:1 1 auto;min-width:0}
+html[data-ui-style="next"] .toolbar-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+html[data-ui-style="next"] .toolbar-actions .drawer-button{position:static;transform:none;white-space:nowrap;margin:0;width:auto}
+@media(max-width:1000px){html[data-ui-style="next"] .toolbar:has(.toolbar-actions){flex-wrap:wrap}html[data-ui-style="next"] .toolbar:has(.toolbar-actions) #nav{flex-basis:100%}html[data-ui-style="next"] .toolbar-actions{margin-left:auto}}
+@media(max-width:760px){html[data-ui-style="next"] .toolbar-actions{width:100%;justify-content:center;margin:4px 0 0}html[data-ui-style="next"] .toolbar-actions .drawer-button{width:auto;box-shadow:none}}
