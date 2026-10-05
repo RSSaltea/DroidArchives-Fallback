@@ -1,25 +1,19 @@
 /* Classic and Legacy share a compact header and an always-available menu. */
 html[data-classic-shell] .site-header{display:flex;flex-wrap:wrap;align-items:center;height:auto;min-height:64px;padding:8px 16px;gap:10px;box-sizing:border-box}
 html[data-classic-shell] .site-header .brand{order:0;min-width:0;flex:0 1 auto;margin:0}
-html[data-classic-shell] .site-header .menu-button{display:inline-flex;justify-content:center;align-items:center;order:1;flex:0 0 36px;width:36px;height:36px;margin:0;padding:0}
-html[data-classic-shell] .site-header #nav{position:static!important;display:flex!important;flex:1 1 auto;order:2;min-width:0;align-items:center;justify-content:center;flex-direction:row;gap:4px;padding:0;height:auto;max-width:none;background:none;border:0}
+html[data-classic-shell] .site-header .menu-button{display:inline-flex;justify-content:center;align-items:center;order:2;flex:0 0 36px;width:36px;height:36px;margin:0;padding:0}
+html[data-classic-shell] .site-header #nav{position:static!important;display:flex!important;flex:1 1 auto;order:1;min-width:0;align-items:center;justify-content:center;flex-direction:row;gap:4px;padding:0;height:auto;max-width:none;background:none;border:0}
 html[data-classic-shell] .site-header #nav>a{padding:10px 11px;white-space:nowrap;font-size:12px;line-height:1.3;border-radius:5px;min-height:36px;display:flex;align-items:center;justify-content:center}
 html[data-classic-shell] .site-header #nav>a.active:after{bottom:3px;left:10px;right:10px}
 html[data-classic-shell] .site-header .header-cloud{display:block;order:3;flex:none;margin:0}
-html[data-classic-shell] .site-header .companion-download{order:4;flex:0 0 auto;display:flex;align-items:center;gap:7px;max-width:145px;box-sizing:border-box;padding:8px 10px;min-height:36px;margin-left:auto;border:1px solid var(--line);border-radius:6px;background:var(--panel);font-size:11px;font-weight:700;line-height:1.3;color:var(--ink);text-decoration:none}
+html[data-classic-shell] .site-header .companion-download{order:3;flex:0 0 36px;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;box-sizing:border-box;padding:8px;margin:0;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);text-decoration:none}
 html[data-classic-shell] .site-header .companion-download svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7}
 html[data-classic-shell] .layout{display:block!important}
 html[data-classic-shell] .sidebar{display:none!important;position:fixed;inset:var(--classic-header-height,64px) 10px auto auto;width:min(410px,calc(100vw - 20px));max-height:calc(100dvh - var(--classic-header-height,64px) - 12px);height:auto;overflow-y:auto;box-sizing:border-box;z-index:60;background:var(--panel);border:1px solid var(--line);border-radius:0 0 9px 9px;box-shadow:0 15px 35px #0005;padding:12px}
-html[data-classic-shell] .sidebar.mobile-open{top:var(--classic-header-height,64px)!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:5px}
+html[data-classic-shell] .sidebar.mobile-open{width:min(410px,calc(100vw - 20px));max-height:calc(100dvh - var(--classic-header-height,64px) - 12px);bottom:auto;top:var(--classic-header-height,64px)!important;left:min(var(--classic-menu-left,10px),max(10px,calc(100vw - 420px)))!important;right:auto!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:5px}
 html[data-classic-shell] .sidebar.mobile-open>a{min-width:0;margin:0;min-height:40px;padding:8px;white-space:normal;overflow-wrap:anywhere;font-size:12px}
-html[data-classic-shell] .sidebar .side-title,html[data-classic-shell] .sidebar .side-rule,html[data-classic-shell] #baseSidebarControls,html[data-classic-shell] .classic-menu-options{grid-column:1/-1}
-html[data-classic-shell] .classic-menu-options{display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid var(--line);padding-top:12px;margin-top:8px}
-html[data-classic-shell] .classic-menu-options .header-search{display:flex;width:100%;max-width:none;box-sizing:border-box;margin:0}
-html[data-classic-shell] .classic-menu-options .ui-style-button{display:inline-flex;width:auto;min-width:90px;padding:0 9px}
-html[data-classic-shell] .classic-menu-options .ui-style-button strong{display:inline}
-html[data-classic-shell] .sidebar .side-rule{display:block!important}
-@media(max-width:1000px){html[data-classic-shell] .site-header #nav{order:5;flex:1 0 100%;display:grid!important;grid-template-columns:repeat(var(--shortcut-count,4),minmax(0,1fr));gap:3px}html[data-classic-shell] .site-header .brand{flex:1 1 auto}html[data-classic-shell] .site-header #nav>a{padding:9px 3px;font-size:12px;white-space:normal;text-align:center}html[data-classic-shell] .site-header .cloud-menu-button>strong{display:none}}
-@media(max-width:500px){html[data-classic-shell] .site-header{padding:7px 8px;gap:6px}html[data-classic-shell] .site-header .brand{gap:6px}html[data-classic-shell] .site-header .brand strong{font-size:13px}html[data-classic-shell] .site-header .brand small{display:none}html[data-classic-shell] .site-header .brand-mark{width:32px;height:32px;flex:none}html[data-classic-shell] .site-header .companion-download{max-width:88px;padding:6px;font-size:10px;gap:5px}html[data-classic-shell] .site-header .companion-download span{white-space:normal}html[data-classic-shell] .site-header .cloud-menu-button{min-width:32px;width:32px;height:34px;padding:0}html[data-classic-shell] .site-header .brand>span{min-width:0}html[data-classic-shell] .site-header .brand strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+html[data-classic-shell] .sidebar .side-title,html[data-classic-shell] .sidebar .side-rule,html[data-classic-shell] #baseSidebarControls,html[data-classic-shell] .sidebar .side-rule{display:block!important}
+html[data-classic-shell] #baseSidebarControls{display:block!important;min-width:0}
 
 html[data-classic-shell] .site-header #nav.no-shortcuts{display:none!important}
 html[data-classic-shell] .classic-nav-settings{grid-column:1/-1;border:1px solid var(--line);border-radius:6px;padding:10px;margin-bottom:8px;min-width:0}
@@ -29,3 +23,11 @@ html[data-classic-shell] .classic-shortcut-fields{display:grid;grid-template-col
 html[data-classic-shell] .classic-shortcut-fields label{display:grid;gap:5px;font-size:12px;min-width:0}
 html[data-classic-shell] .classic-shortcut-fields select{width:100%;min-width:0;box-sizing:border-box;font-size:12px;padding:8px}
 html[data-classic-shell] .classic-nav-settings .btn{font-size:12px;padding:7px 10px}
+
+html[data-classic-shell] .site-header>.patch-icon-button,html[data-classic-shell] .site-header>.discord-button,html[data-classic-shell] .site-header>.donate-icon-button,html[data-classic-shell] .site-header>.ui-style-button,html[data-classic-shell] .site-header>.theme-button{order:3;display:inline-flex;align-items:center;justify-content:center;flex:0 0 36px;width:36px;min-width:36px;height:36px;padding:0;margin:0;box-sizing:border-box}
+html[data-classic-shell] .site-header>.ui-style-button strong{display:none}
+html[data-classic-shell] .site-header>.header-search{order:4;display:flex;flex:0 1 200px;width:200px;min-width:130px;margin:0;box-sizing:border-box}
+html[data-classic-shell] .site-header .cloud-menu-button{width:36px;min-width:36px;height:36px;padding:0}
+html[data-classic-shell] .site-header .cloud-menu-button>strong{display:none}
+@media(max-width:1200px){html[data-classic-shell] .site-header #nav{order:5;flex:1 0 100%;display:grid!important;grid-template-columns:repeat(var(--shortcut-count,4),minmax(0,1fr));gap:3px}html[data-classic-shell] .site-header .brand{flex:1 1 auto}html[data-classic-shell] .site-header #nav>a{padding:9px 3px;font-size:12px;white-space:normal;text-align:center}}
+@media(max-width:700px){html[data-classic-shell] .site-header{padding:7px 8px;gap:6px}html[data-classic-shell] .site-header .brand{flex:1 0 calc(100% - 48px);gap:6px}html[data-classic-shell] .site-header .brand strong{font-size:15px}html[data-classic-shell] .site-header .brand-mark{width:32px;height:32px;flex:none}html[data-classic-shell] .site-header>.header-search{flex:1 0 100%;width:100%}html[data-classic-shell] .site-header>.patch-icon-button,html[data-classic-shell] .site-header>.discord-button,html[data-classic-shell] .site-header>.donate-icon-button,html[data-classic-shell] .site-header>.ui-style-button,html[data-classic-shell] .site-header>.theme-button,html[data-classic-shell] .site-header>.companion-download{flex-basis:32px;width:32px;min-width:32px;height:34px}html[data-classic-shell] .site-header .cloud-menu-button{width:32px;min-width:32px;height:34px}}

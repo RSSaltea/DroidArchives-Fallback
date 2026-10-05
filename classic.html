@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="kyber.css?v=2026-09-26-kyber-timer">
   <link rel="stylesheet" href="test-map.css?v=2026-10-05-map-selection">
   <link rel="stylesheet" href="event.css?v=2026-10-05-event">
-  <link rel="stylesheet" href="classic-nav.css?v=2026-10-05-shortcuts">
+  <link rel="stylesheet" href="classic-nav.css?v=2026-10-05-header-restored">
 </head>
 <body>
   <!-- Recolour crystal-green pixels while retaining the original metal and accents. -->
@@ -48,7 +48,20 @@
     <nav id="nav" aria-label="Main navigation"><a href="#/base">Base</a><a href="#/optimise">Optimise</a><a href="#/droidex">Droidex</a><a href="#/crit-calc">Crit Calc</a></nav>
 
     <div class="header-cloud" id="headerCloud"></div>
-    <a class="companion-download" href="#/companion"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg><span>Download Companion</span></a>
+    <a class="patch-icon-button" href="#/todo" aria-label="View Patch Notes" title="Patch Notes">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5V3Zm3 4h8V5H8v2Zm0 4h8V9H8v2Zm0 4h8v-2H8v2Zm0 4h5v-2H8v2Z"/></svg>
+    </a>
+    <a class="discord-button" href="https://discord.gg/droidarchives" target="_blank" rel="noopener noreferrer" aria-label="Join the Droid Archives Discord" title="Join our Discord">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 5.3A16 16 0 0 0 15.7 4l-.5 1.1a14 14 0 0 0-6.4 0L8.3 4a16 16 0 0 0-3.8 1.3C2.1 8.8 1.4 12.2 1.7 15.6A15 15 0 0 0 6.4 18l1.2-1.7-1.8-.9.4-.3c3.6 1.7 7.8 1.7 11.6 0l.4.3-1.8.9 1.2 1.7a15 15 0 0 0 4.7-2.4c.4-4-1-7.4-2.8-10.3ZM8.7 14.2c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Zm6.6 0c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Z"/></svg>
+    </a>
+    <a class="donate-icon-button" href="#/donate" aria-label="Donate to support Droid Archives" title="Donate">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h13v3h1.5a3.5 3.5 0 0 1 0 7H17v1a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V4Zm13 5v3h1.5a1.5 1.5 0 0 0 0-3H17ZM6 6v9a3 3 0 0 0 3 3h3a3 3 0 0 0 3-3V6H6Z"/></svg>
+    </a>
+    <a class="ui-style-button new-interface-link" href="index.html" title="Back to the new Droid Archives interface" aria-label="Back to the new Droid Archives interface"><span aria-hidden="true">✦</span><strong>New look</strong></a>
+    <button class="ui-style-button" id="uiStyleButton" aria-label="Switch interface style" title="Switch interface style"><span aria-hidden="true">◫</span><strong>Classic</strong></button>
+    <button class="theme-button" id="themeButton" aria-label="Switch colour theme" title="Switch colour theme">☀</button>
+    <a class="companion-download" href="#/companion" title="Download Companion" aria-label="Download Companion"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg></a>
+    <label class="header-search"><span>⌕</span><input id="globalSearch" placeholder="Search the archives…" autocomplete="off"></label>
   </header>
   <div class="layout">
     <aside class="sidebar">
@@ -71,8 +84,6 @@
       <a href="#/donate"><img class="side-icon" src="assets/nav/Donate.png" alt=""> <span>Donate</span></a>
       <div class="side-rule"></div>
       <div id="baseSidebarControls"></div>
-      <a href="https://discord.gg/droidarchives" target="_blank" rel="noopener noreferrer">Discord</a><a href="index.html">New look</a>
-      <div class="classic-menu-options"><button class="ui-style-button" id="uiStyleButton" aria-label="Switch interface style" title="Switch interface style"><span aria-hidden="true">◫</span><strong>Classic</strong></button><button class="theme-button" id="themeButton" aria-label="Switch colour theme" title="Switch colour theme">☀</button><label class="header-search"><span>⌕</span><input id="globalSearch" placeholder="Search the archives…" autocomplete="off"></label></div>
     </aside>
     <main id="app" tabindex="-1"><div class="loading">Loading archive data…</div></main>
   </div>
@@ -80,6 +91,6 @@
   <div id="toast" role="status"></div>
   <div id="modalRoot"></div>
   <script type="module" src="app.js?v=2026-10-05-layouts"></script>
-  <script type="module" src="classic-nav.js?v=2026-10-05-shortcuts"></script>
+  <script type="module" src="classic-nav.js?v=2026-10-05-header-restored"></script>
 </body>
 </html>

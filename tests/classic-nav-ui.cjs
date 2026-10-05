@@ -13,6 +13,8 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
   await page.goto(url);await page.locator('.event-page').waitFor();
   const names=()=>page.locator('#nav>a').allTextContents();
   assert.deepEqual(await names(),['Base','Optimise','Droidex','Crit Calc']);
+  assert.equal(await page.locator('.site-header .companion-download').innerText(),'');
+  assert.equal(await page.locator('.site-header .companion-download').getAttribute('aria-label'),'Download Companion');
   await page.locator('#menuButton').click();await page.locator('.classic-nav-settings summary').click();
   await page.locator('[data-shortcut="0"]').selectOption('#/event');
   await page.locator('[data-shortcut="1"]').selectOption('#/nova-shop');
@@ -30,10 +32,12 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
   // Long labels must fit even with all four shortcut slots used.
   for(const [i,href] of ['#/cantina-shop','#/fusion-lab','#/lucky-droid','#/todo'].entries())await page.locator(`[data-shortcut="${i}"]`).selectOption(href);
   for(const width of [1920,1280,1000,650,390,320]){
-   await page.setViewportSize({width,height:950});await page.waitForFunction(()=>document.querySelector('.sidebar').getBoundingClientRect().top>=document.querySelector('.site-header').getBoundingClientRect().bottom-1);
+   await page.setViewportSize({width,height:950});await page.waitForFunction(()=>{const b=document.querySelector('#menuButton').getBoundingClientRect(),m=document.querySelector('.sidebar').getBoundingClientRect();return m.top>=document.querySelector('.site-header').getBoundingClientRect().bottom-1&&Math.abs(m.left-Math.max(10,Math.min(b.left,innerWidth-m.width-10)))<2});
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`overflow at ${width}`);
    assert(await page.locator('#nav>a').evaluateAll(links=>links.every(a=>{const r=a.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1&&a.scrollWidth<=a.clientWidth+1})),`shortcut overflow at ${width}`);
    assert(await page.locator('.classic-nav-settings').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
+   for(const selector of ['.patch-icon-button','.discord-button','.donate-icon-button','.new-interface-link','#uiStyleButton','#themeButton','#globalSearch','.companion-download'])assert(await page.locator('.site-header '+selector).isVisible(),`missing header control ${selector} at ${width}`);
+   assert(await page.evaluate(()=>{const b=document.querySelector('#menuButton').getBoundingClientRect(),m=document.querySelector('.sidebar').getBoundingClientRect();return Math.abs(m.left-Math.max(10,Math.min(b.left,innerWidth-m.width-10)))<2}),`menu not anchored at ${width}: ${JSON.stringify(await page.evaluate(()=>({menu:document.querySelector(".sidebar").getBoundingClientRect().toJSON(),button:document.querySelector("#menuButton").getBoundingClientRect().toJSON(),left:document.documentElement.style.getPropertyValue("--classic-menu-left")})))}`);
   }
   fs.mkdirSync(path.join(root,'research/uefn/october04/ui'),{recursive:true});
   await page.setViewportSize({width:390,height:950});await page.screenshot({path:path.join(root,'research/uefn/october04/ui/classic-shortcuts-mobile.png')});

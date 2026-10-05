@@ -5,6 +5,15 @@ export function initClassicNavigation(){
   if(!document.documentElement.hasAttribute('data-classic-shell'))return;
   const nav=document.querySelector('#nav'),menu=document.querySelector('.sidebar');
   if(!nav||!menu)return;
+  const positionMenu=()=>{
+    const button=document.querySelector('#menuButton'),header=document.querySelector('.site-header');
+    const width=Math.min(410,window.innerWidth-20),left=Math.max(10,Math.min(button.getBoundingClientRect().left,window.innerWidth-width-10));
+    document.documentElement.style.setProperty('--classic-menu-left',left+'px');
+    document.documentElement.style.setProperty('--classic-header-height',header.getBoundingClientRect().bottom+'px');
+  };
+  window.addEventListener('resize',positionMenu);
+  new ResizeObserver(positionMenu).observe(document.querySelector('.site-header'));
+  new MutationObserver(positionMenu).observe(menu,{attributes:true,attributeFilter:['class']});
   const settings=document.createElement('details');
   settings.className='classic-nav-settings';
   settings.innerHTML='<summary>Navigation settings</summary><p>Choose up to four top-bar shortcuts, in the order you want. All pages remain in this menu.</p><div class="classic-shortcut-fields"></div><button type="button" class="btn secondary" data-reset-shortcuts>Reset defaults</button><p class="classic-shortcut-status" role="status">Saved automatically on this browser.</p>';
@@ -21,7 +30,7 @@ export function initClassicNavigation(){
     nav.replaceChildren();
     for(const href of selected.filter(Boolean)){const a=document.createElement('a');a.href=href;a.textContent=options.find(x=>x.href===href).label;nav.append(a);}
     nav.style.setProperty('--shortcut-count',String(selected.filter(Boolean).length||1));
-    nav.classList.toggle('no-shortcuts',!selected.some(Boolean));updateActive();
+    nav.classList.toggle('no-shortcuts',!selected.some(Boolean));updateActive();positionMenu();
     const fields=settings.querySelector('.classic-shortcut-fields');fields.replaceChildren();
     selected.forEach((value,index)=>{
       const label=document.createElement('label');label.textContent=`Shortcut ${index+1}`;
