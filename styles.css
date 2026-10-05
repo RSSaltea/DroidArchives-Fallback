@@ -1156,8 +1156,6 @@ html[data-ui-style] .companion-activity .btn.companion-activity-button.active,ht
 [data-purchase-checkpoint]{scroll-margin-top:220px}
 .party-settings{border:1px solid var(--border,#344052);border-radius:6px;padding:18px;margin:18px 0;background:var(--panel,#171e2a)}
 .party-settings h2{font-size:1.1rem;margin:0 0 6px}
-.party-settings h2{display:flex;align-items:center;gap:8px}
-.party-heading-icon{width:36px;height:36px;object-fit:contain}
 .party-settings.collapsed{display:none!important}
 .party-toggle-bar{display:flex;justify-content:flex-end;margin:14px 0}
 #togglePartyPanel{display:inline-flex;align-items:center;gap:7px}

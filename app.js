@@ -1,7 +1,7 @@
 import { companionPage } from './companion-page.js?v=2026-09-30-downloads';
 import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES, normaliseParty, partyBonuses } from './economy.js?v=2026-10-05-party-controls';
 import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-09-26-crafting';
-import { testMapPage } from './test-map.js?v=2026-10-05-rebirth-uses';
+import { testMapPage } from './test-map.js?v=2026-10-05-map-selection';
 import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-09-30-downloads';
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
@@ -1737,7 +1737,7 @@ const novaCost=(level=0)=>level?.cost===null||level?.unknown?'<span class="unkno
 function partyControlsHtml(){
   const party=normaliseParty(state.party),bonus=partyBonuses(party);
   const options=(count,selected,start=0)=>Array.from({length:count},(_,i)=>i+start).map(n=>`<option value="${n}" ${n===selected?'selected':''}>${n===1&&start===1?'1 (solo)':n}</option>`).join('');
-  return `<section id="partyBonusesPanel" class="party-settings${localStorage.getItem('droid-archive-party-collapsed')==='1'?' collapsed':''}" aria-label="Party bonuses"><div><h2><img class="party-heading-icon" src="assets/base/Party.png" alt="">Party bonuses</h2><p>Count party members currently in the game, including you. Maximum 6 people.</p></div><div class="party-fields">
+  return `<section id="partyBonusesPanel" class="party-settings${localStorage.getItem('droid-archive-party-collapsed')==='1'?' collapsed':''}" aria-label="Party bonuses"><div><h2>Party bonuses</h2><p>Count party members currently in the game, including you. Maximum 6 people.</p></div><div class="party-fields">
     <label>People in your party<select class="form-control" data-party-setting="size">${options(6,party.size,1)}</select><small>+${Math.round((bonus.chips-1)*100)}% Upgrade Chips &middot; maximum +100%</small></label>
     <label>Pickaxe target<select class="form-control" data-party-setting="target"><option value="depot" ${party.target==='depot'?'selected':''}>Droid Depot</option><option value="fusion" ${party.target==='fusion'?'selected':''}>Fusion</option></select><small>Party pickaxe bonus applies to Droid Depots.</small></label>
     <label>Others hitting this depot<select class="form-control" data-party-setting="depotHitters" ${party.size===1||party.target==='fusion'?'disabled':''}>${options(party.size,party.depotHitters)}</select><small>+${Math.round((bonus.pickaxe-1)*100)}% pickaxe &middot; count active hitters only</small></label>
@@ -3093,8 +3093,13 @@ function mapRebirthUsesHtml(unit){
   };
   return `<section class="tm-rebirth-uses" aria-label="Rebirth uses"><h3>Rebirth uses</h3><p>Cycle ${Number(state.cycle)+1} &middot; currently R: ${state.rebirth}</p>${unfinished?`<p class="tm-rebirth-build">${unfinished} ${unit.blueprint?'A stored blueprint does not count as an owned droid.':'Unfinished droids are not ready for Rebirth.'}</p>`:''}${upcoming.length?`<ul>${upcoming.map(req=>row(req)).join('')}</ul><p class="tm-rebirth-cost-note">Upgrade costs start from this copy's ${variantLabel(unit.variant)} variant. Each row is a separate target; do not add the costs together.</p>`:`<p>${uses.length?'No remaining rebirth uses':'Not required for any rebirth'} in this cycle.</p>`}${completed.length?`<details><summary>Completed rebirth uses (${completed.length})</summary><ul>${completed.map(req=>row(req,true)).join('')}</ul></details>`:''}<a href="#/droid/${slug(d.name)}">Open droid page</a></section>`;
 }
+// Keep map selection and view controls through same-profile cloud refreshes.
+// This is temporary UI state only; a different Base starts with no selection.
+let baseMapViewState={profileKey:null,ui:{}};
 function basePageV2(){
- const mapUi={};
+ const profileKey=JSON.stringify(state.sharedView?['shared',state.sharedView.ownerId,state.sharedView.profileId]:['own',state.cloud.user?.id||'local',state.cloud.activeProfileId]);
+ if(baseMapViewState.profileKey!==profileKey)baseMapViewState={profileKey,ui:{}};
+ const mapUi=baseMapViewState.ui;
  const render=()=>{const previousMap=document.querySelector('#baseMapPanel'),previousViewport=previousMap?.querySelector('.tm-viewport');
  const scrollSnapshot=previousMap&&!previousMap.hidden?{x:window.scrollX,y:window.scrollY,left:previousViewport?.scrollLeft||0,top:previousViewport?.scrollTop||0}:null;
  const p=placements(),future=futureRequirements(),replacementProtected=replacementSettings().protect?rebirthProtectedKeys(p):new Set(),rebirthPick=p.placed.reduce((map,x)=>{const previous=map.get(x.name);if(!previous||variantRank(x.variant)>variantRank(previous.variant))map.set(x.name,{variant:x.variant,key:`${x.source}:${x.unit}`});return map},new Map()),productive=p.placed.filter(x=>PRODUCTIVE_STATIONS.includes(x.station)),baseIncome=placedBaseIncome(productive),stationIncome=productive.reduce((sum,x)=>{const d=state.droids.find(y=>y.name===x.name),match=!isIconic(d)&&x.station===d.type;return sum+(d?.variants[x.variant]?.income||0)*(match?1.1:1)},0),iconicIncomeTotal=[...new Set(productive.map(x=>x.name))].reduce((sum,name)=>sum+iconicIncome(state.droids.find(d=>d.name===name)),0),income=incomeForPlaced(p.placed);
@@ -3899,7 +3904,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-05-rebirth-uses',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-05-map-selection',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
   onResult:(message,stamp)=>{

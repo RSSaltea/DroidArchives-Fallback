@@ -13,6 +13,22 @@ try{for(const shell of ['index.html','classic.html']){
  await slot('LOUNGE:0').click();
  let text=await uses.innerText();assert.match(text,/Cycle 4/);assert.match(text,/Rebirth 37/);assert.match(text,/Kyber.*\(active\)/i);assert.match(text,/25K chips/);assert.match(text,/4 Kyber Crystals/);assert.match(text,/Next rebirth/);assert.doesNotMatch(await uses.locator(':scope > ul').innerText(),/Ready for this requirement/);
  await uses.locator('summary').click();assert.match(await uses.innerText(),/Rebirth 22/);
+ // Returning to a tab can refresh the cloud profile and redraw the entire route.
+ const otherTab=await ctx.newPage();await otherTab.goto('about:blank');await otherTab.bringToFront();await page.bringToFront();await otherTab.close();
+ await page.evaluate(()=>mapTest.route());
+ assert.match(await page.locator('.tm-droid-heading').innerText(),/GUNRUNNER/);
+ assert.match(await uses.innerText(),/25K chips/);
+ await page.locator('.base-heading h1').click();
+ assert.match(await page.locator('.tm-droid-heading').innerText(),/GUNRUNNER/);
+ await page.locator('.tm-viewport').click({position:{x:3,y:3}});
+ assert.equal(await page.locator('.tm-droid-heading').count(),0);
+ await slot('LOUNGE:0').click();await slot('LOUNGE:0').hover();await page.keyboard.press('Escape');
+ assert.equal(await page.locator('.tm-droid-heading').count(),0);
+ await slot('LOUNGE:0').click();
+ // A different profile must not inherit the selected slot from this Base.
+ await page.evaluate(()=>{window.previousMapProfileId=mapTest.state.cloud.activeProfileId;mapTest.state.cloud.activeProfileId='another-profile';mapTest.route()});
+ assert.equal(await page.locator('.tm-droid-heading').count(),0);
+ await page.evaluate(()=>{mapTest.state.cloud.activeProfileId=window.previousMapProfileId;mapTest.route()});await slot('LOUNGE:0').click();
  await page.locator('#tmDistanceView').click();assert.match(await uses.innerText(),/25K chips/);
  await page.selectOption('#tmMode','measure');await slot('LOUNGE:0').click();assert.match(await uses.innerText(),/25K chips/);
  await page.selectOption('#tmMode','manage');
@@ -27,5 +43,16 @@ try{for(const shell of ['index.html','classic.html']){
  fs.mkdirSync(path.join(root,'research/uefn/october04/ui'),{recursive:true});await page.locator('.tm-inspector').screenshot({path:path.join(root,'research/uefn/october04/ui',shell+'-rebirth-uses.png')});
  await page.evaluate(()=>{mapTest.state.rebirth=40;mapTest.route()});await slot('LOUNGE:0').click();assert.match(await uses.innerText(),/No remaining rebirth uses/);
  await page.evaluate(()=>{mapTest.state.owned[0].name='CHOPPER';mapTest.state.owned[0].variant='DEFAULT';mapTest.route()});await slot('LOUNGE:0').click();assert.match(await uses.innerText(),/Not required for any rebirth/);
- assert.deepEqual(errors,[]);console.log('PASS map rebirth uses, selected-copy costs, activation, blueprints, builds, cycle/goal boundaries and mobile:',shell);await ctx.close();
+ await page.setViewportSize({width:1500,height:1500});
+ for(const [name,variant,station] of [['B2-RP','STELLAR','BUILD'],['LOADLIFTER','GALACTIC','FUSION_BUILD']]){
+  await page.evaluate(({name,variant,station})=>{Object.assign(mapTest.state,{cycle:4,rebirth:25,owned:[{name,variant,qty:1,preferred:station,preferredSlot:0,built:true}]});mapTest.autoPurchaseEligibleSlots();mapTest.route()},{name,variant,station});
+  await slot(station+':0').click();
+  assert.match(await page.locator('.tm-droid-heading').innerText(),new RegExp(name));
+  await page.locator('.tm-droid-portrait img').waitFor();
+  assert.match(await page.locator('.tm-production').innerText(),/^Build complete\n/);
+  const status=await page.locator('.tm-production>.adjusted-production').boundingBox(),breakdown=await page.locator('.tm-production>.production-breakdown').boundingBox();assert(breakdown.y>=status.y+status.height);
+  assert.equal(await page.locator('.tm-production>.production-breakdown').evaluate(el=>parseFloat(getComputedStyle(el).fontSize)),12);
+  await page.locator('.tm-inspector').screenshot({path:path.join(root,'research/uefn/october04/ui',shell+'-'+name+'-inspector.png')});
+ }
+ assert.deepEqual(errors,[]);console.log('PASS map rebirth uses, selected-copy costs, activation, blueprints, builds, cycle/goal boundaries, portraits and production spacing:',shell);await ctx.close();
 }}finally{await browser.close();server.close()}})().catch(e=>{console.error(e);server.close();process.exitCode=1});
