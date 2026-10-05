@@ -15,7 +15,10 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
   assert.deepEqual(await names(),['Base','Optimise','Droidex','Crit Calc']);
   assert.equal(await page.locator('.site-header .companion-download').innerText(),'');
   assert.equal(await page.locator('.site-header .companion-download').getAttribute('aria-label'),'Download Companion');
-  await page.locator('#menuButton').click();await page.locator('.classic-nav-settings summary').click();
+  await page.locator('#menuButton').click();
+  assert(!(await page.locator('#baseSidebarControls').isVisible()));
+  assert(await page.locator('.classic-nav-settings').evaluate(settings=>[...document.querySelectorAll('.sidebar>a')].every(link=>link.getBoundingClientRect().bottom<=settings.getBoundingClientRect().top)),'Navigation settings must be below every page link');
+  await page.locator('.classic-nav-settings summary').click();
   await page.locator('[data-shortcut="0"]').selectOption('#/event');
   await page.locator('[data-shortcut="1"]').selectOption('#/nova-shop');
   assert.deepEqual(await names(),['Event','Nova Shop','Droidex','Crit Calc']);
@@ -44,6 +47,7 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
   await page.setViewportSize({width:1280,height:950});await page.screenshot({path:path.join(root,'research/uefn/october04/ui/classic-shortcuts-desktop.png')});
   await page.evaluate(()=>localStorage.setItem('droid-archive-classic-shortcuts','{"bad":true}'));await page.reload();await page.locator('.event-page').waitFor();assert.deepEqual(await names(),['Base','Optimise','Droidex','Crit Calc']);
   await page.evaluate(()=>localStorage.setItem('droid-archive-classic-shortcuts','["#/event","#/event","javascript:alert(1)",null,"#/base"]'));await page.reload();await page.locator('.event-page').waitFor();assert.deepEqual(await names(),['Event']);
+  await page.goto(url.replace('#/event','#/base'));await page.locator('.modern-base-settings').waitFor();assert(await page.locator('.modern-base-settings').isVisible(),'Base settings remain on Base');
   assert.deepEqual(errors,[]);console.log('PASS Classic shortcuts: selection, order swapping, active page, fewer/zero shortcuts, reset, persistence, invalid saved settings and narrow screens');
  }finally{await browser.close();server.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;server.close()});

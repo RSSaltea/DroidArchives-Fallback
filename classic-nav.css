@@ -12,11 +12,12 @@ html[data-classic-shell] .layout{display:block!important}
 html[data-classic-shell] .sidebar{display:none!important;position:fixed;inset:var(--classic-header-height,64px) 10px auto auto;width:min(410px,calc(100vw - 20px));max-height:calc(100dvh - var(--classic-header-height,64px) - 12px);height:auto;overflow-y:auto;box-sizing:border-box;z-index:60;background:var(--panel);border:1px solid var(--line);border-radius:0 0 9px 9px;box-shadow:0 15px 35px #0005;padding:12px}
 html[data-classic-shell] .sidebar.mobile-open{width:min(410px,calc(100vw - 20px));max-height:calc(100dvh - var(--classic-header-height,64px) - 12px);bottom:auto;top:var(--classic-header-height,64px)!important;left:min(var(--classic-menu-left,10px),max(10px,calc(100vw - 420px)))!important;right:auto!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:5px}
 html[data-classic-shell] .sidebar.mobile-open>a{min-width:0;margin:0;min-height:40px;padding:8px;white-space:normal;overflow-wrap:anywhere;font-size:12px}
-html[data-classic-shell] .sidebar .side-title,html[data-classic-shell] .sidebar .side-rule,html[data-classic-shell] #baseSidebarControls,html[data-classic-shell] .sidebar .side-rule{display:block!important}
+html[data-classic-shell] .sidebar .side-title,html[data-classic-shell] .sidebar .side-rule,html[data-classic-shell] #baseSidebarControls{grid-column:1/-1}
+html[data-classic-shell][data-ui-style="modern"] .sidebar>.side-rule,html[data-classic-shell][data-ui-style="modern"] #baseSidebarControls{display:none!important}
 html[data-classic-shell] #baseSidebarControls{display:block!important;min-width:0}
 
 html[data-classic-shell] .site-header #nav.no-shortcuts{display:none!important}
-html[data-classic-shell] .classic-nav-settings{grid-column:1/-1;border:1px solid var(--line);border-radius:6px;padding:10px;margin-bottom:8px;min-width:0}
+html[data-classic-shell] .classic-nav-settings{grid-column:1/-1;order:10;border:1px solid var(--line);border-radius:6px;padding:10px;margin-bottom:8px;min-width:0}
 html[data-classic-shell] .classic-nav-settings summary{font-size:13px;font-weight:700;cursor:pointer}
 html[data-classic-shell] .classic-nav-settings p{font-size:12px;color:var(--muted);line-height:1.5;margin:10px 0}
 html[data-classic-shell] .classic-shortcut-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}

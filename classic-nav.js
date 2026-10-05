@@ -17,7 +17,7 @@ export function initClassicNavigation(){
   const settings=document.createElement('details');
   settings.className='classic-nav-settings';
   settings.innerHTML='<summary>Navigation settings</summary><p>Choose up to four top-bar shortcuts, in the order you want. All pages remain in this menu.</p><div class="classic-shortcut-fields"></div><button type="button" class="btn secondary" data-reset-shortcuts>Reset defaults</button><p class="classic-shortcut-status" role="status">Saved automatically on this browser.</p>';
-  menu.querySelector('.side-title').after(settings);
+  menu.append(settings);
   let selected;
   try{selected=JSON.parse(localStorage.getItem(STORAGE_KEY));}catch{}
   if(!Array.isArray(selected))selected=[...DEFAULTS];
