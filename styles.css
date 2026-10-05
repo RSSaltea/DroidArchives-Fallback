@@ -1154,6 +1154,18 @@ html[data-ui-style] .companion-activity .btn.companion-activity-button.active,ht
 .iconic-planning-controls{margin:16px 0;padding:16px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}.iconic-planning-controls small{display:block;margin-top:8px;color:var(--muted);line-height:1.5}
 
 [data-purchase-checkpoint]{scroll-margin-top:220px}
+.party-settings{border:1px solid var(--border,#344052);border-radius:6px;padding:18px;margin:18px 0;background:var(--panel,#171e2a)}
+.party-settings h2{font-size:1.1rem;margin:0 0 6px}
+.party-settings p{margin:6px 0 14px;color:var(--muted,#a1b0c8);font-size:.85rem}
+.party-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.party-fields label{display:flex;flex-direction:column;gap:8px;font-size:.85rem;font-weight:600;min-width:0}
+.party-fields select{width:100%;min-width:0}
+.party-fields small{font-size:.75rem;font-weight:400;color:var(--muted,#a1b0c8)}
+.party-fields .party-scrap{justify-content:center}
+.party-scrap input{margin-right:6px;accent-color:#35d47d}
+.party-settings .party-help{margin:14px 0 0;font-size:.75rem}
+@media(max-width:900px){.party-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.party-fields{grid-template-columns:1fr}.party-settings{padding:14px}}
 /* Companion download is a navigation action, independent of Base controls. */
 .companion-download{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:6px 10px;min-height:30px;border:1px solid var(--green,#32df8a);border-radius:4px;background:rgba(40,190,120,.08);color:var(--green,#32df8a);font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap}
 .companion-download svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;flex:none}
