@@ -5,7 +5,7 @@ import {slotPosition,slotDistanceSquared} from './slot-geometry.js?v=2026-09-26-
 let shortcutController;
 
 // Base map. Coordinates come from the optimiser; management uses Base callbacks.
-export function testMapPage({host,slots,placed,droids,picture,label,available,escape,stationIcon,variantLabel,manage=null,ui={},extraSlots=[]}) {
+export function testMapPage({host,slots,placed,droids,picture,label,available,escape,stationIcon,variantLabel,manage=null,ui={},extraSlots=[],rebirthUses=null}) {
   const points=slots.map(s=>({...s,mapX:s.x*12,mapY:s.y*11,slot:s.index,position:slotPosition({station:s.station,slot:s.index})})).filter(s=>s.position).concat(extraSlots.map(s=>({...s,position:null})));
   let selected=ui.selected||null,target=null,zoom=ui.zoom||1,angle=ui.angle??32,floor=ui.floor||'all',showLocked=true,view=ui.view||'base',mode=ui.mode||'manage',moving=null;
   const colour=s=>s.startsWith('PROTOCOL')?'#f3bd58':({WORKER:'#76dc86',ASTROMECH:'#65baf0',BATTLE:'#f78b89',LOUNGE:'#c2a2f8',FUSION:'#f4ba72',FUSION_BUILD:'#f4ba72',BUILD:'#71dcd7',UPGRADE_CHIP:'#f0db72',COMPANION:'#71dcd7',BLUEPRINT_STORAGE:'#b9a1ff'}[s]||'#aaa');
@@ -23,7 +23,7 @@ export function testMapPage({host,slots,placed,droids,picture,label,available,es
   window.addEventListener('click',event=>{
     if(!host.isConnected||host.hidden||suppressClick||(!selected&&!target&&!moving))return;
     // Let slot selection, move destinations, and explicit controls finish their action.
-    if(event.target.closest?.('[data-slot],[data-action],[data-near],#tmClear,.tm-tools,#modalRoot'))return;
+    if(event.target.closest?.('[data-slot],[data-action],[data-near],#tmClear,.tm-tools,.tm-inspector,#modalRoot'))return;
     selected=target=moving=null;
     render();
   },{signal:shortcutController.signal});
@@ -111,6 +111,8 @@ export function testMapPage({host,slots,placed,droids,picture,label,available,es
         window.addEventListener('pointermove',move,{passive:false});window.addEventListener('pointerup',finish);window.addEventListener('pointercancel',finish);
       });
     }
+    const selectedUnit=a&&occupant(a);
+    if(selectedUnit&&rebirthUses)inspector.insertAdjacentHTML('beforeend',rebirthUses(selectedUnit));
     inspector.querySelector('#tmClear')?.addEventListener('click',()=>{selected=target=null;render();});
     inspector.querySelectorAll('[data-near]').forEach(el=>el.onclick=()=>{target=el.dataset.near;render();});
   }

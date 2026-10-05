@@ -1,7 +1,7 @@
 import { companionPage } from './companion-page.js?v=2026-09-30-downloads';
 import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES, normaliseParty, partyBonuses } from './economy.js?v=2026-10-05-party-controls';
 import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-09-26-crafting';
-import { testMapPage } from './test-map.js?v=2026-09-28-map-alignment';
+import { testMapPage } from './test-map.js?v=2026-10-05-rebirth-uses';
 import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-09-30-downloads';
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
@@ -3080,6 +3080,19 @@ function attachRebirthQuickBar(rerender){
   // A rerender throws this bar away, so the observer has to go with it.
   bar.dispose=()=>{observer.disconnect();bar.remove();document.body.classList.remove('has-rebirth-quick-bar')};
 }
+function mapRebirthUsesHtml(unit){
+  const d=state.droids.find(d=>d.name===unit.name);if(!d)return '';
+  const uses=(state.rebirths[state.cycle]||[]).flatMap(r=>(r.requiredDroids||[]).filter(req=>req.droidName===d.name).map(req=>({at:r.to,variant:req.variant}))).sort((a,b)=>a.at-b.at);
+  const upcoming=uses.filter(r=>r.at>state.rebirth),completed=uses.filter(r=>r.at<=state.rebirth);
+  const unfinished=unit.blueprint?'Craft this blueprint first.':isBuilding(unit)?'Finish building this droid first.':'';
+  const row=(req,past=false)=>{
+    const ready=rebirthVariantReady(unit.variant,req.variant),chips=chipsToVariant(d,unit.variant,req.variant);
+    const action=past?'Completed rebirth':ready?(unfinished?'Variant ready':'Ready for this requirement'):rebirthActionText(d,unit.variant,req.variant,chips);
+    const badge=past?'Completed':req.at===state.rebirth+1?'Next rebirth':req.at>rebirthGoal()?'After your goal':'Upcoming';
+    return `<li class="tm-rebirth-use ${past?'tm-rebirth-past':ready&&!unfinished?'tm-rebirth-ready':'tm-rebirth-upgrade'}"><div><strong>Rebirth ${req.at}</strong><small>${badge}</small></div><span>Needs ${requirementVariantText(req.variant)}</span><p>${action}</p></li>`;
+  };
+  return `<section class="tm-rebirth-uses" aria-label="Rebirth uses"><h3>Rebirth uses</h3><p>Cycle ${Number(state.cycle)+1} &middot; currently R: ${state.rebirth}</p>${unfinished?`<p class="tm-rebirth-build">${unfinished} ${unit.blueprint?'A stored blueprint does not count as an owned droid.':'Unfinished droids are not ready for Rebirth.'}</p>`:''}${upcoming.length?`<ul>${upcoming.map(req=>row(req)).join('')}</ul><p class="tm-rebirth-cost-note">Upgrade costs start from this copy's ${variantLabel(unit.variant)} variant. Each row is a separate target; do not add the costs together.</p>`:`<p>${uses.length?'No remaining rebirth uses':'Not required for any rebirth'} in this cycle.</p>`}${completed.length?`<details><summary>Completed rebirth uses (${completed.length})</summary><ul>${completed.map(req=>row(req,true)).join('')}</ul></details>`:''}<a href="#/droid/${slug(d.name)}">Open droid page</a></section>`;
+}
 function basePageV2(){
  const mapUi={};
  const render=()=>{const previousMap=document.querySelector('#baseMapPanel'),previousViewport=previousMap?.querySelector('.tm-viewport');
@@ -3121,7 +3134,7 @@ function basePageV2(){
       if(a.blueprint)return to.station==='BLUEPRINT_STORAGE'||to.station==='BUILD'&&!b;
       return to.station!=='BLUEPRINT_STORAGE'&&!isBuilding(a)&&(!b||!isBuilding(b))&&canUseStation(state.droids.find(d=>d.name===a.name),to.station)&&(!b||canUseStation(state.droids.find(d=>d.name===b.name),from.station));
     };
-    testMapPage({host,slots:mapSlots().filter(s=>s.station!=='BLUEPRINT_STORAGE'),extraSlots,placed:mapPlaced,droids:state.droids,picture,stationIcon,variantLabel,label:stationName,available:open,escape:escapeAttr,ui:mapUi,manage:{
+    testMapPage({host,slots:mapSlots().filter(s=>s.station!=='BLUEPRINT_STORAGE'),extraSlots,placed:mapPlaced,droids:state.droids,picture,stationIcon,variantLabel,label:stationName,available:open,escape:escapeAttr,ui:mapUi,rebirthUses:mapRebirthUsesHtml,manage:{
       canMove,move:(from,to)=>{
         if(!canMove(from,to))return;const a=at(from),b=at(to);
         if(a.blueprint){
@@ -3886,7 +3899,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-05-party-controls',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-05-rebirth-uses',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
   onResult:(message,stamp)=>{

@@ -23,7 +23,8 @@ const transform=await slot('COMPANION:0').getAttribute('transform');
 await page.locator('#tmAngle').evaluate(el=>{el.value='-130';el.dispatchEvent(new Event('input',{bubbles:true}))});assert.equal(await slot('COMPANION:0').getAttribute('transform'),transform);
 await page.selectOption('#tmMode','measure');await slot('WORKER:0').click();await slot('BUILD:0').click();assert.equal(await page.locator('.tm-measure').count(),1);assert(!/NaN|Infinity/.test(await page.locator('.tm-inspector').innerText()));
 await page.selectOption('#tmMode','manage');await page.locator('#tmAngle').evaluate(el=>{el.value='32';el.dispatchEvent(new Event('input',{bubbles:true}))});
-await slot('BLUEPRINT_STORAGE:0').click();assert.equal(await page.locator('#blueprintSearch').count(),1);await page.locator('#cancelBlueprint').click();
+// Use the keyboard for the bottom storage slot, which can sit behind the floating rebirth bar.
+await slot('BLUEPRINT_STORAGE:0').press('Enter');assert.equal(await page.locator('#blueprintSearch').count(),1);await page.locator('#cancelBlueprint').click();
 await page.reload();await page.waitForFunction(()=>window.mapTest?.state.droids.length);assert.equal(await page.evaluate(()=>window.mapTest.state.blueprints.length),0);assert.equal(await page.evaluate(()=>window.mapTest.placements().placed.find(x=>x.station==='COMPANION'&&x.slot===0)?.name),'GONK');
 await page.setViewportSize({width:390,height:844});await page.locator('#tmFit').click();const panel=await page.locator('.tm-extra-panel rect').boundingBox(),canvas=await page.locator('.tm-canvas').boundingBox();assert(panel.x>=canvas.x&&panel.x+panel.width<=canvas.x+canvas.width+1);assert(panel.y+panel.height<=canvas.y+canvas.height+1);
 await page.setViewportSize({width:1500,height:1100});await page.locator('#tmFit').click();
