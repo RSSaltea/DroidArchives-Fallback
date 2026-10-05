@@ -19,6 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="kyber.css?v=2026-09-26-kyber-timer">
   <link rel="stylesheet" href="test-map.css?v=2026-10-05-map-selection">
+  <link rel="stylesheet" href="event.css?v=2026-10-05-event">
 </head>
 <body>
   <!-- Recolour crystal-green pixels while retaining the original metal and accents. -->
@@ -60,7 +61,7 @@
     <nav id="nav">
       <span class="tool-group" aria-label="Plan"><a href="#/">Home</a><a href="#/base">Base</a><a href="#/optimise">Optimise</a><a href="#/rebirth">Rebirth</a><a href="#/fusion-lab">Fusion Lab</a></span>
       <span class="tool-group" aria-label="Browse"><a href="#/droids">Droids</a><a href="#/droidex">Droidex</a><a href="#/nova-shop">Nova Shop</a><a href="#/cantina-shop">Cantina Shop</a></span>
-      <span class="tool-group" aria-label="Tools"><a href="#/droid-calc">Droid Calc</a><a href="#/crit-calc">Crit Calc</a><a href="#/lucky-droid">Lucky Droid</a><a href="#/groups">Groups</a></span>
+      <span class="tool-group" aria-label="Tools"><a href="#/droid-calc">Droid Calc</a><a href="#/crit-calc">Crit Calc</a><a href="#/lucky-droid">Lucky Droid</a><a href="#/groups">Groups</a><a href="#/event">Event</a></span>
     </nav>
     <div class="toolbar-actions"><a class="companion-download" href="#/companion"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg><span>Download Companion</span></a><button class="drawer-button" id="baseDrawerButton" type="button" hidden>Settings</button></div>
   </div>
@@ -183,6 +184,6 @@
       shell.top();
     });
   </script>
-  <script type="module" src="app.js?v=2026-10-05-map-selection"></script>
+  <script type="module" src="app.js?v=2026-10-05-layouts"></script>
 </body>
 </html>
