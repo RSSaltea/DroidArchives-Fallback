@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-10-05-map-rebirth-uses",
+      "date": "2026-10-05",
+      "title": "Rebirth details on the Base map",
+      "summary": "Click a droid on the map to see its rebirth uses in the side panel.",
+      "changes": [
+        "See which rebirths need that droid, the required variants, and Upgrade Chip and Kyber activation costs from the copy you selected.",
+        "Upcoming uses appear first, with completed rebirths in an expandable section. Blueprints and unfinished builds show what still needs doing."
+      ]
+    },
+    {
       "id": "2026-10-05-party-bonuses-workshop",
       "date": "2026-10-05",
       "title": "Party bonuses and new Workshop perks",
