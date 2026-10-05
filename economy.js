@@ -10,7 +10,7 @@ export function workingIncome({base=0,dynamicPercent=0,staticIncome=0,matching=f
 // Party size includes you and only counts members currently in the game.
 export function normaliseParty(value={}){
   const integer=(n,fallback)=>Number.isFinite(Number(n))?Math.floor(Number(n)):fallback;
-  const size=Math.max(1,Math.min(16,integer(value?.size,1)));
+  const size=Math.max(1,Math.min(6,integer(value?.size,1)));
   return {size,depotHitters:Math.max(0,Math.min(size-1,integer(value?.depotHitters,0))),
     scrapAtPartyBase:size>1&&value?.scrapAtPartyBase===true,
     target:value?.target==='fusion'?'fusion':'depot'};

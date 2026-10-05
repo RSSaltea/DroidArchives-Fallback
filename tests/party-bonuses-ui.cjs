@@ -19,7 +19,12 @@ const server=http.createServer((req,res)=>{
   await page.evaluate(()=>{partyTest.state.novaUpgrades={'critical-chance':10,'critical-amount':8,'multi-crit':1,'scrap-value':1};partyTest.save();partyTest.route()});
   const size=page.locator('[data-party-setting="size"]'),hitters=page.locator('[data-party-setting="depotHitters"]'),target=page.locator('[data-party-setting="target"]'),scrap=page.locator('[data-party-setting="scrapAtPartyBase"]');
   assert.equal(await size.inputValue(),'1');assert.match(await page.locator('.crit-stats').innerText(),/133.5s/);
+  assert.deepEqual(await size.locator('option').evaluateAll(rows=>rows.map(x=>x.value)),['1','2','3','4','5','6']);
   await size.selectOption('4');await hitters.selectOption('3');assert.match(await page.locator('.crit-stats').innerText(),/213.6s/);
+  await page.locator('#togglePartyPanel').click();assert(!(await page.locator('.party-settings').isVisible()));
+  assert.equal(await page.locator('#togglePartyPanel').getAttribute('aria-expanded'),'false');assert.match(await page.locator('.crit-stats').innerText(),/213.6s/);
+  await page.reload();await page.locator('#togglePartyPanel').waitFor();assert(!(await page.locator('.party-settings').isVisible()));
+  await page.locator('#togglePartyPanel').click();assert(await page.locator('.party-settings').isVisible());assert.equal(await size.inputValue(),'4');
   await target.selectOption('fusion');assert.match(await page.locator('.crit-stats').innerText(),/133.5s/);assert(await hitters.isDisabled());
   await target.selectOption('depot');await scrap.check();
   await page.reload();await page.locator('.party-settings').waitFor();assert.equal(await size.inputValue(),'4');assert.equal(await hitters.inputValue(),'3');assert(await scrap.isChecked());
@@ -29,6 +34,10 @@ const server=http.createServer((req,res)=>{
   await page.evaluate(p=>{partyTest.applyProfileData(p);partyTest.route()},original);assert.equal(await size.inputValue(),'4');
   await page.evaluate(()=>{const p=partyTest.normalizeProfileDoc({profiles:[{id:'party',data:partyTest.profileDataFromState()},{id:'old',data:{owned:[]}}]});if(p.profiles[0].data.party.size!==4||p.profiles[1].data.party.size!==1)throw Error('Profile party migration failed')});
   await page.goto(url+'#/base');await page.locator('.party-settings').waitFor();assert.equal(await size.inputValue(),'4');
+  await page.locator('#togglePartyPanel').click();assert(!(await page.locator('.party-settings').isVisible()));
+  await page.locator('#togglePartyPanel').click();assert(await page.locator('.party-settings').isVisible());
+  assert.equal(await page.locator('#togglePartyPanel img').evaluate(img=>img.complete&&img.naturalWidth>0),true);
+  const capped=await page.evaluate(()=>partyTest.validateBaseImport({owned:[],party:{size:16,depotHitters:15}}).party);assert.equal(capped.size,6);assert.equal(capped.depotHitters,5);
   await page.getByText('Advanced: scrap station level (optional)',{exact:true}).click();
   await page.locator('[data-scrap-station-level]').fill('10');await page.locator('[data-scrap-station-level]').dispatchEvent('change');
   assert.match(await page.locator('.scrap-calculator').first().innerText(),/61.5/);
@@ -40,6 +49,7 @@ const server=http.createServer((req,res)=>{
   }
   await page.goto(url+'#/crit-calc');await size.selectOption('6');await hitters.selectOption('5');
   fs.mkdirSync(path.join(root,'research/uefn/october04/ui'),{recursive:true});
+  await page.evaluate(()=>scrollTo(0,0));assert(await page.locator('#togglePartyPanel').isVisible());
   await page.screenshot({path:path.join(root,'research/uefn/october04/ui',shell+'-party.png'),fullPage:true});
   await page.setViewportSize({width:390,height:844});
   assert(await size.isVisible());assert(await page.locator('.party-settings').evaluate(el=>el.scrollWidth<=el.clientWidth+1));

@@ -1,5 +1,5 @@
 import { companionPage } from './companion-page.js?v=2026-09-30-downloads';
-import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES, normaliseParty, partyBonuses } from './economy.js?v=2026-10-04-party';
+import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES, normaliseParty, partyBonuses } from './economy.js?v=2026-10-05-party-controls';
 import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-09-26-crafting';
 import { testMapPage } from './test-map.js?v=2026-09-28-map-alignment';
 import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-09-30-downloads';
@@ -1737,13 +1737,24 @@ const novaCost=(level=0)=>level?.cost===null||level?.unknown?'<span class="unkno
 function partyControlsHtml(){
   const party=normaliseParty(state.party),bonus=partyBonuses(party);
   const options=(count,selected,start=0)=>Array.from({length:count},(_,i)=>i+start).map(n=>`<option value="${n}" ${n===selected?'selected':''}>${n===1&&start===1?'1 (solo)':n}</option>`).join('');
-  return `<section class="party-settings" aria-label="Party bonuses"><div><h2>Party bonuses</h2><p>Count party members currently in the game, including you.</p></div><div class="party-fields">
-    <label>People in your party<select class="form-control" data-party-setting="size">${options(16,party.size,1)}</select><small>+${Math.round((bonus.chips-1)*100)}% Upgrade Chips &middot; maximum +100%</small></label>
+  return `<section id="partyBonusesPanel" class="party-settings${localStorage.getItem('droid-archive-party-collapsed')==='1'?' collapsed':''}" aria-label="Party bonuses"><div><h2><img class="party-heading-icon" src="assets/base/Party.png" alt="">Party bonuses</h2><p>Count party members currently in the game, including you. Maximum 6 people.</p></div><div class="party-fields">
+    <label>People in your party<select class="form-control" data-party-setting="size">${options(6,party.size,1)}</select><small>+${Math.round((bonus.chips-1)*100)}% Upgrade Chips &middot; maximum +100%</small></label>
     <label>Pickaxe target<select class="form-control" data-party-setting="target"><option value="depot" ${party.target==='depot'?'selected':''}>Droid Depot</option><option value="fusion" ${party.target==='fusion'?'selected':''}>Fusion</option></select><small>Party pickaxe bonus applies to Droid Depots.</small></label>
     <label>Others hitting this depot<select class="form-control" data-party-setting="depotHitters" ${party.size===1||party.target==='fusion'?'disabled':''}>${options(party.size,party.depotHitters)}</select><small>+${Math.round((bonus.pickaxe-1)*100)}% pickaxe &middot; count active hitters only</small></label>
     <label class="party-scrap"><span><input type="checkbox" data-party-setting="scrapAtPartyBase" ${party.scrapAtPartyBase?'checked':''} ${party.size===1?'disabled':''}> Hitting a party member's Scrap Station</span><small>${bonus.scrap>1?'+50% scrap credits':'No scrap credit bonus at your own station'}</small></label>
   </div><p class="party-help">Chip rewards include your party bonus. Depot helpers boost pickaxe hits, not passive crafting or Base income. Scrap estimates use your recorded income and the station level entered.</p></section>`;
 }
+function partyToggleButtonHtml(){
+  const collapsed=localStorage.getItem('droid-archive-party-collapsed')==='1';
+  return `<button type="button" id="togglePartyPanel" class="btn secondary base-panel-toggle ${collapsed?'':'active'}" data-party-panel-toggle aria-controls="partyBonusesPanel" aria-expanded="${!collapsed}" title="${collapsed?'Show':'Hide'} Party bonuses">${commandIcon('party')}${collapsed?'Show':'Hide'} Party bonuses</button>`;
+}
+document.addEventListener('click',event=>{
+  const button=event.target.closest?.('[data-party-panel-toggle]');if(!button)return;
+  const panel=document.querySelector('#partyBonusesPanel');if(!panel)return;
+  const collapsed=panel.classList.toggle('collapsed');
+  localStorage.setItem('droid-archive-party-collapsed',collapsed?'1':'0');
+  button.outerHTML=partyToggleButtonHtml();
+});
 document.addEventListener('change',event=>{
   const input=event.target.closest?.('[data-party-setting]');if(!input)return;
   state.party=normaliseParty({...normaliseParty(state.party),[input.dataset.partySetting]:input.type==='checkbox'?input.checked:input.value});
@@ -2356,7 +2367,7 @@ function attachCollapsiblePanels(){
   const hasFusionOutlook=Boolean(document.querySelector('.fusion-outlook'));
   // The modern UI adds the icon itself from the button's text, via
   // modernButtonIcon, so this must not carry one of its own or it gets two.
-  if(actions)actions.innerHTML=`<button class="btn secondary base-panel-toggle ${baseViewIsMap()?'active':''}" id="toggleBaseMap">${baseViewIsMap()?'Hide Map':'Show Map'}</button><button class="btn secondary base-panel-toggle" id="toggleHealthPanel">Hide Health</button><button class="btn secondary base-panel-toggle" id="toggleScrapPanel">Hide Scrap</button><button class="btn secondary base-panel-toggle" id="toggleChipSellPanel">Hide Rebirth Prep</button><button class="btn secondary base-panel-toggle" id="toggleReplacementPanel">Hide Droid Calc</button><button class="btn secondary base-panel-toggle" id="toggleOutlookPanel">Hide Rebirth Outlook</button><button class="btn secondary base-panel-toggle" id="toggleNotificationsPanel">Hide Notifications</button>${hasGroupOutlook?'<button class="btn secondary base-panel-toggle" id="toggleGroupOutlookPanel">Hide Group Outlook</button>':''}${hasFusionOutlook?'<button class="btn secondary base-panel-toggle" id="toggleFusionOutlookPanel">Hide Fusion</button>':''}<button class="btn secondary base-panel-toggle" id="toggleCraftingPanel">Hide Crafting</button><button class="btn secondary base-panel-toggle" id="toggleBaseDetail">Hide Detail</button><button class="btn secondary" id="fusionMine" title="The Fusion droids your own droids can make">My fusions</button><button class="btn secondary" id="transferBase" title="Import or export Base" aria-label="Import or export Base"><span class="btn-label">Import / Export</span></button>`;
+  if(actions)actions.innerHTML=`<button class="btn secondary base-panel-toggle ${baseViewIsMap()?'active':''}" id="toggleBaseMap">${baseViewIsMap()?'Hide Map':'Show Map'}</button><button class="btn secondary base-panel-toggle" id="toggleHealthPanel">Hide Health</button>${partyToggleButtonHtml()}<button class="btn secondary base-panel-toggle" id="toggleScrapPanel">Hide Scrap</button><button class="btn secondary base-panel-toggle" id="toggleChipSellPanel">Hide Rebirth Prep</button><button class="btn secondary base-panel-toggle" id="toggleReplacementPanel">Hide Droid Calc</button><button class="btn secondary base-panel-toggle" id="toggleOutlookPanel">Hide Rebirth Outlook</button><button class="btn secondary base-panel-toggle" id="toggleNotificationsPanel">Hide Notifications</button>${hasGroupOutlook?'<button class="btn secondary base-panel-toggle" id="toggleGroupOutlookPanel">Hide Group Outlook</button>':''}${hasFusionOutlook?'<button class="btn secondary base-panel-toggle" id="toggleFusionOutlookPanel">Hide Fusion</button>':''}<button class="btn secondary base-panel-toggle" id="toggleCraftingPanel">Hide Crafting</button><button class="btn secondary base-panel-toggle" id="toggleBaseDetail">Hide Detail</button><button class="btn secondary" id="fusionMine" title="The Fusion droids your own droids can make">My fusions</button><button class="btn secondary" id="transferBase" title="Import or export Base" aria-label="Import or export Base"><span class="btn-label">Import / Export</span></button>`;
   document.querySelectorAll('.slot-replacement-target').forEach(button=>button.remove());
   const outlook=document.querySelector('.rebirth-summary-box'),next=outlook?.querySelector('.outlook-next'),viewRebirths=outlook?.querySelector(':scope > a.btn');
   if(next&&viewRebirths){const label=next.querySelector(':scope > .outlook-label'),row=document.createElement('div');row.className='outlook-next-title';label?.before(row);if(label)row.append(label);row.append(viewRebirths)}
@@ -3875,7 +3886,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-04-party',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-05-party-controls',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
   onResult:(message,stamp)=>{
@@ -4037,7 +4048,7 @@ function critCalcPage(){
     };
     app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Critical Calculator</div>
       <div class="base-heading"><div><p class="eyebrow">Pickaxe planner</p><h1>Critical Calculator</h1><p class="lead">What your pickaxe removes per swing, and which Nova crit upgrade is the best next buy.</p></div><button class="btn secondary" id="critReset">Reset to my Nova levels</button></div>
-      ${partyControlsHtml()}<section class="crit-inputs">
+      <div class="party-toggle-bar">${partyToggleButtonHtml()}</div>${partyControlsHtml()}<section class="crit-inputs">
         ${perk(CRIT_UPGRADE_IDS.chance,'critChance','Critical Chance',current.chanceLevel,`now ${(p.chance*100).toFixed(0)}% chance`)}
         ${perk(CRIT_UPGRADE_IDS.amount,'critAmount','Critical Amount',current.amountLevel,`crits do ×${(1+p.amount).toFixed(2)}`)}
         ${perk(CRIT_UPGRADE_IDS.multi,'critMulti','Multi Crit',current.multiLevel,`${p.rolls} crit roll${p.rolls===1?'':'s'} in total`)}
@@ -5070,7 +5081,7 @@ function syncSlotLabNav(){
 function route(){refreshKyberRelease(false);const rawHash=location.hash.slice(1),path=isAuthCallbackHash(rawHash)?'/':rawHash.split('?')[0]||'/',routeChanged=path!==lastRoutePath;lastRoutePath=path;if(path==='/todo'||path==='/donate'||path==='/groups'||path==='/companion')app.querySelector('.archive-timers')?.remove();document.querySelector('.sidebar').classList.remove('mobile-open');document.querySelector('#rebirthQuickBar')?.dispose?.();renderBaseSidebar(()=>route());renderCloudHeader();syncSlotLabNav();if(path==='/')home();else if(path==='/reset-password'){home();Promise.resolve(supabaseReady()||loadSupabaseConfig()).then(()=>showAuthModal('reset'))}else if(path==='/shared')archiveExperience.sharedPage();else if(path==='/site-stats')showSiteStats({host:app,client:()=>supabaseClient,allowed:()=>kyberPreviewVerified});else if(path==='/kyber')app.innerHTML=kyberIsReleased(kyberPreviewVerified)?kyberGuide({privateSections:kyberPreviewVerified}):'<h1>Update not available yet</h1><p>This update opens on September 26 at 21:00 BST.</p>';else if(path==='/companion')companionPage(app,()=>supabaseClient);else if(path==='/droids')droidsPage();else if(path==='/droidex')droidexPage();else if(path==='/fusion-lab')fusionLabPage();else if(path==='/nova-shop')novaShopPage();else if(path.startsWith('/nova-shop/'))novaDetailPage(path.split('/')[2]);else if(path==='/cantina-shop')cantinaShopPage();else if(path==='/groups')groupsPage();else if(path==='/galactic-reports'&&GALACTIC_REPORTS_ENABLED)galacticReportsPage();else if(path==='/todo')todoPage();else if(path==='/donate')donatePage();else if(path==='/testmap')basePageV2();else if(path==='/base')basePageV2();else if(path==='/droid-calc')droidCalcPage();else if(path==='/rebirth')rebirthPage();else if(path==='/crit-calc')critCalcPage();else if(path==='/slot-lab')slotLabPage();else if(path==='/optimise')optimisePage();else if(path==='/lucky-droid')luckyDroidPageV2();else if(path.startsWith('/droid/'))detailPage(path.split('/')[2]);else notFound();decorateSharedView();if(routeChanged){try{app.focus({preventScroll:true})}catch{app.focus()}scrollTo(0,0)}setTimeout(showPatchNotesOnce,80);archiveExperience?.checkpoint('Profile opened');publishCompanionState();window.uiHooks?.afterRoute?.(path)}
 const routeWithoutActiveNavigation=route;
 const activeNavigationHref=path=>path.startsWith('/droid/')||path==='/droids'?'#/droids':path.startsWith('/nova-shop')?'#/nova-shop':`#${path}`;
-const COMMAND_ART={crafting:'Crafting',map:'Map',health:'Health',scrap:'Scrap',chips:'Chips',calc:'DroidCalc',outlook:'Outlook',groupOutlook:'GroupOutlook',fusion:'Fusion',detail:'Detail',transfer:'ImportExport'};
+const COMMAND_ART={party:'Party',crafting:'Crafting',map:'Map',health:'Health',scrap:'Scrap',chips:'Chips',calc:'DroidCalc',outlook:'Outlook',groupOutlook:'GroupOutlook',fusion:'Fusion',detail:'Detail',transfer:'ImportExport'};
 const commandIcon=name=>{
   if(name==='notifications')return '<img class="command-icon" src="assets/nav/DroidexNotifications.png" alt="">';
   if(COMMAND_ART[name])return `<img class="command-icon command-art" src="assets/base/${COMMAND_ART[name]}.png" alt="">`;
@@ -5078,7 +5089,7 @@ const commandIcon=name=>{
   return `<svg class="command-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[name]||paths.generic}"/></svg>`
 };
 function modernMetricIcon(label){label=label.toLowerCase();if(label.includes('minute'))return'clock';if(label.includes('hour'))return'speed';if(label.includes('droid'))return'droids';if(label.includes('rebirth'))return'outlook';return'credits'}
-function modernButtonIcon(button){if(button.id==='toggleCraftingPanel')return'crafting';if(button.id==='toggleChipSellPanel')return'chips';const text=button.textContent.toLowerCase();if(button.id==='toggleNotificationsPanel')return'notifications';if(text.includes('need'))return'hint';if(text.includes('fusion'))return'fusion';if(text.includes('map'))return'map';if(text.includes('health'))return'health';if(text.includes('scrap'))return'scrap';if(text.includes('chip'))return'chips';if(text.includes('droid calc')||text.includes('replacement'))return'calc';if(text.includes('group outlook'))return'groupOutlook';if(text.includes('outlook'))return'outlook';if(text.includes('import')||text.includes('export'))return'transfer';if(text.includes('add'))return'add';if(text.includes('detail'))return'detail';return'generic'}
+function modernButtonIcon(button){if(button.id==='togglePartyPanel')return'party';if(button.id==='toggleCraftingPanel')return'crafting';if(button.id==='toggleChipSellPanel')return'chips';const text=button.textContent.toLowerCase();if(button.id==='toggleNotificationsPanel')return'notifications';if(text.includes('need'))return'hint';if(text.includes('fusion'))return'fusion';if(text.includes('map'))return'map';if(text.includes('health'))return'health';if(text.includes('scrap'))return'scrap';if(text.includes('chip'))return'chips';if(text.includes('droid calc')||text.includes('replacement'))return'calc';if(text.includes('group outlook'))return'groupOutlook';if(text.includes('outlook'))return'outlook';if(text.includes('import')||text.includes('export'))return'transfer';if(text.includes('add'))return'add';if(text.includes('detail'))return'detail';return'generic'}
 function modernBaseSettings(){
   const heading=app.querySelector('.base-heading'),stats=app.querySelector('.base-top');
   if(!heading||!stats||app.querySelector('.modern-base-settings'))return;
@@ -5338,7 +5349,7 @@ function refreshKyberRelease(rerender=true){
 }
 setInterval(()=>refreshKyberRelease(),10000);
 siteActivity=startSiteActivity({client:()=>supabaseClient});
-const DATA_VERSION='2026-10-04-party-perks';
+const DATA_VERSION='2026-10-05-party-controls-perks';
 const loadJson=async path=>{const response=await fetch(`${path}${path.includes('?')?'&':'?'}v=${DATA_VERSION}`);if(!response.ok)throw Error(`Unable to load ${path}`);return response.json()};
 function applyStellarData(droids,stellarStats={}){const rules=stellarStats._rules||{},images=stellarStats._images||{},round=value=>Math.round(value*1e6)/1e6;for(const droid of droids){if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;if(droid.rarity==='ICONIC'||droid.variants.STELLAR)continue;const base=droid.variants.DEFAULT,known=stellarStats[droid.name]||{},costMultiplier=rules.costMultiplier?.[droid.rarity],incomeMultiplier=rules.incomeMultiplier?.[droid.rarity],craftingMultiplier=rules.craftingMultiplier;droid.variants.STELLAR={cost:known.cost??(knownNumber(base?.cost)&&knownNumber(costMultiplier)?round(base.cost*costMultiplier):null),income:known.income??(knownNumber(base?.income)&&knownNumber(incomeMultiplier)?round(base.income*incomeMultiplier):null),craftingSeconds:known.craftingSeconds??(knownNumber(base?.craftingSeconds)&&knownNumber(craftingMultiplier)?round(base.craftingSeconds*craftingMultiplier):null)};if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;}return droids}
 async function loadEvents(){try{const index=await loadJson('data/events/index.json');if(!Array.isArray(index.events))return[];return Promise.all(index.events.map(file=>loadJson(`data/events/${file}`)))}catch{return[]}}

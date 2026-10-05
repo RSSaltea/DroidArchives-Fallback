@@ -2,6 +2,18 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-10-05-party-bonuses-workshop",
+      "date": "2026-10-05",
+      "title": "Party bonuses and new Workshop perks",
+      "summary": "Set your party size to include the new bonuses in your calculations.",
+      "changes": [
+        "Choose up to 6 people, including you. Upgrade Chip rewards gain 20% per other party member, up to 100%.",
+        "Select how many teammates are hitting the same Droid Depot for the pickaxe bonus, or enable the 50% credit bonus when using a party member's Scrap Station.",
+        "Use the Party bonuses button to show or hide the panel. Your settings stay saved with your profile.",
+        "Kyber Droid Sell and Huyang Hologram are now in the Nova Shop Workshop category with their icons and costs."
+      ]
+    },
+    {
       "id": "2026-09-29-fusion-room-multiplier",
       "date": "2026-09-29",
       "title": "Fusion slots and multiplier fixes",

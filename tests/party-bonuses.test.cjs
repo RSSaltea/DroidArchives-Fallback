@@ -6,6 +6,7 @@ test('party size includes the player and chip bonuses stop at 100%',async()=>{
  for(const size of [1,2,3,4,5,6,10,16])assert.equal(partyBonuses({size}).chips,1+Math.min(size-1,5)*.2);
  assert.deepEqual(normaliseParty({size:1,depotHitters:5,scrapAtPartyBase:true}),{size:1,depotHitters:0,scrapAtPartyBase:false,target:'depot'});
  assert.deepEqual(normaliseParty({size:'3',depotHitters:20}),{size:3,depotHitters:2,scrapAtPartyBase:false,target:'depot'});
+ assert.deepEqual(normaliseParty({size:16,depotHitters:15}),{size:6,depotHitters:5,scrapAtPartyBase:false,target:'depot'});
  for(const value of [null,{}, {size:-4},{size:Infinity},{size:'bad'}])assert.equal(normaliseParty(value).size,1);
 });
 test('only active depot helpers grant pickaxe bonus; Fusion and passive income are unchanged',async()=>{
