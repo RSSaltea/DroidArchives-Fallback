@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-10-07-nova-unlimited-levels",
+      "date": "2026-10-07",
+      "title": "Nova Shop levels beyond 50",
+      "summary": "Unlimited upgrades now show costs and rewards beyond level 50.",
+      "changes": [
+        "The shop initially shows levels 1-50. Keep pressing + past level 50 to reveal additional levels as you reach them.",
+        "Higher levels include their costs, rewards and running spending totals. Limited upgrades keep their normal caps."
+      ]
+    },
+    {
       "id": "2026-10-05-map-panel-polish",
       "date": "2026-10-05",
       "title": "Clearer droid details on the Base map",
