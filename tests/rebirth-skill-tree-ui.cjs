@@ -1,0 +1,85 @@
+const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict');
+let chromium;try{({chromium}=require('playwright'))}catch{({chromium}=require(path.join(process.env.LOCALAPPDATA,'DroidArchivesResearch/ui-test/node_modules/playwright')))}
+const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'app.js'),'utf8');
+const server=http.createServer((req,res)=>{
+ const pathname=new URL(req.url,'http://localhost').pathname,file=path.resolve(root,'.'+(pathname==='/'?'/index.html':pathname));
+ if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return}
+ fs.readFile(file,(err,data)=>{if(err){res.writeHead(404).end();return}res.writeHead(200,{'Content-Type':{'.html':'text/html','.js':'text/javascript','.json':'application/json','.css':'text/css','.png':'image/png','.svg':'image/svg+xml'}[path.extname(file)]||'application/octet-stream'});res.end(data)});
+});
+(async()=>{
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));const base=`http://127.0.0.1:${server.address().port}`;
+ const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe'});
+ try{
+ const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('https://**/*',r=>r.abort());
+ await page.route('**/data/patch-notes.json*',r=>r.fulfill({contentType:'application/json',body:'{"notes":[]}'}));
+ await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.prepTest={state,route,save,validateBaseImport,baseExport};'}));
+ await page.goto(base+'/#/base');await page.waitForFunction(()=>window.prepTest?.state.droids.length);
+ await page.evaluate(()=>{
+ const t=window.prepTest;t.state.cycle=0;t.state.rebirth=1;t.state.superRebirthGoal=12;
+ t.state.rebirths[0]=[{to:1,requiredDroids:[{droidName:'PIT',variant:'DEFAULT'}]},{to:5,requiredDroids:[{droidName:'LO',variant:'GOLD'}]},{to:15,requiredDroids:[{droidName:'LO',variant:'STELLAR'}]}];
+ t.state.owned=[{name:'PIT',variant:'DEFAULT',qty:1,built:true},{name:'LO',variant:'GOLD',qty:2,built:true}];t.state.rebirthTracker={notUsingBase:false,entries:{}};t.save();location.hash='#/rebirth';
+ });
+ const collection=page.locator('.rebirth-collection-card');
+ await page.waitForSelector('.rebirth-collection-card');
+ assert.equal(await collection.count(),2);
+ assert.match(await page.locator('.rebirth-tracker-metrics').innerText(),/2\/2/);
+ await page.locator('#rebirthTrackerSearch').fill('LO');
+ assert.equal(await page.locator('.rebirth-collection-card:visible').count(),1);
+ await page.locator('#rebirthTrackerSearch').fill('');
+ await page.locator('[data-tracker-filter="status"]').selectOption('sell');assert.equal(await page.locator('.rebirth-collection-card:visible').count(),1);
+ await page.locator('[data-tracker-filter="status"]').selectOption('all');
+ await page.locator('#toggleRebirthTree').check();
+ const pit=page.locator('[data-tree-name="PIT"]'),lo=page.locator('[data-tree-name="LO"]');
+ assert.equal(await pit.locator('.rebirth-tree-node').count(),1);
+ assert.match(await pit.innerText(),/No further rebirth/);
+ assert.match(await lo.innerText(),/Keep until after R 15/);
+ assert.match(await lo.innerText(),/chips from owned/);
+ await lo.locator('[data-tree-upgrade][data-variant="DIAMOND"]').click();
+ assert.equal(await page.evaluate(()=>window.prepTest.state.owned.find(x=>x.variant==='DIAMOND').qty),1);
+ assert.equal(await page.evaluate(()=>window.prepTest.state.owned.find(x=>x.variant==='GOLD').qty),1);
+ await lo.locator('[data-tree-sell]').click();assert.match(await lo.innerText(),/Owned: Gold/i);
+ await pit.locator('[data-tree-sell]').click();assert.match(await pit.innerText(),/Not owned/);
+ await page.locator('#toggleManualRebirth').check();
+ await lo.locator('[data-tree-check][data-variant="GOLD"]').check();
+ await page.locator('#treeCurrentRebirth').selectOption('5');
+ await lo.locator('[data-tree-sell]').click();assert.match(await lo.innerText(),/Not owned/);
+ assert.equal(await page.locator('#treeCurrentRebirth').inputValue(),'5');
+ assert.equal(await page.evaluate(()=>window.prepTest.state.rebirth),1,'manual progression does not change Base');
+ assert.equal(await page.evaluate(()=>window.prepTest.state.owned.find(x=>x.name==='LO').variant),'GOLD');
+ await lo.locator('[data-tree-check][data-variant="GOLD"]').check();
+ await lo.locator('[data-tree-upgrade][data-variant="STELLAR"]').click();
+ assert.match(await lo.innerText(),/Owned: Stellar/i);
+ await page.setViewportSize({width:390,height:844});
+ assert(await page.locator('.rebirth-skill-tree').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
+ await page.screenshot({path:path.join(root,'research/rebirth-skill-tree-mobile.png'),fullPage:true});
+ await page.setViewportSize({width:1440,height:1000});
+ await page.screenshot({path:path.join(root,'research/rebirth-skill-tree-desktop.png'),fullPage:true});
+ await page.reload();await page.waitForSelector('.rebirth-skill-tree');
+ assert.equal(await page.locator('#toggleRebirthTree').isChecked(),true);
+ assert.equal(await page.locator('#treeCurrentRebirth').inputValue(),'5');
+ await page.locator('#toggleRebirthTree').uncheck();
+ assert.equal(await page.locator('.rebirth-collection-grid').isVisible(),true);
+ const ownedBefore=await page.evaluate(()=>JSON.stringify(window.prepTest.state.owned));
+ await page.locator('[data-tracker-quality="LO"]').selectOption('DIAMOND');
+ await page.locator('#toggleRebirthTree').check();assert.match(await page.locator('[data-tree-name="LO"]').innerText(),/Owned: Diamond/i);
+ await page.locator('#toggleRebirthTree').uncheck();
+ await page.evaluate(()=>{const t=window.prepTest;t.state.rebirths[0]=[{to:6,requiredDroids:[{droidName:'LO',variant:'KYBER'}]}];t.route()});
+ await page.locator('[data-tracker-quality="LO"]').selectOption('KYBER');
+ await page.locator('[data-tracker-activate="LO"]').click();
+ assert.match(await page.locator('[data-tree-name="LO"]').innerText(),/Ready for its next requirement/);
+ assert.equal(await page.evaluate(()=>JSON.stringify(window.prepTest.state.owned)),ownedBefore);
+ await page.setViewportSize({width:390,height:844});
+ assert(await page.locator('.rebirth-droid-tracker').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
+ await page.screenshot({path:path.join(root,'research/rebirth-collection-mobile.png'),fullPage:true});
+ await page.setViewportSize({width:1440,height:1000});
+ await page.screenshot({path:path.join(root,'research/rebirth-collection-desktop.png'),fullPage:true});
+ await page.locator('[data-rebirth-section="requirements"]').click();
+ assert.equal(await page.locator('.rebirth-cycle-list').isVisible(),true);
+ assert.equal(await page.locator('#toggleRebirthTree').count(),0);
+ await page.locator('[data-rebirth-section="tracker"]').click();
+ assert.equal(await page.locator('.rebirth-collection-grid').isVisible(),true);
+ assert.deepEqual(errors,[]);console.log('PASS: tree nodes, full-cycle sell guidance, duplicate upgrades, selling, manual isolation, persistence and mobile layout');
+ }finally{await browser.close();server.close()}
+})().catch(e=>{console.error(e);server.close();process.exitCode=1});
+

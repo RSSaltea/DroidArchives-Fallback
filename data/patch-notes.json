@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-10-08-rebirth-droid-tracker",
+      "date": "2026-10-08",
+      "title": "Rebirth Droid Tracker and skill trees",
+      "summary": "Track owned qualities, plan upgrades, and see when each droid is finished with rebirths.",
+      "changes": [
+        "The Rebirth page now has a Droid Tracker alongside the rebirth-by-rebirth requirements. Search and filter compact collection cards, or switch the same progress into connected skill trees.",
+        "Record owned qualities, upgrades and sales using your Base or the separate manual tracker. Upgrade totals show chips needed for owned droids through your next rebirth and selected goal.",
+        "See every rebirth that needs each droid, including requirements beyond your goal. Sell finished droids or choose to sell now and reacquire them later."
+      ]
+    },
+    {
       "id": "2026-10-07-nova-unlimited-levels",
       "date": "2026-10-07",
       "title": "Nova Shop levels beyond 50",
