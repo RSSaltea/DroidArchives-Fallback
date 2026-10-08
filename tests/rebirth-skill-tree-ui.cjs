@@ -75,10 +75,17 @@ const server=http.createServer((req,res)=>{
  await page.setViewportSize({width:1440,height:1000});
  await page.screenshot({path:path.join(root,'research/rebirth-collection-desktop.png'),fullPage:true});
  await page.locator('[data-rebirth-section="requirements"]').click();
+ await page.waitForURL('**/#/rebirth/reqs');
+ await page.reload();await page.waitForSelector('.rebirth-cycle-list');
  assert.equal(await page.locator('.rebirth-cycle-list').isVisible(),true);
  assert.equal(await page.locator('#toggleRebirthTree').count(),0);
  await page.locator('[data-rebirth-section="tracker"]').click();
+ await page.waitForURL('**/#/rebirth/tracker');
  assert.equal(await page.locator('.rebirth-collection-grid').isVisible(),true);
+ await page.goBack();await page.waitForURL('**/#/rebirth/reqs');
+ assert.equal(await page.locator('.rebirth-cycle-list').isVisible(),true);
+ await page.goForward();await page.waitForURL('**/#/rebirth/tracker');
+ await page.waitForSelector('.rebirth-collection-grid');
  assert.deepEqual(errors,[]);console.log('PASS: tree nodes, full-cycle sell guidance, duplicate upgrades, selling, manual isolation, persistence and mobile layout');
  }finally{await browser.close();server.close()}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1});
