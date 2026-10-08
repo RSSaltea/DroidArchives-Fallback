@@ -1218,3 +1218,8 @@ html[data-ui-style] .companion-activity .btn.companion-activity-button.active,ht
 .rebirth-tracker-explainer>summary{cursor:pointer;line-height:20px}
 .rebirth-tracker-explainer .rebirth-tracker-help{font-size:11px;margin:4px 0;line-height:1.4}
 @media(max-width:600px){.rebirth-tracker-overview .rebirth-tracker-metrics{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:8px}.rebirth-tracker-overview .rebirth-tracker-metrics>div:nth-child(3){border-right:0}.rebirth-tracker-overview .rebirth-tracker-metrics>div:nth-child(4){padding-left:0}}
+.rebirth-quality-buttons{display:flex;flex-wrap:wrap;gap:4px}
+.rebirth-quality-buttons button{padding:5px 7px;min-height:28px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);font:600 11px Inter,sans-serif;cursor:pointer}
+.rebirth-quality-buttons button[aria-pressed="true"]{border-color:var(--green);background:color-mix(in srgb,var(--green) 18%,var(--panel));box-shadow:inset 0 0 0 1px var(--green);opacity:1;cursor:default}
+.rebirth-quality-buttons button:hover:not(:disabled),.rebirth-quality-buttons button:focus-visible{border-color:var(--green);outline:2px solid var(--green);outline-offset:1px}
+.rebirth-summary-controls .rebirth-toggle[hidden]{display:none}
