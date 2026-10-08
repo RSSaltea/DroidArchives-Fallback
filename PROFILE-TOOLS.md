@@ -47,3 +47,13 @@ continue working.
 Validation: `node tests/archive-experience-ui.cjs` (Playwright; optional
 `CHROME_PATH`), and `node --test desktop/test/droid-usefulness.test.js
 desktop/test/ipc-handlers.test.js desktop/test/droid-reader.test.js`.
+
+The companion card bridge also offers Base placement, Work, Companion, Sell and
+manual Tracker actions. `__companionCardInfo` returns all remaining requirements
+in the selected cycle, individual upgrade/activation costs and a profile snapshot
+token. `__companionCardAction` rejects expired tokens, profile changes, invalid
+slots and ambiguous duplicates. Work calls the same `predictWorkLanding` and
+`optimiseRouteRules` as Optimise. Slot selection includes captured floor positions
+and numbered room slots. Base/Tracker writes happen in the visible Archives
+view through the normal save path; they never issue game input. The companion
+settings toggle and Sell hotkey require a newly built companion.

@@ -5443,6 +5443,69 @@ function archiveDroidUsefulness(name,variant){
   if(!hints.length)hints.push('No missing collection/rebirth requirement or safe income improvement found');
   return{ready:true,profile:activeProfile()?.name||'Current profile',name,variant,hints,incomeGain:best?.gain||0,rebirths:needs.map(r=>r.at),fusion:completed.map(r=>r.name),qualityFusion,note:'Based on your recorded Base; income assumes an extra, fully built copy.'};
 }
+// Card operations use a snapshot so a late click cannot change a different profile or copy.
+const companionCardSnapshots=new Map();
+const companionCardStamp=()=>JSON.stringify([state.cloud.user?.id,state.cloud.activeProfileId,profileDataFromState()]);
+function companionCardInfo(name,variant,notUsingBase=false){
+  const d=state.droids.find(d=>d.name===name);
+  if(!d||!state.rebirths[state.cycle]?.length||!OWNED_VARIANTS.includes(variant)||!d.variants?.[variant]||state.cloud.reconnecting||state.sharedView)return{ready:false,message:'Open your own loaded Archives profile and a recognised card.'};
+  const current=notUsingBase?manualCurrentRebirth():state.rebirth;
+  const requirements=(state.rebirths[state.cycle]||[]).flatMap(r=>r.to>current?(r.requiredDroids||[]).filter(q=>q.droidName===name).map(q=>({at:r.to,variant:q.variant})):[]);
+  const needs=requirements.map(req=>{const ready=rebirthVariantReady(variant,req.variant),chips=chipsToVariant(d,variant,req.variant);return{...req,chips,ready,text:`R ${req.at}: ${variantLabel(req.variant)}${baseVariant(req.variant)==='KYBER'?' (active)':''} - ${ready?'Ready':rebirthActionText(d,variant,req.variant,chips)}`};});
+  const p=placements(),matches=[...p.placed,...p.overflow].filter(u=>u.name===name&&u.variant===variant).map(u=>({key:`${u.source}:${u.unit}`,station:u.station,slot:u.slot,label:u.station?`${placeName(u.station)} ${u.slot+1}`:'Unplaced copy',locked:Boolean(u.lockedSlot),building:isBuilding(u)}));
+  const token=crypto.randomUUID();
+  companionCardSnapshots.set(token,{stamp:companionCardStamp(),name,variant,notUsingBase});
+  if(companionCardSnapshots.size>20)companionCardSnapshots.delete(companionCardSnapshots.keys().next().value);
+  const slots=Object.keys(SLOT_RULES).filter(station=>optimiseRouteRules().canUse({name,variant},station)).flatMap(station=>stationSlotIndices(station).map(slot=>{const u=p.placed.find(x=>x.station===station&&x.slot===slot);return{station,slot,label:placeName(station),occupant:u?`${u.name} (${variantLabel(u.variant)})`:null,key:u?`${u.source}:${u.unit}`:null,protected:Boolean(u&&(u.lockedSlot||isBuilding(u))),position:slotPosition({station,slot})};}));
+  return{ready:true,token,profile:activeProfile()?.name||'Current profile',current,cycle:state.cycle+1,needs,safeToSell:!needs.length&&!isIconic(d),sellable:!isIconic(d),matches,slots,notUsingBase};
+}
+function companionCardAction(request={}){
+  const snapshot=companionCardSnapshots.get(request.token),fail=message=>({ok:false,message});
+  if(!snapshot||snapshot.stamp!==companionCardStamp()||state.cloud.reconnecting||state.sharedView)return fail('Your profile changed. Refresh the card before trying again.');
+  const {name,variant,notUsingBase}=snapshot,d=state.droids.find(d=>d.name===name),action=request.action;
+  if(request.droid!==undefined&&(request.droid!==name||request.variant!==variant))return fail('The scanned card changed. Refresh it before trying again.');
+  if(action==='tracker'){
+    if(!notUsingBase)return fail('Enable Not using base page to add to Tracker.');
+    if(!(state.rebirths[state.cycle]||[]).some(r=>(r.requiredDroids||[]).some(req=>req.droidName===name)))return fail('This droid has no requirements in the current cycle.');
+    const current=manualCurrentRebirth();
+    state.rebirthTracker.notUsingBase=true;
+    state.rebirthTracker.currentByCycle[state.cycle]=current;
+    for(const r of state.rebirths[state.cycle]||[])for(const req of r.requiredDroids||[])if(req.droidName===name){state.rebirthTracker.entries[rebirthTrackerKey(r.to,req)]={variant,complete:false,kyberActive:isActiveKyber(variant)};}
+    save();route();companionCardSnapshots.delete(request.token);return{ok:true,message:'Added to Droid Tracker',info:companionCardInfo(name,variant,true)};
+  }
+  if(notUsingBase)return fail('Base actions are disabled in Tracker mode.');
+  const p=placements(),all=[...p.placed,...p.overflow],matches=all.filter(u=>u.name===name&&u.variant===variant);
+  const source=request.source?matches.find(u=>`${u.source}:${u.unit}`===request.source):matches.length===1?matches[0]:null;
+  if(action!=='add'&&!source)return fail(matches.length?'Choose which matching copy is on the card.':'Add this droid to Base first.');
+  if(action==='sell'){
+    if(isIconic(d))return fail('Iconic droids cannot be sold.');
+    const indices=materializePlacements(p);state.owned.splice(indices.get(`${source.source}:${source.unit}`),1);
+  }else{
+    let target={station:request.station,slot:request.slot},assumed=false;
+    if(action==='work'){
+      if(isBuilding(source))return fail('Mark this droid as built on Base before sending it to work.');
+      target=predictWorkLanding(source,p.placed,optimiseRouteRules());
+      if(!target)return fail('No available Work slot. Check your recorded Base.');
+      assumed=Boolean(target.assumed);
+    }else if(!['add','move','companion'].includes(action))return fail('Unknown card action.');
+    if(action==='companion'&&target.station!=='COMPANION')return fail('Choose a Companion slot.');
+    if(!stationSlotIndices(target.station).includes(target.slot)||!optimiseRouteRules().canUse({name,variant},target.station))return fail('That slot is not available for this droid.');
+    const occupant=p.placed.find(u=>u.station===target.station&&u.slot===target.slot);
+    if(action==='add'&&occupant)return fail('Choose an empty slot to add a new copy.');
+    if(occupant&&occupant!==source&&(occupant.lockedSlot||isBuilding(occupant)))return fail('That slot contains a locked or unfinished droid.');
+    if(occupant&&occupant!==source&&(!source?.station||!optimiseRouteRules().canUse(occupant,source.station)))return fail('These two droids cannot swap slots. Choose an empty slot.');
+    const indices=materializePlacements(p);
+    if(action==='add')state.owned.push({name,variant,qty:1,built:true,preferred:target.station,preferredSlot:target.slot});
+    else{
+      const row=state.owned[indices.get(`${source.source}:${source.unit}`)];row.preferred=target.station;row.preferredSlot=target.slot;
+      if(occupant&&occupant!==source){const other=state.owned[indices.get(`${occupant.source}:${occupant.unit}`)];other.preferred=source.station;other.preferredSlot=source.slot;}
+    }
+    save();route();companionCardSnapshots.delete(request.token);
+    return{ok:true,message:`${action==='add'?'Added':'Moved'} to ${placeName(target.station)} ${target.slot+1}${assumed?' (predicted; correct the location if needed)':''}`,info:companionCardInfo(name,variant,false),location:{station:target.station,slot:target.slot}};
+  }
+  save();route();companionCardSnapshots.delete(request.token);return{ok:true,message:'Removed one copy from Base',info:companionCardInfo(name,variant,false)};
+}
+if(companionMode){window.__companionCardInfo=companionCardInfo;window.__companionCardAction=companionCardAction;}
 archiveExperience=createArchiveExperience({
   ready:()=>state.droids.length>0,userId:()=>state.cloud.user?.id,restoring:()=>state.cloud.reconnecting,shared:()=>Boolean(state.sharedView),
   profile:activeProfile,data:profileDataFromState,blank:blankProfileData,cycles:()=>state.rebirths,droids:()=>state.droids,
