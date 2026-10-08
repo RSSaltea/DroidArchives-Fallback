@@ -57,3 +57,9 @@ slots and ambiguous duplicates. Work calls the same `predictWorkLanding` and
 and numbered room slots. Base/Tracker writes happen in the visible Archives
 view through the normal save path; they never issue game input. The companion
 settings toggle and Sell hotkey require a newly built companion.
+
+Lounge and automatic Companion landing also use the shared station predictor.
+The desktop reader can observe enabled in-game button clicks and submit the
+corresponding Base update; a short-lived click receipt allows a recognised
+action to finish after Fortnite closes its card. This observes mouse clicks
+without sending game input. Grey or stale button states cannot produce receipts.

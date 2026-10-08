@@ -5487,6 +5487,10 @@ function companionCardAction(request={}){
       target=predictWorkLanding(source,p.placed,optimiseRouteRules());
       if(!target)return fail('No available Work slot. Check your recorded Base.');
       assumed=Boolean(target.assumed);
+    }else if(action==='lounge'||action==='companion'&&request.auto){
+      target=predictStationLanding(source,p.placed,action==='lounge'?'LOUNGE':'COMPANION',optimiseRouteRules());
+      if(!target)return fail('No available destination in your recorded Base. Correct its location on the map.');
+      assumed=Boolean(target.assumed);
     }else if(!['add','move','companion'].includes(action))return fail('Unknown card action.');
     if(action==='companion'&&target.station!=='COMPANION')return fail('Choose a Companion slot.');
     if(!stationSlotIndices(target.station).includes(target.slot)||!optimiseRouteRules().canUse({name,variant},target.station))return fail('That slot is not available for this droid.');
