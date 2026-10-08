@@ -29,7 +29,7 @@ const server=http.createServer((req,res)=>{
  await page.locator('#rebirthTrackerSearch').fill('');
  await page.locator('[data-tracker-filter="status"]').selectOption('sell');assert.equal(await page.locator('.rebirth-collection-card:visible').count(),1);
  await page.locator('[data-tracker-filter="status"]').selectOption('all');
- await page.locator('#toggleRebirthTree').check();
+ await page.locator('#toggleRebirthTree').check();await page.waitForURL('**/#/rebirth/tracker/skilltree');
  const pit=page.locator('[data-tree-name="PIT"]'),lo=page.locator('[data-tree-name="LO"]');
  assert.equal(await pit.locator('.rebirth-tree-node').count(),1);
  assert.match(await pit.innerText(),/No further rebirth/);
@@ -58,12 +58,12 @@ const server=http.createServer((req,res)=>{
  await page.reload();await page.waitForSelector('.rebirth-skill-tree');
  assert.equal(await page.locator('#toggleRebirthTree').isChecked(),true);
  assert.equal(await page.locator('#treeCurrentRebirth').inputValue(),'5');
- await page.locator('#toggleRebirthTree').uncheck();
+ await page.locator('#toggleRebirthTree').uncheck();await page.waitForURL('**/#/rebirth/tracker');
  assert.equal(await page.locator('.rebirth-collection-grid').isVisible(),true);
  const ownedBefore=await page.evaluate(()=>JSON.stringify(window.prepTest.state.owned));
  await page.locator('[data-tracker-quality="LO"]').selectOption('DIAMOND');
- await page.locator('#toggleRebirthTree').check();assert.match(await page.locator('[data-tree-name="LO"]').innerText(),/Owned: Diamond/i);
- await page.locator('#toggleRebirthTree').uncheck();
+ await page.locator('#toggleRebirthTree').check();await page.waitForURL('**/#/rebirth/tracker/skilltree');assert.match(await page.locator('[data-tree-name="LO"]').innerText(),/Owned: Diamond/i);
+ await page.locator('#toggleRebirthTree').uncheck();await page.waitForURL('**/#/rebirth/tracker');
  await page.evaluate(()=>{const t=window.prepTest;t.state.rebirths[0]=[{to:6,requiredDroids:[{droidName:'LO',variant:'KYBER'}]}];t.route()});
  await page.locator('[data-tracker-quality="LO"]').selectOption('KYBER');
  await page.locator('[data-tracker-activate="LO"]').click();
