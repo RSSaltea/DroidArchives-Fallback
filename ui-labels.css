@@ -1,0 +1,13 @@
+/* Shared presentation for static pages and dynamically rendered controls.
+   Preserve acronyms (Droidex, BB-8, Kyber) and the underlying text/values. */
+:is(h1,h2,h3,h4,h5,h6,button,summary,legend,label,select,option,
+    .btn,.button,nav a,.sidebar>a,.side-title,.breadcrumbs,
+    .rebirth-tracker-metrics span,.rebirth-collection-quality){
+  text-transform:capitalize!important;
+}
+/* Labels may contain instructions or editable values; those remain sentence case. */
+:is(input,textarea,code,pre),label :is(small,p,.picker-hint,.form-error),
+button :is(small,p),summary :is(small,p){
+  text-transform:none!important;
+}
+input::placeholder,textarea::placeholder{ text-transform:none; }
