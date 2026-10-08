@@ -1,5 +1,7 @@
 export const EVENT_ID='gonk-o-ween-2026';
-export const TREAT_COOLDOWN_MS=4*60*60*1000;
+export const TREAT_DAY_MS=24*60*60*1000;
+export const treatDay=(now=Date.now())=>Math.floor(now/TREAT_DAY_MS);
+export const nextTreatReset=(now=Date.now())=>(treatDay(now)+1)*TREAT_DAY_MS;
 const art=name=>`assets/events/gonk-o-ween/${name}.png`;
 export const TREAT_ICON=art('T_Icon_Treat');
 export const EVENT_ITEMS=[
@@ -29,15 +31,18 @@ export const EVENT_ITEMS=[
 ].map(([id,name,category,price,image])=>({id,name,category,price,image:image?art(image):id.includes('crafting')?'assets/nova-shop/CraftingBoost.png':id.includes('surge')?'assets/nova-shop/SurgeBoost.png':null}));
 const ids=new Set(EVENT_ITEMS.map(item=>item.id));
 const safeInt=(value,max=1000000000)=>Number.isFinite(Number(value))?Math.min(max,Math.max(0,Math.floor(Number(value)))):0;
-export function normaliseEventProgress(value){
+export function normaliseEventProgress(value,now=Date.now()){
   const data=value&&typeof value==='object'&&value.eventId===EVENT_ID?value:{};
-  const checks=key=>Array.from({length:5},(_,i)=>data[key]?.[i]===true);
+  // Migrate the old four-hour reminder using its original collection time.
+  const today=treatDay(now),legacy=safeInt(data.readyAt,8640000000000000);
+  const visitDay=Number.isInteger(data.visitDay)&&data.visitDay>=0?Math.min(today,data.visitDay):legacy?treatDay(legacy-4*60*60*1000):today;
+  const checks=key=>Array.from({length:5},(_,i)=>visitDay===today&&data[key]?.[i]===true);
   const selection=key=>[...new Set(Array.isArray(data[key])?data[key].filter(id=>ids.has(id)):[])];
-  return {eventId:EVENT_ID,baseVisits:checks('baseVisits'),outskirtsVisits:checks('outskirtsVisits'),readyAt:safeInt(data.readyAt,8640000000000000),alerts:data.alerts===true,treats:safeInt(data.treats),wishlist:selection('wishlist'),owned:selection('owned')};
+  return {eventId:EVENT_ID,baseVisits:checks('baseVisits'),outskirtsVisits:checks('outskirtsVisits'),visitDay,alerts:data.alerts===true,treats:safeInt(data.treats),wishlist:selection('wishlist'),owned:selection('owned')};
 }
 export function eventRoundStatus(value,now=Date.now()){
-  const data=normaliseEventProgress(value),completed=[...data.baseVisits,...data.outskirtsVisits].filter(Boolean).length;
-  return {completed,baseTreats:completed*2,remainingMs:Math.max(0,data.readyAt-now),ready:data.readyAt>0&&data.readyAt<=now,started:data.readyAt>0};
+  const data=normaliseEventProgress(value,now),completed=[...data.baseVisits,...data.outskirtsVisits].filter(Boolean).length;
+  return {completed,baseTreats:completed*2,remainingMs:nextTreatReset(now)-now,ready:data.visitDay<treatDay(now),started:true};
 }
 export function eventWishlistTotals(value){
   const data=normaliseEventProgress(value),wanted=EVENT_ITEMS.filter(item=>data.wishlist.includes(item.id)&&!data.owned.includes(item.id));

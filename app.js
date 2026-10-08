@@ -1,6 +1,6 @@
 import { novaVisibleLevels, novaTotalCost } from './nova-levels.js?v=2026-10-07-unlimited';
-import {normaliseEventProgress} from './event-data.js?v=2026-10-05-event';
-import {eventPage,startEventReminders} from './event-page.js?v=2026-10-05-event';
+import {normaliseEventProgress} from './event-data.js?v=2026-10-08-daily-treats';
+import {eventPage,startEventReminders} from './event-page.js?v=2026-10-08-daily-treats';
 import { companionPage } from './companion-page.js?v=2026-09-30-downloads';
 import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES, normaliseParty, partyBonuses } from './economy.js?v=2026-10-05-party-controls';
 import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-09-26-crafting';

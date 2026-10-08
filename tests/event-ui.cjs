@@ -12,10 +12,11 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
   await context.addInitScript(ids=>localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(ids)),JSON.parse(fs.readFileSync('data/patch-notes.json','utf8')).notes.map(n=>n.id));
   const url=`http://127.0.0.1:${server.address().port}/${shell}#/event`;
   await page.goto(url);await page.locator('.event-page').waitFor();
-  const before=Date.now();await page.locator('[data-event-visit]').first().check();
-  const ready=await page.evaluate(()=>eventTest.state.eventProgress.readyAt);assert(ready>=before+14400000&&ready<=Date.now()+14400000);
-  await page.locator('[data-event-visit]').nth(1).check();assert.equal(await page.evaluate(()=>eventTest.state.eventProgress.readyAt),ready);
-  await page.locator('#eventRemaining').fill('02:30');await page.locator('[data-event-adjust]').click();assert(await page.locator('[data-event-visit]').first().isChecked());assert.match(await page.locator('[data-event-countdown]').innerText(),/^02:30/);
+  await page.locator('[data-event-visit]').first().check();
+  const day=await page.evaluate(()=>eventTest.state.eventProgress.visitDay);assert.equal(day,Math.floor(Date.now()/86400000));
+  await page.locator('[data-event-visit]').nth(1).check();assert.equal(await page.evaluate(()=>eventTest.state.eventProgress.visitDay),day);
+  assert.match(await page.locator('.event-section-heading').first().innerText(),/00:00 UTC/);
+  assert.equal(await page.locator('#eventRemaining').count(),0);
   const stamp=await page.evaluate(()=>eventTest.optimiseInputStamp());
   await page.locator('[data-event-wish="bat-hat"]').click();await page.locator('[data-event-wish="ghoulish-gonk"]').click();await page.locator('[data-event-wish="event-pass"]').click();await page.locator('[data-event-wish="reward-treats"]').click();
   await page.locator('#eventTreatBalance').fill('30');await page.locator('#eventTreatBalance').dispatchEvent('change');
@@ -26,16 +27,21 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
   await page.reload();await page.locator('.event-page').waitFor();assert.equal(await page.locator('#eventTreatBalance').inputValue(),'30');assert(await page.locator('[data-event-visit]').nth(1).isChecked());
   await page.evaluate(()=>{eventTest.applyProfileData(eventTest.blankProfileData());eventTest.route()});assert.equal(await page.locator('#eventTreatBalance').inputValue(),'0');
   await page.evaluate(p=>{eventTest.applyProfileData(p);eventTest.route()},saved);assert.equal(await page.locator('#eventTreatBalance').inputValue(),'30');
-  assert.equal((await page.evaluate(()=>eventTest.validateBaseImport({owned:[]}))).eventProgress.readyAt,0);
+  assert.equal((await page.evaluate(()=>eventTest.validateBaseImport({owned:[]}))).eventProgress.visitDay,day);
   await page.locator('#eventShopSearch').fill('werewolf');assert.equal(await page.locator('.event-shop-card').count(),1);await page.locator('#eventShopSearch').fill('');
-  await page.locator('[data-event-clear]').click();await page.locator('[data-event-start]').click();assert.equal(await page.locator('[data-event-visit]:checked').count(),0);
+  await page.locator('[data-event-start]').click();assert.equal(await page.locator('[data-event-visit]:checked').count(),0);
   // Exercise the real reminder scheduler with isolated progress and notification spies.
   const alertResult=await page.evaluate(async()=>{
-   const {startEventReminders}=await import('./event-page.js?v=2026-10-05-event');
-   let data={eventId:'gonk-o-ween-2026',readyAt:Date.now()-1,alerts:true},key='event-ui-test',count=0;
+   const {startEventReminders}=await import('./event-page.js?v=2026-10-08-daily-treats');
+   let data={eventId:'gonk-o-ween-2026',visitDay:Math.floor(Date.now()/86400000)-1,alerts:true},key='event-ui-test',count=0;
    const runner=startEventReminders({getProgress:()=>data,getProfileKey:()=>key,notify:()=>count++});
-   await runner.tick();await runner.tick();const once=count;data={...data,readyAt:data.readyAt-1000};await runner.tick();key+='second-profile';await runner.tick();runner.dispose();return {once,count};
-  });assert.deepEqual(alertResult,{once:1,count:3});
+   await runner.tick();await runner.tick();const once=count;data={...data,visitDay:data.visitDay-1};await runner.tick();key+='second-profile';await runner.tick();runner.dispose();return {once,count};
+  });assert.deepEqual(alertResult,{once:1,count:2});
+  // Advance across midnight while the page remains mounted.
+  await page.locator('[data-event-visit]').first().check();
+  await page.evaluate(async()=>{const realNow=Date.now;try{Date.now=()=> (Math.floor(realNow()/86400000)+1)*86400000;await eventTest.eventReminders.tick();}finally{Date.now=realNow;}});
+  assert.equal(await page.locator('[data-event-visit]:checked').count(),0);
+  assert.equal(await page.locator('#eventTreatBalance').inputValue(),'30');
   fs.mkdirSync(path.join(root,'research/uefn/october04/ui'),{recursive:true});
   for(const width of [1920,1280,1000,650,390,320]){
    await page.setViewportSize({width,height:950});await page.evaluate(()=>scrollTo(0,0));
