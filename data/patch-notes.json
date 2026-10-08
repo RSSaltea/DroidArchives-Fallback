@@ -4,12 +4,15 @@
     {
       "id": "2026-10-08-rebirth-droid-tracker",
       "date": "2026-10-08",
-      "title": "Rebirth Droid Tracker and skill trees",
-      "summary": "Track owned qualities, plan upgrades, and see when each droid is finished with rebirths.",
+      "title": "Introducing the Rebirth Droid Tracker",
+      "summary": "Plan your rebirth journey with a dedicated Droid Tracker: track owned qualities, follow upgrade paths, and focus on the droids you still need.",
       "changes": [
-        "The Rebirth page now has a Droid Tracker alongside the rebirth-by-rebirth requirements. Search and filter compact collection cards, or switch the same progress into connected skill trees.",
-        "Record owned qualities, upgrades and sales using your Base or the separate manual tracker. Upgrade totals show chips needed for owned droids through your next rebirth and selected goal.",
-        "See every rebirth that needs each droid, including requirements beyond your goal. Sell finished droids or choose to sell now and reacquire them later."
+        "Open Droid Tracker on the Rebirth page and choose compact Collection cards or Skill Tree View. Both layouts share your progress, with separate links for Rebirth Requirements, the tracker, and skill trees.",
+        "Droids are organised into Common, Rare, Epic, Legendary and Mythic rows. Search by name and select multiple rarities, types and statuses to focus on your next steps.",
+        "Record the quality you own with one-click buttons in Collection view, or check off qualities along a connected skill tree. Track upgrades, Kyber activation and sales using your Base or a separate manual tracker.",
+        "Set your Current Rebirth to see only droids with requirements still ahead. Finished droids disappear from the tracker without being removed from your inventory; droids needed later in the cycle remain visible, including those beyond your selected goal.",
+        "See each droid?s required rebirths, chip costs between qualities, and upgrade costs from your owned copy. Choose Sell Now & Reacquire Later when you want to free a slot and find a replacement before its next requirement.",
+        "A compact, collapsible overview shows owned droids, rebirth readiness, upgrade chips for your next rebirth and goal, and droids still to find. Chip totals cover owned upgrades; missing droids and Kyber activation crystals are separate. Your collapsed preference is remembered."
       ]
     },
     {
