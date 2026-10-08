@@ -1206,3 +1206,15 @@ html[data-ui-style] .companion-activity .btn.companion-activity-button.active,ht
 .rebirth-droid-tracker .rebirth-collection-actions:empty{display:none}
 .rebirth-droid-tracker .rebirth-tree .btn,.rebirth-droid-tracker .rebirth-collection-card .btn{padding:6px 8px;font-size:11px;line-height:1.4;min-height:28px}
 @media(max-width:600px){.rebirth-droid-tracker .rebirth-tree-grid,.rebirth-droid-tracker .rebirth-collection-grid{grid-template-columns:1fr}}
+.rebirth-tracker-overview{margin:8px 0;border:1px solid var(--line);border-radius:6px;padding:6px 10px;background:var(--panel)}
+.rebirth-tracker-overview>summary{cursor:pointer;font-size:12px;font-weight:600;line-height:22px}
+.rebirth-tracker-overview .rebirth-tracker-metrics{grid-template-columns:repeat(6,minmax(0,1fr));gap:0;margin:6px 0}
+.rebirth-tracker-overview .rebirth-tracker-metrics>div{border:0;border-right:1px solid var(--line);border-radius:0;background:transparent;padding:2px 10px;gap:2px}
+.rebirth-tracker-overview .rebirth-tracker-metrics>div:first-child{padding-left:0}
+.rebirth-tracker-overview .rebirth-tracker-metrics>div:last-child{border-right:0}
+.rebirth-tracker-overview .rebirth-tracker-metrics strong{font-size:16px;line-height:20px}
+.rebirth-tracker-overview .rebirth-tracker-metrics span{font-size:11px;line-height:16px}
+.rebirth-tracker-explainer{font-size:11px;color:var(--muted)}
+.rebirth-tracker-explainer>summary{cursor:pointer;line-height:20px}
+.rebirth-tracker-explainer .rebirth-tracker-help{font-size:11px;margin:4px 0;line-height:1.4}
+@media(max-width:600px){.rebirth-tracker-overview .rebirth-tracker-metrics{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:8px}.rebirth-tracker-overview .rebirth-tracker-metrics>div:nth-child(3){border-right:0}.rebirth-tracker-overview .rebirth-tracker-metrics>div:nth-child(4){padding-left:0}}

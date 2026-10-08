@@ -29,7 +29,7 @@ const server=http.createServer((req,res)=>{
  await page.locator('#rebirthTrackerSearch').fill('');
  await page.locator('[data-tracker-filter="status"]').selectOption('sell');assert.equal(await page.locator('.rebirth-collection-card:visible').count(),1);
  await page.locator('[data-tracker-filter="status"]').selectOption('all');
- await page.locator('#toggleRebirthTree').check();await page.waitForURL('**/#/rebirth/tracker/skilltree');
+ await page.locator('#toggleRebirthTree').check();await page.waitForURL('**/#/rebirth/tracker/skilltree');await page.waitForSelector('.rebirth-tree-node');
  const pit=page.locator('[data-tree-name="PIT"]'),lo=page.locator('[data-tree-name="LO"]');
  assert.equal(await pit.locator('.rebirth-tree-node').count(),1);
  assert.match(await pit.innerText(),/No further rebirth/);
@@ -58,12 +58,12 @@ const server=http.createServer((req,res)=>{
  await page.reload();await page.waitForSelector('.rebirth-skill-tree');
  assert.equal(await page.locator('#toggleRebirthTree').isChecked(),true);
  assert.equal(await page.locator('#treeCurrentRebirth').inputValue(),'5');
- await page.locator('#toggleRebirthTree').uncheck();await page.waitForURL('**/#/rebirth/tracker');
+ await page.locator('#toggleRebirthTree').uncheck();await page.waitForURL('**/#/rebirth/tracker');await page.waitForSelector('.rebirth-collection-grid');
  assert.equal(await page.locator('.rebirth-collection-grid').isVisible(),true);
  const ownedBefore=await page.evaluate(()=>JSON.stringify(window.prepTest.state.owned));
  await page.locator('[data-tracker-quality="LO"]').selectOption('DIAMOND');
- await page.locator('#toggleRebirthTree').check();await page.waitForURL('**/#/rebirth/tracker/skilltree');assert.match(await page.locator('[data-tree-name="LO"]').innerText(),/Owned: Diamond/i);
- await page.locator('#toggleRebirthTree').uncheck();await page.waitForURL('**/#/rebirth/tracker');
+ await page.locator('#toggleRebirthTree').check();await page.waitForURL('**/#/rebirth/tracker/skilltree');await page.waitForSelector('.rebirth-tree-node');assert.match(await page.locator('[data-tree-name="LO"]').innerText(),/Owned: Diamond/i);
+ await page.locator('#toggleRebirthTree').uncheck();await page.waitForURL('**/#/rebirth/tracker');await page.waitForSelector('.rebirth-collection-grid');
  await page.evaluate(()=>{const t=window.prepTest;t.state.rebirths[0]=[{to:6,requiredDroids:[{droidName:'LO',variant:'KYBER'}]}];t.route()});
  await page.locator('[data-tracker-quality="LO"]').selectOption('KYBER');
  await page.locator('[data-tracker-activate="LO"]').click();
@@ -80,12 +80,20 @@ const server=http.createServer((req,res)=>{
  assert.equal(await page.locator('.rebirth-cycle-list').isVisible(),true);
  assert.equal(await page.locator('#toggleRebirthTree').count(),0);
  await page.locator('[data-rebirth-section="tracker"]').click();
- await page.waitForURL('**/#/rebirth/tracker');
+ await page.waitForURL('**/#/rebirth/tracker');await page.waitForSelector('.rebirth-collection-grid');
  assert.equal(await page.locator('.rebirth-collection-grid').isVisible(),true);
  await page.goBack();await page.waitForURL('**/#/rebirth/reqs');
  assert.equal(await page.locator('.rebirth-cycle-list').isVisible(),true);
- await page.goForward();await page.waitForURL('**/#/rebirth/tracker');
+ await page.goForward();await page.waitForURL('**/#/rebirth/tracker');await page.waitForSelector('.rebirth-collection-grid');
  await page.waitForSelector('.rebirth-collection-grid');
+ await page.locator('#rebirthTrackerOverview > summary').click();
+ assert.equal(await page.locator('.rebirth-tracker-metrics').isVisible(),false);
+ await page.reload();await page.waitForSelector('#rebirthTrackerOverview');
+ assert.equal(await page.locator('.rebirth-tracker-metrics').isVisible(),false);
+ await page.locator('#rebirthTrackerOverview > summary').click();
+ assert.equal(await page.locator('.rebirth-tracker-metrics').isVisible(),true);
+ const tops=await page.locator('.rebirth-tracker-metrics > div').evaluateAll(els=>els.map(el=>Math.round(el.getBoundingClientRect().top)));
+ assert.equal(new Set(tops).size,1,'desktop overview fits one row');
  assert.deepEqual(errors,[]);console.log('PASS: tree nodes, full-cycle sell guidance, duplicate upgrades, selling, manual isolation, persistence and mobile layout');
  }finally{await browser.close();server.close()}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1});
