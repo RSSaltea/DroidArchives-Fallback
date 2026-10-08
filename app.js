@@ -4522,7 +4522,7 @@ function rebirthTreeRows(){
     return{d,have,active,source,schedule,last,future,variants};
   }).filter(Boolean).sort((a,b)=>a.schedule[0].at-b.schedule[0].at||a.d.name.localeCompare(b.d.name));
 }
-const rebirthTrackerFilters={query:'',status:'all',rarity:'all',type:'all'};
+const rebirthTrackerFilters={query:'',status:[],rarity:[],type:[]};
 function rebirthTrackerSummary(rows){
   const here=rebirthTreeCurrent(),goal=rebirthGoal(),cycle=(state.rebirths[state.cycle]||[]).filter(r=>r.to>here&&r.to<=goal);
   const byName=new Map(rows.map(row=>[row.d.name,row]));
@@ -4538,24 +4538,46 @@ function rebirthCollectionHtml(rows){
 }
 function rebirthDroidTrackerHtml(treeView,showCompleted){
   const rows=rebirthTreeRows(),summary=rebirthTrackerSummary(rows),here=rebirthTreeCurrent();
-  const select=(label,key,values)=>`<label>${label}<select data-tracker-filter="${key}"><option value="all">All ${label.toLowerCase()}</option>${values.map(v=>`<option value="${v}" ${rebirthTrackerFilters[key]===v?'selected':''}>${v}</option>`).join('')}</select></label>`;
-  return `<section class="rebirth-droid-tracker"><header class="rebirth-tracker-heading"><div><p class="eyebrow">Collect · Upgrade · Rebirth</p><h2>Droid Tracker</h2><p>Only droids needed after your current rebirth are shown. Collection and skill tree share the same progress.</p></div><label class="rebirth-toggle"><input id="toggleRebirthTree" type="checkbox" ${treeView?'checked':''}> Skill Tree view</label></header><details class="rebirth-tracker-overview" id="rebirthTrackerOverview" ${localStorage.getItem('droid-archive-tracker-overview-open')!=='0'?'open':''}><summary>Tracker overview</summary><div class="rebirth-tracker-metrics"><div><strong>${rows.filter(row=>row.have).length}/${rows.length}</strong><span>Droids owned</span></div><div><strong>${summary.ready}/${summary.total}</strong><span>Ready to goal</span></div><div><strong>${summary.nextChips?fmt(summary.nextChips):0}</strong><span>Upgrade chips · next rebirth</span></div><div><strong>${summary.goalChips?fmt(summary.goalChips):0}</strong><span>Upgrade chips · to goal</span></div><div><strong>${summary.missing}</strong><span>To find for goal</span></div><div><strong>${summary.sell}</strong><span>Finished with rebirths</span></div></div><details class="rebirth-tracker-explainer"><summary>How totals work</summary><p class="rebirth-tracker-help">Chip totals cover upgrades to owned droids; missing droids and Kyber activation crystals are separate. Sell guidance checks the entire cycle, including rebirths beyond your goal. Other uses such as income, fusion and Droidex may still need them. Actions update ${state.rebirthTracker.notUsingBase?'your manual tracker':'your Base'}.</p></details></details><div class="rebirth-tracker-toolbar"><label>Current rebirth<select id="treeCurrentRebirth">${Array.from({length:maxRebirth()+1},(_,n)=>`<option value="${n}" ${n===here?'selected':''}>${n}</option>`).join('')}</select></label><label class="rebirth-tracker-search">Search droids<input id="rebirthTrackerSearch" type="search" placeholder="Name, e.g. LO or Pit" value="${escapeAttr(rebirthTrackerFilters.query)}"></label><label>Show<select data-tracker-filter="status">${[['all','All droids'],['missing','Not owned'],['upgrade','Needs upgrade / activation'],['ready','Ready for next use']].map(([v,label])=>`<option value="${v}" ${rebirthTrackerFilters.status===v?'selected':''}>${label}</option>`).join('')}</select></label>${select('Rarities','rarity',[...new Set(rows.map(row=>row.d.rarity))])}${select('Types','type',[...new Set(rows.map(row=>row.d.type))])}</div><p id="rebirthTrackerCount" role="status"></p>${treeView?rebirthTreeHtml(showCompleted):rebirthCollectionHtml(rows.filter(row=>row.future.length))}<p id="rebirthTrackerEmpty" class="empty" hidden>No droids match these filters.</p></section>`;
+  const select=(label,key,values)=>`<fieldset class="rebirth-multi-filter"><legend>${label}</legend><div><button type="button" data-tracker-filter="${key}" data-value="" aria-pressed="${!rebirthTrackerFilters[key].length}">All</button>${values.map(item=>{const [value,text]=Array.isArray(item)?item:[item,item];return `<button type="button" data-tracker-filter="${key}" data-value="${value}" aria-pressed="${rebirthTrackerFilters[key].includes(value)}">${text}</button>`}).join('')}</div></fieldset>`;
+  return `<section class="rebirth-droid-tracker"><header class="rebirth-tracker-heading"><div><p class="eyebrow">Collect · Upgrade · Rebirth</p><h2>Droid Tracker</h2><p>Only droids needed after your current rebirth are shown. Collection and skill tree share the same progress.</p></div><label class="rebirth-toggle"><input id="toggleRebirthTree" type="checkbox" ${treeView?'checked':''}> Skill Tree view</label></header><details class="rebirth-tracker-overview" id="rebirthTrackerOverview" ${localStorage.getItem('droid-archive-tracker-overview-open')!=='0'?'open':''}><summary>Tracker overview</summary><div class="rebirth-tracker-metrics"><div><strong>${rows.filter(row=>row.have).length}/${rows.length}</strong><span>Droids owned</span></div><div><strong>${summary.ready}/${summary.total}</strong><span>Ready to goal</span></div><div><strong>${summary.nextChips?fmt(summary.nextChips):0}</strong><span>Upgrade chips · next rebirth</span></div><div><strong>${summary.goalChips?fmt(summary.goalChips):0}</strong><span>Upgrade chips · to goal</span></div><div><strong>${summary.missing}</strong><span>To find for goal</span></div><div><strong>${summary.sell}</strong><span>Finished with rebirths</span></div></div><details class="rebirth-tracker-explainer"><summary>How totals work</summary><p class="rebirth-tracker-help">Chip totals cover upgrades to owned droids; missing droids and Kyber activation crystals are separate. Sell guidance checks the entire cycle, including rebirths beyond your goal. Other uses such as income, fusion and Droidex may still need them. Actions update ${state.rebirthTracker.notUsingBase?'your manual tracker':'your Base'}.</p></details></details><div class="rebirth-tracker-toolbar"><label>Current rebirth<select id="treeCurrentRebirth">${Array.from({length:maxRebirth()+1},(_,n)=>`<option value="${n}" ${n===here?'selected':''}>${n}</option>`).join('')}</select></label><label class="rebirth-tracker-search">Search droids<input id="rebirthTrackerSearch" type="search" placeholder="Name, e.g. LO or Pit" value="${escapeAttr(rebirthTrackerFilters.query)}"></label>${select('Status','status',[['missing','Not Owned'],['upgrade','Needs Upgrade / Activation'],['ready','Ready for Next Use']])}${select('Rarities','rarity',[...new Set(rows.map(row=>row.d.rarity))].sort((a,b)=>RARITY_LADDER.indexOf(a)-RARITY_LADDER.indexOf(b)))}${select('Types','type',[...new Set(rows.map(row=>row.d.type))])}</div><p id="rebirthTrackerCount" role="status"></p>${treeView?rebirthTreeHtml(showCompleted):rebirthCollectionHtml(rows.filter(row=>row.future.length))}<p id="rebirthTrackerEmpty" class="empty" hidden>No droids match these filters.</p></section>`;
+}
+function groupRebirthTrackerCards(){
+  const grid=document.querySelector('.rebirth-collection-grid,.rebirth-tree-grid');if(!grid)return;
+  const rows=new Map(rebirthTreeRows().map(row=>[row.d.name,row])),groups=new Map();
+  for(const card of [...grid.querySelectorAll('[data-tree-name]')]){
+    const rarity=rows.get(card.dataset.treeName).d.rarity;
+    if(!groups.has(rarity))groups.set(rarity,[]);groups.get(rarity).push(card);
+  }
+  grid.classList.add('rebirth-grouped-grid');
+  for(const rarity of [...groups.keys()].sort((a,b)=>(RARITY_LADDER.indexOf(a)<0?99:RARITY_LADDER.indexOf(a))-(RARITY_LADDER.indexOf(b)<0?99:RARITY_LADDER.indexOf(b)))){
+    const group=document.createElement('section');group.dataset.trackerRarityGroup=rarity;
+    group.innerHTML=`<h3 class="rebirth-rarity-heading">${rarityText(rarity)} <span data-rarity-count>${groups.get(rarity).length}</span></h3><div class="rebirth-rarity-row" role="region" tabindex="0" aria-label="${escapeAttr(rarity)} droids ? scroll horizontally for more"></div>`;
+    group.querySelector('.rebirth-rarity-row').append(...groups.get(rarity));grid.append(group);
+  }
 }
 function attachRebirthTrackerHandlers(){
   document.querySelector('#rebirthTrackerOverview')?.addEventListener('toggle',e=>localStorage.setItem('droid-archive-tracker-overview-open',e.target.open?'1':'0'));
+  groupRebirthTrackerCards();
   attachRebirthTreeHandlers();
   const rows=new Map(rebirthTreeRows().map(row=>[row.d.name,row]));
   const filter=()=>{
     let count=0;document.querySelectorAll('[data-tree-name]').forEach(card=>{
       const row=rows.get(card.dataset.treeName),next=row.future[0],ready=next&&rebirthVariantReady(row.have,next.variant,row.active),f=rebirthTrackerFilters;
-      const matches=row.d.name.toLowerCase().includes(f.query.trim().toLowerCase())&&(f.rarity==='all'||row.d.rarity===f.rarity)&&(f.type==='all'||row.d.type===f.type)&&(f.status==='all'||f.status==='missing'&&!row.have||f.status==='upgrade'&&row.have&&next&&!ready||f.status==='ready'&&ready);
+      const status=!row.have?'missing':ready?'ready':'upgrade';
+      const matches=row.d.name.toLowerCase().includes(f.query.trim().toLowerCase())&&(!f.rarity.length||f.rarity.includes(row.d.rarity))&&(!f.type.length||f.type.includes(row.d.type))&&(!f.status.length||f.status.includes(status));
       card.hidden=!matches;if(matches)count++;
     });
+    document.querySelectorAll('[data-tracker-rarity-group]').forEach(group=>{const shown=[...group.querySelectorAll('[data-tree-name]')].filter(card=>!card.hidden).length;group.hidden=!shown;group.querySelector('[data-rarity-count]').textContent=String(shown)});
     document.querySelector('#rebirthTrackerCount').textContent=`${count} droid${count===1?'':'s'} shown`;
     document.querySelector('#rebirthTrackerEmpty').hidden=count>0;
   };
   document.querySelector('#rebirthTrackerSearch').oninput=e=>{rebirthTrackerFilters.query=e.target.value;filter()};
-  document.querySelectorAll('[data-tracker-filter]').forEach(select=>select.onchange=()=>{rebirthTrackerFilters[select.dataset.trackerFilter]=select.value;filter()});
+  document.querySelectorAll('[data-tracker-filter]').forEach(button=>button.onclick=()=>{
+    const key=button.dataset.trackerFilter,value=button.dataset.value,selected=rebirthTrackerFilters[key];
+    rebirthTrackerFilters[key]=!value?[]:selected.includes(value)?selected.filter(v=>v!==value):[...selected,value];
+    document.querySelectorAll(`[data-tracker-filter="${key}"]`).forEach(option=>option.setAttribute('aria-pressed',String(option.dataset.value?rebirthTrackerFilters[key].includes(option.dataset.value):!rebirthTrackerFilters[key].length)));
+    filter();
+  });
   document.querySelectorAll('[data-tracker-quality]').forEach(button=>button.onclick=()=>setRebirthTreeVariant(rows.get(button.dataset.trackerQuality),button.dataset.variant||null,isActiveKyber(button.dataset.variant)));
   document.querySelectorAll('[data-tracker-activate]').forEach(button=>button.onclick=()=>{
     const row=rows.get(button.dataset.trackerActivate);if(state.sharedView&&!state.sharedView.canEdit)return;

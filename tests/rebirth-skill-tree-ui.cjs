@@ -30,7 +30,7 @@ const server=http.createServer((req,res)=>{
  assert.equal(await page.locator('.rebirth-collection-card:visible').count(),1);
  await page.locator('#rebirthTrackerSearch').fill('');
 
- await page.locator('[data-tracker-filter="status"]').selectOption('all');
+ await page.locator('[data-tracker-filter="status"][data-value=""]').click();
  await page.locator('#toggleRebirthTree').check();await page.waitForURL('**/#/rebirth/tracker/skilltree');await page.waitForSelector('.rebirth-tree-node');
  const pit=page.locator('[data-tree-name="PIT"]'),lo=page.locator('[data-tree-name="LO"]');
  assert.equal(await pit.count(),0,'finished droids also disappear from skill tree');
@@ -98,6 +98,29 @@ const server=http.createServer((req,res)=>{
  assert.equal(await page.locator('.rebirth-tracker-metrics').isVisible(),true);
  const tops=await page.locator('.rebirth-tracker-metrics > div').evaluateAll(els=>els.map(el=>Math.round(el.getBoundingClientRect().top)));
  assert.equal(new Set(tops).size,1,'desktop overview fits one row');
+ await page.evaluate(()=>{const t=window.prepTest;t.state.rebirthTracker={notUsingBase:true,entries:{},currentByCycle:{0:0}};t.state.rebirths[0]=[{to:5,requiredDroids:['PIT','ROLL-R','LO','R2'].map(droidName=>({droidName,variant:'GOLD'}))}];t.route()});
+ assert.deepEqual(await page.locator('[data-tracker-rarity-group]').evaluateAll(els=>els.map(el=>el.dataset.trackerRarityGroup)),['COMMON','RARE','EPIC']);
+ await page.locator('[data-tracker-filter="rarity"][data-value="COMMON"]').click();
+ await page.locator('[data-tracker-filter="rarity"][data-value="EPIC"]').click();
+ assert.equal(await page.locator('[data-tree-name]:visible').count(),3);
+ assert.equal(await page.locator('[data-tracker-rarity-group="RARE"]').isVisible(),false);
+ await page.locator('[data-tracker-filter="type"][data-value="WORKER"]').click();
+ assert.equal(await page.locator('[data-tree-name]:visible').count(),2);
+ await page.locator('[data-tracker-filter="type"][data-value="ASTROMECH"]').click();
+ assert.equal(await page.locator('[data-tree-name]:visible').count(),3);
+ await page.locator('#rebirthTrackerSearch').fill('R2');
+ assert.equal(await page.locator('[data-tree-name]:visible').count(),1);
+ await page.locator('#rebirthTrackerSearch').fill('');
+ await page.locator('#toggleRebirthTree').check();await page.waitForSelector('.rebirth-tree-node');
+ assert.equal(await page.locator('[data-tree-name]:visible').count(),3,'multi-selection survives layout change');
+ await page.locator('[data-tracker-filter="rarity"][data-value=""]').click();
+ assert.equal(await page.locator('[data-tree-name]:visible').count(),4);
+ await page.setViewportSize({width:390,height:844});
+ assert(await page.locator('.rebirth-droid-tracker').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
+ await page.screenshot({path:path.join(root,'research/rebirth-rarity-rows-mobile.png'),fullPage:true});
+ await page.setViewportSize({width:1440,height:1000});
+ await page.locator('#toggleRebirthTree').uncheck();await page.waitForSelector('.rebirth-collection-card');
+ await page.screenshot({path:path.join(root,'research/rebirth-rarity-rows-desktop.png'),fullPage:true});
  assert.deepEqual(errors,[]);console.log('PASS: tree nodes, full-cycle sell guidance, duplicate upgrades, selling, manual isolation, persistence and mobile layout');
  }finally{await browser.close();server.close()}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1});
