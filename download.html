@@ -25,8 +25,8 @@
 <h1>Droid Archives Companion</h1>
 <p style="color:#eef3fc;font-size:25px;margin-bottom:12px">Your Archives. Alongside your game.</p>
 <p>Keep useful droid alerts, blueprint countdowns and your base planner close at hand, with an overlay you can arrange around the way you play.</p>
-<a class="button" id="dlButton" href="https://downloads.droidarchives.co.uk/DroidArchivesCompanion-0.5.36-Beta.exe">Download for Windows</a>
-<p class="meta" id="dlMeta" aria-live="polite">0.5.36-Beta &middot; 171 MB &middot; Portable app, no installer</p>
+<a class="button" id="dlButton" href="https://downloads.droidarchives.co.uk/DroidArchivesCompanion-0.5.37-Beta.exe">Download for Windows - 0.5.37-Beta</a>
+<p class="meta" id="dlMeta" aria-live="polite">0.5.37-Beta &middot; 173 MB &middot; Portable app, no installer</p>
 </div>
 </div>
 <div class="beta">
@@ -101,6 +101,7 @@
         var exe = (release.assets || []).filter(function (a) { return /\.exe$/i.test(a.name); })[0];
         if (exe) {
           button.href = exe.browser_download_url;
+          button.textContent = "Download for Windows - " + release.tag_name.replace(/^v/, "");
           meta.textContent = release.tag_name.replace(/^v/, "") + " · " +
             (exe.size / 1048576).toFixed(0) + " MB · portable, no installer";
         }

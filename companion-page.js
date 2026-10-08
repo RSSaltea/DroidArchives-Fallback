@@ -96,6 +96,7 @@ export function companionPage(host, client=()=>null) {
       const exe = !release.draft && release.assets?.find(asset => /\.exe$/i.test(asset.name));
       if (!exe || new URL(exe.browser_download_url).hostname !== 'downloads.droidarchives.co.uk') throw new Error('Release unavailable');
       button.href = exe.browser_download_url;
+      button.textContent = `Download for Windows - ${release.tag_name.replace(/^v/, '')}`;
       const visitor=downloadVisitorId();let lastStart=-Infinity;
       const track=event=>{
         if(event.type==='auxclick'&&event.button!==1)return;
