@@ -48,6 +48,24 @@
       "description": "Boosts Droid Depot crafting speed and Pickaxe level for everyone in the session for 15 minutes."
     },
     {
+      "id": "huyang-bundle",
+      "name": "Huyang Bundle",
+      "category": "packs",
+      "vbucksCost": 1500,
+      "icon": "assets/nova-shop/T_Icon_HuyangHologram.png",
+      "description": "Permanently unlocks Huyang Hologram, in-base Kyber activation, Huyang Base Paint and the Kyber Droid Sell perk. Includes one Crafting Boost token.",
+      "details": [
+        "Huyang Hologram Super Rebirth Perk ? activate Kyber Droids inside your Base",
+        "Huyang Base Paint",
+        "Kyber Droid Sell Super Rebirth Perk",
+        "1 Crafting Boost token"
+      ],
+      "novaUnlocks": [
+        "huyang-hologram",
+        "kyber-droid-sell"
+      ]
+    },
+    {
       "id": "companion-pack",
       "name": "Companion Pack",
       "category": "packs",
