@@ -3499,7 +3499,6 @@ const FUSION_STEP_TYPES=['fuse-in','fuse-held','fuse-deferred','fuse-result','fu
 const stepTicked=text=>optimiseTickedSteps().includes(text);
 function stepHtml(step,index){
   const d=state.droids.find(x=>x.name===step.unit?.name);
-  const assumed=step.assumed?'<em class="step-assumed" title="The starting position or destination slot is uncertain. Confirm where it lands and regenerate if it differs.">check where it lands</em>':'';
   // A step for the Fusion room gets its own colour, so sending a droid to be fused
   // never reads like sending it to storage.
   const toLounge=step.type==='move'&&(step.to==='LOUNGE'||step.to?.station==='LOUNGE');
@@ -3519,7 +3518,7 @@ function stepHtml(step,index){
     ?`<label class="step-record"><small>Landed in?</small><select data-log-step="${escapeAttr(step.text)}"><option value="">${free.length} it could take…</option>${options}</select></label>`
     :'';
   const checkpoint=step.checkpointAfter?`<span class="step-checkpoint"><button class="btn secondary" type="button" data-apply-through="${escapeAttr(optimiseStepKey(step))}">Apply steps up to this point</button><small>Done buying? Check the Lounge positions on your Base map, then continue Optimise.</small></span>`:'';
-  return `${tick}<span class="step-thumb">${d?picture(d,step.unit.variant):''}</span><span class="step-text${toLounge?' step-to-lounge':''}">${text}${assumed}</span>${record}${skip}${step.type==='sell'&&step.unit?`<button class="step-skip" data-reserve-fusion="${step.unit.source}:${step.unit.unit}" title="Keep all copies of this droid and quality for future fusion">Keep for fusion</button>`:''}${['fuse-in','fuse-held','fuse-deferred'].includes(step.type)&&step.unit?`<button class="step-skip" data-sell-instead="${step.unit.source}:${step.unit.unit}" title="${step.protocolSpare?'Keep this reserved droid instead and recalculate the fusions':'Sell this droid instead and recalculate the fusions'}">${step.protocolSpare?'Keep':'Sell'}</button>`:''}${checkpoint}`;
+  return `${tick}<span class="step-thumb">${d?picture(d,step.unit.variant):''}</span><span class="step-text${toLounge?' step-to-lounge':''}">${text}</span>${record}${skip}${step.type==='sell'&&step.unit?`<button class="step-skip" data-reserve-fusion="${step.unit.source}:${step.unit.unit}" title="Keep all copies of this droid and quality for future fusion">Keep for fusion</button>`:''}${['fuse-in','fuse-held','fuse-deferred'].includes(step.type)&&step.unit?`<button class="step-skip" data-sell-instead="${step.unit.source}:${step.unit.unit}" title="${step.protocolSpare?'Keep this reserved droid instead and recalculate the fusions':'Sell this droid instead and recalculate the fusions'}">${step.protocolSpare?'Keep':'Sell'}</button>`:''}${checkpoint}`;
 }
 function normaliseProjectedForSteps(baseP,projected){
   const keyOf=x=>`${x.source}:${x.unit}`,groupOf=x=>`${x.name}:${x.variant}`,cloneRows=rows=>(rows||[]).map(x=>({...x}));
@@ -3849,13 +3848,12 @@ function routeStepText(step){
   if(step.type==='swap'&&step.kind==='companion-swap')return `Open the card of ${who} and press Swap, Slot ${Number(step.withFrom?.slot)+1}: it becomes your companion and ${unitName(step.withUnit)} takes its place in ${slotLabel(step.from)}.`;
   if(step.type==='move'){
     const to=step.to||{};
-    if(to.station==='LOUNGE')return `Send ${who} to the Lounge${step.buffer?' for now':''}; expected landing: ${slotLabel(to)}. Wait for it to arrive.${step.assumed?' If it lands elsewhere, update Base and regenerate.':''}`;
-    if(to.station==='FUSION')return `Send ${who} to the Fusion room for now; expected landing: ${slotLabel(to)}. Wait for it to arrive.${step.assumed?' If it lands elsewhere, update Base and regenerate.':''}`;
+    if(to.station==='LOUNGE')return `Send ${who} to the Lounge${step.buffer?' for now':''} &mdash; destination: ${slotLabel(to)}. Wait for it to arrive.`;
+    if(to.station==='FUSION')return `Send ${who} to the Fusion room for now &mdash; destination: ${slotLabel(to)}. Wait for it to arrive.`;
     if(to.station==='COMPANION')return `Make ${who} your companion.`;
     const where=to.station==='UPGRADE_CHIP'?'the Upgrade Chip station':isProtocolStation(to.station)?stationName(to.station):`${slotLabel(to)}${to.station==='ASTROMECH'?` (${to.cls==='mission'?'mission':'credit'} slot)`:''}`;
     if(step.approachSlot||step.approachProtocol)return `With ${unitName(step.unit)} as your companion, walk right beside ${where}. Wait for the droid to follow you there, then tell it to go to work. Keep that slot free until it arrives.`;
-    const others=(step.options||[]).filter(station=>station!==to.station).map(station=>isProtocolStation(station)?stationName(station):`the ${stationName(station)} room`);
-    return `Tell ${who} to go to work &mdash; expected landing: ${where}. Wait for it to arrive.${step.assumed?` If it lands elsewhere${others.length?` (${others.join(' or ')} may also be available)`:''}, update Base and regenerate.`:''}`;
+    return `Tell ${who} to go to work &mdash; destination: ${where}. Wait for it to arrive.`;
   }
   return step.text||'';
 }
@@ -3917,7 +3915,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-09-search',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-09-route-copy',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
