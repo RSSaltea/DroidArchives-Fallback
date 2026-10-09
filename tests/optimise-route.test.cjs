@@ -63,6 +63,30 @@ test('fusion frees storage for two Iconic purchases without consuming the reserv
   assert(replay.companionsRestored);assert.equal(replay.placed.length,4,'three fusion inputs become one, plus two purchases and the companion');
 });
 
+test('Fusion storage is cleared for every batch and the retained droid is restored afterwards',async()=>{
+  const mod=await load(),rules=rulesFor({LOUNGE:5,FUSION:3,FUSION_BUILD:2});
+  rules.workLanding=(u,p)=>mod.predictWorkLanding(u,p,rules);
+  rules.stationLanding=(u,p,s)=>mod.predictStationLanding(u,p,s,rules);
+  const kept=unit('WORK-keep','FUSION',0);
+  const inputs=[unit('WORK-spare','FUSION',1),unit('WORK-spare','FUSION',2),
+    ...[0,1,2,3].map(i=>unit('WORK-spare','LOUNGE',i))];
+  const fusions=[0,1].map(i=>({inputs:inputs.slice(i*3,i*3+3),
+    fusion:{spend:[{name:'WORK-spare',variant:'DEFAULT',count:3}],out:{name:'WORK-result',variant:'GOLD'},after:[]},
+    resultUnit:{source:`fusion-storage-${i}`,unit:0,name:'WORK-result',variant:'GOLD',built:false,fusionResult:true}}));
+  const initial={placed:[kept,...inputs]},target={placed:[kept],fusions};
+  const route=mod.planOptimiseRoute({initial,target,rules,options:{beamWidth:4,firstComplete:true}});
+  assert(route.complete,route.issues.join('; '));assert.equal(route.fused.length,2);
+  const moves=route.steps.filter(s=>s.unit?.source===kept.source);
+  assert.equal(moves[0].to.station,'LOUNGE');assert.equal(moves.at(-1).to.station,'FUSION');
+  assert(route.steps.indexOf(moves.at(-1))>route.steps.findLastIndex(s=>s.type==='fuse'));
+  assert(route.finalPlaced.some(u=>u.source===kept.source&&u.station==='FUSION'));
+  const replay=mod.validateOptimisePlan({initial,projected:{placed:route.finalPlaced},steps:route.steps,rules});
+  assert(replay.ok,replay.issues.join('; '));assert.equal(replay.placed.length,3);
+  const locked=mod.planOptimiseRoute({initial:{placed:[{...kept,lockedSlot:true},...inputs]},target:{...target,placed:[{...kept,lockedSlot:true}]},rules});
+  assert(!locked.steps.some(s=>s.unit?.source===kept.source),'a storage lock must never be bypassed');
+  assert.equal(locked.fused.length,0);
+});
+
 test('unlocked Iconic is bought into a free Companion seat, with locked companions restored',async()=>{
   const {planOptimiseRoute,predictWorkLanding,predictStationLanding,validateOptimisePlan}=await load();
   const rules=rulesFor({WORKER:1,COMPANION:2,LOUNGE:1});

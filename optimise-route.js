@@ -437,7 +437,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       // The Fusion table doubles as a waiting room when the Lounge is full: the
       // Fusion button puts the droid on a free pad, and it is told where to go
       // from there later in the walk. Not while a batch is being gathered.
-      if (state.staged.size || (typeof rules.canPark === 'function' && !rules.canPark(unit))) return null;
+      if (state.staged.size || (goal.kind === 'place' && goal.station === 'FUSION' && fusions.some(fusion => !state.fused.has(fusion.index))) || (typeof rules.canPark === 'function' && !rules.canPark(unit))) return null;
       const slot = free('FUSION')[0];
       if (slot === undefined) return null;
       const assumed = typeof rules.slotDistanceSquared === 'function' && free('FUSION').length > 1;
@@ -580,6 +580,17 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
     let progress = true;
     while (progress) {
       progress = false;
+      // Storage on the Fusion table is a final destination, not a reason to
+      // block every batch. Clear retained copies temporarily, then restore
+      // them once all batches finish. Locks still prohibit moving a copy.
+      if (region === 'FUSION' && fusions.some(fusion => !state.fused.has(fusion.index))) {
+        for (const [key, position] of state.pos) {
+          const goal = state.goals.get(key);
+          if (position.station !== 'FUSION' || fixed(key) || goal?.kind !== 'place' || goal.station !== 'FUSION') continue;
+          const buffer = tryCommand(state, key, 'buffer', policy.assumed, region);
+          if (buffer) { steps.push(buffer); progress = true; }
+        }
+      }
       // Purchases arrive as Companions. Free one seat, then buy immediately so
       // restoring a reserved Companion cannot take the seat back first.
       if (region === 'ICONIC_SHOP') {
