@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-10-09-coming-soon-droids",
+      "date": "2026-10-09",
+      "title": "Gonk droids coming soon",
+      "summary": "Preview WG-22 and seven upcoming Gonk droids in Droids and Droidex.",
+      "changes": [
+        "Browse their variant pages. Details that are not confirmed yet show Coming soon.",
+        "Upcoming droids are greyed out and cannot be added to your Base, blueprints or collection yet."
+      ]
+    },
+    {
       "id": "2026-10-08-rebirth-droid-tracker",
       "date": "2026-10-08",
       "title": "Introducing the Rebirth Droid Tracker",

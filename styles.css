@@ -1237,3 +1237,13 @@ html[data-ui-style] .companion-activity .btn.companion-activity-button.active,ht
 .rebirth-rarity-row>.rebirth-collection-card{flex:0 0 240px;width:240px}
 .rebirth-rarity-row>.rebirth-tree{flex:0 0 210px;width:210px}
 @media(max-width:600px){.rebirth-multi-filter{flex-basis:100%}.rebirth-rarity-row>.rebirth-collection-card{flex-basis:min(240px,85vw);width:min(240px,85vw)}}
+
+/* Upcoming droids remain readable previews, outside playable data. */
+.droid-card.coming-soon-droid{border-color:#64748b;filter:grayscale(1);opacity:.7}
+.droid-card.coming-soon-droid:hover,.droid-card.coming-soon-droid:focus-visible{opacity:1}
+.upcoming-portrait{display:grid;place-items:center;min-height:140px;padding:1rem;color:var(--muted,#a5b0c4);text-align:center;font-size:.9rem}
+.coming-soon-detail .info-image{filter:grayscale(1)}
+.coming-soon-detail button:disabled{opacity:.45;cursor:not-allowed}
+.upcoming-value{color:var(--muted,#a5b0c4)}
+.upcoming-stats-wrap{overflow-x:auto}
+.upcoming-droids-section{margin-top:2rem}
