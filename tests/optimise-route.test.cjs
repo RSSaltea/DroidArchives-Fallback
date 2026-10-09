@@ -32,6 +32,22 @@ const at=(u,station,slot=0)=>({...u,station,slot});
 const stops=steps=>steps.reduce((n,step,i)=>n+(i===0||step.visit!==steps[i-1].visit?1:0),0);
 const summary=steps=>steps.map(s=>`${s.at}:${s.type}${s.kind?'/'+s.kind:''}:${s.unit?.name||''}${s.to?'->'+(typeof s.to==='string'?s.to:s.to.station+(s.to.cls?'('+s.to.cls+')':'')):''}${s.buffer?'*':''}${s.assumed?'?':''}`);
 
+test('large plans can finish beyond 24 visits while an explicit visit limit is respected',async()=>{
+ const mod=await load(),rules=rulesFor({WORKER:26,LOUNGE:26});
+ // Separate origins make every move require its own visit. This isolates the
+ // route-length bound without depending on the private reported profile.
+ rules.regionOf=(station,slot)=>station==='LOUNGE'?`LOUNGE_${slot}`:'WORKER';
+ rules.workLanding=(unit,placed)=>mod.predictWorkLanding(unit,placed,rules);
+ const units=Array.from({length:26},(_,i)=>unit(`WORK-${i}`,'LOUNGE',i));
+ const initial={placed:units},target={placed:units.map((u,i)=>at(u,'WORKER',i)),sell:[]};
+ const limited=mod.planOptimiseRoute({initial,target,rules,options:{beamWidth:1,firstComplete:true,maxStops:24}});
+ assert.equal(limited.complete,false);assert.equal(limited.stops,24);
+ const route=mod.planOptimiseRoute({initial,target,rules,options:{beamWidth:1,firstComplete:true}});
+ assert(route.complete,route.issues.join('; '));assert.equal(route.stops,26);
+ const replay=mod.validateOptimisePlan({initial,projected:{placed:route.finalPlaced,sell:[]},steps:route.steps,rules});
+ assert(replay.ok,replay.issues.join('; '));
+});
+
 test('return frees a slot without treating an Iconic as a sale, and cannot bypass locks',async()=>{
   const mod=await load(),rules=rulesFor({WORKER:1,LOUNGE:1});
   rules.canReturn=u=>u.name==='WORK-iconic';rules.workLanding=(u,p)=>mod.predictWorkLanding(u,p,rules);

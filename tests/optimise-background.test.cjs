@@ -1,6 +1,25 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const pause=()=>new Promise(resolve=>setTimeout(resolve,15));
+test('completed layout comparisons extend the watchdog but never the hard layout limit',async(t)=>{
+ const {createOptimiseBackground}=await import('../optimise-background.js');
+ t.mock.timers.enable({apis:['setTimeout']});
+ let worker;const updates=[],statuses=[];
+ const manager=createOptimiseBackground({createWorker:()=>worker={postMessage(x){this.job=x},terminate(){this.stopped=true}},onProgress:x=>updates.push(x),onStatus:x=>statuses.push(x),delay:0,budget:100,layoutBudget:250});
+ manager.update('slow',{layout:{}});t.mock.timers.tick(0);
+ const progress=n=>worker.onmessage({data:{id:worker.job.id,type:'progress',progress:{phase:'layout',comparisons:n}}});
+ t.mock.timers.tick(80);progress(1);t.mock.timers.tick(80);assert(!worker.stopped);
+ progress(2);progress(2);assert.equal(updates.length,2,'duplicate progress is ignored');
+ t.mock.timers.tick(80);progress(3);t.mock.timers.tick(11);
+ assert(worker.stopped,'hard ceiling still stops a progressing calculation');assert.equal(statuses.at(-1),'budget');
+ progress(4);assert.equal(updates.length,3,'late progress cannot revive a stopped worker');manager.cancel();
+});
+test('Search longer supplies a larger bounded budget without changing the default',async(t)=>{
+ const {createOptimiseBackground}=await import('../optimise-background.js');t.mock.timers.enable({apis:['setTimeout']});
+ let worker;const manager=createOptimiseBackground({createWorker:()=>worker={postMessage(){},terminate(){this.stopped=true}},delay:0,budget:100});
+ manager.update('longer',{}, {budget:200});t.mock.timers.tick(0);t.mock.timers.tick(101);assert(!worker.stopped);t.mock.timers.tick(100);assert(worker.stopped);
+ manager.update('next',{});t.mock.timers.tick(0);t.mock.timers.tick(101);assert(worker.stopped,'next normal job uses the original budget');manager.cancel();
+});
 test('background generations cancel stale workers, debounce edits and retain only current results',async()=>{
  const {createOptimiseBackground}=await import('../optimise-background.js');
  const workers=[],results=[],prepared=[];

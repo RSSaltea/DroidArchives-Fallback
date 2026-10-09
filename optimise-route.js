@@ -276,7 +276,12 @@ export function shortenOptimiseWalk(steps, { distance, isValid, slotDistanceSqua
 }
 
 function planOnce({ initial, target, rules, options = {} } = {}) {
-  const beamWidth = options.beamWidth || 64, maxStops = options.maxStops || 24;
+  const beamWidth = options.beamWidth || 64;
+  // A fixed 24-stop ceiling truncated valid fusion/shopping plans just before
+  // their final Companion swaps. Allow the route length to grow with the job;
+  // the worker's time budget still bounds total search effort.
+  const rosterSize=(initial?.placed?.length||0)+(initial?.overflow?.length||0)+(initial?.purchases?.length||0);
+  const maxStops = options.maxStops || Math.max(24,rosterSize*2+(target?.fusions?.length||0)*2);
   const issues = [], later = [];
   const units = new Map();
   for (const unit of [...(initial?.placed || []), ...(initial?.overflow || [])]) units.set(keyOf(unit), { ...unit });

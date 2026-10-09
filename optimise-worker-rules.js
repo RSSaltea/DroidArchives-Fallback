@@ -1,5 +1,5 @@
 import { slotDistanceSquared } from './slot-geometry.js?v=2026-09-26-slot-order';
-import { predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding } from './optimise-route.js?v=2026-10-09-fusion-storage';
+import { predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding } from './optimise-route.js?v=2026-10-09-search';
 
 // Functions cannot cross a worker boundary. Rebuild them from the exact slots,
 // permissions and room costs captured by the app for this profile.

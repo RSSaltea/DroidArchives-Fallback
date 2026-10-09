@@ -1,7 +1,7 @@
-import { planOptimiseRoute, shortenOptimiseWalk, optimiseWalkDistance } from './optimise-route.js?v=2026-10-09-fusion-storage';
+import { planOptimiseRoute, shortenOptimiseWalk, optimiseWalkDistance } from './optimise-route.js?v=2026-10-09-search';
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-09-28-iconic-purchases';
-import { workerRules } from './optimise-worker-rules.js?v=2026-10-09-fusion-storage';
-import { createOptimiseLayoutContext } from './optimise-layout-context.js?v=2026-10-09-fusion-storage';
+import { workerRules } from './optimise-worker-rules.js?v=2026-10-09-search';
+import { createOptimiseLayoutContext } from './optimise-layout-context.js?v=2026-10-09-search';
 
 const less = (a, b) => { for (let i=0;i<a.length;i++) if(a[i]!==b[i]) return a[i]<b[i]; return false; };
 self.onmessage = ({data:{id,snapshot}}) => {
@@ -10,7 +10,7 @@ self.onmessage = ({data:{id,snapshot}}) => {
     if(snapshot.layout){
       includeIconics=snapshot.layout.state.optimiseIncludeIconics;
       context=createOptimiseLayoutContext(snapshot.layout);
-      const {baseP,plan,targets,snapshot:prepared}=context.prepareOptimiseWorkerJob();
+      const {baseP,plan,targets,snapshot:prepared}=context.prepareOptimiseWorkerJob(progress=>self.postMessage({id,type:'progress',progress}));
       self.postMessage({id,type:'prepared',prepared:{baseP,plan,targets}});
       snapshot=prepared;
     }
@@ -23,10 +23,11 @@ self.onmessage = ({data:{id,snapshot}}) => {
         if (best && index > best[0]) break;
         const target = snapshot.targets[index];
         const route = planOptimiseRoute({initial:snapshot.initial,target,rules,options:{beamWidth,firstComplete:true}});
-        if (!route.complete) continue;
+        if (!route.complete) {self.postMessage({id,type:'diagnostic',issues:route.issues});continue;}
         const projected = {placed:route.finalPlaced,overflow:target.overflow || [],sell:target.sell || [],returns:target.returns || []};
         const valid = steps => validateOptimisePlan({initial:snapshot.initial,projected,steps,rules}).ok;
-        if (!valid(route.steps)) continue;
+        const validation=validateOptimisePlan({initial:snapshot.initial,projected,steps:route.steps,rules});
+        if (!validation.ok) {self.postMessage({id,type:'diagnostic',issues:validation.issues});continue;}
         // Offer the verified walk before spending the remaining budget shortening it.
         // A dense base must not lose a usable route when that refinement times out.
         route.travelDistance=optimiseWalkDistance(route.steps,rules);

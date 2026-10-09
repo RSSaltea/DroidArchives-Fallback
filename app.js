@@ -10,9 +10,10 @@ import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-10-05-l
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-09-28-iconic-purchases';
-import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-10-09-fusion-storage';
+import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-10-09-search';
 import { slotDistanceSquared, slotPosition } from './slot-geometry.js?v=2026-09-26-slot-order';
-import { createOptimiseBackground } from './optimise-background.js?v=2026-09-28-responsive-planning';
+import { createOptimiseBackground } from './optimise-background.js?v=2026-10-09-search';
+import { createAssignmentScorer } from './optimise-layout-score.js?v=2026-10-09-search';
 import { createArchiveExperience } from './archive-experience.js?v=2026-09-28-gonkoween';
 import { kyberGuide, kyberDroidDetails, kyberActivationCost } from './kyber-guide.js?v=2026-09-27-active-rebirth';
 let archiveExperience=null;
@@ -413,8 +414,9 @@ function optimiseUnreservedBase(p,currentIncome){
   // can fill an empty work slot even when their gain is below that threshold.
   const craftBaseSpeed=1+.1*(Number(state.novaUpgrades?.['crafting-speed'])||0)+p.placed.filter(x=>x.station==='COMPANION').reduce((sum,u)=>{const d=state.droids.find(d=>d.name===u.name);return sum+(d?.type==='WORKER'?companionAttributeValue(d,u.variant):0);},0);
   const lambda=optimiseMoveLambda(currentIncome),currentStation=new Map(p.placed.map(x=>[keyOf(x),x.station]));
-  const moves=a=>a.reduce((sum,index,i)=>{const from=index>=0&&currentStation.get(units[index].key);return sum+(index>=0&&from!==slots[i].station&&(PRODUCTIVE_STATIONS.includes(from)||isProtocolStation(from)||units[index].droid?.type==='PROTOCOL')?1:0)},0);
-  const score=a=>{const placed=layout(a),credits=incomeForPlaced(placed)-lambda*moves(a),craft=PROTOCOL_REGIONS.reduce((sum,_,i)=>sum+protocolCraftBonus(placed,i),0),saved=craftSeconds.reduce((sum,seconds,i)=>sum+seconds/craftBaseSpeed-seconds/(craftBaseSpeed+protocolCraftBonus(placed,i)),0);return state.protocolPriority==='crafting'?[craft,saved,credits]:[credits,craft,saved];};
+  const scoreSlot=slot=>({...slot,region:PROTOCOL_REGIONS.indexOf(slot.station),creditRegion:PROTOCOL_SLOTS[slot.station]?.role==='CREDITS'?PROTOCOL_REGIONS.indexOf(PROTOCOL_SLOTS[slot.station].region):-1,craftRegion:PROTOCOL_SLOTS[slot.station]?.role==='CRAFTING'?PROTOCOL_REGIONS.indexOf(PROTOCOL_SLOTS[slot.station].region):-1});
+  const scoreUnit=unit=>{const d=unit.droid||state.droids.find(d=>d.name===unit.name),station=currentStation.get(keyOf(unit));return {base:d?.variants[unit.variant]?.income||0,type:d?.type,iconic:isIconic(d),dynamic:iconicIncome(d),creditBonus:d?.type==='PROTOCOL'?protocolBonus(d,unit.variant,'CREDITS')/100:0,craftBonus:d?.type==='PROTOCOL'?protocolBonus(d,unit.variant,'CRAFTING')/100:0,station,movingCosts:PRODUCTIVE_STATIONS.includes(station)||isProtocolStation(station)||d?.type==='PROTOCOL'};};
+  const score=createAssignmentScorer({units:units.map(scoreUnit),slots:slots.map(scoreSlot),locked:locked.map(unit=>({...scoreUnit(unit),...scoreSlot(unit)})),regions:PROTOCOL_REGIONS,multiplier:effectiveMultiplier(),lambda,craftSeconds,craftBaseSpeed,craftingPriority:state.protocolPriority==='crafting'});
   const better=(a,b)=>{for(let i=0;i<a.length;i++){if(a[i]>b[i]+1e-7)return true;if(a[i]<b[i]-1e-7)return false;}return false;};
   // Two starting points: the credit layout and the base as it stands. A search
   // that only ever starts from the credit layout can commit to a region flip in
@@ -3915,8 +3917,9 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-09-fusion-storage',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-09-search',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
+  onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
   onResult:(message,stamp)=>{
     if(stamp!==optimiseInputStamp()||optimiseBackgroundJob?.stamp!==stamp)return;
@@ -3933,8 +3936,8 @@ const optimiseBackground=createOptimiseBackground({
 });
 // Pure preparation also feeds the isolated layout worker. Keep it free of UI,
 // profile writes and account state; the generated worker context shares these rules.
-function prepareOptimiseWorkerJob(){
-  const prepared=prepareOptimiseLayout(),{baseP,plan}=prepared,targets=[];
+function prepareOptimiseWorkerJob(progress){
+  const prepared=prepareOptimiseLayout(undefined,progress),{baseP,plan}=prepared,targets=[];
   let projected=prepared.projected;
   while(projected){targets.push(structuredClone(projected));projected=projected.fallback;}
   const rules=optimiseRouteRules(),stations=Object.keys(SLOT_RULES),slots=Object.fromEntries(stations.map(s=>[s,rules.slots(s)]));
@@ -3955,7 +3958,7 @@ function optimiseLayoutSnapshot(){
     storage:Object.fromEntries(['droid-archive-companion-activity','droid-archive-optimise-spared','droid-archive-optimise-sell-instead'].map(key=>[key,localStorage.getItem(key)])),
     variants:VARIANTS,displayVariants:DISPLAY_VARIANTS,kyberPreviewVerified,craftingEventMultiplier};
 }
-function refreshBackgroundOptimise(){
+function refreshBackgroundOptimise(extended=false){
   if(!state.droids.length)return;
   const stamp=optimiseInputStamp();
   if(optimiseBackgroundJob?.stamp===stamp)return;
@@ -3964,7 +3967,7 @@ function refreshBackgroundOptimise(){
   optimiseBackgroundJob={stamp};
   // Only copy inputs here. Both layout comparisons and route search run in the
   // cancellable worker, so a Base edit never starts a long main-thread task.
-  optimiseBackground.update(stamp,{layout:optimiseLayoutSnapshot()});
+  optimiseBackground.update(stamp,{layout:optimiseLayoutSnapshot()},{budget:extended?180000:45000});
 }
 function backgroundOptimisePreview(){
   refreshBackgroundOptimise();const stamp=optimiseInputStamp();
@@ -4151,12 +4154,14 @@ function novaIconicPurchaseOptions(baseP,projected){
 }
 // Missing copies exist only in this calculation. The route must purchase each
 // one into a free Companion seat before it can move or appear in an applied save.
-function prepareOptimiseLayout(baseP=placements()){
+function prepareOptimiseLayout(baseP=placements(),progress){
   const owned=state.owned,currentIncome=incomeForPlaced(baseP.placed),chosen=[],returns=[];
+  let comparisons=0;
   const keyOf=u=>`${u.source}:${u.unit}`;
   const calculate=(removed=returns)=>{
     const keys=new Set(removed.map(keyOf)),input={...baseP,placed:baseP.placed.filter(u=>!keys.has(keyOf(u))),overflow:(baseP.overflow||[]).filter(u=>!keys.has(keyOf(u)))};
-    const plan=optimiseBase(input,currentIncome);return {plan,projected:optimisedPlacements(input,plan)};
+    const plan=optimiseBase(input,currentIncome),projected=optimisedPlacements(input,plan);
+    progress?.({phase:'layout',comparisons:++comparisons});return {plan,projected};
   };
   let best=calculate();
   if(!state.optimiseIncludeIconics)return {baseP,...best};
@@ -4278,9 +4283,15 @@ function optimisePage(){
     const searching=['idle','queued','searching'].includes(optimiseBackgroundStatus);
     // The activity buttons stay while a new search runs, so a mode can be
     // switched again or off without waiting for the route.
-    app.innerHTML=`<h1>Optimise</h1>${companionActivityHtml(placements())}<section class="panel" role="status"><p>${searching?'Finding a route for your current Base. You can keep using the site.':'No verified route is ready. Check your Base and try again.'}</p>${searching?'':'<button class="btn" id="retryBackgroundOptimise">Try again</button>'}</section>`;
+    const comparing=searching&&!optimiseBackgroundJob?.targets,comparisons=optimiseBackgroundJob?.progress?.comparisons;
+    const message=searching?(comparing?`Comparing Base layouts${comparisons?` (${comparisons} checked)`:''}. You can keep using the site.`:'Finding and checking the moves for your Base. You can keep using the site.')
+      :optimiseBackgroundStatus==='budget'?'The search reached its time limit before completing a plan. Your Base has not changed.'
+      :optimiseBackgroundStatus==='error'?'Optimise could not finish this calculation. Your Base has not changed.'
+      :'The search has not found a complete move sequence yet. Your Base has not changed.';
+    const issues=!searching?optimiseBackgroundJob?.issues||[]:[];
+    app.innerHTML=`<h1>Optimise</h1>${companionActivityHtml(placements())}<section class="panel" role="status"><p>${message}</p>${issues.length?`<p class="muted">${issues.map(escapeAttr).join('<br>')}</p>`:''}${searching?'':`<button class="btn" id="retryBackgroundOptimise">${optimiseBackgroundStatus==='error'?'Try again':'Search longer'}</button>`}</section>`;
     wireCompanionActivityButtons();
-    document.querySelector('#retryBackgroundOptimise')?.addEventListener('click',()=>{optimiseBackgroundJob=null;refreshBackgroundOptimise();optimisePage()});
+    document.querySelector('#retryBackgroundOptimise')?.addEventListener('click',()=>{optimiseBackgroundJob=null;refreshBackgroundOptimise(true);optimisePage()});
     publishCompanionState({computed:false,steps:[],route:[],stops:0});return;
   }
   const ticked=optimiseTickedProjection(preview);
