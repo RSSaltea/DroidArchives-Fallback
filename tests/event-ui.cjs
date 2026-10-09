@@ -8,7 +8,7 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
  try{for(const shell of ['index.html','classic.html']){
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));await page.route('https://**/*',r=>r.abort());
-  await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.eventTest={state,route,baseExport,validateBaseImport,profileDataFromState,applyProfileData,blankProfileData,optimiseInputStamp,eventReminders};'}));
+  await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.eventTest={state,route,baseExport,validateBaseImport,profileDataFromState,applyProfileData,blankProfileData,normalizeProfileDoc,cacheCloudDocLocally,optimiseInputStamp,eventReminders};'}));
   await context.addInitScript(ids=>localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(ids)),JSON.parse(fs.readFileSync('data/patch-notes.json','utf8')).notes.map(n=>n.id));
   const url=`http://127.0.0.1:${server.address().port}/${shell}#/event`;
   await page.goto(url);await page.locator('.event-page').waitFor();
@@ -24,7 +24,11 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
   await page.locator('[data-event-owned="bat-hat"]').check();assert.match(await page.locator('.event-wishlist-summary').innerText(),/130 Treats/);
   assert.equal(await page.evaluate(()=>eventTest.optimiseInputStamp()),stamp);
   const saved=await page.evaluate(()=>eventTest.profileDataFromState());assert.equal((await page.evaluate(()=>eventTest.baseExport())).base.eventProgress.treats,30);
-  await page.reload();await page.locator('.event-page').waitFor();assert.equal(await page.locator('#eventTreatBalance').inputValue(),'30');assert(await page.locator('[data-event-visit]').nth(1).isChecked());
+  // Loading a saved profile and rebuilding the cloud cache must preserve all Event fields.
+  const roundTrip=await page.evaluate(saved=>eventTest.normalizeProfileDoc({activeProfileId:'event-regression',profiles:[{id:'event-regression',data:saved}]}).profiles[0].data,saved);
+  assert.deepEqual(roundTrip.eventProgress,saved.eventProgress,'Profile normalisation dropped Event progress');
+  await page.evaluate(saved=>{const previous=eventTest.state.cloud.doc;eventTest.state.cloud.doc={activeProfileId:eventTest.state.cloud.activeProfileId,profiles:[{id:eventTest.state.cloud.activeProfileId,data:saved}]};eventTest.cacheCloudDocLocally();eventTest.state.cloud.doc=previous;},saved);
+  await page.reload();await page.locator('.event-page').waitFor();assert.equal(await page.locator('#eventTreatBalance').inputValue(),'30');assert(await page.locator('[data-event-visit]').nth(1).isChecked());assert(await page.locator('[data-event-owned="bat-hat"]').isChecked());assert.equal(await page.locator('[data-event-wish="ghoulish-gonk"]').getAttribute('aria-pressed'),'true');
   await page.evaluate(()=>{eventTest.applyProfileData(eventTest.blankProfileData());eventTest.route()});assert.equal(await page.locator('#eventTreatBalance').inputValue(),'0');
   await page.evaluate(p=>{eventTest.applyProfileData(p);eventTest.route()},saved);assert.equal(await page.locator('#eventTreatBalance').inputValue(),'30');
   assert.equal((await page.evaluate(()=>eventTest.validateBaseImport({owned:[]}))).eventProgress.visitDay,day);
