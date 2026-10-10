@@ -654,7 +654,10 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
             const station = state.pos.get(key).station, room = ['BUILD', 'FUSION_BUILD'].includes(station) ? 0 : free(station).length;
             const companionReposition = (rules.companionWorkLanding||rules.protocolCompanionLanding&&rules.typeOf(units.get(key))==='PROTOCOL') && commandFor(goal)==='work';
             const prediction = predictWorkLanding({ ...units.get(key), ...state.pos.get(key) }, placedOf(state), rules);
-            const distanceBlocked = (companionReposition || typeof rules.slotDistanceSquared === 'function') && !['BUILD', 'FUSION_BUILD'].includes(station) && (companionReposition || policy.reposition || !['LOUNGE', 'FUSION'].includes(station)) &&
+            // Finished tank droids also need a Companion approach when Work
+            // would land elsewhere. The tank filter below allows only a seat,
+            // preserving an occupant for any required return swap.
+            const distanceBlocked = (companionReposition || typeof rules.slotDistanceSquared === 'function') && (companionReposition || policy.reposition || !['LOUNGE', 'FUSION'].includes(station)) &&
               commandFor(goal) === 'work' && (!goalMet(prediction, goal, rules) || companionReposition && prediction?.assumed && (prediction.candidates?.length??prediction.options?.length??0)>1);
             return arrivalsInto(state, station) > room || ['BUILD', 'FUSION_BUILD'].includes(goal.station) || distanceBlocked;
           });

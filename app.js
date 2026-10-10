@@ -10,7 +10,7 @@ import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-10-05-l
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-09-28-iconic-purchases';
-import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-10-09-search';
+import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-10-10-finished-tanks';
 import { slotDistanceSquared, slotPosition } from './slot-geometry.js?v=2026-09-26-slot-order';
 import { createOptimiseBackground } from './optimise-background.js?v=2026-10-09-search';
 import { createAssignmentScorer } from './optimise-layout-score.js?v=2026-10-09-search';
@@ -3916,7 +3916,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-09-route-copy',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-10-finished-tanks',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},

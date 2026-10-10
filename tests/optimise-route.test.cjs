@@ -533,3 +533,17 @@ test('with a Lounge slot free the walk still prefers it to the Companion seat',a
   assert.equal(route.complete,true,route.issues.join(' '));
   assert.ok(!route.steps.some(step=>step.type==='swap'),summary.join(' , '));
 });
+
+for(const tank of ['BUILD','FUSION_BUILD'])test(`finished ${tank} droid can use a Companion to reach its work slot`,async()=>{
+  const mod=await load();nextSource=0;
+  const worker=unit('WORK-A',tank,0,{built:true}),fill=unit('WORK-FILL','WORKER',0,{lockedSlot:true}),pal=unit('ASTRO-PAL','COMPANION',0,{lockedSlot:true});
+  const rules={...rulesFor({WORKER:1,ASTROMECH:2,BATTLE:1,LOUNGE:1,[tank]:1,COMPANION:1}),allowTemporaryCompanionSwaps:true,
+    slotDistanceSquared:(a,b)=>a.station==='COMPANION'?null:b.station==='ASTROMECH'?b.slot+1:100};
+  rules.workLanding=(u,p)=>mod.predictWorkLanding(u,p,rules);
+  rules.companionWorkLanding=(u,p,t)=>mod.predictCompanionWorkLanding(u,p,t,rules);
+  const initial={placed:[worker,fill,pal]},target={placed:[at(worker,'BATTLE'),fill,pal],sell:[]};
+  const route=mod.planOptimiseRoute({initial,target,rules});assert(route.complete,route.issues.join('; '));
+  const approach=route.steps.find(s=>s.approachSlot);assert(approach,JSON.stringify(route.steps));assert.equal(approach.unit.name,'WORK-A');assert.equal(approach.at,'BATTLE');assert.equal(approach.assumed,false);
+  const replay=mod.validateOptimisePlan({initial,projected:{placed:route.finalPlaced,sell:[]},steps:route.steps,rules});assert(replay.ok,replay.issues.join('; '));assert(replay.companionsRestored);
+  worker.built=false;assert.equal(mod.planOptimiseRoute({initial,target,rules}).complete,false,'unfinished tank droids remain protected');
+});
