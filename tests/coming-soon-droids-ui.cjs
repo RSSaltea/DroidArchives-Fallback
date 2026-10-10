@@ -18,6 +18,15 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
    assert.equal(await page.locator('#addThis').isEnabled(),true);
    const art=page.locator('.info-image img');await art.waitFor();await art.evaluate(img=>img.decode());
    assert(await art.evaluate(img=>img.naturalWidth>0));
+   if(name!=='WG-22'){
+    const variants=await page.evaluate(name=>upcomingTest.state.droids.find(d=>d.name===name).portraits,name);
+    for(const [variant,expected] of Object.entries(variants)){
+     await page.locator(`[data-v="${variant}"]`).click();await page.locator('.info-image img').evaluate(img=>img.decode());
+     assert((await page.locator('.info-image img').getAttribute('src')).endsWith(expected));
+     assert.equal(await page.locator('.info-image img').getAttribute('data-kyber-colour'),null,'Dedicated Kyber artwork must not receive the legacy colour filter');
+    }
+   }
+
    assert.match(await page.locator('.article-grid article').innerText(),name==='WG-22'?/200 personal Gonk Army points/:/Sandcrawler conveyor/);
   }
   await page.goto(base+'#/droid/kt');await page.locator('[data-v="KYBER_PURPLE"]').click();assert.match(await page.locator('.info-rows').innerText(),/142\.56K/);

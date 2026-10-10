@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-10-10-gonk-portraits",
+      "date": "2026-10-10",
+      "title": "Gonk variant portraits",
+      "summary": "The seven new regular droids now have different portraits for every quality.",
+      "changes": [
+        "Added Gold, Diamond, Rainbow, Beskar, Galactic, Stellar and all four Kyber forms.",
+        "Variant images now follow your selection in Droids, Droidex, Base and blueprints.",
+        "Portraits are static reconstructions of the game materials. WG-22 remains Default-only."
+      ]
+    },
+    {
       "id": "2026-10-10-gonk-army",
       "date": "2026-10-10",
       "title": "Gonk Army update",

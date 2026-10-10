@@ -7704,13 +7704,24 @@
     "additionalPowerScale": 0,
     "craftingXp": 16000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/EG-58.png"
+      "DEFAULT": "assets/droids/gonk-army/EG-58.png",
+      "GOLD": "assets/droids/gonk-army/EG-58_GOLD.png",
+      "DIAMOND": "assets/droids/gonk-army/EG-58_DIAMOND.png",
+      "RAINBOW": "assets/droids/gonk-army/EG-58_RAINBOW.png",
+      "BESKAR": "assets/droids/gonk-army/EG-58_BESKAR.png",
+      "GALACTIC": "assets/droids/gonk-army/EG-58_GALACTIC.png",
+      "STELLAR": "assets/droids/gonk-army/EG-58_STELLAR.png",
+      "KYBER": "assets/droids/gonk-army/EG-58_KYBER.png",
+      "KYBER_GREEN": "assets/droids/gonk-army/EG-58_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/gonk-army/EG-58_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/gonk-army/EG-58_KYBER_PURPLE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
       "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
       "obtainFromAstromech": true
-    }
+    },
+    "portraitRendering": "Static material reconstruction using exported game portraits, masks, normal maps and variant textures; animated shader effects are approximated."
   },
   {
     "name": "EGL",
@@ -7798,13 +7809,24 @@
     "additionalPowerScale": 0,
     "craftingXp": 270000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/EGL.png"
+      "DEFAULT": "assets/droids/gonk-army/EGL.png",
+      "GOLD": "assets/droids/gonk-army/EGL_GOLD.png",
+      "DIAMOND": "assets/droids/gonk-army/EGL_DIAMOND.png",
+      "RAINBOW": "assets/droids/gonk-army/EGL_RAINBOW.png",
+      "BESKAR": "assets/droids/gonk-army/EGL_BESKAR.png",
+      "GALACTIC": "assets/droids/gonk-army/EGL_GALACTIC.png",
+      "STELLAR": "assets/droids/gonk-army/EGL_STELLAR.png",
+      "KYBER": "assets/droids/gonk-army/EGL_KYBER.png",
+      "KYBER_GREEN": "assets/droids/gonk-army/EGL_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/gonk-army/EGL_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/gonk-army/EGL_KYBER_PURPLE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
       "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
       "obtainFromAstromech": true
-    }
+    },
+    "portraitRendering": "Static material reconstruction using exported game portraits, masks, normal maps and variant textures; animated shader effects are approximated."
   },
   {
     "name": "KT",
@@ -7892,13 +7914,24 @@
     "additionalPowerScale": 0,
     "craftingXp": 420000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/KT.png"
+      "DEFAULT": "assets/droids/gonk-army/KT.png",
+      "GOLD": "assets/droids/gonk-army/KT_GOLD.png",
+      "DIAMOND": "assets/droids/gonk-army/KT_DIAMOND.png",
+      "RAINBOW": "assets/droids/gonk-army/KT_RAINBOW.png",
+      "BESKAR": "assets/droids/gonk-army/KT_BESKAR.png",
+      "GALACTIC": "assets/droids/gonk-army/KT_GALACTIC.png",
+      "STELLAR": "assets/droids/gonk-army/KT_STELLAR.png",
+      "KYBER": "assets/droids/gonk-army/KT_KYBER.png",
+      "KYBER_GREEN": "assets/droids/gonk-army/KT_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/gonk-army/KT_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/gonk-army/KT_KYBER_PURPLE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
       "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
       "obtainFromAstromech": true
-    }
+    },
+    "portraitRendering": "Static material reconstruction using exported game portraits, masks, normal maps and variant textures; animated shader effects are approximated."
   },
   {
     "name": "MPH",
@@ -7986,13 +8019,24 @@
     "additionalPowerScale": 0,
     "craftingXp": 660000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/MPH.png"
+      "DEFAULT": "assets/droids/gonk-army/MPH.png",
+      "GOLD": "assets/droids/gonk-army/MPH_GOLD.png",
+      "DIAMOND": "assets/droids/gonk-army/MPH_DIAMOND.png",
+      "RAINBOW": "assets/droids/gonk-army/MPH_RAINBOW.png",
+      "BESKAR": "assets/droids/gonk-army/MPH_BESKAR.png",
+      "GALACTIC": "assets/droids/gonk-army/MPH_GALACTIC.png",
+      "STELLAR": "assets/droids/gonk-army/MPH_STELLAR.png",
+      "KYBER": "assets/droids/gonk-army/MPH_KYBER.png",
+      "KYBER_GREEN": "assets/droids/gonk-army/MPH_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/gonk-army/MPH_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/gonk-army/MPH_KYBER_PURPLE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
       "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
       "obtainFromAstromech": true
-    }
+    },
+    "portraitRendering": "Static material reconstruction using exported game portraits, masks, normal maps and variant textures; animated shader effects are approximated."
   },
   {
     "name": "JO9-4MN",
@@ -8080,13 +8124,24 @@
     "additionalPowerScale": 0,
     "craftingXp": 2800000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/JO9-4MN.png"
+      "DEFAULT": "assets/droids/gonk-army/JO9-4MN.png",
+      "GOLD": "assets/droids/gonk-army/JO9-4MN_GOLD.png",
+      "DIAMOND": "assets/droids/gonk-army/JO9-4MN_DIAMOND.png",
+      "RAINBOW": "assets/droids/gonk-army/JO9-4MN_RAINBOW.png",
+      "BESKAR": "assets/droids/gonk-army/JO9-4MN_BESKAR.png",
+      "GALACTIC": "assets/droids/gonk-army/JO9-4MN_GALACTIC.png",
+      "STELLAR": "assets/droids/gonk-army/JO9-4MN_STELLAR.png",
+      "KYBER": "assets/droids/gonk-army/JO9-4MN_KYBER.png",
+      "KYBER_GREEN": "assets/droids/gonk-army/JO9-4MN_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/gonk-army/JO9-4MN_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/gonk-army/JO9-4MN_KYBER_PURPLE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
       "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
       "obtainFromAstromech": true
-    }
+    },
+    "portraitRendering": "Static material reconstruction using exported game portraits, masks, normal maps and variant textures; animated shader effects are approximated."
   },
   {
     "name": "PLNK",
@@ -8174,13 +8229,24 @@
     "additionalPowerScale": 0,
     "craftingXp": 3100000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/PLNK.png"
+      "DEFAULT": "assets/droids/gonk-army/PLNK.png",
+      "GOLD": "assets/droids/gonk-army/PLNK_GOLD.png",
+      "DIAMOND": "assets/droids/gonk-army/PLNK_DIAMOND.png",
+      "RAINBOW": "assets/droids/gonk-army/PLNK_RAINBOW.png",
+      "BESKAR": "assets/droids/gonk-army/PLNK_BESKAR.png",
+      "GALACTIC": "assets/droids/gonk-army/PLNK_GALACTIC.png",
+      "STELLAR": "assets/droids/gonk-army/PLNK_STELLAR.png",
+      "KYBER": "assets/droids/gonk-army/PLNK_KYBER.png",
+      "KYBER_GREEN": "assets/droids/gonk-army/PLNK_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/gonk-army/PLNK_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/gonk-army/PLNK_KYBER_PURPLE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
       "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
       "obtainFromAstromech": true
-    }
+    },
+    "portraitRendering": "Static material reconstruction using exported game portraits, masks, normal maps and variant textures; animated shader effects are approximated."
   },
   {
     "name": "ECG",
@@ -8268,13 +8334,24 @@
     "additionalPowerScale": 0,
     "craftingXp": 24000000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/ECG.png"
+      "DEFAULT": "assets/droids/gonk-army/ECG.png",
+      "GOLD": "assets/droids/gonk-army/ECG_GOLD.png",
+      "DIAMOND": "assets/droids/gonk-army/ECG_DIAMOND.png",
+      "RAINBOW": "assets/droids/gonk-army/ECG_RAINBOW.png",
+      "BESKAR": "assets/droids/gonk-army/ECG_BESKAR.png",
+      "GALACTIC": "assets/droids/gonk-army/ECG_GALACTIC.png",
+      "STELLAR": "assets/droids/gonk-army/ECG_STELLAR.png",
+      "KYBER": "assets/droids/gonk-army/ECG_KYBER.png",
+      "KYBER_GREEN": "assets/droids/gonk-army/ECG_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/gonk-army/ECG_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/gonk-army/ECG_KYBER_PURPLE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
       "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
       "obtainFromAstromech": false
-    }
+    },
+    "portraitRendering": "Static material reconstruction using exported game portraits, masks, normal maps and variant textures; animated shader effects are approximated."
   },
   {
     "name": "WG-22",
