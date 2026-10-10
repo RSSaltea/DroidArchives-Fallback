@@ -11,32 +11,28 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
   await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.upcomingTest={state,COMING_SOON_DROIDS,requestAdd,commitOwned,addBlueprint,toggleDroidex};'}));
   await context.addInitScript(ids=>localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(ids)),JSON.parse(fs.readFileSync('data/patch-notes.json','utf8')).notes.map(n=>n.id));
   const base=`http://127.0.0.1:${server.address().port}/${shell}`;
-  await page.goto(base+'#/droids');await page.locator('[data-coming-soon="WG-22"]').waitFor();
-  assert.equal(await page.locator('[data-coming-soon]').count(),8);
-  await page.locator('[data-coming-soon="WG-22"]').click();await page.locator('.coming-soon-detail').waitFor();
-  assert.equal(await page.locator('[data-upcoming-variant]').count(),1);
-  assert.match(await page.locator('.coming-soon-detail').innerText(),/2? Flawless Chance/);
-  assert.equal(await page.locator('.detail-actions button:disabled').count(),3);
-  await page.goto(base+'#/droid/kt');await page.locator('.coming-soon-detail').waitFor();
-  assert.equal(await page.locator('[data-upcoming-variant]').count(),11);
-  await page.locator('[data-upcoming-variant="KYBER_PURPLE"]').click();
-  assert.match(await page.locator('tbody').innerText(),/Kyber Purple/);
-  assert.equal(await page.locator('tbody .upcoming-value').count(),4);
-  assert(!/\bNaN\b|\b0\/s\b/.test(await page.locator('.coming-soon-detail').innerText()));
-  assert.equal(await page.evaluate(()=>upcomingTest.state.droids.some(d=>upcomingTest.COMING_SOON_DROIDS.some(u=>u.name===d.name))),false);
-  const preserved=await page.evaluate(()=>{
-   const t=upcomingTest,before=JSON.stringify([t.state.owned,t.state.blueprints,t.state.droidex]);
-   for(const d of t.COMING_SOON_DROIDS){t.requestAdd(d.name,'DEFAULT');t.commitOwned(d.name,'DEFAULT');t.addBlueprint(d.name,'DEFAULT');t.toggleDroidex(d.name,'DEFAULT')}
-   return before===JSON.stringify([t.state.owned,t.state.blueprints,t.state.droidex]);
-  });assert(preserved,'Upcoming droids cannot enter gameplay or collection state');
-  await page.goto(base+'#/droidex');await page.locator('#dexUpcoming [data-coming-soon]').first().waitFor();
-  assert.equal(await page.locator('#dexUpcoming [data-coming-soon]').count(),8);
-  await page.locator('[data-dex-variant="KYBER_PURPLE"]').click();
-  assert.equal(await page.locator('#dexUpcoming [data-coming-soon]').count(),7);
-  await page.locator('#dexSearch').fill('PLNK');assert.equal(await page.locator('#dexUpcoming [data-coming-soon]').count(),1);
-  await page.setViewportSize({width:390,height:844});await page.goto(base+'#/droid/kt');await page.locator('.coming-soon-detail').waitFor();
-  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),'Mobile page should not overflow');
-  fs.mkdirSync('research/uefn/october09/ui',{recursive:true});await page.screenshot({path:`research/uefn/october09/ui/${shell}-upcoming.png`,fullPage:true});
-  assert.deepEqual(errors,[]);await context.close();console.log(`${shell}: upcoming variants, disabled tracking and mobile layout passed`);
+  await page.goto(base+'#/droids');await page.waitForFunction(()=>window.upcomingTest?.state.droids.length===100);
+  assert.equal(await page.locator('[data-coming-soon]').count(),0);
+  for(const name of ['WG-22','KT','MPH','JO9-4MN','ECG','EG-58','EGL','PLNK']){
+   await page.goto(base+'#/droid/'+name.toLowerCase());await page.locator('#addThis').waitFor();
+   assert.equal(await page.locator('#addThis').isEnabled(),true);
+   const art=page.locator('.info-image img');await art.waitFor();await art.evaluate(img=>img.decode());
+   assert(await art.evaluate(img=>img.naturalWidth>0));
+   assert.match(await page.locator('.article-grid article').innerText(),name==='WG-22'?/200 personal Gonk Army points/:/Sandcrawler conveyor/);
+  }
+  await page.goto(base+'#/droid/kt');await page.locator('[data-v="KYBER_PURPLE"]').click();assert.match(await page.locator('.info-rows').innerText(),/142\.56K/);
+  const added=await page.evaluate(()=>{
+   const t=upcomingTest;t.state.rebirth=40;t.state.novaUpgrades['blueprint-storage']=9;
+   for(const name of ['WG-22','KT','MPH','JO9-4MN','ECG','EG-58','EGL','PLNK']){t.commitOwned(name,'DEFAULT',1);t.toggleDroidex(name,'DEFAULT');}
+   t.addBlueprint('KT','KYBER',8);
+   return {owned:t.state.owned.map(d=>d.name),blueprints:t.state.blueprints};
+  });assert.equal(added.owned.length,8);assert.equal(added.blueprints[0].slot,8);
+  await page.goto(base+'#/base');await page.locator('.tm-canvas').waitFor();assert.equal(await page.locator('.tm-canvas [data-slot^="BLUEPRINT_STORAGE:"]').count(),9);
+  assert.equal(await page.locator('.tm-canvas img').evaluateAll(imgs=>imgs.filter(i=>i.src.includes('gonk-army')).length)>0,true);
+  await page.goto(base+'#/event');await page.locator('.gonk-army-panel').waitFor();await page.selectOption('[data-gonk-droid]','ECG');await page.selectOption('[data-gonk-quality]','KYBER');await page.locator('[data-gonk-pass]').check();assert.match(await page.locator('[data-gonk-points]').innerText(),/24 personal/);
+  fs.mkdirSync('research/uefn/october10/ui',{recursive:true});await page.screenshot({path:`research/uefn/october10/ui/${shell}-event.png`,fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),'Mobile event page should not overflow');
+  assert.deepEqual(errors,[]);await context.close();console.log(`${shell}: released droids, portraits, storage, event and mobile layout passed`);
  }}finally{await browser.close();server.close()}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1});

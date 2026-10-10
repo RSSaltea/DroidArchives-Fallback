@@ -28,7 +28,7 @@ test('fusion-exclusive droids receive their additional companion power; Kyber co
 });
 test('published data contains consistent unboosted construction times and audited prices/income',()=>{
  const multipliers={DEFAULT:1,GOLD:4,DIAMOND:6,RAINBOW:8,BESKAR:10,GALACTIC:14,STELLAR:18,KYBER:36,KYBER_GREEN:36,KYBER_BLUE:36,KYBER_PURPLE:36};
- assert.equal(droids.length,92);
+ assert.equal(droids.length,100);
  for(const droid of droids.filter(x=>x.rarity!=='ICONIC')){
   const income=droid.variants.DEFAULT.income,base=30+Math.min(income,2000)*1.755+Math.max(income-2000,0)*.7;
   for(const [variant,stats] of Object.entries(droid.variants)){

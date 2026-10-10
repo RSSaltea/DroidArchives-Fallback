@@ -2228,7 +2228,7 @@
       "name": "Blueprint Storage",
       "category": "workshop",
       "icon": "assets/nova-shop/T_Icon_BPStorage.png",
-      "description": "Unlock up to three offline Blueprint Storage slots in your base.",
+      "description": "Unlock up to nine offline Blueprint Storage slots in your base.",
       "levels": [
         {
           "level": 1,
@@ -2244,6 +2244,36 @@
           "level": 3,
           "cost": 150,
           "reward": "3 Offline Blueprint Slots"
+        },
+        {
+          "level": 4,
+          "cost": 250,
+          "reward": "4 Offline Blueprint Slots"
+        },
+        {
+          "level": 5,
+          "cost": 350,
+          "reward": "5 Offline Blueprint Slots"
+        },
+        {
+          "level": 6,
+          "cost": 500,
+          "reward": "6 Offline Blueprint Slots"
+        },
+        {
+          "level": 7,
+          "cost": 650,
+          "reward": "7 Offline Blueprint Slots"
+        },
+        {
+          "level": 8,
+          "cost": 800,
+          "reward": "8 Offline Blueprint Slots"
+        },
+        {
+          "level": 9,
+          "cost": 1000,
+          "reward": "9 Offline Blueprint Slots"
         }
       ]
     },

@@ -1,0 +1,11 @@
+{
+  "id": "wg-22-event",
+  "name": "Iconic Gonk Weekend",
+  "category": "Gonk Army event",
+  "description": "Build the Gonk Army to unlock WG-22, earn Treats, Crafting Boost Tokens and Nova Crystals. Seven new droids and Rebirth Cycle 6 arrive with the event.",
+  "startsAt": "2026-10-10T20:00:00Z",
+  "durationHours": 24,
+  "endedRetentionHours": 2,
+  "homepage": true,
+  "image": "assets/events/gonk-o-ween/T_Events_Banner_Iconic_Gonk.png"
+}

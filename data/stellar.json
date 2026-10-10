@@ -1,6 +1,6 @@
 {
   "_source": "https://gonk.tools/wiki?section=droids",
-  "_sourceBuild": "1.32.0",
+  "_sourceBuild": "1.34.0",
   "_rules": {
     "craftingMultiplier": 18,
     "costMultiplier": {
@@ -258,9 +258,9 @@
     "craftingSeconds": 5278.5
   },
   "R2": {
-    "cost": 2475000000.0,
-    "income": 28800.0,
-    "craftingSeconds": 11912.4
+    "cost": 3375000000.0,
+    "income": 38400.0,
+    "craftingSeconds": 15703.2
   },
   "R6": {
     "cost": 2025000000.0,
@@ -283,9 +283,9 @@
     "craftingSeconds": 13807.8
   },
   "B2 HEAVY": {
-    "cost": 3375000000.0,
-    "income": 38400.0,
-    "craftingSeconds": 15703.2
+    "cost": 2475000000.0,
+    "income": 28800.0,
+    "craftingSeconds": 11912.4
   },
   "STRIKE-ORB": {
     "cost": 3825000000.0,
@@ -496,5 +496,41 @@
     "cost": 11200000000000.0,
     "income": 500000.0,
     "craftingSeconds": 88920.0
-  }
+  },
+  "EG-58": {
+    "cost": 3840000.0,
+    "income": 2240.0,
+    "craftingSeconds": 2751.3
+  },
+  "EGL": {
+    "cost": 2025000000.0,
+    "income": 24000.0,
+    "craftingSeconds": 10017.0
+  },
+  "KT": {
+    "cost": 3150000000.0,
+    "income": 36000.0,
+    "craftingSeconds": 14755.5
+  },
+  "MPH": {
+    "cost": 4950000000.0,
+    "income": 55200.0,
+    "craftingSeconds": 22337.1
+  },
+  "JO9-4MN": {
+    "cost": 406000000000.0,
+    "income": 195000.0,
+    "craftingSeconds": 41607.0
+  },
+  "PLNK": {
+    "cost": 449500000000.0,
+    "income": 210000.0,
+    "craftingSeconds": 44766.0
+  },
+  "ECG": {
+    "cost": 6720000000000.0,
+    "income": 775000.0,
+    "craftingSeconds": 116640.0
+  },
+  "_updateSource": "Game data revision 7374 (10 October 2026)"
 }

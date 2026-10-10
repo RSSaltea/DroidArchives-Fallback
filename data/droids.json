@@ -2757,85 +2757,85 @@
     "type": "ASTROMECH",
     "variants": {
       "DEFAULT": {
-        "cost": 3300000.0,
-        "income": 360.0,
-        "craftingSeconds": 661.8,
-        "sellCredits": 2310000.0,
+        "cost": 4500000.0,
+        "income": 480.0,
+        "craftingSeconds": 872.4,
+        "sellCredits": 3150000.0,
         "sellUpgradeChips": 0
       },
       "GOLD": {
-        "cost": 13200000.0,
-        "income": 720.0,
-        "craftingSeconds": 2647.2,
-        "sellCredits": 9240000.0,
+        "cost": 18000000.0,
+        "income": 960.0,
+        "craftingSeconds": 3489.6,
+        "sellCredits": 12600000.0,
         "sellUpgradeChips": 30.0
       },
       "DIAMOND": {
-        "cost": 26400000.0,
-        "income": 1440.0,
-        "craftingSeconds": 3970.8,
-        "sellCredits": 18480000.0,
+        "cost": 36000000.0,
+        "income": 1920.0,
+        "craftingSeconds": 5234.4,
+        "sellCredits": 25200000.0,
         "sellUpgradeChips": 33.0
       },
       "RAINBOW": {
-        "cost": 39600000.0,
-        "income": 2880.0,
-        "craftingSeconds": 5294.4,
-        "sellCredits": 27720000.0,
+        "cost": 54000000.0,
+        "income": 3840.0,
+        "craftingSeconds": 6979.2,
+        "sellCredits": 37800000.0,
         "sellUpgradeChips": 36.0
       },
       "BESKAR": {
-        "cost": 412500000.0,
-        "income": 12240.0,
-        "craftingSeconds": 6618.0,
-        "sellCredits": 288750000.0,
+        "cost": 562500000.0,
+        "income": 16320.0,
+        "craftingSeconds": 8724.0,
+        "sellCredits": 393750000.0,
         "sellUpgradeChips": 39.0
       },
       "GALACTIC": {
-        "cost": 990000000.0,
-        "income": 18720.0,
-        "craftingSeconds": 9265.2,
-        "sellCredits": 693000000.0,
+        "cost": 1350000000.0,
+        "income": 24960.0,
+        "craftingSeconds": 12213.6,
+        "sellCredits": 945000000.0,
         "sellUpgradeChips": 42.0
       },
       "STELLAR": {
-        "cost": 2475000000.0,
-        "income": 28800.0,
-        "craftingSeconds": 11912.4,
-        "sellCredits": 1732500000.0,
+        "cost": 3375000000.0,
+        "income": 38400.0,
+        "craftingSeconds": 15703.2,
+        "sellCredits": 2362500000.0,
         "sellUpgradeChips": 45.0
       },
       "KYBER": {
-        "cost": 14850000000.0,
-        "income": 31680.0,
-        "craftingSeconds": 23824.8,
-        "sellCredits": 10395000000.0,
+        "cost": 20250000000.0,
+        "income": 42240.0,
+        "craftingSeconds": 31406.4,
+        "sellCredits": 14175000000.0,
         "sellUpgradeChips": 48.0
       },
       "KYBER_GREEN": {
-        "cost": 14850000000.0,
-        "income": 95040.0,
-        "craftingSeconds": 23824.8,
-        "sellCredits": 10395000000.0,
+        "cost": 20250000000.0,
+        "income": 126720.0,
+        "craftingSeconds": 31406.4,
+        "sellCredits": 14175000000.0,
         "sellUpgradeChips": 48.0
       },
       "KYBER_BLUE": {
-        "cost": 14850000000.0,
-        "income": 102960.0,
-        "craftingSeconds": 23824.8,
-        "sellCredits": 10395000000.0,
+        "cost": 20250000000.0,
+        "income": 137280.0,
+        "craftingSeconds": 31406.4,
+        "sellCredits": 14175000000.0,
         "sellUpgradeChips": 48.0
       },
       "KYBER_PURPLE": {
-        "cost": 14850000000.0,
-        "income": 114048.0,
-        "craftingSeconds": 23824.8,
-        "sellCredits": 10395000000.0,
+        "cost": 20250000000.0,
+        "income": 152064.0,
+        "craftingSeconds": 31406.4,
+        "sellCredits": 14175000000.0,
         "sellUpgradeChips": 48.0
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 330000.0
+    "craftingXp": 450000.0
   },
   {
     "name": "R6",
@@ -3359,85 +3359,85 @@
     "type": "BATTLE",
     "variants": {
       "DEFAULT": {
-        "cost": 4500000.0,
-        "income": 480.0,
-        "craftingSeconds": 872.4,
-        "sellCredits": 3150000.0,
+        "cost": 3300000.0,
+        "income": 360.0,
+        "craftingSeconds": 661.8,
+        "sellCredits": 2310000.0,
         "sellUpgradeChips": 0
       },
       "GOLD": {
-        "cost": 18000000.0,
-        "income": 960.0,
-        "craftingSeconds": 3489.6,
-        "sellCredits": 12600000.0,
+        "cost": 13200000.0,
+        "income": 720.0,
+        "craftingSeconds": 2647.2,
+        "sellCredits": 9240000.0,
         "sellUpgradeChips": 30.0
       },
       "DIAMOND": {
-        "cost": 36000000.0,
-        "income": 1920.0,
-        "craftingSeconds": 5234.4,
-        "sellCredits": 25200000.0,
+        "cost": 26400000.0,
+        "income": 1440.0,
+        "craftingSeconds": 3970.8,
+        "sellCredits": 18480000.0,
         "sellUpgradeChips": 33.0
       },
       "RAINBOW": {
-        "cost": 54000000.0,
-        "income": 3840.0,
-        "craftingSeconds": 6979.2,
-        "sellCredits": 37800000.0,
+        "cost": 39600000.0,
+        "income": 2880.0,
+        "craftingSeconds": 5294.4,
+        "sellCredits": 27720000.0,
         "sellUpgradeChips": 36.0
       },
       "BESKAR": {
-        "cost": 562500000.0,
-        "income": 16320.0,
-        "craftingSeconds": 8724.0,
-        "sellCredits": 393750000.0,
+        "cost": 412500000.0,
+        "income": 12240.0,
+        "craftingSeconds": 6618.0,
+        "sellCredits": 288750000.0,
         "sellUpgradeChips": 39.0
       },
       "GALACTIC": {
-        "cost": 1350000000.0,
-        "income": 24960.0,
-        "craftingSeconds": 12213.6,
-        "sellCredits": 945000000.0,
+        "cost": 990000000.0,
+        "income": 18720.0,
+        "craftingSeconds": 9265.2,
+        "sellCredits": 693000000.0,
         "sellUpgradeChips": 42.0
       },
       "STELLAR": {
-        "cost": 3375000000.0,
-        "income": 38400.0,
-        "craftingSeconds": 15703.2,
-        "sellCredits": 2362500000.0,
+        "cost": 2475000000.0,
+        "income": 28800.0,
+        "craftingSeconds": 11912.4,
+        "sellCredits": 1732500000.0,
         "sellUpgradeChips": 45.0
       },
       "KYBER": {
-        "cost": 20250000000.0,
-        "income": 42240.0,
-        "craftingSeconds": 31406.4,
-        "sellCredits": 14175000000.0,
+        "cost": 14850000000.0,
+        "income": 31680.0,
+        "craftingSeconds": 23824.8,
+        "sellCredits": 10395000000.0,
         "sellUpgradeChips": 48.0
       },
       "KYBER_GREEN": {
-        "cost": 20250000000.0,
-        "income": 126720.0,
-        "craftingSeconds": 31406.4,
-        "sellCredits": 14175000000.0,
+        "cost": 14850000000.0,
+        "income": 95040.0,
+        "craftingSeconds": 23824.8,
+        "sellCredits": 10395000000.0,
         "sellUpgradeChips": 48.0
       },
       "KYBER_BLUE": {
-        "cost": 20250000000.0,
-        "income": 137280.0,
-        "craftingSeconds": 31406.4,
-        "sellCredits": 14175000000.0,
+        "cost": 14850000000.0,
+        "income": 102960.0,
+        "craftingSeconds": 23824.8,
+        "sellCredits": 10395000000.0,
         "sellUpgradeChips": 48.0
       },
       "KYBER_PURPLE": {
-        "cost": 20250000000.0,
-        "income": 152064.0,
-        "craftingSeconds": 31406.4,
-        "sellCredits": 14175000000.0,
+        "cost": 14850000000.0,
+        "income": 114048.0,
+        "craftingSeconds": 23824.8,
+        "sellCredits": 10395000000.0,
         "sellUpgradeChips": 48.0
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 450000.0
+    "craftingXp": 330000.0
   },
   {
     "name": "STRIKE-ORB",
@@ -4641,7 +4641,7 @@
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 15000000.0
+    "craftingXp": 30000000
   },
   {
     "name": "LEP",
@@ -4727,7 +4727,7 @@
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 12600000.0
+    "craftingXp": 25200000
   },
   {
     "name": "RIC-1200",
@@ -4813,7 +4813,7 @@
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 11400000.0
+    "craftingXp": 22800000
   },
   {
     "name": "DRFT-R",
@@ -5071,7 +5071,7 @@
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 15000000.0
+    "craftingXp": 30000000
   },
   {
     "name": "TRI-TEK",
@@ -5157,7 +5157,7 @@
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 12600000.0
+    "craftingXp": 25200000
   },
   {
     "name": "IG",
@@ -7617,5 +7617,691 @@
     "sourceChecked": "2026-09-13",
     "craftingXp": 40000000.0,
     "additionalPowerScale": 0
+  },
+  {
+    "name": "EG-58",
+    "rarity": "RARE",
+    "type": "WORKER",
+    "variants": {
+      "DEFAULT": {
+        "cost": 160000.0,
+        "income": 70.0,
+        "craftingSeconds": 152.85,
+        "sellCredits": 112000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 640000.0,
+        "income": 140.0,
+        "craftingSeconds": 611.4,
+        "sellCredits": 448000.0,
+        "sellUpgradeChips": 6.0
+      },
+      "DIAMOND": {
+        "cost": 1280000.0,
+        "income": 280.0,
+        "craftingSeconds": 917.1,
+        "sellCredits": 896000.0,
+        "sellUpgradeChips": 9.0
+      },
+      "RAINBOW": {
+        "cost": 1920000.0,
+        "income": 560.0,
+        "craftingSeconds": 1222.8,
+        "sellCredits": 1344000.0,
+        "sellUpgradeChips": 12.0
+      },
+      "BESKAR": {
+        "cost": 2560000.0,
+        "income": 840.0,
+        "craftingSeconds": 1528.5,
+        "sellCredits": 1792000.0,
+        "sellUpgradeChips": 15.0
+      },
+      "GALACTIC": {
+        "cost": 3200000.0,
+        "income": 1680.0,
+        "craftingSeconds": 2139.9,
+        "sellCredits": 2240000.0,
+        "sellUpgradeChips": 18.0
+      },
+      "STELLAR": {
+        "cost": 3840000.0,
+        "income": 2240.0,
+        "craftingSeconds": 2751.3,
+        "sellCredits": 2688000.0,
+        "sellUpgradeChips": 21.0
+      },
+      "KYBER": {
+        "cost": 5760000.0,
+        "income": 2464.0,
+        "craftingSeconds": 5502.6,
+        "sellCredits": 4032000.0,
+        "sellUpgradeChips": 24.0
+      },
+      "KYBER_GREEN": {
+        "cost": 5760000.0,
+        "income": 7392.0,
+        "craftingSeconds": 5502.6,
+        "sellCredits": 4032000.0,
+        "sellUpgradeChips": 24.0
+      },
+      "KYBER_BLUE": {
+        "cost": 5760000.0,
+        "income": 8008.0,
+        "craftingSeconds": 5502.6,
+        "sellCredits": 4032000.0,
+        "sellUpgradeChips": 24.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 5760000.0,
+        "income": 8870.4,
+        "craftingSeconds": 5502.6,
+        "sellCredits": 4032000.0,
+        "sellUpgradeChips": 24.0
+      }
+    },
+    "additionalPowerScale": 0,
+    "craftingXp": 16000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/gonk-army/EG-58.png"
+    },
+    "acquisition": {
+      "method": "sandcrawler",
+      "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
+      "obtainFromAstromech": true
+    }
+  },
+  {
+    "name": "EGL",
+    "rarity": "EPIC",
+    "type": "WORKER",
+    "variants": {
+      "DEFAULT": {
+        "cost": 2700000.0,
+        "income": 300.0,
+        "craftingSeconds": 556.5,
+        "sellCredits": 1890000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 10800000.0,
+        "income": 600.0,
+        "craftingSeconds": 2226.0,
+        "sellCredits": 7560000.0,
+        "sellUpgradeChips": 30.0
+      },
+      "DIAMOND": {
+        "cost": 21600000.0,
+        "income": 1200.0,
+        "craftingSeconds": 3339.0,
+        "sellCredits": 15120000.0,
+        "sellUpgradeChips": 33.0
+      },
+      "RAINBOW": {
+        "cost": 32400000.0,
+        "income": 2400.0,
+        "craftingSeconds": 4452.0,
+        "sellCredits": 22680000.0,
+        "sellUpgradeChips": 36.0
+      },
+      "BESKAR": {
+        "cost": 337500000.0,
+        "income": 10200.0,
+        "craftingSeconds": 5565.0,
+        "sellCredits": 236250000.0,
+        "sellUpgradeChips": 39.0
+      },
+      "GALACTIC": {
+        "cost": 810000000.0,
+        "income": 15600.0,
+        "craftingSeconds": 7791.0,
+        "sellCredits": 567000000.0,
+        "sellUpgradeChips": 42.0
+      },
+      "STELLAR": {
+        "cost": 2025000000.0,
+        "income": 24000.0,
+        "craftingSeconds": 10017.0,
+        "sellCredits": 1417500000.0,
+        "sellUpgradeChips": 45.0
+      },
+      "KYBER": {
+        "cost": 12150000000.0,
+        "income": 26400.0,
+        "craftingSeconds": 20034.0,
+        "sellCredits": 8504999999.999999,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_GREEN": {
+        "cost": 12150000000.0,
+        "income": 79200.0,
+        "craftingSeconds": 20034.0,
+        "sellCredits": 8504999999.999999,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_BLUE": {
+        "cost": 12150000000.0,
+        "income": 85800.0,
+        "craftingSeconds": 20034.0,
+        "sellCredits": 8504999999.999999,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 12150000000.0,
+        "income": 95040.0,
+        "craftingSeconds": 20034.0,
+        "sellCredits": 8504999999.999999,
+        "sellUpgradeChips": 48.0
+      }
+    },
+    "additionalPowerScale": 0,
+    "craftingXp": 270000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/gonk-army/EGL.png"
+    },
+    "acquisition": {
+      "method": "sandcrawler",
+      "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
+      "obtainFromAstromech": true
+    }
+  },
+  {
+    "name": "KT",
+    "rarity": "EPIC",
+    "type": "WORKER",
+    "variants": {
+      "DEFAULT": {
+        "cost": 4200000.0,
+        "income": 450.0,
+        "craftingSeconds": 819.75,
+        "sellCredits": 2940000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 16800000.0,
+        "income": 900.0,
+        "craftingSeconds": 3279.0,
+        "sellCredits": 11760000.0,
+        "sellUpgradeChips": 30.0
+      },
+      "DIAMOND": {
+        "cost": 33600000.0,
+        "income": 1800.0,
+        "craftingSeconds": 4918.5,
+        "sellCredits": 23520000.0,
+        "sellUpgradeChips": 33.0
+      },
+      "RAINBOW": {
+        "cost": 50400000.0,
+        "income": 3600.0,
+        "craftingSeconds": 6558.0,
+        "sellCredits": 35280000.0,
+        "sellUpgradeChips": 36.0
+      },
+      "BESKAR": {
+        "cost": 525000000.0,
+        "income": 15300.0,
+        "craftingSeconds": 8197.5,
+        "sellCredits": 367500000.0,
+        "sellUpgradeChips": 39.0
+      },
+      "GALACTIC": {
+        "cost": 1260000000.0,
+        "income": 23400.0,
+        "craftingSeconds": 11476.5,
+        "sellCredits": 882000000.0,
+        "sellUpgradeChips": 42.0
+      },
+      "STELLAR": {
+        "cost": 3150000000.0,
+        "income": 36000.0,
+        "craftingSeconds": 14755.5,
+        "sellCredits": 2205000000.0,
+        "sellUpgradeChips": 45.0
+      },
+      "KYBER": {
+        "cost": 18900000000.0,
+        "income": 39600.0,
+        "craftingSeconds": 29511.0,
+        "sellCredits": 13230000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_GREEN": {
+        "cost": 18900000000.0,
+        "income": 118800.0,
+        "craftingSeconds": 29511.0,
+        "sellCredits": 13230000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_BLUE": {
+        "cost": 18900000000.0,
+        "income": 128700.0,
+        "craftingSeconds": 29511.0,
+        "sellCredits": 13230000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 18900000000.0,
+        "income": 142560.0,
+        "craftingSeconds": 29511.0,
+        "sellCredits": 13230000000.0,
+        "sellUpgradeChips": 48.0
+      }
+    },
+    "additionalPowerScale": 0,
+    "craftingXp": 420000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/gonk-army/KT.png"
+    },
+    "acquisition": {
+      "method": "sandcrawler",
+      "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
+      "obtainFromAstromech": true
+    }
+  },
+  {
+    "name": "MPH",
+    "rarity": "EPIC",
+    "type": "ASTROMECH",
+    "variants": {
+      "DEFAULT": {
+        "cost": 6600000.0,
+        "income": 690.0,
+        "craftingSeconds": 1240.95,
+        "sellCredits": 4620000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 26400000.0,
+        "income": 1380.0,
+        "craftingSeconds": 4963.8,
+        "sellCredits": 18480000.0,
+        "sellUpgradeChips": 30.0
+      },
+      "DIAMOND": {
+        "cost": 52800000.0,
+        "income": 2760.0,
+        "craftingSeconds": 7445.7,
+        "sellCredits": 36960000.0,
+        "sellUpgradeChips": 33.0
+      },
+      "RAINBOW": {
+        "cost": 79200000.0,
+        "income": 5520.0,
+        "craftingSeconds": 9927.6,
+        "sellCredits": 55440000.0,
+        "sellUpgradeChips": 36.0
+      },
+      "BESKAR": {
+        "cost": 825000000.0,
+        "income": 23460.0,
+        "craftingSeconds": 12409.5,
+        "sellCredits": 577500000.0,
+        "sellUpgradeChips": 39.0
+      },
+      "GALACTIC": {
+        "cost": 1980000000.0,
+        "income": 35880.0,
+        "craftingSeconds": 17373.3,
+        "sellCredits": 1386000000.0,
+        "sellUpgradeChips": 42.0
+      },
+      "STELLAR": {
+        "cost": 4950000000.0,
+        "income": 55200.0,
+        "craftingSeconds": 22337.1,
+        "sellCredits": 3465000000.0,
+        "sellUpgradeChips": 45.0
+      },
+      "KYBER": {
+        "cost": 29700000000.0,
+        "income": 60720.0,
+        "craftingSeconds": 44674.2,
+        "sellCredits": 20790000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_GREEN": {
+        "cost": 29700000000.0,
+        "income": 182160.0,
+        "craftingSeconds": 44674.2,
+        "sellCredits": 20790000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_BLUE": {
+        "cost": 29700000000.0,
+        "income": 197340.0,
+        "craftingSeconds": 44674.2,
+        "sellCredits": 20790000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 29700000000.0,
+        "income": 218592.0,
+        "craftingSeconds": 44674.2,
+        "sellCredits": 20790000000.0,
+        "sellUpgradeChips": 48.0
+      }
+    },
+    "additionalPowerScale": 0,
+    "craftingXp": 660000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/gonk-army/MPH.png"
+    },
+    "acquisition": {
+      "method": "sandcrawler",
+      "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
+      "obtainFromAstromech": true
+    }
+  },
+  {
+    "name": "JO9-4MN",
+    "rarity": "LEGENDARY",
+    "type": "WORKER",
+    "variants": {
+      "DEFAULT": {
+        "cost": 28000000.0,
+        "income": 1300.0,
+        "craftingSeconds": 2311.5,
+        "sellCredits": 19600000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 112000000.0,
+        "income": 2600.0,
+        "craftingSeconds": 9246.0,
+        "sellCredits": 78400000.0,
+        "sellUpgradeChips": 84.0
+      },
+      "DIAMOND": {
+        "cost": 224000000.0,
+        "income": 5200.0,
+        "craftingSeconds": 13869.0,
+        "sellCredits": 156800000.0,
+        "sellUpgradeChips": 87.0
+      },
+      "RAINBOW": {
+        "cost": 336000000.0,
+        "income": 10400.0,
+        "craftingSeconds": 18492.0,
+        "sellCredits": 235200000.0,
+        "sellUpgradeChips": 90.0
+      },
+      "BESKAR": {
+        "cost": 11200000000.0,
+        "income": 31200.0,
+        "craftingSeconds": 23115.0,
+        "sellCredits": 7839999999.999999,
+        "sellUpgradeChips": 93.0
+      },
+      "GALACTIC": {
+        "cost": 67200000000.0,
+        "income": 78000.0,
+        "craftingSeconds": 32361.0,
+        "sellCredits": 47040000000.0,
+        "sellUpgradeChips": 96.0
+      },
+      "STELLAR": {
+        "cost": 406000000000.0,
+        "income": 195000.0,
+        "craftingSeconds": 41607.0,
+        "sellCredits": 284200000000.0,
+        "sellUpgradeChips": 99.0
+      },
+      "KYBER": {
+        "cost": 2436000000000.0,
+        "income": 214500.0,
+        "craftingSeconds": 83214.0,
+        "sellCredits": 1705200000000.0,
+        "sellUpgradeChips": 102.0
+      },
+      "KYBER_GREEN": {
+        "cost": 2436000000000.0,
+        "income": 643500.0,
+        "craftingSeconds": 83214.0,
+        "sellCredits": 1705200000000.0,
+        "sellUpgradeChips": 102.0
+      },
+      "KYBER_BLUE": {
+        "cost": 2436000000000.0,
+        "income": 697125.0,
+        "craftingSeconds": 83214.0,
+        "sellCredits": 1705200000000.0,
+        "sellUpgradeChips": 102.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 2436000000000.0,
+        "income": 772200.0,
+        "craftingSeconds": 83214.0,
+        "sellCredits": 1705200000000.0,
+        "sellUpgradeChips": 102.0
+      }
+    },
+    "additionalPowerScale": 0,
+    "craftingXp": 2800000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/gonk-army/JO9-4MN.png"
+    },
+    "acquisition": {
+      "method": "sandcrawler",
+      "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
+      "obtainFromAstromech": true
+    }
+  },
+  {
+    "name": "PLNK",
+    "rarity": "LEGENDARY",
+    "type": "WORKER",
+    "variants": {
+      "DEFAULT": {
+        "cost": 31000000.0,
+        "income": 1400.0,
+        "craftingSeconds": 2487.0,
+        "sellCredits": 21700000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 124000000.0,
+        "income": 2800.0,
+        "craftingSeconds": 9948.0,
+        "sellCredits": 86800000.0,
+        "sellUpgradeChips": 84.0
+      },
+      "DIAMOND": {
+        "cost": 248000000.0,
+        "income": 5600.0,
+        "craftingSeconds": 14922.0,
+        "sellCredits": 173600000.0,
+        "sellUpgradeChips": 87.0
+      },
+      "RAINBOW": {
+        "cost": 372000000.0,
+        "income": 11200.0,
+        "craftingSeconds": 19896.0,
+        "sellCredits": 260400000.0,
+        "sellUpgradeChips": 90.0
+      },
+      "BESKAR": {
+        "cost": 12400000000.0,
+        "income": 33600.0,
+        "craftingSeconds": 24870.0,
+        "sellCredits": 8680000000.0,
+        "sellUpgradeChips": 93.0
+      },
+      "GALACTIC": {
+        "cost": 74400000000.0,
+        "income": 84000.0,
+        "craftingSeconds": 34818.0,
+        "sellCredits": 52080000000.0,
+        "sellUpgradeChips": 96.0
+      },
+      "STELLAR": {
+        "cost": 449500000000.0,
+        "income": 210000.0,
+        "craftingSeconds": 44766.0,
+        "sellCredits": 314650000000.0,
+        "sellUpgradeChips": 99.0
+      },
+      "KYBER": {
+        "cost": 2697000000000.0,
+        "income": 231000.0,
+        "craftingSeconds": 89532.0,
+        "sellCredits": 1887900000000.0,
+        "sellUpgradeChips": 102.0
+      },
+      "KYBER_GREEN": {
+        "cost": 2697000000000.0,
+        "income": 693000.0,
+        "craftingSeconds": 89532.0,
+        "sellCredits": 1887900000000.0,
+        "sellUpgradeChips": 102.0
+      },
+      "KYBER_BLUE": {
+        "cost": 2697000000000.0,
+        "income": 750750.0,
+        "craftingSeconds": 89532.0,
+        "sellCredits": 1887900000000.0,
+        "sellUpgradeChips": 102.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 2697000000000.0,
+        "income": 831600.0,
+        "craftingSeconds": 89532.0,
+        "sellCredits": 1887900000000.0,
+        "sellUpgradeChips": 102.0
+      }
+    },
+    "additionalPowerScale": 0,
+    "craftingXp": 3100000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/gonk-army/PLNK.png"
+    },
+    "acquisition": {
+      "method": "sandcrawler",
+      "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
+      "obtainFromAstromech": true
+    }
+  },
+  {
+    "name": "ECG",
+    "rarity": "MYTHIC",
+    "type": "ASTROMECH",
+    "variants": {
+      "DEFAULT": {
+        "cost": 240000000.0,
+        "income": 6200.0,
+        "craftingSeconds": 6480.0,
+        "sellCredits": 168000000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 960000000.0,
+        "income": 12400.0,
+        "craftingSeconds": 25920.0,
+        "sellCredits": 672000000.0,
+        "sellUpgradeChips": 192.0
+      },
+      "DIAMOND": {
+        "cost": 1920000000.0,
+        "income": 24800.0,
+        "craftingSeconds": 38880.0,
+        "sellCredits": 1344000000.0,
+        "sellUpgradeChips": 195.0
+      },
+      "RAINBOW": {
+        "cost": 5760000000.0,
+        "income": 49600.0,
+        "craftingSeconds": 51840.0,
+        "sellCredits": 4032000000.0,
+        "sellUpgradeChips": 198.0
+      },
+      "BESKAR": {
+        "cost": 192000000000.0,
+        "income": 99200.0,
+        "craftingSeconds": 64800.0,
+        "sellCredits": 134399999999.99998,
+        "sellUpgradeChips": 201.0
+      },
+      "GALACTIC": {
+        "cost": 1128000000000.0,
+        "income": 272800.0,
+        "craftingSeconds": 90720.0,
+        "sellCredits": 789600000000.0,
+        "sellUpgradeChips": 204.0
+      },
+      "STELLAR": {
+        "cost": 6720000000000.0,
+        "income": 775000.0,
+        "craftingSeconds": 116640.0,
+        "sellCredits": 4704000000000.0,
+        "sellUpgradeChips": 207.0
+      },
+      "KYBER": {
+        "cost": 40320000000000.0,
+        "income": 852500.0,
+        "craftingSeconds": 233280.0,
+        "sellCredits": 28224000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "KYBER_GREEN": {
+        "cost": 40320000000000.0,
+        "income": 2557500.0,
+        "craftingSeconds": 233280.0,
+        "sellCredits": 28224000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "KYBER_BLUE": {
+        "cost": 40320000000000.0,
+        "income": 2770625.0,
+        "craftingSeconds": 233280.0,
+        "sellCredits": 28224000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 40320000000000.0,
+        "income": 3069000.0,
+        "craftingSeconds": 233280.0,
+        "sellCredits": 28224000000000.0,
+        "sellUpgradeChips": 210.0
+      }
+    },
+    "additionalPowerScale": 0,
+    "craftingXp": 24000000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/gonk-army/ECG.png"
+    },
+    "acquisition": {
+      "method": "sandcrawler",
+      "description": "Find its blueprint on the Sandcrawler conveyor after the Gonk event reveal (10 October 2026, 20:00 UTC). This is not a fusion-exclusive droid.",
+      "obtainFromAstromech": false
+    }
+  },
+  {
+    "name": "WG-22",
+    "rarity": "ICONIC",
+    "type": "BATTLE",
+    "variants": {
+      "DEFAULT": {
+        "cost": 0,
+        "income": 50
+      }
+    },
+    "additionalPowerScale": 0,
+    "craftingXp": 100000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/gonk-army/WG-22.png"
+    },
+    "acquisition": {
+      "method": "event",
+      "description": "Earn 200 personal Gonk Army points to unlock WG-22. It does not spawn on the Sandcrawler conveyor.",
+      "obtainFromAstromech": false
+    },
+    "special": {
+      "incomePercent": 0.15,
+      "onlyDefaultVariant": true,
+      "cannotSell": true,
+      "maxQuantity": 1,
+      "passive": "2× Flawless Chance (Companion)"
+    }
   }
 ]

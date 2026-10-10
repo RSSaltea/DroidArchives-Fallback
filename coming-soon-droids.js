@@ -1,11 +1,6 @@
 // Announcement previews are separate from the playable catalogue. Unknown
 // values must never become zero-income droids in Base or Optimise.
-const qualities=['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR','KYBER','KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE'];
-export const COMING_SOON_DROIDS=['WG-22','KT','MPH','JO9-4MN','ECG','EG-58','EGL','PLNK'].map(name=>({
-  name,comingSoon:true,type:'WORKER',rarity:name==='WG-22'?'ICONIC':null,
-  variants:name==='WG-22'?['DEFAULT']:[...qualities],
-  perk:name==='WG-22'?'2× Flawless Chance (Companion)':null
-}));
+export const COMING_SOON_DROIDS=[];
 export const isComingSoonDroid=name=>COMING_SOON_DROIDS.some(d=>d.name===name);
 
 export function comingSoonCard(d,variantText,variant='DEFAULT'){
