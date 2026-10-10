@@ -22,8 +22,10 @@ const server=http.createServer((req,res)=>{
  });
  const collection=page.locator('.rebirth-collection-card');
  await page.waitForSelector('.rebirth-collection-card');
- assert.equal(await collection.count(),1);
- assert.equal(await page.locator('[data-tree-name="PIT"]').count(),0);
+ assert.equal(await collection.count(),2);
+ assert.equal(await page.locator('[data-tree-name="PIT"]').count(),1);
+ assert.match(await page.locator('[data-tree-name="PIT"]').innerText(),/you can sell/);
+ assert.equal(await page.locator('.rebirth-collection-next').count(),0);
  assert.equal(await page.evaluate(()=>window.prepTest.state.owned.find(x=>x.name==='PIT').qty),1);
  assert.match(await page.locator('.rebirth-tracker-metrics').innerText(),/2\/2/);
  await page.locator('#rebirthTrackerSearch').fill('LO');
@@ -33,7 +35,7 @@ const server=http.createServer((req,res)=>{
  await page.locator('[data-tracker-filter="status"][data-value=""]').click();
  await page.locator('#toggleRebirthTree').check();await page.waitForURL('**#/rebirth/tracker/skilltree');await page.waitForSelector('.rebirth-tree-node');
  const pit=page.locator('[data-tree-name="PIT"]'),lo=page.locator('[data-tree-name="LO"]');
- assert.equal(await pit.count(),0,'finished droids also disappear from skill tree');
+ assert.equal(await pit.count(),1,'finished owned droids stay in skill tree');
  assert.match(await lo.innerText(),/Keep until after R 15/);
  assert.match(await lo.innerText(),/chips from owned/);
  await lo.locator('[data-tree-upgrade][data-variant="DIAMOND"]').click();
@@ -43,7 +45,7 @@ const server=http.createServer((req,res)=>{
  await page.locator('#treeCurrentRebirth').selectOption('0');
  await pit.waitFor();assert.equal(await pit.locator('.rebirth-tree-node').count(),1);
  await page.locator('#treeCurrentRebirth').selectOption('1');
- assert.equal(await pit.count(),0);
+ assert.equal(await pit.count(),1);
  await page.locator('#toggleManualRebirth').check();
  await lo.locator('[data-tree-check][data-variant="GOLD"]').check();
  await page.locator('#treeCurrentRebirth').selectOption('5');
@@ -64,6 +66,13 @@ const server=http.createServer((req,res)=>{
  assert.equal(await page.locator('#treeCurrentRebirth').inputValue(),'5');
  await page.locator('#toggleRebirthTree').uncheck();await page.waitForURL('**#/rebirth/tracker');await page.waitForSelector('.rebirth-collection-grid');
  assert.equal(await page.locator('.rebirth-collection-grid').isVisible(),true);
+ await page.evaluate(()=>{const t=window.prepTest;t.state.rebirths[0]=[{to:5,requiredDroids:[{droidName:'LO',variant:'GOLD'}]},{to:15,requiredDroids:[{droidName:'LO',variant:'STELLAR'}]}];t.route()});
+ await page.locator('[data-tracker-quality="LO"][data-variant="GOLD"]').click();
+ await page.locator('#treeCurrentRebirth').selectOption('15');
+ assert.equal(await page.locator('[data-tree-name="LO"]').count(),1,'finished owned manual droid stays visible');
+ await page.locator('[data-tree-sell="LO"]').click();
+ assert.equal(await page.locator('[data-tree-name="LO"]').count(),0,'sold finished droid disappears');
+ await page.locator('#treeCurrentRebirth').selectOption('5');
  const ownedBefore=await page.evaluate(()=>JSON.stringify(window.prepTest.state.owned));
  await page.locator('[data-tracker-quality="LO"][data-variant="DIAMOND"]').click();
  assert.equal(await page.locator('[data-tracker-quality="LO"][aria-pressed="true"]').count(),1);
@@ -78,7 +87,7 @@ const server=http.createServer((req,res)=>{
  await page.evaluate(()=>{const t=window.prepTest;t.state.rebirths[0]=[{to:6,requiredDroids:[{droidName:'LO',variant:'KYBER'}]}];t.route()});
  await page.locator('[data-tracker-quality="LO"][data-variant="KYBER"]').click();
  await page.locator('[data-tracker-activate="LO"]').click();
- assert.match(await page.locator('[data-tree-name="LO"]').innerText(),/Ready for its next requirement/);
+ assert.equal(await page.locator('[data-tracker-activate="LO"]').count(),0);
  assert.equal(await page.evaluate(()=>JSON.stringify(window.prepTest.state.owned)),ownedBefore);
  await page.setViewportSize({width:390,height:844});
  assert(await page.locator('.rebirth-droid-tracker').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
