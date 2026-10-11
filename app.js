@@ -517,11 +517,11 @@ function repairReachableLayout(result,p){
     if(!changed)break;
   }
   // Refill the slots that left behind with droids nobody placed: each one's own
-  // room first, another room only once its own is full, and only when the gain
-  // pays for the walk, as it must in the search.
-  const owned=expandedOwned(),unitOf=key=>owned.find(u=>keyOf(u)===key),current=new Map(p.placed.map(x=>[keyOf(x),x.station]));
+  // room first, another room only once its own is full. These vacancies already
+  // need filling, so compare real income rather than charging optional moves.
+  const owned=expandedOwned(),unitOf=key=>owned.find(u=>keyOf(u)===key);
   const layoutOf=list=>[...locked,...list.map(x=>({...unitOf(x.key),...x}))];
-  const lambda=optimiseMoveLambda(result.income-result.gain),lockedKeys=new Set(locked.map(keyOf));
+  const lockedKeys=new Set(locked.map(keyOf));
   const roomLeft=type=>stationSlotIndices(type).length-assignments.filter(x=>x.station===type).length-locked.filter(x=>x.station===type).length;
   let added=0;
   for(let guard=0;guard<owned.length;guard++){
@@ -531,11 +531,32 @@ function repairReachableLayout(result,p){
       if(taken.has(key)||lockedKeys.has(key)||!PRODUCTIVE_STATIONS.includes(d?.type))continue;
       for(const station of PRODUCTIVE_STATIONS){
         if(roomLeft(station)<=0||station!==d.type&&roomLeft(d.type)>0||!canUseStation(d,station))continue;
-        const entry={key,name:unit.name,variant:unit.variant,station,slot:-1},gain=incomeForPlaced(layoutOf([...assignments,entry]))-before-(current.get(key)!==station&&PRODUCTIVE_STATIONS.includes(current.get(key))?lambda:0);
+        const entry={key,name:unit.name,variant:unit.variant,station,slot:-1},gain=incomeForPlaced(layoutOf([...assignments,entry]))-before;
         if(gain>1e-7&&(!pick||gain>pick.gain))pick={entry,gain};
       }
     }
     if(!pick)break;assignments.push(pick.entry);added++;
+  }
+  // The search can also fill a newly vacated slot with a weak idle copy to
+  // avoid the move penalty on a stronger displaced earner. Both need moving:
+  // do not sell or park the stronger copy just to save that notional penalty.
+  // Only reconsider new occupants; established work positions keep the user's
+  // move threshold. Locked, building and reserved units remain excluded.
+  const originalSlots=new Map(p.placed.map(u=>[`${u.station}:${u.slot}`,keyOf(u)]));
+  for(let guard=0;guard<owned.length;guard++){
+    const taken=new Set(assignments.map(x=>x.key)),before=incomeForPlaced(layoutOf(assignments));let pick=null;
+    for(let i=0;i<assignments.length;i++){
+      const target=assignments[i];
+      if(!PRODUCTIVE_STATIONS.includes(target.station)||originalSlots.get(`${target.station}:${target.slot}`)===target.key)continue;
+      for(const unit of owned){
+        const key=keyOf(unit),d=state.droids.find(x=>x.name===unit.name);
+        if(taken.has(key)||lockedKeys.has(key)||!PRODUCTIVE_STATIONS.includes(d?.type)||!canUseStation(d,target.station)||target.station!==d.type&&roomLeft(d.type)>0)continue;
+        const entry={key,name:unit.name,variant:unit.variant,station:target.station,slot:target.slot};
+        const candidate=assignments.map((x,j)=>j===i?entry:x),gain=incomeForPlaced(layoutOf(candidate))-before;
+        if(gain>1e-7&&(!pick||gain>pick.gain))pick={i,entry,gain};
+      }
+    }
+    if(!pick)break;assignments[pick.i]=pick.entry;added++;
   }
   const stationChanged=added||assignments.some((x,i)=>x.station!==result.assignments[i].station);
   if(!stationChanged)return result;
@@ -3916,7 +3937,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-10-finished-tanks',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-11-vacancies',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
