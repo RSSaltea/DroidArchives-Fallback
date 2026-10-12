@@ -2267,8 +2267,8 @@ const companionAstromechBonus=placed=>placed.filter(x=>x.station==='COMPANION').
   const d=state.droids.find(y=>y.name===x.name);return sum+(d?.type==='ASTROMECH'?droidAttributeValue(d,x.variant):0);},0);
 const critSetting=(key,fallback)=>{const v=Number(localStorage.getItem('droid-archive-crit-'+key));return Number.isFinite(v)&&localStorage.getItem('droid-archive-crit-'+key)!==null?v:fallback};
 const setCritSetting=(key,value)=>localStorage.setItem('droid-archive-crit-'+key,String(value));
-const novaLevelCost=(id,level)=>novaUpgrade(id)?.levels?.find(l=>Number(l.level)===level)?.cost??null;
-const novaMaxLevel=id=>novaUpgrade(id)?.levels?.length??0;
+const novaLevelCost=(id,level)=>{const u=novaUpgrade(id);return u?.levels?.find(l=>Number(l.level)===level)?.cost??(u?.uncapped&&Number.isSafeInteger(level)&&level>0?Number(u.costBase)+Number(u.costScale)*(level-1):null)};
+const novaMaxLevel=id=>novaUpgrade(id)?.uncapped?10000:novaUpgrade(id)?.levels?.length??0;
 // Multi Crit needs Critical Chance first, so its true price is the missing
 // Critical Chance ranks plus its own.
 const MULTI_CRIT_REQUIRES_CHANCE=4;
@@ -3937,7 +3937,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-11-vacancies',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-12-crit-planner',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
@@ -4064,18 +4064,28 @@ function optimiseTickedProjection(preview,through){
     tickedCount:prefix.count,tickedTotal:prefix.total,income,
     partialMessage:`Apply the first ${prefix.count} of ${prefix.total} steps? Your Base will then earn ${fmt(income*3600)}/hr${income<preview.currentIncome*0.999?` — ${fmt((preview.currentIncome-income)*3600)}/hr less than now until you finish the walk`:''}.`};
 }
+// Both calculators share profile-specific targets; only an explicit purchase
+// changes the owned Nova levels used by the rest of the site.
+const plannerStorageKey = () => `droid-archive-nova-planner:${state.sharedView?.profile?.id || state.cloud?.activeProfileId || 'local'}`;
+const plannerTargets = () => {
+  try { const value=JSON.parse(localStorage.getItem(plannerStorageKey()) || '{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{}; }
+  catch { return {}; }
+};
+const savePlannerTargets = targets => localStorage.setItem(plannerStorageKey(), JSON.stringify(targets));
+const plannerLevelCap = upgrade => upgrade.uncapped ? 10000 : upgrade.levels.length;
+const plannedLevel = (upgrade, targets) => {const value=Number(targets[upgrade.id]??novaLevelFor(upgrade.id));return Math.max(novaLevelFor(upgrade.id),Math.min(plannerLevelCap(upgrade),Number.isFinite(value)?Math.floor(value):0))};
+const plannedCost = (upgrade, target) => Math.max(0,novaTotalCost(upgrade,target)-novaTotalCost(upgrade,novaLevelFor(upgrade.id)));
 function critCalcPage(){
   const render=()=>{
     const placed=placements().placed;
     const autoAstro=companionAstromechBonus(placed),autoChopper=placed.some(x=>x.station==='COMPANION'&&x.name==='CHOPPER');
     const masteryFloor=pickaxeMasteryLevels();
-    // The three perk levels are the real Nova Shop values, edited in place, so
-    // this and the Nova Shop page never disagree. Only the pickaxe, companion
-    // and Chopper inputs are local to the calculator.
+    const targets=plannerTargets(),ids=Object.values(CRIT_UPGRADE_IDS);
+    const targetLevel=id=>plannedLevel(novaUpgrade(id),targets);
     const current={
-      chanceLevel:novaLevelFor(CRIT_UPGRADE_IDS.chance),
-      amountLevel:novaLevelFor(CRIT_UPGRADE_IDS.amount),
-      multiLevel:novaLevelFor(CRIT_UPGRADE_IDS.multi),
+      chanceLevel:targetLevel(CRIT_UPGRADE_IDS.chance),
+      amountLevel:targetLevel(CRIT_UPGRADE_IDS.amount),
+      multiLevel:targetLevel(CRIT_UPGRADE_IDS.multi),
       chopper:Boolean(critSetting('chopper',autoChopper?1:0)),
       pickaxe:critSetting('pickaxe',masteryFloor),
       // Read straight off the Base rather than typed in — whatever Astromech is
@@ -4085,8 +4095,10 @@ function critCalcPage(){
       partyMultiplier:partyBonuses(state.party).pickaxe,
     };
     // What each perk has cost you so far, and what the next rank adds.
-    const spent=id=>{const u=novaUpgrade(id);return(u?.levels||[]).filter(l=>Number(l.level)<=novaLevelFor(id)).reduce((s,l)=>s+(l.cost||0),0)};
-    const totalSpent=Object.values(CRIT_UPGRADE_IDS).reduce((s,id)=>s+spent(id),0);
+    const spent=id=>novaTotalCost(novaUpgrade(id),novaLevelFor(id));
+    const totalSpent=ids.reduce((s,id)=>s+spent(id),0),sessionCost=ids.reduce((s,id)=>s+plannedCost(novaUpgrade(id),targetLevel(id)),0);
+    const ownedProfile=critProfile({...current,chanceLevel:novaLevelFor(CRIT_UPGRADE_IDS.chance),amountLevel:novaLevelFor(CRIT_UPGRADE_IDS.amount),multiLevel:novaLevelFor(CRIT_UPGRADE_IDS.multi)});
+    const readOnly=Boolean(state.sharedView&&!state.sharedView.canEdit);
     const p=critProfile(current),options=critUpgradeOptions(current),best=options.find(o=>!o.locked);
     // Rebirth crit perks are not bought, so they are shown as a read-out beside
     // the Nova levels rather than as another thing to step up and down.
@@ -4095,11 +4107,11 @@ function critCalcPage(){
     // Nova perks get plus and minus buttons so levels can be pushed from here
     // rather than switching to the Nova Shop and back.
     const perk=(id,key,label,level,detail)=>{
-      const max=novaMaxLevel(id),next=level<max?novaLevelCost(id,level+1):null;
-      return `<div class="crit-field crit-perk"><span>${label}</span><div class="crit-step"><button class="btn secondary" data-perk-down="${id}" ${level<=0?'disabled':''}>−</button><input type="number" id="${key}" value="${level}" min="0" max="${max}" step="1"><button class="btn secondary" data-perk-up="${id}" ${level>=max?'disabled':''}>+</button></div><small>${detail} · level ${level}/${max}</small><small class="crit-cost">Spent ${fmt(spent(id))} Nova${next?` · next rank ${fmt(next)}`:' · maxed'}</small></div>`;
+      const max=novaMaxLevel(id),next=level<max?novaLevelCost(id,level+1):null,owned=novaLevelFor(id),upgrade=novaUpgrade(id),cost=plannedCost(upgrade,level);
+      return `<div class="crit-field crit-perk"><label for="${key}">${label} · target</label><div class="crit-step"><button class="btn secondary" data-perk-down="${id}" aria-label="Decrease ${label} target" ${level<=owned?'disabled':''}>−</button><input type="number" id="${key}" value="${level}" min="${owned}" max="${max}" step="1"><button class="btn secondary" data-perk-up="${id}" aria-label="Increase ${label} target" ${level>=max?'disabled':''}>+</button></div><small>Owned ${owned} → target ${level}${upgrade.uncapped?'':` / ${max}`} · ${detail}</small><small class="crit-cost">Plan: ${cost.toLocaleString('en-GB')} Nova${next?` · next rank ${fmt(next)}`:upgrade.uncapped?'':' · maxed'}</small></div>`;
     };
     app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Critical Calculator</div>
-      <div class="base-heading"><div><p class="eyebrow">Pickaxe planner</p><h1>Critical Calculator</h1><p class="lead">What your pickaxe removes per swing, and which Nova crit upgrade is the best next buy.</p></div><button class="btn secondary" id="critReset">Reset to my Nova levels</button></div>
+      <div class="base-heading"><div><p class="eyebrow">Pickaxe planner</p><h1>Critical Calculator</h1><p class="lead">Plan your crit upgrades. Owned levels change only when you mark them as purchased.</p></div><button class="btn secondary" id="critReset">Reset pickaxe and bonuses</button></div>
       <div class="party-toggle-bar">${partyToggleButtonHtml()}</div>${partyControlsHtml()}<section class="crit-inputs">
         ${perk(CRIT_UPGRADE_IDS.chance,'critChance','Critical Chance',current.chanceLevel,`now ${(p.chance*100).toFixed(0)}% chance`)}
         ${perk(CRIT_UPGRADE_IDS.amount,'critAmount','Critical Amount',current.amountLevel,`crits do ×${(1+p.amount).toFixed(2)}`)}
@@ -4109,6 +4121,10 @@ function critCalcPage(){
         <label class="crit-field crit-toggle"><span>Chopper</span><div class="crit-switch"><input type="checkbox" id="critChopper" ${current.chopper?'checked':''}><b>${current.chopper?'Equipped':'Not equipped'}</b></div><small>+${Math.round(CHOPPER_CRIT_BONUS*100)}% chance and amount${autoChopper?' · found in your Base':''}</small></label>
         <label class="crit-field crit-toggle"><span>Rebirth perks</span><div class="crit-switch"><input type="checkbox" id="critPerks" ${critPerksOn()?'checked':''} ${rebirthBonus.chance||rebirthBonus.amount?'':'disabled'}><b>${rebirthBonus.chance||rebirthBonus.amount?`${critPerksOn()?'':'Off · '}+${Math.round(rebirthBonus.chance*100)}% / +${Math.round(rebirthBonus.amount*100)}%`:'—'}</b></div><small>${rebirthBonus.chance||rebirthBonus.amount?(critPerksOn()?`Chance and amount, banked through R: ${state.rebirth}`:'Left out, as on a fresh Super Rebirth'):'None yet · the first lands at R: 23'}</small><small class="crit-cost">${nextCritPerk?`Next at R: ${nextCritPerk.at} · +${nextCritPerk.chance||nextCritPerk.amount}% crit ${nextCritPerk.chance?'chance':'amount'}`:'Every rebirth crit perk is banked'}</small></label>
       </section>
+      <section class="crit-session" aria-label="Crit upgrade plan">
+        <div class="crit-session-summary"><div><small>This session</small><strong id="critSessionCost">${sessionCost.toLocaleString('en-GB')} Nova</strong><span>from owned levels to these targets</span></div><div><small>Average per swing · current → planned</small><strong id="critDamageComparison">${ownedProfile.perHit.toFixed(1)}s → ${p.perHit.toFixed(1)}s</strong><span>${((p.multiplier/ownedProfile.multiplier-1)*100).toFixed(2)}% more damage · same pickaxe and bonuses</span></div></div>
+        <div class="crit-plan-actions"><button class="btn" id="critPurchase" ${!sessionCost||readOnly?'disabled':''}>Mark as purchased</button><button class="btn secondary" id="critResetTargets" ${!sessionCost?'disabled':''}>Reset crit targets to owned</button><a href="#/nova-shop" id="critOpenPlanner">Open Nova Planner</a><small>Mark only after buying these upgrades in-game.</small></div>
+      </section>
       <div class="base-top crit-stats">
         <div class="stat"><small>Base hit</small><strong>${p.base.toFixed(1)}s</strong><em>level ${current.pickaxe}${current.astromech?` + ${current.astromech}`:''} = ${current.pickaxe+current.astromech} &middot; &times;${current.partyMultiplier.toFixed(1)} party</em></div>
         <div class="stat"><small>Average per swing</small><strong>${p.perHit.toFixed(1)}s</strong><em>×${p.multiplier.toFixed(3)} from crits</em></div>
@@ -4116,7 +4132,7 @@ function critCalcPage(){
         <div class="stat"><small>Crit amount</small><strong>${(p.amount*100).toFixed(0)}%</strong><em>a crit does ×${(1+p.amount).toFixed(2)}</em></div>
       </div>
       ${best?`<div class="notice crit-best"><strong>Best next buy: ${best.name} ${best.to}</strong> — ${fmt(best.cost)} Nova for ${(best.gain*100).toFixed(2)}% more damage, working out at ${fmt(Math.round(best.cost/(best.gain*100)))} Nova for each 1%.</div>`:''}
-      <section class="scrap-calculator crit-table"><div><p class="eyebrow">Next rank</p><h2>Which upgrade to buy</h2><p>The cheapest damage first: the last column is what one percent of extra damage costs you, so smaller is better. You have spent ${fmt(totalSpent)} Nova on crit perks so far.</p></div>
+      <section class="scrap-calculator crit-table"><div><p class="eyebrow">Next rank after your targets</p><h2>Which upgrade to buy</h2><p>The last column is the Nova cost per one percent of extra damage, so smaller is better. Already spent on owned crit levels: ${totalSpent.toLocaleString('en-GB')} Nova.</p></div>
       <table><thead><tr><th>Upgrade</th><th>To</th><th>Cost</th><th>Seconds/hit</th><th>Extra damage</th><th>Nova per 1% damage</th></tr></thead><tbody>
       ${options.map((o,i)=>{const after=critProfile({...current,...(o.id===CRIT_UPGRADE_IDS.chance?{chanceLevel:o.to}:o.id===CRIT_UPGRADE_IDS.amount?{amountLevel:o.to}:{multiLevel:o.to})});
         return `<tr class="${o===best?String.fromCharCode(99,114,105,116,45,112,105,99,107):o.locked?String.fromCharCode(99,114,105,116,45,108,111,99,107,101,100):String()}"><th>${o.name}${o.note?`<small class="crit-note">${o.note}</small>`:''}</th><td>${o.to}</td><td>${fmt(o.cost)}</td><td>${after.perHit.toFixed(1)}s<small class="crit-note">from ${p.perHit.toFixed(1)}s</small></td><td>+${(o.gain*100).toFixed(2)}%</td><td>${fmt(Math.round(o.cost/(o.gain*100)))}</td></tr>`}).join('')||'<tr><td colspan="6">Everything is maxed.</td></tr>'}
@@ -4132,12 +4148,14 @@ function critCalcPage(){
       `;
     const bind=(id,key)=>{const el=document.querySelector('#'+id);if(el)el.onchange=()=>{setCritSetting(key,Number(el.type==='checkbox'?(el.checked?1:0):el.value)||0);render()}};
     bind('critBoost','boost');bind('critPickaxe','pickaxe');bind('critChopper','chopper');bind('critPerks','perks');
-    // Perk levels write through to the Nova Shop itself.
-    const setPerk=(id,level)=>{setNovaLevel(id,Math.max(0,level),false);save();render()};
+    const setPerk=(id,level)=>{const latest=plannerTargets();latest[id]=plannedLevel(novaUpgrade(id),{[id]:level});savePlannerTargets(latest);render()};
     [['critChance',CRIT_UPGRADE_IDS.chance],['critAmount',CRIT_UPGRADE_IDS.amount],['critMulti',CRIT_UPGRADE_IDS.multi]]
       .forEach(([field,id])=>{const el=document.querySelector('#'+field);if(el)el.onchange=()=>setPerk(id,Number(el.value)||0)});
-    document.querySelectorAll('[data-perk-up]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkUp,novaLevelFor(b.dataset.perkUp)+1));
-    document.querySelectorAll('[data-perk-down]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkDown,novaLevelFor(b.dataset.perkDown)-1));
+    document.querySelectorAll('[data-perk-up]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkUp,targetLevel(b.dataset.perkUp)+1));
+    document.querySelectorAll('[data-perk-down]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkDown,targetLevel(b.dataset.perkDown)-1));
+    document.querySelector('#critResetTargets').onclick=()=>{const latest=plannerTargets();ids.forEach(id=>delete latest[id]);savePlannerTargets(latest);render()};
+    document.querySelector('#critPurchase').onclick=()=>{if(state.sharedView&&!state.sharedView.canEdit)return;const latest=plannerTargets();ids.forEach(id=>{state.novaUpgrades[id]=plannedLevel(novaUpgrade(id),latest)});save();render();toast('Crit upgrades marked as purchased')};
+    document.querySelector('#critOpenPlanner').onclick=()=>localStorage.setItem('droid-archive-nova-category','planner');
     document.querySelector('#critReset').onclick=()=>{['chopper','pickaxe','perks','boost'].forEach(k=>localStorage.removeItem('droid-archive-crit-'+k));render();toast('Pickaxe and companion reset to your Base')};
   };
   render();
@@ -4797,23 +4815,16 @@ let novaShopPage,novaDetailPage;
       novaCrystalCost: droid.novaCrystalCost,
     }));
 
-  const plannerStorageKey = () => `droid-archive-nova-planner:${state.cloud?.activeProfileId || 'local'}`;
   const plannerMaxRebirthKey = () => `${plannerStorageKey()}:max-rebirth`;
   const plannerMaxRebirth = shop => Math.max(12,Math.min(Number(localStorage.getItem(plannerMaxRebirthKey()))||40,Math.max(...shop.rebirthRewards.map(reward=>reward.rebirth))));
-  const plannerTargets = () => {
-    try { return JSON.parse(localStorage.getItem(plannerStorageKey()) || '{}') || {}; }
-    catch { return {}; }
-  };
-  const savePlannerTargets = targets => localStorage.setItem(plannerStorageKey(), JSON.stringify(targets));
   const plannerUpgrades = shop => shop.upgrades.filter(upgrade => !upgrade.repeatable && !upgrade.comingSoon && !upgrade.unavailable && upgrade.levels?.length);
-  const plannerLevelCap = upgrade => upgrade.uncapped ? 10000 : upgrade.levels.length;
-  const plannedLevel = (upgrade, targets) => Math.max(novaLevelFor(upgrade.id), Math.min(plannerLevelCap(upgrade), Number(targets[upgrade.id] ?? novaLevelFor(upgrade.id)) || 0));
-  const plannedCost = (upgrade, target) => {let total=0;for(let level=novaLevelFor(upgrade.id);level<target;level++)total+=Number(upgrade.levels[level]?.cost ?? (Number(upgrade.costBase)||0)+(Number(upgrade.costScale)||0)*level)||0;return total};
 
   const renderPlanner = (shop, categories, changeCategory) => {
     const upgrades = plannerUpgrades(shop), targets = plannerTargets(), maxReach = plannerMaxRebirth(shop);
     const rows = upgrades.map(upgrade => ({upgrade, owned:novaLevelFor(upgrade.id), target:plannedLevel(upgrade, targets)}));
-    const groups = categories.map(category=>({category,rows:rows.filter(row=>row.upgrade.category===category.id)})).filter(group=>group.rows.length);
+    const hideMaxedKey='droid-archive-nova-hide-maxed',hideMaxed=localStorage.getItem(hideMaxedKey)==='1';
+    const visibleRows=rows.filter(({upgrade,owned})=>!hideMaxed||upgrade.uncapped||owned<upgrade.levels.length);
+    const groups = categories.map(category=>({category,rows:visibleRows.filter(row=>row.upgrade.category===category.id)})).filter(group=>group.rows.length);
     const total = rows.reduce((sum, row) => sum + plannedCost(row.upgrade, row.target), 0);
     const changed = rows.filter(row => row.target > row.owned).length;
     const options = novaRebirthRouteOptions(total,shop);
@@ -4825,15 +4836,16 @@ let novaShopPage,novaDetailPage;
     app.innerHTML = `<div class="breadcrumbs"><a href="#/">Homepage</a> / Nova Shop / Planner</div>
       <section class="nova-command nova-planner-command">
         <header class="nova-command-head"><div><p class="eyebrow">Nova upgrades</p><h1>Nova Shop Planner</h1><p>Choose what you own and where you want each perk to end up.</p></div><div class="nova-currency"><img src="${shop.currency.icon}" alt=""><span>${fmt(total)} needed</span></div></header>
-        <div class="nova-planner-toolbar"><button class="btn secondary" data-nova-category="featured">← Back to Nova Shop</button><span>Targets and reachable rebirth are saved separately for this profile.</span><button class="btn ghost" id="resetNovaPlan" ${changed?'':'disabled'}>Reset targets</button></div>
+        <div class="nova-planner-toolbar"><button class="btn secondary" data-nova-category="featured">← Back to Nova Shop</button><span>Targets and reachable rebirth are saved separately for this profile.</span><label class="nova-hide-maxed"><input type="checkbox" id="novaHideMaxed" ${hideMaxed?'checked':''}> Hide maxed upgrades</label><button class="btn ghost" id="resetNovaPlan" ${changed?'':'disabled'}>Reset targets</button></div>
         <div class="nova-reach-setting"><div><small>Route limit</small><strong>Highest rebirth you can reach</strong><span>Suggested routes stay within this level. Totals include regular Nova plus the final Super Rebirth payout.</span></div><label for="novaMaxReach">Plan up to<select id="novaMaxReach">${options.map(option=>`<option value="${option.rebirth}" ${option.rebirth===maxReach?'selected':''}>RB ${option.rebirth} · ${novaCount(option.totalNovaCrystals)} Nova</option>`).join('')}</select></label></div>
         <div class="nova-planner-summary"><div><small>Nova required</small><strong>${fmt(total)}</strong><span>to complete this plan</span></div><div><small>Perks changing</small><strong>${changed}</strong><span>of ${rows.length} tracked perks</span></div><div><small>Fewest runs</small><strong>${total ? `RB ${ranked[0].rebirth} × ${ranked[0].runs}` : 'All done'}</strong><span>${total?`${novaCount(ranked[0].totalNovaCrystals)} Nova per full run`:'No Nova still needed'}</span></div></div>
-        <div class="nova-planner-groups">${groups.map(({category,rows:categoryRows})=>`<section class="nova-plan-group"><header>${categoryIcon(category)}<div><h2>${category.name}</h2><span>${categoryRows.length} perk${categoryRows.length===1?'':'s'}</span></div></header><div class="nova-plan-card-grid">${categoryRows.map(({upgrade,owned,target})=>{const cost=plannedCost(upgrade,target);return `<article class="nova-plan-card ${target>owned?'planned':''}"><header>${iconHtml(upgrade)}<div><h3>${upgrade.name}</h3><span>${upgrade.uncapped?'No level cap':`${upgrade.levels.length} level${upgrade.levels.length===1?'':'s'}`}</span></div><strong>${cost?`${fmt(cost)} Nova`:'No cost'}</strong></header><div class="nova-plan-controls"><label><span>Owned now</span>${stepper(upgrade,owned,'owned',minimumNovaLevel(upgrade.id))}</label><span class="nova-plan-arrow" aria-hidden="true">→</span><label><span>Target level</span>${stepper(upgrade,target,'target',owned)}</label></div></article>`}).join('')}</div></section>`).join('')}</div>
+        <div class="nova-planner-groups">${!visibleRows.length?'<p class="nova-plan-complete">All upgrades are fully owned. Turn off Hide maxed upgrades to show them.</p>':''}${groups.map(({category,rows:categoryRows})=>`<section class="nova-plan-group"><header>${categoryIcon(category)}<div><h2>${category.name}</h2><span>${categoryRows.length} perk${categoryRows.length===1?'':'s'}</span></div></header><div class="nova-plan-card-grid">${categoryRows.map(({upgrade,owned,target})=>{const cost=plannedCost(upgrade,target);return `<article class="nova-plan-card ${target>owned?'planned':''}"><header>${iconHtml(upgrade)}<div><h3>${upgrade.name}</h3><span>${upgrade.uncapped?'No level cap':`${upgrade.levels.length} level${upgrade.levels.length===1?'':'s'}`}</span></div><strong>${cost?`${fmt(cost)} Nova`:'No cost'}</strong></header><div class="nova-plan-controls"><label><span>Owned now</span>${stepper(upgrade,owned,'owned',minimumNovaLevel(upgrade.id))}</label><span class="nova-plan-arrow" aria-hidden="true">→</span><label><span>Target level</span>${stepper(upgrade,target,'target',owned)}</label></div></article>`}).join('')}</div></section>`).join('')}</div>
       </section>
       <section class="nova-srb-planner"><header><div><p class="eyebrow">Super Rebirth routes</p><h2>How many runs will the plan take?</h2><p>Showing every route from RB12 to your selected limit of RB${maxReach}. Each full run includes regular Nova earned along the way plus the final Super Rebirth payout. Counts are rounded up and compare the number of runs, not play time.</p></div><strong>${fmt(total)} Nova target</strong></header>${total?`<div class="nova-route-options">${suggestions.map((option,index)=>`<article class="${index===0?'best':''}"><small>${index===0?'Fewest runs':'Alternative'}</small><strong>${option.runs} SRB${option.runs===1?'':'s'}</strong><span>Reach RB ${option.rebirth} · ${novaCount(option.totalNovaCrystals)} Nova each</span></article>`).join('')}</div>`:'<div class="nova-plan-complete">Your owned levels already cover every target in this plan.</div>'}<h3>RB12–RB${maxReach} breakdown</h3><div class="nova-srb-levels">${reachableOptions.map(option=>`<article class="${total&&option.runs===fastestRuns?'fastest':''}"><strong>RB ${option.rebirth}</strong><span>${novaCount(option.totalNovaCrystals)} Nova/run</span><small>${novaCount(option.regularTotal)} regular + ${novaCount(option.superRebirthNova)} SRB</small><b>${option.runs} SRB${option.runs===1?'':'s'}</b></article>`).join('')}</div></section>`;
-    const updatePlanLevel=(upgrade,field,value)=>{const level=Math.max(field==='owned'?minimumNovaLevel(upgrade.id):novaLevelFor(upgrade.id),Math.min(plannerLevelCap(upgrade),Number(value)||0));if(field==='owned'){setNovaLevel(upgrade.id,level,false);if(Number(targets[upgrade.id])<level)targets[upgrade.id]=level}else targets[upgrade.id]=level;savePlannerTargets(targets);renderPlanner(shop,categories,changeCategory)};
+    const updatePlanLevel=(upgrade,field,value)=>{const level=Math.max(field==='owned'?minimumNovaLevel(upgrade.id):novaLevelFor(upgrade.id),Math.min(plannerLevelCap(upgrade),Math.floor(Number(value))||0));if(field==='owned'){setNovaLevel(upgrade.id,level,false);if(Number(targets[upgrade.id])<level)targets[upgrade.id]=level}else targets[upgrade.id]=level;savePlannerTargets(targets);renderPlanner(shop,categories,changeCategory)};
     document.querySelector('[data-nova-category]')?.addEventListener('click',button=>changeCategory(button.currentTarget.dataset.novaCategory));
     document.querySelector('#novaMaxReach')?.addEventListener('change',event=>{localStorage.setItem(plannerMaxRebirthKey(),event.target.value);renderPlanner(shop,categories,changeCategory)});
+    document.querySelector('#novaHideMaxed')?.addEventListener('change',event=>{localStorage.setItem(hideMaxedKey,event.target.checked?'1':'0');renderPlanner(shop,categories,changeCategory)});
     document.querySelector('#resetNovaPlan')?.addEventListener('click',()=>{savePlannerTargets({});renderPlanner(shop,categories,changeCategory)});
     document.querySelectorAll('[data-plan-owned],[data-plan-target]').forEach(input=>input.onchange=()=>{const field=input.hasAttribute('data-plan-owned')?'owned':'target',id=input.dataset.planOwned||input.dataset.planTarget;updatePlanLevel(novaUpgrade(id),field,input.value)});
     document.querySelectorAll('[data-plan-step]').forEach(button=>button.onclick=()=>{const upgrade=novaUpgrade(button.dataset.planStep),field=button.dataset.planField,current=field==='owned'?novaLevelFor(upgrade.id):plannedLevel(upgrade,targets);updatePlanLevel(upgrade,field,current+Number(button.dataset.planDelta))});

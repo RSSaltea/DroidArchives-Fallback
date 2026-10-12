@@ -1,0 +1,53 @@
+const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict');
+const {chromium}=require('../research/tools/ui-test/node_modules/playwright');
+const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'app.js'),'utf8');
+const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+new URL(req.url,'http://localhost').pathname);if(!file.startsWith(root+path.sep))return res.writeHead(403).end();fs.readFile(file,(e,data)=>{if(e)return res.writeHead(404).end();res.setHeader('Content-Type',({'.js':'text/javascript','.json':'application/json','.html':'text/html','.css':'text/css','.png':'image/png','.svg':'image/svg+xml'})[path.extname(file)]||'application/octet-stream');res.end(data);});});
+(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});
+try{for(const shell of ['index.html','classic.html']){
+ const context=await browser.newContext({viewport:{width:1440,height:1100}}),page=await context.newPage(),errors=[];
+ page.on('pageerror',e=>errors.push(e.message));await page.route('https://**/*',r=>r.abort());
+ await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.critPlanTest={state,route,save,plannerTargets,savePlannerTargets,plannerStorageKey};'}));
+ await context.addInitScript(ids=>{localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(ids));localStorage.setItem('droid-archive-crit-pickaxe','29')},JSON.parse(fs.readFileSync('data/patch-notes.json','utf8')).notes.map(n=>n.id));
+ await page.goto(`http://127.0.0.1:${server.address().port}/${shell}#/crit-calc`);await page.waitForFunction(()=>window.critPlanTest?.state.novaShop?.upgrades?.length);
+ await page.evaluate(()=>{const t=window.critPlanTest;t.state.novaUpgrades={'critical-chance':4,'critical-amount':3,'multi-crit':0,'pickaxe-mastery':1};t.savePlannerTargets({'critical-amount':6,'pickaxe-mastery':2});t.save();t.route()});
+ const owned=()=>page.evaluate(()=>({...window.critPlanTest.state.novaUpgrades}));
+ const baseline=await owned();assert.equal(await page.locator('#critAmount').inputValue(),'6');
+ // Levels 4, 5, 6 cost 210 + 270 + 330, not the lifetime cost of all six.
+ assert.equal(await page.locator('#critSessionCost').innerText(),'810 Nova');
+ assert.match(await page.locator('.crit-perk').filter({has:page.locator('#critAmount')}).innerText(),/Plan: 810 Nova/);
+ const damage=(await page.locator('#critDamageComparison').innerText()).match(/[\d.]+/g).map(Number);assert(damage[1]>damage[0]);
+ await page.locator('[data-perk-up="critical-amount"]').click();assert.equal(await page.locator('#critSessionCost').innerText(),'1,200 Nova');assert.deepEqual(await owned(),baseline);
+ await page.locator('#critOpenPlanner').click();await page.locator('[data-plan-target="critical-amount"]').waitFor();
+ assert.equal(await page.locator('[data-plan-owned="critical-amount"]').inputValue(),'3');assert.equal(await page.locator('[data-plan-target="critical-amount"]').inputValue(),'7');
+ await page.locator('[data-plan-target="critical-amount"]').fill('8');await page.locator('[data-plan-target="critical-amount"]').dispatchEvent('change');
+ await page.evaluate(()=>{location.hash='#/crit-calc'});await page.locator('#critAmount').waitFor();assert.equal(await page.locator('#critAmount').inputValue(),'8');
+ await page.reload();await page.locator('#critAmount').waitFor();assert.equal(await page.locator('#critAmount').inputValue(),'8');assert.deepEqual(await owned(),baseline);
+ await page.locator('#critResetTargets').click();assert.equal(await page.locator('#critAmount').inputValue(),'3');assert.equal(await page.locator('#critSessionCost').innerText(),'0 Nova');
+ assert.equal(await page.evaluate(()=>window.critPlanTest.plannerTargets()['pickaxe-mastery']),2);
+ await page.locator('#critAmount').fill('1');await page.locator('#critAmount').dispatchEvent('change');assert.equal(await page.locator('#critAmount').inputValue(),'3');
+ await page.locator('#critAmount').fill('6.9');await page.locator('#critAmount').dispatchEvent('change');assert.equal(await page.locator('#critAmount').inputValue(),'6');
+ await page.locator('[data-perk-up="critical-chance"]').click();await page.locator('[data-perk-up="multi-crit"]').click();assert.equal(await page.locator('#critSessionCost').innerText(),'1,390 Nova');assert.deepEqual(await owned(),baseline);
+ await page.locator('#critPurchase').click();assert.equal((await owned())['critical-amount'],6);assert.equal((await owned())['critical-chance'],5);assert.equal((await owned())['multi-crit'],1);assert.equal((await owned())['pickaxe-mastery'],1);assert.equal(await page.locator('#critSessionCost').innerText(),'0 Nova');assert(await page.locator('#critPurchase').isDisabled());
+ await page.reload();await page.locator('#critAmount').waitFor();assert.equal((await owned())['critical-amount'],6);
+ // A different profile does not inherit the local plan.
+ const originalProfile=await page.evaluate(()=>window.critPlanTest.state.cloud.activeProfileId);
+ await page.locator('[data-perk-up="critical-amount"]').click();
+ await page.evaluate(()=>{const t=window.critPlanTest;t.state.cloud.activeProfileId='crit-other-profile';t.route()});assert.equal(await page.locator('#critAmount').inputValue(),'6');
+ await page.evaluate(id=>{const t=window.critPlanTest;t.state.cloud.activeProfileId=id;t.route()},originalProfile);assert.equal(await page.locator('#critAmount').inputValue(),'7');
+ // Imported targets above the original 50 rows stay usable, with extrapolated next-rank costs.
+ await page.evaluate(()=>{const t=window.critPlanTest;t.state.novaUpgrades['critical-amount']=50;t.savePlannerTargets({...t.plannerTargets(),'critical-amount':51});t.route()});
+ assert.equal(await page.locator('#critSessionCost').innerText(),'3,030 Nova');assert.equal(await page.locator('#critAmount').inputValue(),'51');
+ assert.match(await page.locator('.crit-perk').filter({has:page.locator('#critAmount')}).innerText(),/next rank 3.09K/);
+ await page.locator('#critOpenPlanner').click();await page.locator('#novaHideMaxed').waitFor();
+ await page.evaluate(()=>{const t=window.critPlanTest;t.state.novaUpgrades['multi-crit']=4;t.state.novaUpgrades['pickaxe-mastery']=0;t.savePlannerTargets({...t.plannerTargets(),'pickaxe-mastery':50});t.route()});
+ await page.locator('#novaHideMaxed').check();assert.equal(await page.locator('[data-plan-owned="multi-crit"]').count(),0);
+ assert.equal(await page.locator('[data-plan-owned="critical-amount"]').count(),1,'uncapped owned 50 is not maxed');
+ assert.equal(await page.locator('[data-plan-owned="pickaxe-mastery"]').count(),1,'maxed target is not fully owned');
+ await page.reload();await page.locator('#novaHideMaxed').waitFor();assert(await page.locator('#novaHideMaxed').isChecked());
+ await page.locator('#novaHideMaxed').uncheck();assert.equal(await page.locator('[data-plan-owned="multi-crit"]').count(),1);
+ await page.evaluate(()=>{location.hash='#/crit-calc'});await page.locator('#critAmount').waitFor();
+ await page.setViewportSize({width:390,height:844});assert(await page.locator('#critPurchase').isVisible());
+ const overflow=await page.locator('.crit-session').evaluate(el=>el.scrollWidth>el.clientWidth);assert.equal(overflow,false);
+ fs.mkdirSync(path.join(root,'research/crit-planner'),{recursive:true});await page.screenshot({path:path.join(root,'research/crit-planner',shell+'.png'),fullPage:true});
+ assert.deepEqual(errors,[]);console.log('PASS Crit/Nova shared planning, cost delta, reset, purchase, profile isolation, uncapped costs and maxed filter:',shell);await context.close();
+}}finally{await browser.close();server.close();}})().catch(e=>{console.error(e);process.exitCode=1;server.close();});
