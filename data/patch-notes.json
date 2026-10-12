@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-10-12-crit-planner",
+      "date": "2026-10-12",
+      "title": "Plan your crit upgrades",
+      "summary": "Preview crit upgrades without changing what you own.",
+      "changes": [
+        "Crit Calc now shares target levels with Nova Planner and shows the Nova needed for your plan, plus the damage improvement.",
+        "Use Mark as purchased after buying upgrades in-game, or reset your crit targets to your owned levels.",
+        "Crit Calc supports levels beyond 50. Nova Planner can now hide fully purchased upgrades."
+      ]
+    },
+    {
       "id": "2026-10-10-gonk-portraits",
       "date": "2026-10-10",
       "title": "Gonk variant portraits",
