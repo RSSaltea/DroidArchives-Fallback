@@ -8,7 +8,7 @@ const input=(name,source,station='LOUNGE',keep=false)=>({name,variant:'DIAMOND',
 const batch=name=>({spend:[{name,variant:'DIAMOND',count:3}],out:{name,variant:'RAINBOW'},sure:true,after:[],gain:0,rarity:'RARE'});
 function setup(units,batches){
  let scored=0;
- const context=vm.createContext({
+ const context=vm.createContext({...require('../traits.js'),
   state:{optimiseFuseFirst:true},soldInsteadOfFusion:()=>[],fusionRebirthProtectedKeys:()=>new Set(),isBuilding:()=>false,fusionReservedForUpgrade:()=>false,
   // Fix the scorer's order so these tests isolate whether execution respects
   // the existing table, independently of income and Droidex scoring changes.

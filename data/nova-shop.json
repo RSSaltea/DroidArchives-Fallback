@@ -1571,7 +1571,7 @@
       "name": "Lounge Slot",
       "category": "workshop",
       "icon": "assets/nova-shop/T_Icon_LoungeSlot.png",
-      "description": "Add up to four slots to the Lounge.",
+      "description": "Add up to 12 Nova Shop slots to the Lounge (21 slots including base and Rebirth unlocks). Levels 5-12 were added in game v1.35.0.",
       "levels": [
         {
           "level": 1,
@@ -1592,6 +1592,46 @@
           "level": 4,
           "cost": 90,
           "reward": "4 Lounge Slots"
+        },
+        {
+          "level": 5,
+          "cost": 150,
+          "reward": "5 Lounge Slots"
+        },
+        {
+          "level": 6,
+          "cost": 210,
+          "reward": "6 Lounge Slots"
+        },
+        {
+          "level": 7,
+          "cost": 270,
+          "reward": "7 Lounge Slots"
+        },
+        {
+          "level": 8,
+          "cost": 330,
+          "reward": "8 Lounge Slots"
+        },
+        {
+          "level": 9,
+          "cost": 420,
+          "reward": "9 Lounge Slots"
+        },
+        {
+          "level": 10,
+          "cost": 510,
+          "reward": "10 Lounge Slots"
+        },
+        {
+          "level": 11,
+          "cost": 600,
+          "reward": "11 Lounge Slots"
+        },
+        {
+          "level": 12,
+          "cost": 690,
+          "reward": "12 Lounge Slots"
         }
       ]
     },

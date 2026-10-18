@@ -1,3 +1,4 @@
+import { companionPerkActive, overclockFactor, traitSum } from './traits.js?v=2026-10-18-mission-tools';
 // Passive crafting rules. Pickaxe hits, critical hits and rushes are additional.
 const RARITY_POWER={COMMON:1,RARE:2,EPIC:3,LEGENDARY:4,MYTHIC:5};
 const QUALITIES=['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR','KYBER'];
@@ -19,17 +20,18 @@ export function craftingEstimate({droid,variant='DEFAULT',station='BUILD',slot=0
   if(!Number.isFinite(base)||base<=0||droid?.rarity==='ICONIC')return null;
   const companions=placed.filter(x=>x.station==='COMPANION');
   if(station==='FUSION_BUILD'){
-    const doBonus=companions.some(x=>x.name==='D-O') ? .5 : 1;
+    const doBonus=placed.some(x=>companionPerkActive(x,'D-O')) ? .5 : 1;
     const speed=1+level(novaUpgrades['fusion-speed']);
     return {seconds:base*doBonus/speed,base,speed,match:1,doBonus,nova:speed-1,worker:0,protocol:0,event:1};
   }
-  const worker=companions.reduce((sum,u)=>{const d=droids.find(d=>d.name===u.name);return sum+(d?.type==='WORKER'?companionAttributeValue(d,u.variant):0);},0);
+  const worker=companions.reduce((sum,u)=>{const d=droids.find(d=>d.name===u.name);return sum+(d?.type==='WORKER'?companionAttributeValue(d,u.variant)*overclockFactor(u):0);},0);
   const nova=.1*level(novaUpgrades['crafting-speed']);
   const protocolUnit=placed.find(x=>x.station===`PROTOCOL_${REGIONS[slot]}_CRAFTING`);
   const protocolDroid=droids.find(d=>d.name===protocolUnit?.name);
   const protocol=Number(protocolDroid?.variants?.[protocolUnit?.variant]?.protocolCraftingBonusPercent||0)/100;
   const event=Number.isFinite(Number(eventMultiplier))?Math.max(1,Number(eventMultiplier)):1;
-  const speed=(1+nova+worker+protocol)*event;
+  const traits=traitSum(placed,3);
+  const speed=(1+nova+worker+protocol+traits)*event;
   const match=droid.type===REGIONS[slot] ? .9 : 1;
-  return {seconds:base*match/speed,base,speed,match,nova,worker,protocol,event,doBonus:1};
+  return {seconds:base*match/speed,base,speed,match,nova,worker,protocol,traits,event,doBonus:1};
 }

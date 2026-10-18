@@ -15,16 +15,16 @@ function rules(points){
     }
   };
 }
-test('all 60 mapped positions are finite; mobile and invalid slots have no position',async()=>{
+test('all 68 mapped positions are finite; mobile and invalid slots have no position',async()=>{
   const {slotPosition,slotDistanceSquared}=await load();
-  const counts={WORKER:11,BATTLE:11,ASTROMECH:9,LOUNGE:13,BUILD:3,FUSION:3,FUSION_BUILD:3,UPGRADE_CHIP:1,
+  const counts={WORKER:11,BATTLE:11,ASTROMECH:9,LOUNGE:21,BUILD:3,FUSION:3,FUSION_BUILD:3,UPGRADE_CHIP:1,
     PROTOCOL_WORKER_CREDITS:1,PROTOCOL_WORKER_CRAFTING:1,PROTOCOL_ASTROMECH_CREDITS:1,PROTOCOL_ASTROMECH_CRAFTING:1,PROTOCOL_BATTLE_CREDITS:1,PROTOCOL_BATTLE_CRAFTING:1};
   let count=0;
   for(const [station,n] of Object.entries(counts))for(let slot=0;slot<n;slot++){
     const point=slotPosition({station,slot});assert.equal(point.length,3);assert(point.every(Number.isFinite));count++;
     assert.equal(slotDistanceSquared({station,slot},{station,slot}),0);
   }
-  assert.equal(count,60);
+  assert.equal(count,68);
   for(const value of [droid('COMPANION'),droid('WORKER',-1),droid('WORKER',11),{...droid(),positionUncertain:true},{...droid(),moving:true}])assert.equal(slotPosition(value),null);
   const p=slotPosition(droid('WORKER'));p[0]=Infinity;assert(Number.isFinite(slotPosition(droid('WORKER'))[0]));
   assert.equal(slotDistanceSquared(droid('COMPANION'),droid('WORKER')),null);

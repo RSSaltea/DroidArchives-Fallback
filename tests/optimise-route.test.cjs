@@ -236,7 +236,7 @@ async function plan(placed,targetPlaced,caps,options={}){
   let validation=null;
   if(route.complete){
     const fusionResults=route.finalPlaced.filter(x=>x.fusionResult);
-    validation=mod.validateOptimisePlan({initial,projected:{placed:route.finalPlaced.filter(x=>!x.fusionUnknown),fusionResults,overflow:[],sell:options.sell||[]},steps:route.steps,rules:{...rules,workLanding:(u,p)=>{const l=mod.predictWorkLanding(u,p,rules);return l&&{station:l.station,slot:l.slot,assumed:l.assumed,options:l.options}}}});
+    validation=mod.validateOptimisePlan({initial,projected:{placed:route.finalPlaced.filter(x=>!x.fusionUnknown),fusionResults,overflow:[],sell:options.sell||[]},steps:route.steps,rules:{...rules,stationLanding:(u,p,s)=>mod.predictStationLanding(u,p,s,rules),workLanding:(u,p)=>{const l=mod.predictWorkLanding(u,p,rules);return l&&{station:l.station,slot:l.slot,assumed:l.assumed,options:l.options}}}});
     assert.equal(validation.ok,true,validation.issues.join('\n'));
   }
   return {route,summary:summary(route.steps),stops:stops(route.steps),mod,rules};
@@ -547,3 +547,15 @@ for(const tank of ['BUILD','FUSION_BUILD'])test(`finished ${tank} droid can use 
   const replay=mod.validateOptimisePlan({initial,projected:{placed:route.finalPlaced,sell:[]},steps:route.steps,rules});assert(replay.ok,replay.issues.join('; '));assert(replay.companionsRestored);
   worker.built=false;assert.equal(mod.planOptimiseRoute({initial,target,rules}).complete,false,'unfinished tank droids remain protected');
 });
+ test('Fusion Preservation survives automatic routing in its input slot and loses only the trait',async()=>{
+  nextSource=0;
+  const a=unit('WORK-A','FUSION',2,{built:true,trait:{id:14,tier:'Rainbow'}}),b=unit('WORK-B','LOUNGE',0,{built:true}),c=unit('WORK-C','LOUNGE',1,{built:true});
+  const resultUnit={source:'fusion-result-0',unit:0,name:'Fusion result',variant:'DEFAULT',fusionUnknown:true,rarity:'EPIC',fusionResult:true,built:false};
+  const fusion={spend:[a,b,c].map(u=>({name:u.name,variant:u.variant,count:1})),rarity:'EPIC',variant:'DEFAULT'};
+  const {route}=await plan([a,b,c],[],{WORKER:3,LOUNGE:3,FUSION:3,FUSION_BUILD:1},{fusions:[{inputs:[a,b,c],fusion,resultUnit}]});
+  assert.equal(route.complete,true,route.issues.join(' '));
+  const survivor=route.finalPlaced.find(u=>u.source===a.source);
+  assert.equal(survivor.station,'FUSION');assert.equal(survivor.slot,2);assert.equal(survivor.trait,null);
+  assert.equal(a.trait.id,14,'planning must not mutate the original profile');
+  assert.equal(route.finalPlaced.length,2);
+ });

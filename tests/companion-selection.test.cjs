@@ -9,7 +9,7 @@ function optimise({units,preferred=['CHOPPER'],goals=['pickaxe'],assignments=[],
  const state={droids,owned,preferredCompanions:preferred,companionGoals:goals,optimiseKeepDroidex:false};
  const caps={COMPANION:slots,LOUNGE:10,WORKER:2,ASTROMECH:2,BATTLE:2,BUILD:1,UPGRADE_CHIP:0};
  const indices=s=>Array.from({length:caps[s]||0},(_,i)=>i);
- const ctx=vm.createContext({companionAttributeValue:require('../crafting.js').companionAttributeValue,state,base:{placed:owned.filter(x=>x.station)},plan:{assignments},
+ const ctx=vm.createContext({...require('../traits.js'),companionAttributeValue:require('../crafting.js').companionAttributeValue,state,base:{placed:owned.filter(x=>x.station)},plan:{assignments},
   VARIANTS:['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR'],SLOT_RULES:caps,
   PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],ASTROMECH_MISSION_SLOTS:[],
   stationSlotIndices:indices,slotFillOrder:indices,expandedOwned:()=>owned,
@@ -20,7 +20,7 @@ function optimise({units,preferred=['CHOPPER'],goals=['pickaxe'],assignments=[],
   droidexGapsAbove:()=>[],droidAttribute:()=> 'boost',
   optimisedRows:placed=>placed
  });
- for(const prefix of ['const ALL_VARIANTS=','const baseVariant=','const variantRank=','const COMPANION_GOALS=','const companionGoals=','const companionSlotCount=','const preferredCompanions=']){
+ for(const prefix of ['const unitCompanionGoal=','const ALL_VARIANTS=','const baseVariant=','const variantRank=','const COMPANION_GOALS=','const companionGoals=','const companionSlotCount=','const preferredCompanions=']){
   const line=src.split(/\r?\n/).find(x=>x.startsWith(prefix));assert(line,prefix);vm.runInContext(line,ctx);
  }
  for(const name of ['droidAttributeValue','stabiliseProjectedPlacements','optimisedPlacements','fusionFreesSlots','fusionConsumesAll','optimisedPlacementsPass','planHonoured'])vm.runInContext(fn(name),ctx);

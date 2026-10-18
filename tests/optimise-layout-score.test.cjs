@@ -11,11 +11,11 @@ test('compiled candidate scores match the full income and crafting calculations'
   {name:'protocol',type:'PROTOCOL',income:0,credit:56,craft:12},
   {name:'strong protocol',type:'PROTOCOL',income:0,credit:200,craft:40}
  ].map(d=>({...d,variants:{DEFAULT:{income:d.income,protocolCpsBonusPercent:d.credit||0,protocolCraftingBonusPercent:d.craft||0}}}));
- const state={droids},context=vm.createContext({state,PRODUCTIVE_STATIONS:regions,PROTOCOL_REGIONS:regions,workingIncome,
+ const state={droids},context=vm.createContext({...require('../traits.js'),state,PRODUCTIVE_STATIONS:regions,PROTOCOL_REGIONS:regions,workingIncome,
   isIconic:d=>!!d?.iconic,iconicIncome:d=>d?.iconic?d.dynamic:0,effectiveMultiplier:()=>18.7,
   protocolBonus:(d,v,role)=>d?.variants[v]?.[role==='CREDITS'?'protocolCpsBonusPercent':'protocolCraftingBonusPercent']||0,
   placedBaseIncome:placed=>placed.reduce((sum,u)=>{const d=droids.find(x=>x.name===u.name);return sum+(d.iconic?0:d.income)},0)});
- for(const name of ['protocolRegionMultiplier','protocolCraftBonus','regionalIncome','incomeForPlaced']){
+ for(const name of ['protocolRegionMultiplier','protocolCraftBonus','regionalIncome','incomeForPlaced','passiveTraitIncome']){
   const start=source.indexOf(`function ${name}(`),tail=source.slice(start),end=tail.slice(1).search(/\n(?:function |const |let |async function |\/\/)/);
   vm.runInContext(tail.slice(0,end+1),context);
  }

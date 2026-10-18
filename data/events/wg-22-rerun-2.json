@@ -1,0 +1,11 @@
+{
+  "id": "wg-22-rerun-2",
+  "name": "WG-22 Gonk Army rerun",
+  "category": "Gonk Army event",
+  "description": "Turn in Gonk and Power Droids, including Lounge droids, to earn WG-22 and event rewards. Normal conveyor spawn rates continue during the shared variant boost.",
+  "startsAt": "2026-10-18T14:00:00Z",
+  "durationHours": 12,
+  "endedRetentionHours": 2,
+  "homepage": true,
+  "image": "assets/events/gonk-o-ween/T_Events_Banner_Iconic_Gonk.png"
+}

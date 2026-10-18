@@ -1,3 +1,4 @@
+import {traitAmount} from './traits.js?v=2026-10-18-mission-tools';
 // Plans the walk that turns the current Base into the optimised one.
 //
 // The game gives a droid six commands, all issued standing next to it: Work,
@@ -366,13 +367,13 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   // ---- state ---------------------------------------------------------------
   // Goals travel with the state: two identical droids can trade goals, so the
   // one whose Work landing fits takes the job.
-  const start = { pos: new Map(), sold: new Set(), staged: new Map(), fused: new Set(), built: new Set(), region: null, goals: new Map(goals) };
+  const start = { pos: new Map(), sold: new Set(), staged: new Map(), stagedSlots: new Map(), clearedTraits: new Set(), fused: new Set(), built: new Set(), region: null, goals: new Map(goals) };
   for (const [key, unit] of units) if (unit.station) start.pos.set(key, { station: unit.station, slot: unit.slot, ...(unit.positionUncertain ? { positionUncertain: true } : {}) });
-  const clone = state => ({ pos: new Map(state.pos), sold: new Set(state.sold), staged: new Map(state.staged), fused: new Set(state.fused), built: new Set(state.built), region: state.region, goals: new Map(state.goals) });
+  const clone = state => ({ pos: new Map(state.pos), sold: new Set(state.sold), staged: new Map(state.staged), stagedSlots: new Map(state.stagedSlots), clearedTraits: new Set(state.clearedTraits), fused: new Set(state.fused), built: new Set(state.built), region: state.region, goals: new Map(state.goals) });
   const twins = (a, b) => a.name === b.name && a.variant === b.variant;
   // A finished droid swapped into a tank is a finished droid there: the walk
   // remembers it per state, and the layout it reports says so.
-  const unitAs = (state, key) => state.built.has(key) ? { ...units.get(key), built: true } : units.get(key);
+  const unitAs = (state, key) => ({...units.get(key),...(state.built.has(key)?{built:true}:{}),...(state.clearedTraits.has(key)?{trait:null}:{})});
   const placedOf = state => [...state.pos].map(([key, position]) => ({ ...unitAs(state, key), ...position }));
   const pending = state => {
     let count = 0;
@@ -387,7 +388,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   // The same layout reached in a different room has a different onward walk.
   // Twin goal swaps and finished tanks also affect which commands remain legal.
   const signature = state => [...state.pos].map(([key, p]) => `${key}@${p.station}:${p.slot}:${!!p.positionUncertain}`).sort().join(',') + '|' + [...state.sold].sort().join(',') + '|' + [...state.staged.keys()].sort().join(',') + '|' + [...state.fused].sort().join(',')
-    + '|' + state.region + '|' + [...state.built].sort().join(',') + '|' + [...state.goals].map(([key, goal]) => `${key}:${goal.kind}:${goal.station || ''}:${goal.cls || ''}:${goal.fusion ?? ''}`).sort().join(',');
+    + '|' + [...state.clearedTraits].sort().join(',') + '|' + [...state.stagedSlots].map(([k,v])=>k+':'+v.slot).sort().join(',') + '|' + state.region + '|' + [...state.built].sort().join(',') + '|' + [...state.goals].map(([key, goal]) => `${key}:${goal.kind}:${goal.station || ''}:${goal.cls || ''}:${goal.fusion ?? ''}`).sort().join(',');
   const regionOfKey = (state, key) => { const p = state.pos.get(key); return p ? rules.regionOf(p.station, p.slot) : purchases.has(key) ? 'ICONIC_SHOP' : null; };
   const arrivalsInto = (state, station) => {
     let count = 0;
@@ -398,7 +399,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   const landedInTank = (state, key, station) => { if (['BUILD', 'FUSION_BUILD'].includes(station)) state.built.add(key); };
   // One command, applied to a copied state. Returns the step or null.
   const tryCommand = (state, key, kind, allowAssumed, commandRegion) => {
-    const unit = units.get(key), from = state.pos.get(key);
+    const unit = unitAs(state,key), from = state.pos.get(key);
     let goal = state.goals.get(key);
     const placed = placedOf(state), { free } = occupancy(placed, rules);
     const step = { unit: { ...unit }, from: from ? { ...from } : undefined, at: (from && rules.regionOf(from.station, from.slot)) || 'ANY' };
@@ -428,8 +429,12 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       // The table takes one batch at a time: mixing inputs of two batches
       // fills it with nothing to fuse.
       if ([...state.staged.values()].some(index => index !== goal.fusion)) return null;
+      const occupied=[...placed,...[...state.stagedSlots].map(([k,p])=>({...unitAs(state,k),...p}))];
+      const landing=from?.station==='FUSION'?from:predictStationLanding({...unit,...from},occupied,'FUSION',rules);
+      if(!landing)return null;
+      state.stagedSlots.set(key,{station:'FUSION',slot:landing.slot,positionUncertain:Boolean(landing.assumed)});
       state.staged.set(key, goal.fusion); state.pos.delete(key);
-      return { ...step, type: from?.station === 'FUSION' ? 'fuse-held' : 'fuse-in', to: 'FUSION' };
+      return { ...step, type: from?.station === 'FUSION' ? 'fuse-held' : 'fuse-in', to: 'FUSION', toSlot: landing.slot, assumed:Boolean(landing.assumed) };
     }
     if (kind === 'lounge' || kind === 'buffer') {
       const landing = predictStationLanding({ ...unit, ...from }, placed, 'LOUNGE', rules);
@@ -564,7 +569,11 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       if (placedOf(state).some(x => x.station === 'FUSION')) continue;
       const slot = free('FUSION_BUILD')[0];
       if (slot === undefined) continue;
-      for (const key of fusion.inputs) { state.staged.delete(key); state.goals.set(key, { kind: 'done' }); }
+      for (const key of fusion.inputs) {
+        if(traitAmount(unitAs(state,key),14,'FUSION')){state.pos.set(key,state.stagedSlots.get(key));state.clearedTraits.add(key);state.goals.set(key,{kind:'place',station:'FUSION'});}
+        else state.goals.set(key,{kind:'done'});
+        state.staged.delete(key);state.stagedSlots.delete(key);
+      }
       state.fused.add(fusion.index);
       const result = fusion.batch.resultUnit ? { ...fusion.batch.resultUnit, built: false } : null;
       const assumed = typeof rules.slotDistanceSquared === 'function' && free('FUSION_BUILD').length > 1;

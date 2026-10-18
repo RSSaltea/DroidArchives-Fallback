@@ -3,8 +3,8 @@ export const SCRAP_QUALITIES={
   default:{hit:1,break:20,health:6},gold:{hit:3,break:60,health:8},
   diamond:{hit:5,break:120,health:10},rainbow:{hit:10,break:300,health:12}
 };
-export function workingIncome({base=0,dynamicPercent=0,staticIncome=0,matching=false,multiplier=1,protocol=1}={}){
-  const raw=Math.max(base,dynamicPercent*staticIncome);
+export function workingIncome({base=0,dynamicPercent=0,staticIncome=0,matching=false,multiplier=1,protocol=1,traitBonus=0}={}){
+  const raw=Math.max(base,dynamicPercent*staticIncome)*(1+traitBonus);
   return {raw,matched:raw*(matching?1.1:1),total:raw*(matching?1.1:1)*multiplier*protocol};
 }
 // Party size includes you and only counts members currently in the game.

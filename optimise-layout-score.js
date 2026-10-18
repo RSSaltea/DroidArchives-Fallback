@@ -1,4 +1,4 @@
-import { workingIncome } from './economy.js?v=2026-10-05-party-controls';
+import { workingIncome } from './economy.js?v=2026-10-18-mission-tools';
 
 // Compile the fixed inputs once per layout search. Candidate scoring needs
 // numbers only; building UI income breakdowns here made Iconic comparisons
@@ -23,7 +23,7 @@ export function createAssignmentScorer({units,slots,locked,regions,multiplier,la
       if(slot.craftRegion>=0)craft[slot.craftRegion]=unit.craftBonus;
       moveCost+=costs[i][index];
     }
-    const rate=(unit,region)=>workingIncome({base:unit.base,dynamicPercent:unit.dynamic,staticIncome:base,matching:unit.type===regions[region],multiplier}).total;
+    const rate=(unit,region)=>workingIncome({base:unit.base,dynamicPercent:unit.dynamic,staticIncome:base,traitBonus:unit.traitBonus||0,matching:unit.type===regions[region],multiplier}).total;
     for(const unit of fixedWork)income[unit.region]+=rate(unit,unit.region);
     for(let i=0;i<assignment.length;i++)if(assignment[i]>=0&&slots[i].region>=0)income[slots[i].region]+=rate(units[assignment[i]],slots[i].region);
     const total=income.reduce((sum,value,i)=>sum+value*credits[i],0)-lambda*moveCost;

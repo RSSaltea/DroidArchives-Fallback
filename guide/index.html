@@ -1,8 +1,0 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Playing efficiently · Droid Archives</title></head>
-<body><p><a id="openGuide" href="../index.html#/guide">Open the Droid Archives guide</a></p><script>
-const destination=new URL('../index.html#/guide',location.href);
-// Also support a static host serving this directory without the trailing slash.
-if(!location.pathname.endsWith('/'))destination.pathname=location.pathname.replace(/\/guide(?:\/index\.html)?$/,'/index.html');
-document.querySelector('#openGuide').href=destination.href;location.replace(destination.href);
-</script></body></html>

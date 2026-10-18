@@ -1,7 +1,8 @@
+import {traitAmount} from './traits.js?v=2026-10-18-mission-tools';
 // Replay instructions independently of the planner before offering an Apply action.
 // Inputs are copied; a rejected step never changes the simulated base.
 export function validateOptimisePlan({ initial, projected, steps, rules } = {}) {
-  const issues = [], units = new Map(), positions = new Map(), staged = new Map();
+  const issues = [], units = new Map(), positions = new Map(), staged = new Map(), stagedSlots=new Map();
   const generated = new Set(), seen = new Set(), sold = new Set(), returned = new Set();
   const companionLocks = new Map();
   const issue = message => issues.push(message);
@@ -174,6 +175,10 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
       }
       const onTable = [...positions].filter(([other, position]) => other !== key && position.station === 'FUSION').length;
       if (staged.size + onTable >= 3) { issue(`${label}: Fusion table capacity exceeded.`); continue; }
+      const occupied=[...positions].map(([k,p])=>({...units.get(k),...p})).concat([...stagedSlots].map(([k,p])=>({...staged.get(k),...p})));
+      const landing=positions.get(key)?.station==='FUSION'?positions.get(key):rule('stationLanding',current(key),occupied,'FUSION');
+      if(traitAmount(current(key),14,'FUSION')&&(!landing||!validPlace({station:'FUSION',slot:landing.slot}))){issue(`${label}: cannot establish Preservation input slot.`);continue;}
+      if(landing)stagedSlots.set(key,{station:'FUSION',slot:landing.slot,positionUncertain:Boolean(landing.assumed)});
       staged.set(key, current(key)); remove(key);
     } else if (step.type === 'fuse-result') {
       const count = step.unit?.count;
@@ -218,7 +223,8 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
       }
       const { station, slot, ...metadata } = result;
       units.set(key, { ...metadata, built: false, fusionResult: true }); positions.set(key, { station: to.station, slot: to.slot, positionUncertain: Boolean(step.assumed) });
-      generated.add(key); seen.add(key); staged.clear(); batchStart = null;
+      for(const [inputKey,input] of staged){if(traitAmount(input,14,'FUSION')){const saved=stagedSlots.get(inputKey);if(!saved){issue(`${label}: Preservation input slot is missing.`);continue;}units.set(inputKey,{...input,trait:null});positions.set(inputKey,saved);}}
+      generated.add(key); seen.add(key); staged.clear();stagedSlots.clear(); batchStart = null;
     } else issue(`${label}: unsupported instruction ${String(step.type)}.`);
   }
   if (staged.size) issue('The plan leaves unfinished inputs on the Fusion table.');
@@ -254,6 +260,7 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
   for (const [key, unit] of targetUnits) {
     if (!units.has(key)) { issue(`Projected droid ${key} is missing after replay.`); continue; }
     const replayed = units.get(key);
+    if(JSON.stringify(unit.trait||null)!==JSON.stringify(replayed.trait||null))issue(`Projected trait for ${key} does not match the replay.`);
     if (!sameDroid(unit, replayed)) issue(`Projected droid ${key} has different result metadata.`);
     if (Boolean(unit.built) !== Boolean(replayed.built)) issue(`Projected build readiness for ${key} does not match the replay.`);
     // New results carry a temporary scheduler lock. It is deliberately absent

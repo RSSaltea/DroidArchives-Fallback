@@ -5,7 +5,7 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
 const src=fs.readFileSync(path.join(__dirname,'../app.js'),'utf8');
-const validation=fs.readFileSync(path.join(__dirname,'../optimise-plan-validation.js'),'utf8').replace(/^export /gm,'');
+const validation=fs.readFileSync(path.join(__dirname,'../optimise-plan-validation.js'),'utf8').replace(/^import .*$/gm,'').replace(/^export /gm,'');
 const data=JSON.parse(fs.readFileSync(path.join(__dirname,'../data/droids.json'),'utf8'));
 // Select complete top-level functions by the next top-level declaration.
 function fn(name){const at=src.indexOf(`function ${name}(`);assert(at>=0,name);const tail=src.slice(at);const end=tail.slice(1).search(/\n(?:function |const |let |async function |\/\/)/);return end<0?tail:tail.slice(0,end+1);}
@@ -13,7 +13,7 @@ function setup(){
  const state={droids:structuredClone(data),owned:[],protocolPriority:'credits'};
  const caps={WORKER:1,ASTROMECH:1,BATTLE:1,BUILD:3,FUSION_BUILD:3,LOUNGE:1};
  // No companion activity is on in these layouts, so nothing is reserved for a seat.
- const ctx=vm.createContext({state,console,companionActivityPicks:()=>({id:null,picks:[],missing:[],locked:[]}),ASTROMECH_MISSION_SLOTS:[0,2,4,6,8],optimiseMoveLambda:()=>0,PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
+ const ctx=vm.createContext({...require('../optimise-layout-score.js'),...require('../crafting.js'),...require('../traits.js'),...require('../mission-economy.js'),state,console,companionActivityPicks:()=>({id:null,picks:[],missing:[],locked:[]}),ASTROMECH_MISSION_SLOTS:[0,2,4,6,8],optimiseMoveLambda:()=>0,PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
   effectiveMultiplier:()=>1,isIconic:d=>d?.rarity==='ICONIC',iconicIncome:d=>d?.rarity==='ICONIC'?(d.special?.incomePercent??.15):0,
   placedBaseIncome:placed=>placed.reduce((n,x)=>n+(state.droids.find(d=>d.name===x.name)?.variants[x.variant]?.income||0),0),
   expandedOwned:()=>state.owned.flatMap((x,source)=>Array.from({length:x.qty||1},(_,unit)=>({...x,source,unit}))),
@@ -203,4 +203,12 @@ test('a better layout never becomes Already optimal when move details are absent
  assert.equal(state.fusionAsLounge,false);
  state.fusionAsLounge=true;
  assert.doesNotMatch(run(`optimiseSettledHtml({gain:100,moves:[]},{placed:[]})`),/optimiseAllowFusionStorage/);
+});
+
+test('mission selection compares actual quality and Mission Efficiency progress',()=>{
+ const {state,run}=setup();
+ state.droids.push({name:'TEST-FAST',type:'ASTROMECH',rarity:'RARE',variants:{DIAMOND:{income:1}}},{name:'TEST-SLOW',type:'ASTROMECH',rarity:'EPIC',variants:{DEFAULT:{income:2}}});
+ state.owned=[{name:'TEST-FAST',variant:'DIAMOND',trait:{id:9,tier:'Rainbow'},built:true},{name:'TEST-SLOW',variant:'DEFAULT',built:true}];
+ const result=run(`optimiseBase({placed:state.owned.map((u,source)=>({...u,source,unit:0,station:'LOUNGE',slot:source}))},0)`);
+ assert.equal(result.assignments.find(u=>u.station==='ASTROMECH'&&u.slot===0).name,'TEST-FAST');
 });

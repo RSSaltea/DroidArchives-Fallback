@@ -2,14 +2,23 @@
   "version": 1,
   "notes": [
     {
-      "id": "2026-10-12-crit-planner",
-      "date": "2026-10-12",
-      "title": "Plan your crit upgrades",
-      "summary": "Preview crit upgrades without changing what you own.",
+      "id": "2026-10-18-traits",
+      "date": "2026-10-18",
+      "title": "Traits and the latest game update",
+      "summary": "Browse traits, record them on your Base droids and use the updated game data.",
       "changes": [
-        "Crit Calc now shares target levels with Nova Planner and shows the Nova needed for your plan, plus the damage improvement.",
-        "Use Mark as purchased after buying upgrades in-game, or reset your crit targets to your owned levels.",
-        "Crit Calc supports levels beyond 50. Nova Planner can now hide fully purchased upgrades."
+        "Added a searchable Traits page with all 26 traits, tiers, reveal costs and Super Rebirth rules.",
+        "Added per-droid trait tracking, including saved Iconic traits when returning droids or Super Rebirthing.",
+        "Updated income, crafting and companion planning to use recorded trait bonuses.",
+        "Updated Rebirth Path 6, added eight Lounge slots and updated CB-23 mission rewards.",
+        "Updated the WG-22 rerun dates and added world mission and Scourge details.",
+        "Added Iconic trait recommendations, a reroll odds and Nova cost calculator, and a mission reward guide.",
+        "Added before/after trait comparisons and warnings before losing recorded traits.",
+        "Updated all Lounge map positions, including upstairs slots, and kept Fusion Preservation survivors in their original fusion slot.",
+        "Added personalised mission times and hourly rewards, with Mission Efficiency and Hyperdrive support.",
+        "Added offline earnings and Chip Finder calculators with saved per-profile settings and before/after comparisons.",
+        "Optimise now accounts for Mission Efficiency when choosing mission droids and keeps Fusion Preservation survivors.",
+        "Corrected the R2-D2 guide: Double Crate does not stack with its existing two-crate perk in the current game code."
       ]
     },
     {

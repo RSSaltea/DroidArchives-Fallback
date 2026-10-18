@@ -4,7 +4,7 @@ const path = require('node:path');
 
 (async () => {
   const source = fs.readFileSync(path.join(__dirname, '../optimise-plan-validation.js'), 'utf8');
-  const { validateOptimisePlan } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
+  const { validateOptimisePlan } = require('../optimise-plan-validation.js');
   const slots = { WORKER: [0, 1, 2], LOUNGE: [0, 1, 2], BUILD: [0], FUSION_BUILD: [0, 1], FUSION: [0, 1, 2], PROTOCOL: [0] };
   const rules = {
     slots: station => slots[station] || [],

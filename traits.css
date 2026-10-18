@@ -1,0 +1,21 @@
+.traits-page{max-width:1440px;margin:auto}.traits-page>p{max-width:1000px;line-height:1.65}.trait-notice,.trait-guide{padding:18px;margin:20px 0;border:1px solid #3c4b63;border-radius:8px;background:#181e2a}.trait-notice{border-left:4px solid #30e596}.trait-notice h2{margin-top:0}.trait-notice p:last-child{margin-bottom:0}.trait-guide summary{cursor:pointer;font-weight:700}.trait-filters{display:flex;flex-wrap:wrap;gap:16px;margin-top:24px}.trait-filters label{display:grid;gap:6px;min-width:180px}.trait-filters label:first-child{flex:1}.trait-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}.trait-card{padding:18px;border:1px solid #364257;border-radius:8px;background:#181e2a;min-width:0}.trait-card h2{font-size:1.12rem;margin:8px 0}.trait-card>small{color:#66e8b4}.trait-card p{line-height:1.5}.trait-eligibility{font-size:.85rem;color:#b5c2d8}.trait-tiers{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}.trait-tiers>div{flex:1;min-width:60px;padding:8px;background:#101625;border:1px solid #3c4b63;border-radius:5px;text-align:center}.trait-tiers dt{font-size:.75rem}.trait-tiers dd{margin:6px 0 0;font-weight:700}.trait-tier-gold{color:#ffce58}.trait-tier-diamond{color:#5bdcff}.trait-tier-rainbow{color:#e5afff}.trait-costs{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px}.trait-costs h3{font-size:.95rem}.trait-costs p{line-height:1.6}.trait-guide p{line-height:1.65}
+
+.slot-trait{padding:4px 7px;border:1px solid #4d6a67;border-radius:4px;background:#102923;color:#8cf3bf;cursor:pointer;font-size:11px}.slot-card-menu .slot-trait{position:static;min-width:34px;height:23px}.base-slot>.slot-trait{display:block;margin:6px auto}.trait-base-hint{font-size:.85rem;color:#b5c2d8}
+
+.trait-comparison{overflow-x:auto}.trait-comparison table{width:100%;border-collapse:collapse}.trait-comparison th,.trait-comparison td{padding:8px;text-align:left;border-bottom:1px solid #364257}
+
+#modalRoot .trait-edit-modal{max-height:90vh;overflow-y:auto;width:min(720px,94vw)}
+
+/* Keep content clear of the edges in every trait card and inset box. */
+.trait-costs>article{box-sizing:border-box;min-width:0;padding:16px;border:1px solid #364257;border-radius:5px;background:#181e2a}
+.trait-costs h3{margin:0 0 12px}
+.trait-costs p{margin:0}
+.trait-card h3{margin:8px 0 12px}
+.trait-card>p:last-child{margin-bottom:0}
+.trait-guide>h2:first-child{margin-top:0}
+.trait-guide>p:last-child{margin-bottom:0}
+.trait-tiers>div{box-sizing:border-box;padding:12px;min-width:80px}
+.trait-filters label{min-width:0;gap:8px}
+.trait-filters input,.trait-filters select{box-sizing:border-box;max-width:100%;padding:9px 12px}
+#modalRoot .trait-edit-modal>label{display:grid;gap:8px;margin:14px 0}
+#modalRoot .trait-edit-modal>label>.form-control{box-sizing:border-box;width:100%;padding:9px 12px}
