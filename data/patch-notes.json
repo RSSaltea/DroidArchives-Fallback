@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-10-18-signin-fix",
+      "date": "2026-10-18",
+      "title": "Sign-in recovery and clearer traits",
+      "summary": "Improved profile loading on devices with older cached data.",
+      "changes": [
+        "Refreshes the droid catalogue if a saved profile contains an unrecognised droid, such as EGL.",
+        "Blocks cloud writes if profile restoration fails, keeping the cloud save unchanged.",
+        "Added short effect descriptions beside trait names in the selector and reroll calculator."
+      ]
+    },
+    {
       "id": "2026-10-18-traits",
       "date": "2026-10-18",
       "title": "Traits and the latest game update",

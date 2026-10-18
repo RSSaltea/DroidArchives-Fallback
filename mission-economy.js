@@ -1,4 +1,4 @@
-import { traitAmount, traitSum } from './traits.js?v=2026-10-18-mission-tools';
+import { traitAmount, traitSum } from './traits.js?v=2026-10-18-signin-fix';
 // Curated from v1.35 AstromechMissions and depot completion code.
 // Credit rewards are seconds of generation, not fixed amounts.
 export const MISSION_SHIPS=[

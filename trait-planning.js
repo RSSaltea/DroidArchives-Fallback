@@ -1,4 +1,4 @@
-import { TRAITS, traitEligible } from './traits.js?v=2026-10-18-mission-tools';
+import { TRAITS, traitEligible } from './traits.js?v=2026-10-18-signin-fix';
 const tiers=['Default','Gold','Diamond','Rainbow'];
 export function traitRollPool(droid,current=null){
   const groups=tiers.map(tier=>TRAITS.filter(t=>traitEligible(t,droid)&&Object.hasOwn(t.values,tier)&&!(t.id===current?.id&&tier===current?.tier)).map(t=>({id:t.id,tier}))).filter(g=>g.length);

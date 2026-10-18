@@ -1,2 +1,5 @@
+/data/*
+  Cache-Control: no-cache
+
 /data/companion-release.json
   Cache-Control: no-store

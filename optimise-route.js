@@ -1,4 +1,4 @@
-import {traitAmount} from './traits.js?v=2026-10-18-mission-tools';
+import {traitAmount} from './traits.js?v=2026-10-18-signin-fix';
 // Plans the walk that turns the current Base into the optimised one.
 //
 // The game gives a droid six commands, all issued standing next to it: Work,

@@ -1,4 +1,4 @@
-import {traitAmount} from './traits.js?v=2026-10-18-mission-tools';
+import {traitAmount} from './traits.js?v=2026-10-18-signin-fix';
 // Replay instructions independently of the planner before offering an Apply action.
 // Inputs are copied; a rejected step never changes the simulated base.
 export function validateOptimisePlan({ initial, projected, steps, rules } = {}) {

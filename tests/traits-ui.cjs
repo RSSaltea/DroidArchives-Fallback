@@ -11,7 +11,7 @@ const server=http.createServer((req,res)=>{const pathname=new URL(req.url,'http:
   page.on('pageerror',e=>errors.push(e.message));
   await page.route('https://**/*',r=>r.abort());
   await page.route('**/data/patch-notes.json*',r=>r.fulfill({contentType:'application/json',body:'{"notes":[]}'}));
-  await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.traitTest={state,save,route,placements,incomeForPlaced,materializePlacements,optimisedRows,validateBaseImport,baseExport,stationSlotIndices,autoPurchaseEligibleSlots,commitOwned,showSuperRebirthConfirm,showTraitModal,runFusion};'}));
+  await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.traitTest={state,save,route,placements,incomeForPlaced,materializePlacements,optimisedRows,validateBaseImport,baseExport,stationSlotIndices,autoPurchaseEligibleSlots,commitOwned,showSuperRebirthConfirm,showTraitModal,runFusion,refreshProfileCatalogue};'}));
   await page.goto(`http://127.0.0.1:${server.address().port}/#/traits`);
   await page.waitForFunction(()=>window.traitTest?.state.droids.length);
   assert.equal(await page.locator('.trait-catalogue .trait-card').count(),26);
@@ -58,6 +58,13 @@ const server=http.createServer((req,res)=>{const pathname=new URL(req.url,'http:
   await page.evaluate(()=>{location.hash='#/base';window.traitTest.route();});
   assert.equal(await page.locator('.tm-canvas [data-slot="LOUNGE:20"]').count(),1);
   if(process.env.TRAIT_MAP_SCREENSHOT)await page.locator('.tm-canvas').screenshot({path:process.env.TRAIT_MAP_SCREENSHOT});
+  const recovered=await page.evaluate(async()=>{const t=window.traitTest;t.state.droids=t.state.droids.filter(d=>d.name!=='EGL');const profile={owned:[{name:'EGL',variant:'DIAMOND',qty:2,built:true}]};await t.refreshProfileCatalogue(profile);return t.validateBaseImport(profile).owned;});
+  assert.equal(recovered[0].name,'EGL');assert.equal(recovered[0].qty,2);assert.equal(recovered[0].variant,'DIAMOND');
+  await page.evaluate(()=>{const t=window.traitTest;t.showTraitModal({source:0,unit:0,name:'BB-8'},()=>{});});
+  assert.match(await page.locator('#ownedTrait option[value="7"]').textContent(),/Scrap Specialist.*more scrap credits/);
+  assert.match(await page.locator('#ownedTrait option[value="21"]').textContent(),/Upgrade Chip Master.*BB-8 perk while working/);
+  await page.setViewportSize({width:390,height:844});
+  assert(await page.locator('.trait-edit-modal').evaluate(e=>e.scrollWidth<=e.clientWidth+1));
   assert.deepEqual(errors,[]);
   console.log('Trait page, mobile layout, per-copy editing, income, projection/import, 21 Lounge slots, Super Rebirth and reload passed.');
  }finally{await browser.close();server.close();}

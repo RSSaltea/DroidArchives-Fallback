@@ -1,4 +1,4 @@
-import { TRAITS, traitEligible } from './traits.js?v=2026-10-18-mission-tools';
+import { TRAITS, traitEligible, traitOptionLabel } from './traits.js?v=2026-10-18-signin-fix';
 import { ICONIC_TRAIT_ADVICE, rerollEstimate } from './trait-planning.js?v=2026-10-18-mission-tools';
 import { cb23RewardsHtml, WORLD_MISSION_BOOSTS } from './update-135.js?v=2026-10-18-mission-tools';
 export function mountTraitTools(host,droids){
@@ -14,7 +14,7 @@ export function mountTraitTools(host,droids){
     out.innerHTML=result?.already?'<p><strong>You already have the target. Keep it; no rerolls are needed.</strong></p>':result?`<dl class="trait-tiers"><div><dt>Next-roll chance</dt><dd>${(result.nextChance*100).toFixed(2)}%</dd></div><div><dt>Within your budget</dt><dd>${(result.chance*100).toFixed(2)}%</dd></div><div><dt>Average rerolls</dt><dd>${result.expectedRolls.toFixed(1)}</dd></div><div><dt>Average Nova cost</dt><dd>${Math.round(result.expectedNova).toLocaleString()}</dd></div></dl>`:'<p>This target is unavailable.</p>';
   };
   d.onchange=()=>{
-    combos=TRAITS.filter(x=>traitEligible(x,iconics[Number(d.value)])).flatMap(x=>Object.keys(x.values).map(tier=>({id:x.id,tier,name:`${x.name} - ${tier}`})));
+    combos=TRAITS.filter(x=>traitEligible(x,iconics[Number(d.value)])).flatMap(x=>Object.keys(x.values).map(tier=>({id:x.id,tier,name:`${traitOptionLabel(x)} - ${tier}`})));
     const options=combos.map((v,i)=>`<option value="${i}">${v.name}</option>`).join('');c.innerHTML='<option value="-1">Not revealed</option>'+options;t.innerHTML=options;
     const advice=ICONIC_TRAIT_ADVICE.find(row=>row[0]===iconics[Number(d.value)].name),target=combos.findIndex(x=>x.id===advice?.[1]);if(target>=0)t.value=String(target);draw();
   };

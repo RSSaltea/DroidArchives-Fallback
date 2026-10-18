@@ -1,6 +1,6 @@
 import {mountMissionTools} from './mission-tools-ui.js?v=2026-10-18-mission-tools';
-import { mountTraitTools } from './trait-tools-ui.js?v=2026-10-18-mission-tools';
-import { TRAIT_DATA } from './data/traits.js?v=2026-10-18-mission-tools';
+import { mountTraitTools } from './trait-tools-ui.js?v=2026-10-18-signin-fix';
+import { TRAIT_DATA } from './data/traits.js?v=2026-10-18-signin-fix';
 const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tiers=['Default','Gold','Diamond','Rainbow'];
 const roleLabel=role=>role==='Worker'?'Working (including Protocol bays)':role==='Astromech'?'Astromech mission':role;
