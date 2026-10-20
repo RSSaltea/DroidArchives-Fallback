@@ -5,7 +5,7 @@ import { cb23RewardsHtml } from './update-135.js?v=2026-10-18-mission-tools';
 import { TRAITS, traitOptionLabel, normaliseTrait, traitEligible, traitAmount, traitSum, traitLabel, companionPerkActive, overclockFactor, companionGoalValue, normaliseIconicTraits, rememberIconicTraits } from './traits.js?v=2026-10-18-signin-fix';
 import { traitsPage } from './traits-page.js?v=2026-10-18-signin-fix';
 import { COMING_SOON_DROIDS, isComingSoonDroid, comingSoonCard, comingSoonDetail } from './coming-soon-droids.js?v=2026-10-10-gonk-army';
-import { novaVisibleLevels, novaTotalCost } from './nova-levels.js?v=2026-10-07-unlimited';
+import { novaVisibleLevels, novaTotalCost, novaLevelRow } from './nova-levels.js?v=2026-10-07-unlimited';
 import {normaliseEventProgress} from './event-data.js?v=2026-10-10-gonk-army';
 import {eventPage,startEventReminders} from './event-page.js?v=2026-10-18-mission-tools';
 import { companionPage } from './companion-page.js?v=2026-10-08-beta37';
@@ -2276,8 +2276,8 @@ const companionAstromechBonus=placed=>placed.filter(x=>x.station==='COMPANION').
   return sum+unitCompanionGoal(x,'pickaxe');},0);
 const critSetting=(key,fallback)=>{const v=Number(localStorage.getItem('droid-archive-crit-'+key));return Number.isFinite(v)&&localStorage.getItem('droid-archive-crit-'+key)!==null?v:fallback};
 const setCritSetting=(key,value)=>localStorage.setItem('droid-archive-crit-'+key,String(value));
-const novaLevelCost=(id,level)=>novaUpgrade(id)?.levels?.find(l=>Number(l.level)===level)?.cost??null;
-const novaMaxLevel=id=>novaUpgrade(id)?.levels?.length??0;
+const novaLevelCost=(id,level)=>{const upgrade=novaUpgrade(id);return upgrade?novaLevelRow(upgrade,level)?.cost??null:null};
+const novaMaxLevel=id=>{const upgrade=novaUpgrade(id);return upgrade?.uncapped?Infinity:upgrade?.levels?.length??0};
 // Multi Crit needs Critical Chance first, so its true price is the missing
 // Critical Chance ranks plus its own.
 const MULTI_CRIT_REQUIRES_CHANCE=4;
@@ -4137,7 +4137,7 @@ function critCalcPage(){
       partyMultiplier:partyBonuses(state.party).pickaxe,traitChance:traitSum(placed,4),traitAmountBonus:traitSum(placed,5),traitMulti:traitSum(placed,18),
     };
     // What each perk has cost you so far, and what the next rank adds.
-    const spent=id=>{const u=novaUpgrade(id);return(u?.levels||[]).filter(l=>Number(l.level)<=novaLevelFor(id)).reduce((s,l)=>s+(l.cost||0),0)};
+    const spent=id=>{const u=novaUpgrade(id);return u?novaTotalCost(u,novaLevelFor(id)):0};
     const totalSpent=Object.values(CRIT_UPGRADE_IDS).reduce((s,id)=>s+spent(id),0);
     const p=critProfile(current),options=critUpgradeOptions(current),best=options.find(o=>!o.locked);
     // Rebirth crit perks are not bought, so they are shown as a read-out beside
@@ -4148,7 +4148,7 @@ function critCalcPage(){
     // rather than switching to the Nova Shop and back.
     const perk=(id,key,label,level,detail)=>{
       const max=novaMaxLevel(id),next=level<max?novaLevelCost(id,level+1):null;
-      return `<div class="crit-field crit-perk"><span>${label}</span><div class="crit-step"><button class="btn secondary" data-perk-down="${id}" ${level<=0?'disabled':''}>−</button><input type="number" id="${key}" value="${level}" min="0" max="${max}" step="1"><button class="btn secondary" data-perk-up="${id}" ${level>=max?'disabled':''}>+</button></div><small>${detail} · level ${level}/${max}</small><small class="crit-cost">Spent ${fmt(spent(id))} Nova${next?` · next rank ${fmt(next)}`:' · maxed'}</small></div>`;
+      return `<div class="crit-field crit-perk"><span>${label}</span><div class="crit-step"><button class="btn secondary" data-perk-down="${id}" ${level<=0?'disabled':''}>−</button><input type="number" id="${key}" value="${level}" min="0" ${Number.isFinite(max)?`max="${max}"`:String()} step="1"><button class="btn secondary" data-perk-up="${id}" ${level>=max?'disabled':''}>+</button></div><small>${detail} · level ${level}${Number.isFinite(max)?`/${max}`:" · unlimited"}</small><small class="crit-cost">Spent ${fmt(spent(id))} Nova${next?` · next rank ${fmt(next)}`:' · maxed'}</small></div>`;
     };
     app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Critical Calculator</div>
       <div class="base-heading"><div><p class="eyebrow">Pickaxe planner</p><h1>Critical Calculator</h1><p class="lead">What your pickaxe removes per swing, and which Nova crit upgrade is the best next buy.</p></div><button class="btn secondary" id="critReset">Reset to my Nova levels</button></div>

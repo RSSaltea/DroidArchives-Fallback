@@ -2,6 +2,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const src=fs.readFileSync('app.js','utf8'),shop=JSON.parse(fs.readFileSync('data/nova-shop.json','utf8'));
 const state={rebirth:35,novaShop:shop};let perks=0;
 const context=vm.createContext({state,Math,critSetting:()=>perks,novaUpgrade:id=>shop.upgrades.find(u=>u.id===id),localStorage:{getItem:()=>String(perks)}});
+vm.runInContext(fs.readFileSync('nova-levels.js','utf8').replaceAll('export function','function'),context);
 vm.runInContext(src.slice(src.indexOf('const PICKAXE_SECONDS_PER_LEVEL='),src.indexOf('// Pickaxe Mastery only decides')),context);
 const start=src.indexOf('const novaLevelCost=');const end=src.indexOf('\n}',src.indexOf('function critUpgradeOptions',start))+2;vm.runInContext(src.slice(start,end),context);
 const run=s=>vm.runInContext(s,context),near=(a,b)=>assert(Math.abs(a-b)<1e-10,`${a} != ${b}`);
@@ -34,3 +35,14 @@ perks=0;near(run(`critProfile(${input}).perHit`),133.524);
 perks=1;state.rebirth=0;near(run('rebirthCritBonus().chance'),0);near(run('rebirthCritBonus().amount'),0);
 console.log('PASS 240 exhaustive roll comparisons, overflow thresholds, screenshot values, rebirth rankings and temporary boost');
 console.log('PASS Rebirth 35-40 rewards, cumulative totals, next-perk hints, toggle off and fresh Super Rebirth');
+
+for(const level of [50,51,75,100]){
+ const options=run(`critUpgradeOptions({chanceLevel:${level},amountLevel:${level},multiLevel:4})`);
+ for(const id of ['critical-chance','critical-amount']){
+  const option=options.find(o=>o.id===id),u=shop.upgrades.find(u=>u.id===id);
+  assert(option,`${id} must offer a rank above ${level}`);assert.equal(option.to,level+1);
+  assert.equal(option.cost,u.costBase+u.costScale*level);assert(Number.isFinite(option.gain)&&option.gain>0);
+ }
+ assert(!options.some(o=>o.id==='multi-crit'),'Multi Crit retains its real cap');
+}
+console.log('PASS unlimited crit ranks 51, 52, 76 and 101, costs and capped Multi Crit');

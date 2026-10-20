@@ -22,5 +22,20 @@ for(const [rank,total,next] of [[37,30,38],[38,45,40],[39,45,40],[40,65,null]]){
  assert.match(await page.locator('.crit-stats').innerText(),new RegExp((180+total)+'%'));
 }
 await page.locator('#critPerks').uncheck();assert.match(await page.locator('.crit-stats').innerText(),/133.5s/);
+await page.evaluate(()=>{window.critTest.state.novaUpgrades={'critical-chance':50,'critical-amount':50,'multi-crit':4};window.critTest.route()});
+for(const [field,id] of [['critChance','critical-chance'],['critAmount','critical-amount']]){
+ assert.equal(await page.locator('#'+field).getAttribute('max'),null);
+ await page.locator(`[data-perk-up="${id}"]`).click();assert.equal(await page.locator('#'+field).inputValue(),'51');
+ await page.locator('#'+field).fill('75');await page.locator('#'+field).dispatchEvent('change');
+ assert.equal(await page.locator('#'+field).inputValue(),'75');
+ assert.equal(await page.evaluate(id=>JSON.parse(localStorage.getItem('droid-archive-nova-upgrades'))[id],id),75);
+ const perk=page.locator('.crit-perk').filter({has:page.locator('#'+field)});
+ assert.match(await perk.innerText(),/unlimited/);assert.doesNotMatch(await perk.innerText(),/maxed|Infinity/);
+ const upgrade=JSON.parse(fs.readFileSync('data/nova-shop.json','utf8')).upgrades.find(u=>u.id===id);
+ const spent=Array.from({length:75},(_,i)=>upgrade.costBase+upgrade.costScale*i).reduce((a,b)=>a+b,0);
+ assert.match(await perk.innerText(),new RegExp('Spent '+(spent/1000).toString().replace('.','\\.')+'K Nova'));
+}
+assert(await page.locator('[data-perk-up="multi-crit"]').isDisabled());
+assert.match(await page.locator('.crit-table').first().innerText(),/76/);
 await page.setViewportSize({width:390,height:844});assert(await page.locator('#critBoost').isVisible());assert.deepEqual(errors,[]);console.log('PASS crit page: screenshot inputs, rebirth toggle, overflow table, boost, reset, narrow layout:',shell);await context.close();}
 }finally{await browser.close();server.close();}})().catch(e=>{console.error(e);process.exitCode=1;server.close();});
