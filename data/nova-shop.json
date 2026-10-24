@@ -880,7 +880,8 @@
           "cost": 100,
           "reward": "One 5-minute Beskar Surge token"
         }
-      ]
+      ],
+      "unavailable": true
     },
     {
       "id": "galactic-surge-token",
@@ -2726,6 +2727,25 @@
           "level": 1,
           "cost": 1500,
           "reward": "Activate Kyber Droids inside your Base with a Huyang Hologram."
+        }
+      ]
+    },
+    {
+      "id": "scourge-surge-token",
+      "sourceId": "SCOURGE_SURGE",
+      "name": "Scourge Surge Token",
+      "category": "lobby-boosts",
+      "icon": "assets/nova-shop/SurgeBoost.png",
+      "description": "Scourge conveyor surge. Use in the Cantina Shop. Available from the Scourge event; costs 450 Nova Crystals.",
+      "uncapped": true,
+      "repeatable": true,
+      "costBase": 450,
+      "costScale": 0,
+      "levels": [
+        {
+          "level": 1,
+          "cost": 450,
+          "reward": "One Scourge Surge token"
         }
       ]
     }

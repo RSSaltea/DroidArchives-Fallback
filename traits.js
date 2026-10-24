@@ -1,4 +1,4 @@
-import { TRAIT_DATA } from './data/traits.js?v=2026-10-18-signin-fix';
+import { TRAIT_DATA } from './data/traits.js?v=2026-10-24-scourge';
 export const TRAITS=TRAIT_DATA.traits;
 const shortEffects=['more working credits','stronger pickaxe hits','more maximum health','faster depot builds','more critical hits','stronger critical hits','more chips collected','more scrap credits','stronger fusion hits','faster missions','more offline credits','credits while equipped','stronger companion boost','chips from depot builds','keep fusion input; lose trait','heal after defeating enemies','protect carried blueprints','D-O perk while working','extra multi-crit level','extra crate chance; R2 already has two','C-3PO perk while working','BB-8 perk while working','DJ perk while working','blueprint from flawless builds','3x CB-23 mission chips/Nova','Golden Splash every 2 min of hitting'];
 export const traitOptionLabel=trait=>`${trait.name} — ${shortEffects[trait.id]||trait.effect}`;

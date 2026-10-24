@@ -1,6 +1,6 @@
 export const TRAIT_DATA = {
-  "gameVersion": "1.35.0",
-  "checkedAt": "2026-10-18",
+  "gameVersion": "1.36.0",
+  "checkedAt": "2026-10-24",
   "costs": [
     {
       "rarity": "Common",

@@ -80,10 +80,20 @@
         "craftingSeconds": 1206.36,
         "sellCredits": 23940.0,
         "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 30400,
+        "income": 57.6,
+        "craftingSeconds": 469.14,
+        "sellCredits": 21280,
+        "sellUpgradeChips": 22
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 100.0
+    "craftingXp": 100.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/MOUSE.png"
+    }
   },
   {
     "name": "PIT",
@@ -166,10 +176,20 @@
         "craftingSeconds": 1206.36,
         "sellCredits": 27720.0,
         "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 35200,
+        "income": 57.6,
+        "craftingSeconds": 469.14,
+        "sellCredits": 24640,
+        "sellUpgradeChips": 22
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 120.0
+    "craftingXp": 120.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/PIT.png"
+    }
   },
   {
     "name": "GONK",
@@ -252,10 +272,20 @@
         "craftingSeconds": 1332.72,
         "sellCredits": 75600.0,
         "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 96000,
+        "income": 115.2,
+        "craftingSeconds": 518.28,
+        "sellCredits": 67200,
+        "sellUpgradeChips": 22
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 140.0
+    "craftingXp": 140.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/GONK.png"
+    }
   },
   {
     "name": "CB",
@@ -338,10 +368,20 @@
         "craftingSeconds": 1269.54,
         "sellCredits": 50400.0,
         "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 64000,
+        "income": 86.4,
+        "craftingSeconds": 493.71,
+        "sellCredits": 44800,
+        "sellUpgradeChips": 22
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 160.0
+    "craftingXp": 160.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/CB.png"
+    }
   },
   {
     "name": "R3",
@@ -424,10 +464,20 @@
         "craftingSeconds": 1269.54,
         "sellCredits": 50400.0,
         "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 64000,
+        "income": 86.4,
+        "craftingSeconds": 493.71,
+        "sellCredits": 44800,
+        "sellUpgradeChips": 22
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 190.0
+    "craftingXp": 190.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/R3.png"
+    }
   },
   {
     "name": "R5",
@@ -510,10 +560,20 @@
         "craftingSeconds": 1269.54,
         "sellCredits": 50400.0,
         "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 64000,
+        "income": 86.4,
+        "craftingSeconds": 493.71,
+        "sellCredits": 44800,
+        "sellUpgradeChips": 22
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 220.0
+    "craftingXp": 220.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/R5.png"
+    }
   },
   {
     "name": "R8",
@@ -596,10 +656,20 @@
         "craftingSeconds": 1332.72,
         "sellCredits": 75600.0,
         "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 96000,
+        "income": 115.2,
+        "craftingSeconds": 518.28,
+        "sellCredits": 67200,
+        "sellUpgradeChips": 22
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 260.0
+    "craftingXp": 260.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/R8.png"
+    }
   },
   {
     "name": "IMPERIAL PROBE",
@@ -682,10 +752,20 @@
         "craftingSeconds": 1459.08,
         "sellCredits": 126000.0,
         "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 160000,
+        "income": 172.8,
+        "craftingSeconds": 567.42,
+        "sellCredits": 112000,
+        "sellUpgradeChips": 22
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 500.0
+    "craftingXp": 500.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/IMPERIAL_PROBE.png"
+    }
   },
   {
     "name": "B1 BATTLE",
@@ -768,10 +848,20 @@
         "craftingSeconds": 1395.9,
         "sellCredits": 100800.0,
         "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 128000,
+        "income": 144,
+        "craftingSeconds": 542.85,
+        "sellCredits": 89600,
+        "sellUpgradeChips": 22
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 420.0
+    "craftingXp": 420.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/B1_BATTLE.png"
+    }
   },
   {
     "name": "DRK-1 PROBE",
@@ -854,10 +944,20 @@
         "craftingSeconds": 1269.54,
         "sellCredits": 75600.0,
         "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 96000,
+        "income": 86.4,
+        "craftingSeconds": 493.71,
+        "sellCredits": 67200,
+        "sellUpgradeChips": 22
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 300.0
+    "craftingXp": 300.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/DRK-1_PROBE.png"
+    }
   },
   {
     "name": "ID10",
@@ -940,10 +1040,20 @@
         "craftingSeconds": 1332.72,
         "sellCredits": 100800.0,
         "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 128000,
+        "income": 115.2,
+        "craftingSeconds": 518.28,
+        "sellCredits": 89600,
+        "sellUpgradeChips": 22
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 350.0
+    "craftingXp": 350.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/ID10.png"
+    }
   },
   {
     "name": "BDX EXPLORER",
@@ -1026,10 +1136,20 @@
         "craftingSeconds": 2027.7,
         "sellCredits": 630000.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 800000,
+        "income": 432,
+        "craftingSeconds": 788.55,
+        "sellCredits": 560000,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 2500.0
+    "craftingXp": 2500.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/BDX_EXPLORER.png"
+    }
   },
   {
     "name": "ARG",
@@ -1112,10 +1232,20 @@
         "craftingSeconds": 3733.56,
         "sellCredits": 2217600.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 2816000,
+        "income": 1209.6,
+        "craftingSeconds": 1451.94,
+        "sellCredits": 1971200,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 8800.0
+    "craftingXp": 8800.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/ARG.png"
+    }
   },
   {
     "name": "SENATE HOVERCAM",
@@ -1198,10 +1328,20 @@
         "craftingSeconds": 3986.28,
         "sellCredits": 2520000.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 3200000,
+        "income": 1324.8,
+        "craftingSeconds": 1550.22,
+        "sellCredits": 2240000,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 10000.0
+    "craftingXp": 10000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/SENATE_HOVERCAM.png"
+    }
   },
   {
     "name": "B-U4D",
@@ -1284,10 +1424,20 @@
         "craftingSeconds": 4744.44,
         "sellCredits": 3276000.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 4160000,
+        "income": 1670.4,
+        "craftingSeconds": 1845.06,
+        "sellCredits": 2912000,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 13000.0
+    "craftingXp": 13000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/B-U4D.png"
+    }
   },
   {
     "name": "BAL-CORE",
@@ -1370,10 +1520,20 @@
         "craftingSeconds": 2533.14,
         "sellCredits": 1083600.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 1376000,
+        "income": 662.4,
+        "craftingSeconds": 985.11,
+        "sellCredits": 963200,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 4300.0
+    "craftingXp": 4300.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/BAL-CORE.png"
+    }
   },
   {
     "name": "ROLL-R",
@@ -1456,10 +1616,20 @@
         "craftingSeconds": 3038.58,
         "sellCredits": 1562400.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 1984000,
+        "income": 892.8,
+        "craftingSeconds": 1181.67,
+        "sellCredits": 1388800,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 6200.0
+    "craftingXp": 6200.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/ROLL-R.png"
+    }
   },
   {
     "name": "2BB",
@@ -1542,10 +1712,20 @@
         "craftingSeconds": 2154.06,
         "sellCredits": 756000.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 960000,
+        "income": 489.6,
+        "craftingSeconds": 837.69,
+        "sellCredits": 672000,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 3000.0
+    "craftingXp": 3000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/2BB.png"
+    }
   },
   {
     "name": "A-LT",
@@ -1628,10 +1808,20 @@
         "craftingSeconds": 3354.48,
         "sellCredits": 1864800.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 2368000,
+        "income": 1036.8,
+        "craftingSeconds": 1304.52,
+        "sellCredits": 1657600,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 7400.0
+    "craftingXp": 7400.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/A-LT.png"
+    }
   },
   {
     "name": "R4",
@@ -1714,10 +1904,20 @@
         "craftingSeconds": 4239.0,
         "sellCredits": 2772000.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 3520000,
+        "income": 1440,
+        "craftingSeconds": 1648.5,
+        "sellCredits": 2464000,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 11000.0
+    "craftingXp": 11000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/R4.png"
+    }
   },
   {
     "name": "R9",
@@ -1800,10 +2000,20 @@
         "craftingSeconds": 4491.72,
         "sellCredits": 3024000.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 3840000,
+        "income": 1555.2,
+        "craftingSeconds": 1746.78,
+        "sellCredits": 2688000,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 12000.0
+    "craftingXp": 12000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/R9.png"
+    }
   },
   {
     "name": "B1 SECURITY",
@@ -1886,10 +2096,20 @@
         "craftingSeconds": 5249.88,
         "sellCredits": 3780000.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 4800000,
+        "income": 1900.8,
+        "craftingSeconds": 2041.62,
+        "sellCredits": 3360000,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 15000.0
+    "craftingXp": 15000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/B1_SECURITY.png"
+    }
   },
   {
     "name": "NAV-EX",
@@ -1972,10 +2192,20 @@
         "craftingSeconds": 2217.24,
         "sellCredits": 907200.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 1152000,
+        "income": 518.4,
+        "craftingSeconds": 862.26,
+        "sellCredits": 806400,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 3600.0
+    "craftingXp": 3600.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/NAV-EX.png"
+    }
   },
   {
     "name": "VECT-ARM",
@@ -2058,10 +2288,20 @@
         "craftingSeconds": 2785.86,
         "sellCredits": 1310400.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 1664000,
+        "income": 777.6,
+        "craftingSeconds": 1083.39,
+        "sellCredits": 1164800,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 5200.0
+    "craftingXp": 5200.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/VECT-ARM.png"
+    }
   },
   {
     "name": "HOV-R",
@@ -2144,10 +2384,20 @@
         "craftingSeconds": 4997.16,
         "sellCredits": 3528000.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 4480000,
+        "income": 1785.6,
+        "craftingSeconds": 1943.34,
+        "sellCredits": 3136000,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 14000.0
+    "craftingXp": 14000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/HOV-R.png"
+    }
   },
   {
     "name": "GROUNDMECH",
@@ -2230,10 +2480,20 @@
         "craftingSeconds": 8661.6,
         "sellCredits": 2835000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 877500000,
+        "income": 8640,
+        "craftingSeconds": 3368.4,
+        "sellCredits": 614250000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 90000.0
+    "craftingXp": 90000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/GROUNDMECH.png"
+    }
   },
   {
     "name": "LO",
@@ -2316,10 +2576,20 @@
         "craftingSeconds": 16243.2,
         "sellCredits": 6615000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 2047500000,
+        "income": 17280,
+        "craftingSeconds": 6316.8,
+        "sellCredits": 1433250000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 210000.0
+    "craftingXp": 210000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/LO.png"
+    }
   },
   {
     "name": "AMP WALKER",
@@ -2402,10 +2672,20 @@
         "craftingSeconds": 37092.6,
         "sellCredits": 17009999999.999998,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 5265000000,
+        "income": 41040,
+        "craftingSeconds": 14424.9,
+        "sellCredits": 3685500000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 540000.0
+    "craftingXp": 540000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/AMP_WALKER.png"
+    }
   },
   {
     "name": "SEN-TRI",
@@ -2488,10 +2768,20 @@
         "craftingSeconds": 33301.8,
         "sellCredits": 15119999999.999998,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 4680000000,
+        "income": 36720,
+        "craftingSeconds": 12950.7,
+        "sellCredits": 3276000000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 480000.0
+    "craftingXp": 480000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/SEN-TRI.png"
+    }
   },
   {
     "name": "OPTI-POD",
@@ -2574,10 +2864,20 @@
         "craftingSeconds": 25720.2,
         "sellCredits": 11340000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 3510000000,
+        "income": 28080,
+        "craftingSeconds": 10002.3,
+        "sellCredits": 2457000000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 360000.0
+    "craftingXp": 360000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/OPTI-POD.png"
+    }
   },
   {
     "name": "GUNRUNNER",
@@ -2660,10 +2960,20 @@
         "craftingSeconds": 42778.8,
         "sellCredits": 19845000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 6142500000,
+        "income": 47520,
+        "craftingSeconds": 16636.2,
+        "sellCredits": 4299750000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 630000.0
+    "craftingXp": 630000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/GUNRUNNER.png"
+    }
   },
   {
     "name": "BB",
@@ -2746,10 +3056,20 @@
         "craftingSeconds": 10557.0,
         "sellCredits": 3780000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 1170000000,
+        "income": 10800,
+        "craftingSeconds": 4105.5,
+        "sellCredits": 819000000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 120000.0
+    "craftingXp": 120000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/BB.png"
+    }
   },
   {
     "name": "R2",
@@ -2832,10 +3152,20 @@
         "craftingSeconds": 31406.4,
         "sellCredits": 14175000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 4387500000,
+        "income": 34560,
+        "craftingSeconds": 12213.6,
+        "sellCredits": 3071250000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 450000.0
+    "craftingXp": 450000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/R2.png"
+    }
   },
   {
     "name": "R6",
@@ -2918,10 +3248,20 @@
         "craftingSeconds": 20034.0,
         "sellCredits": 8504999999.999999,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 2632500000,
+        "income": 21600,
+        "craftingSeconds": 7791,
+        "sellCredits": 1842750000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 270000.0
+    "craftingXp": 270000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/R6.png"
+    }
   },
   {
     "name": "TRAK-R",
@@ -3004,10 +3344,20 @@
         "craftingSeconds": 21929.4,
         "sellCredits": 9450000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 2925000000,
+        "income": 23760,
+        "craftingSeconds": 8528.1,
+        "sellCredits": 2047500000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 300000.0
+    "craftingXp": 300000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/TRAK-R.png"
+    }
   },
   {
     "name": "ORB-WALKER",
@@ -3090,10 +3440,20 @@
         "craftingSeconds": 12452.4,
         "sellCredits": 4725000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 1462500000,
+        "income": 12960,
+        "craftingSeconds": 4842.6,
+        "sellCredits": 1023750000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 150000.0
+    "craftingXp": 150000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/ORB-WALKER.png"
+    }
   },
   {
     "name": "UTIL-TEC",
@@ -3176,10 +3536,20 @@
         "craftingSeconds": 14347.8,
         "sellCredits": 5670000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 1755000000,
+        "income": 15120,
+        "craftingSeconds": 5579.7,
+        "sellCredits": 1228500000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 180000.0
+    "craftingXp": 180000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/UTIL-TEC.png"
+    }
   },
   {
     "name": "B1 HEAVY",
@@ -3262,10 +3632,20 @@
         "craftingSeconds": 38988.0,
         "sellCredits": 18900000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 5850000000,
+        "income": 43200,
+        "craftingSeconds": 15162,
+        "sellCredits": 4095000000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 600000.0
+    "craftingXp": 600000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/B1_HEAVY.png"
+    }
   },
   {
     "name": "B2 SUPER",
@@ -3348,10 +3728,20 @@
         "craftingSeconds": 27615.6,
         "sellCredits": 12285000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 3802500000,
+        "income": 30240,
+        "craftingSeconds": 10739.4,
+        "sellCredits": 2661750000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 390000.0
+    "craftingXp": 390000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/B2_SUPER.png"
+    }
   },
   {
     "name": "B2 HEAVY",
@@ -3434,10 +3824,20 @@
         "craftingSeconds": 23824.8,
         "sellCredits": 10395000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 3217500000,
+        "income": 25920,
+        "craftingSeconds": 9265.2,
+        "sellCredits": 2252250000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 330000.0
+    "craftingXp": 330000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/B2_HEAVY.png"
+    }
   },
   {
     "name": "STRIKE-ORB",
@@ -3520,10 +3920,20 @@
         "craftingSeconds": 35197.2,
         "sellCredits": 16064999999.999998,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 4972500000,
+        "income": 38880,
+        "craftingSeconds": 13687.8,
+        "sellCredits": 3480750000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 510000.0
+    "craftingXp": 510000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/STRIKE-ORB.png"
+    }
   },
   {
     "name": "HAUL-R",
@@ -3606,10 +4016,20 @@
         "craftingSeconds": 18138.6,
         "sellCredits": 7559999999.999999,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 2340000000,
+        "income": 19440,
+        "craftingSeconds": 7053.9,
+        "sellCredits": 1638000000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 240000.0
+    "craftingXp": 240000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/HAUL-R.png"
+    }
   },
   {
     "name": "LNG-SHOT",
@@ -3692,10 +4112,20 @@
         "craftingSeconds": 29511.0,
         "sellCredits": 13230000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 4095000000,
+        "income": 32400,
+        "craftingSeconds": 11476.5,
+        "sellCredits": 2866500000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 420000.0
+    "craftingXp": 420000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/LNG-SHOT.png"
+    }
   },
   {
     "name": "PROTO-ROLLER",
@@ -3778,10 +4208,20 @@
         "craftingSeconds": 62490.96,
         "sellCredits": 1339800000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 414700000000,
+        "income": 131220,
+        "craftingSeconds": 24302.04,
+        "sellCredits": 290290000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 2200000.0
+    "craftingXp": 2200000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/PROTO-ROLLER.png"
+    }
   },
   {
     "name": "MECHA-DROID",
@@ -3864,10 +4304,20 @@
         "craftingSeconds": 79675.92,
         "sellCredits": 1766100000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 546650000000,
+        "income": 167940,
+        "craftingSeconds": 30985.08,
+        "sellCredits": 382655000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 2400000.0
+    "craftingXp": 2400000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/MECHA-DROID.png"
+    }
   },
   {
     "name": "MONO-WALKER",
@@ -3950,10 +4400,20 @@
         "craftingSeconds": 95850.0,
         "sellCredits": 2253300000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 697450000000,
+        "income": 202500,
+        "craftingSeconds": 37275,
+        "sellCredits": 488215000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 2600000.0
+    "craftingXp": 2600000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/MONO-WALKER.png"
+    }
   },
   {
     "name": "BB9",
@@ -4036,10 +4496,20 @@
         "craftingSeconds": 83214.0,
         "sellCredits": 1705200000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 527800000000,
+        "income": 175500,
+        "craftingSeconds": 32361,
+        "sellCredits": 369460000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 2000000.0
+    "craftingXp": 2000000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/BB9.png"
+    }
   },
   {
     "name": "R7",
@@ -4122,10 +4592,20 @@
         "craftingSeconds": 95850.0,
         "sellCredits": 2253300000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 697450000000,
+        "income": 202500,
+        "craftingSeconds": 37275,
+        "sellCredits": 488215000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 2800000.0
+    "craftingXp": 2800000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/R7.png"
+    }
   },
   {
     "name": "B2-RP",
@@ -4208,10 +4688,20 @@
         "craftingSeconds": 83466.72,
         "sellCredits": 1887900000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 584350000000,
+        "income": 176040,
+        "craftingSeconds": 32459.28,
+        "sellCredits": 409045000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 3400000.0
+    "craftingXp": 3400000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/B2-RP.png"
+    }
   },
   {
     "name": "CYCLO-GRAV",
@@ -4294,10 +4784,20 @@
         "craftingSeconds": 80686.8,
         "sellCredits": 1827000000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 565500000000,
+        "income": 170100,
+        "craftingSeconds": 31378.2,
+        "sellCredits": 395850000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 3000000.0
+    "craftingXp": 3000000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/CYCLO-GRAV.png"
+    }
   },
   {
     "name": "OPTI-STRIKE",
@@ -4380,10 +4880,20 @@
         "craftingSeconds": 95850.0,
         "sellCredits": 2253300000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 697450000000,
+        "income": 202500,
+        "craftingSeconds": 37275,
+        "sellCredits": 488215000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 3700000.0
+    "craftingXp": 3700000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/OPTI-STRIKE.png"
+    }
   },
   {
     "name": "SNOW MOUSE",
@@ -4466,10 +4976,20 @@
         "craftingSeconds": 187920.0,
         "sellCredits": 21168000000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 6552000000000,
+        "income": 492800,
+        "craftingSeconds": 73080,
+        "sellCredits": 4586400000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 9000000.0
+    "craftingXp": 9000000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/SNOW_MOUSE.png"
+    }
   },
   {
     "name": "RIC",
@@ -4552,10 +5072,20 @@
         "craftingSeconds": 205560.0,
         "sellCredits": 23990400000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 7425600000000,
+        "income": 571200,
+        "craftingSeconds": 79940,
+        "sellCredits": 5197920000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 10200000.0
+    "craftingXp": 10200000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/RIC.png"
+    }
   },
   {
     "name": "LOADLIFTER",
@@ -4638,10 +5168,20 @@
         "craftingSeconds": 258480.0,
         "sellCredits": 35280000000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 10920000000000,
+        "income": 806400,
+        "craftingSeconds": 100520,
+        "sellCredits": 7644000000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 30000000
+    "craftingXp": 30000000,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/LOADLIFTER.png"
+    }
   },
   {
     "name": "LEP",
@@ -4724,10 +5264,20 @@
         "craftingSeconds": 240840.0,
         "sellCredits": 29635200000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 9172800000000,
+        "income": 728000,
+        "craftingSeconds": 93660,
+        "sellCredits": 6420960000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 25200000
+    "craftingXp": 25200000,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/LEP.png"
+    }
   },
   {
     "name": "RIC-1200",
@@ -4810,10 +5360,20 @@
         "craftingSeconds": 223200.0,
         "sellCredits": 26812800000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 8299200000000,
+        "income": 649600,
+        "craftingSeconds": 86800,
+        "sellCredits": 5809440000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 22800000
+    "craftingXp": 22800000,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/RIC-1200.png"
+    }
   },
   {
     "name": "DRFT-R",
@@ -4896,10 +5456,20 @@
         "craftingSeconds": 223200.0,
         "sellCredits": 26812800000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 8299200000000,
+        "income": 649600,
+        "craftingSeconds": 86800,
+        "sellCredits": 5809440000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 11400000.0
+    "craftingXp": 11400000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/DRFT-R.png"
+    }
   },
   {
     "name": "CYCLENS",
@@ -4982,10 +5552,20 @@
         "craftingSeconds": 187920.0,
         "sellCredits": 21168000000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 6552000000000,
+        "income": 492800,
+        "craftingSeconds": 73080,
+        "sellCredits": 4586400000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 9000000.0
+    "craftingXp": 9000000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/CYCLENS.png"
+    }
   },
   {
     "name": "MO-TRAK",
@@ -5068,10 +5648,20 @@
         "craftingSeconds": 258480.0,
         "sellCredits": 35280000000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 10920000000000,
+        "income": 806400,
+        "craftingSeconds": 100520,
+        "sellCredits": 7644000000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 30000000
+    "craftingXp": 30000000,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/MO-TRAK.png"
+    }
   },
   {
     "name": "TRI-TEK",
@@ -5154,10 +5744,20 @@
         "craftingSeconds": 240840.0,
         "sellCredits": 29635200000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 9172800000000,
+        "income": 728000,
+        "craftingSeconds": 93660,
+        "sellCredits": 6420960000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 25200000
+    "craftingXp": 25200000,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/TRI-TEK.png"
+    }
   },
   {
     "name": "IG",
@@ -5240,10 +5840,20 @@
         "craftingSeconds": 223200.0,
         "sellCredits": 26812800000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 8299200000000,
+        "income": 649600,
+        "craftingSeconds": 86800,
+        "sellCredits": 5809440000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 11400000.0
+    "craftingXp": 11400000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/IG.png"
+    }
   },
   {
     "name": "KX",
@@ -5326,10 +5936,20 @@
         "craftingSeconds": 258480.0,
         "sellCredits": 35280000000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 10920000000000,
+        "income": 806400,
+        "craftingSeconds": 100520,
+        "sellCredits": 7644000000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 0,
-    "craftingXp": 15000000.0
+    "craftingXp": 15000000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/KX.png"
+    }
   },
   {
     "name": "BB-8",
@@ -5741,10 +6361,20 @@
         "craftingSeconds": 5628.96,
         "sellCredits": 8190000.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 10400000,
+        "income": 2073.6,
+        "craftingSeconds": 2189.04,
+        "sellCredits": 7280000,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 16500.0
+    "craftingXp": 16500.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/WHL-EX.png"
+    }
   },
   {
     "name": "ZRO-TEC",
@@ -5828,10 +6458,20 @@
         "craftingSeconds": 5628.96,
         "sellCredits": 8190000.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 10400000,
+        "income": 2073.6,
+        "craftingSeconds": 2189.04,
+        "sellCredits": 7280000,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 16500.0
+    "craftingXp": 16500.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/ZRO-TEC.png"
+    }
   },
   {
     "name": "BTL-R",
@@ -5915,10 +6555,20 @@
         "craftingSeconds": 5628.96,
         "sellCredits": 8190000.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 10400000,
+        "income": 2073.6,
+        "craftingSeconds": 2189.04,
+        "sellCredits": 7280000,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 16500.0
+    "craftingXp": 16500.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/BTL-R.png"
+    }
   },
   {
     "name": "N-UL",
@@ -6002,10 +6652,20 @@
         "craftingSeconds": 69314.4,
         "sellCredits": 42840000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 13260000000,
+        "income": 77760,
+        "craftingSeconds": 26955.6,
+        "sellCredits": 9282000000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 680000.0
+    "craftingXp": 680000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/N-UL.png"
+    }
   },
   {
     "name": "SCRP-R",
@@ -6089,10 +6749,20 @@
         "craftingSeconds": 69314.4,
         "sellCredits": 42840000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 13260000000,
+        "income": 77760,
+        "craftingSeconds": 26955.6,
+        "sellCredits": 9282000000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 680000.0
+    "craftingXp": 680000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/SCRP-R.png"
+    }
   },
   {
     "name": "ARM-CORE",
@@ -6176,10 +6846,20 @@
         "craftingSeconds": 66471.3,
         "sellCredits": 41737500000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 12918750000,
+        "income": 74520,
+        "craftingSeconds": 25849.95,
+        "sellCredits": 9043125000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 665000.0
+    "craftingXp": 665000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/ARM-CORE.png"
+    }
   },
   {
     "name": "OPT-AR",
@@ -6263,10 +6943,20 @@
         "craftingSeconds": 69314.4,
         "sellCredits": 41580000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 12870000000,
+        "income": 77760,
+        "craftingSeconds": 26955.6,
+        "sellCredits": 9009000000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 660000.0
+    "craftingXp": 660000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/OPT-AR.png"
+    }
   },
   {
     "name": "RO-TOR",
@@ -6350,10 +7040,20 @@
         "craftingSeconds": 133740.0,
         "sellCredits": 4384799999999.9995,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 1357200000000,
+        "income": 303750,
+        "craftingSeconds": 52010,
+        "sellCredits": 950040000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 3600000.0
+    "craftingXp": 3600000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/RO-TOR.png"
+    }
   },
   {
     "name": "FUS-3",
@@ -6437,10 +7137,20 @@
         "craftingSeconds": 137520.0,
         "sellCredits": 4872000000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 1508000000000,
+        "income": 324000,
+        "craftingSeconds": 53480,
+        "sellCredits": 1055600000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 4000000.0
+    "craftingXp": 4000000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/FUS-3.png"
+    }
   },
   {
     "name": "QIK-BIT",
@@ -6524,10 +7234,20 @@
         "craftingSeconds": 137520.0,
         "sellCredits": 4872000000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 1508000000000,
+        "income": 324000,
+        "craftingSeconds": 53480,
+        "sellCredits": 1055600000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 4000000.0
+    "craftingXp": 4000000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/QIK-BIT.png"
+    }
   },
   {
     "name": "ORB-XL",
@@ -6611,10 +7331,20 @@
         "craftingSeconds": 137520.0,
         "sellCredits": 4872000000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 1508000000000,
+        "income": 324000,
+        "craftingSeconds": 53480,
+        "sellCredits": 1055600000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 4000000.0
+    "craftingXp": 4000000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/ORB-XL.png"
+    }
   },
   {
     "name": "RIV-3T",
@@ -6698,10 +7428,20 @@
         "craftingSeconds": 394560.0,
         "sellCredits": 42336000000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 13104000000000,
+        "income": 1411200,
+        "craftingSeconds": 153440,
+        "sellCredits": 9172800000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 9000000.0
+    "craftingXp": 9000000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/RIV-3T.png"
+    }
   },
   {
     "name": "LUG-G",
@@ -6785,10 +7525,20 @@
         "craftingSeconds": 364320.0,
         "sellCredits": 37632000000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 11648000000000,
+        "income": 1276800,
+        "craftingSeconds": 141680,
+        "sellCredits": 8153600000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 8000000.0
+    "craftingXp": 8000000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/LUG-G.png"
+    }
   },
   {
     "name": "LOW-MO",
@@ -6872,10 +7622,20 @@
         "craftingSeconds": 371880.0,
         "sellCredits": 39984000000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 12376000000000,
+        "income": 1310400,
+        "craftingSeconds": 144620,
+        "sellCredits": 8663200000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 8500000.0
+    "craftingXp": 8500000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/LOW-MO.png"
+    }
   },
   {
     "name": "AXI-POD",
@@ -6959,10 +7719,20 @@
         "craftingSeconds": 379440.0,
         "sellCredits": 42336000000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 13104000000000,
+        "income": 1344000,
+        "craftingSeconds": 147560,
+        "sellCredits": 9172800000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 9000000.0
+    "craftingXp": 9000000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/AXI-POD.png"
+    }
   },
   {
     "name": "SRV-O",
@@ -7046,10 +7816,20 @@
         "craftingSeconds": 364320.0,
         "sellCredits": 37632000000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 11648000000000,
+        "income": 1276800,
+        "craftingSeconds": 141680,
+        "sellCredits": 8153600000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 8000000.0
+    "craftingXp": 8000000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/SRV-O.png"
+    }
   },
   {
     "name": "X-ONK",
@@ -7133,10 +7913,20 @@
         "craftingSeconds": 379440.0,
         "sellCredits": 42336000000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 13104000000000,
+        "income": 1344000,
+        "craftingSeconds": 147560,
+        "sellCredits": 9172800000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 1.0,
-    "craftingXp": 9000000.0
+    "craftingXp": 9000000.0,
+    "portraits": {
+      "SCOURGE": "assets/droids/scourge/X-ONK.png"
+    }
   },
   {
     "name": "SA-5",
@@ -7241,6 +8031,15 @@
         "protocolCraftingBonusPercent": 960.0,
         "sellCredits": 4536000.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 5760000,
+        "income": 403.2,
+        "craftingSeconds": 763.98,
+        "sellCredits": 4032000,
+        "sellUpgradeChips": 24,
+        "protocolCpsBonusPercent": 64,
+        "protocolCraftingBonusPercent": 960
       }
     },
     "portraits": {
@@ -7250,7 +8049,8 @@
       "RAINBOW": "assets/droids/protocol/SA-5_Rainbow_v2.png",
       "BESKAR": "assets/droids/protocol/SA-5_Beskar_v2.png",
       "GALACTIC": "assets/droids/protocol/SA-5_Galactic_v2.png",
-      "STELLAR": "assets/droids/protocol/SA-5_Stellar_v2.png"
+      "STELLAR": "assets/droids/protocol/SA-5_Stellar_v2.png",
+      "SCOURGE": "assets/droids/scourge/SA-5.png"
     },
     "acquisition": "World Mission Protocol Crates",
     "source": "https://gonk.tools/wiki",
@@ -7361,6 +8161,15 @@
         "protocolCraftingBonusPercent": 1440.0,
         "sellCredits": 22050000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 6825000000,
+        "income": 7560,
+        "craftingSeconds": 2999.85,
+        "sellCredits": 4777500000,
+        "sellUpgradeChips": 48,
+        "protocolCpsBonusPercent": 96,
+        "protocolCraftingBonusPercent": 1440
       }
     },
     "portraits": {
@@ -7370,7 +8179,8 @@
       "RAINBOW": "assets/droids/protocol/LOM_Rainbow_v2.png",
       "BESKAR": "assets/droids/protocol/LOM_Beskar_v2.png",
       "GALACTIC": "assets/droids/protocol/LOM_Galactic_v2.png",
-      "STELLAR": "assets/droids/protocol/LOM_Stellar_v2.png"
+      "STELLAR": "assets/droids/protocol/LOM_Stellar_v2.png",
+      "SCOURGE": "assets/droids/scourge/LOM.png"
     },
     "acquisition": "World Mission Protocol Crates",
     "source": "https://gonk.tools/wiki",
@@ -7481,6 +8291,15 @@
         "protocolCraftingBonusPercent": 1920.0,
         "sellCredits": 2253300000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 697450000000,
+        "income": 121500,
+        "craftingSeconds": 22533,
+        "sellCredits": 488215000000,
+        "sellUpgradeChips": 102,
+        "protocolCpsBonusPercent": 128,
+        "protocolCraftingBonusPercent": 1920
       }
     },
     "portraits": {
@@ -7490,7 +8309,8 @@
       "RAINBOW": "assets/droids/protocol/PZ_Rainbow_v2.png",
       "BESKAR": "assets/droids/protocol/PZ_Beskar_v2.png",
       "GALACTIC": "assets/droids/protocol/PZ_Galactic_v2.png",
-      "STELLAR": "assets/droids/protocol/PZ_Stellar_v2.png"
+      "STELLAR": "assets/droids/protocol/PZ_Stellar_v2.png",
+      "SCOURGE": "assets/droids/scourge/PZ.png"
     },
     "acquisition": "World Mission Protocol Crates",
     "source": "https://gonk.tools/wiki",
@@ -7601,6 +8421,15 @@
         "protocolCraftingBonusPercent": 2400.0,
         "sellCredits": 47040000000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 14560000000000,
+        "income": 448000,
+        "craftingSeconds": 69160,
+        "sellCredits": 10192000000000,
+        "sellUpgradeChips": 210,
+        "protocolCpsBonusPercent": 160,
+        "protocolCraftingBonusPercent": 2400
       }
     },
     "portraits": {
@@ -7610,7 +8439,8 @@
       "RAINBOW": "assets/droids/protocol/TDA_Rainbow_v2.png",
       "BESKAR": "assets/droids/protocol/TDA_Beskar_v2.png",
       "GALACTIC": "assets/droids/protocol/TDA_Galactic_v2.png",
-      "STELLAR": "assets/droids/protocol/TDA_Stellar_v2.png"
+      "STELLAR": "assets/droids/protocol/TDA_Stellar_v2.png",
+      "SCOURGE": "assets/droids/scourge/TDA.png"
     },
     "acquisition": "World Mission Protocol Crates",
     "source": "https://gonk.tools/wiki",
@@ -7699,6 +8529,13 @@
         "craftingSeconds": 5502.6,
         "sellCredits": 4032000.0,
         "sellUpgradeChips": 24.0
+      },
+      "SCOURGE": {
+        "cost": 5120000,
+        "income": 2016,
+        "craftingSeconds": 2139.9,
+        "sellCredits": 3584000,
+        "sellUpgradeChips": 24
       }
     },
     "additionalPowerScale": 0,
@@ -7714,7 +8551,8 @@
       "KYBER": "assets/droids/gonk-army/EG-58_KYBER.png",
       "KYBER_GREEN": "assets/droids/gonk-army/EG-58_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/gonk-army/EG-58_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/gonk-army/EG-58_KYBER_PURPLE.png"
+      "KYBER_PURPLE": "assets/droids/gonk-army/EG-58_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/scourge/EG-58.png"
     },
     "acquisition": {
       "method": "sandcrawler",
@@ -7804,6 +8642,13 @@
         "craftingSeconds": 20034.0,
         "sellCredits": 8504999999.999999,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 2632500000,
+        "income": 21600,
+        "craftingSeconds": 7791,
+        "sellCredits": 1842750000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
@@ -7819,7 +8664,8 @@
       "KYBER": "assets/droids/gonk-army/EGL_KYBER.png",
       "KYBER_GREEN": "assets/droids/gonk-army/EGL_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/gonk-army/EGL_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/gonk-army/EGL_KYBER_PURPLE.png"
+      "KYBER_PURPLE": "assets/droids/gonk-army/EGL_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/scourge/EGL.png"
     },
     "acquisition": {
       "method": "sandcrawler",
@@ -7909,6 +8755,13 @@
         "craftingSeconds": 29511.0,
         "sellCredits": 13230000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 4095000000,
+        "income": 32400,
+        "craftingSeconds": 11476.5,
+        "sellCredits": 2866500000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
@@ -7924,7 +8777,8 @@
       "KYBER": "assets/droids/gonk-army/KT_KYBER.png",
       "KYBER_GREEN": "assets/droids/gonk-army/KT_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/gonk-army/KT_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/gonk-army/KT_KYBER_PURPLE.png"
+      "KYBER_PURPLE": "assets/droids/gonk-army/KT_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/scourge/KT.png"
     },
     "acquisition": {
       "method": "sandcrawler",
@@ -8014,6 +8868,13 @@
         "craftingSeconds": 44674.2,
         "sellCredits": 20790000000.0,
         "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 6435000000,
+        "income": 49680,
+        "craftingSeconds": 17373.3,
+        "sellCredits": 4504500000,
+        "sellUpgradeChips": 48
       }
     },
     "additionalPowerScale": 0,
@@ -8029,7 +8890,8 @@
       "KYBER": "assets/droids/gonk-army/MPH_KYBER.png",
       "KYBER_GREEN": "assets/droids/gonk-army/MPH_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/gonk-army/MPH_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/gonk-army/MPH_KYBER_PURPLE.png"
+      "KYBER_PURPLE": "assets/droids/gonk-army/MPH_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/scourge/MPH.png"
     },
     "acquisition": {
       "method": "sandcrawler",
@@ -8119,6 +8981,13 @@
         "craftingSeconds": 83214.0,
         "sellCredits": 1705200000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 527800000000,
+        "income": 175500,
+        "craftingSeconds": 32361,
+        "sellCredits": 369460000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 0,
@@ -8134,7 +9003,8 @@
       "KYBER": "assets/droids/gonk-army/JO9-4MN_KYBER.png",
       "KYBER_GREEN": "assets/droids/gonk-army/JO9-4MN_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/gonk-army/JO9-4MN_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/gonk-army/JO9-4MN_KYBER_PURPLE.png"
+      "KYBER_PURPLE": "assets/droids/gonk-army/JO9-4MN_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/scourge/JO9-4MN.png"
     },
     "acquisition": {
       "method": "sandcrawler",
@@ -8224,6 +9094,13 @@
         "craftingSeconds": 89532.0,
         "sellCredits": 1887900000000.0,
         "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 584350000000,
+        "income": 189000,
+        "craftingSeconds": 34818,
+        "sellCredits": 409045000000,
+        "sellUpgradeChips": 102
       }
     },
     "additionalPowerScale": 0,
@@ -8239,7 +9116,8 @@
       "KYBER": "assets/droids/gonk-army/PLNK_KYBER.png",
       "KYBER_GREEN": "assets/droids/gonk-army/PLNK_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/gonk-army/PLNK_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/gonk-army/PLNK_KYBER_PURPLE.png"
+      "KYBER_PURPLE": "assets/droids/gonk-army/PLNK_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/scourge/PLNK.png"
     },
     "acquisition": {
       "method": "sandcrawler",
@@ -8329,6 +9207,13 @@
         "craftingSeconds": 233280.0,
         "sellCredits": 28224000000000.0,
         "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 8736000000000,
+        "income": 694400,
+        "craftingSeconds": 90720,
+        "sellCredits": 6115200000000,
+        "sellUpgradeChips": 210
       }
     },
     "additionalPowerScale": 0,
@@ -8344,7 +9229,8 @@
       "KYBER": "assets/droids/gonk-army/ECG_KYBER.png",
       "KYBER_GREEN": "assets/droids/gonk-army/ECG_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/gonk-army/ECG_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/gonk-army/ECG_KYBER_PURPLE.png"
+      "KYBER_PURPLE": "assets/droids/gonk-army/ECG_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/scourge/ECG.png"
     },
     "acquisition": {
       "method": "sandcrawler",

@@ -43,7 +43,7 @@ export function chipFinderEstimate(placed,baseSaleChips,saleMultiplier,craftSeco
 
 export function missionProgress(unit,droid){
   const rarity={COMMON:1,RARE:2,EPIC:3,LEGENDARY:4,MYTHIC:5,ICONIC:10}[droid?.rarity]||1;
-  const quality=Math.max(0,['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR','KYBER'].indexOf(String(unit.variant||'DEFAULT').replace(/^KYBER_.*/, 'KYBER')));
+  const quality=Math.max(0,['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR','KYBER'].indexOf(String(unit.variant||'DEFAULT').replace(/^KYBER_.*/, 'KYBER').replace('SCOURGE','KYBER')));
   const base=droid?.type==='ASTROMECH'?1+(rarity-1)*.2+quality*.1+number(droid.additionalPowerScale)*.1:1;
   const efficiency=traitAmount(unit,9);
   return {base,efficiency,progress:base*(1+efficiency)};

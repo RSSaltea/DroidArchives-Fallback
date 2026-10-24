@@ -1277,3 +1277,5 @@ html[data-ui-style] .companion-activity .btn.companion-activity-button.active,ht
 .gonk-rewards{overflow-x:auto}
 .gonk-rewards table{width:100%;text-align:left}
 .gonk-rewards th,.gonk-rewards td{padding:10px;border-bottom:1px solid var(--border,#334155)}
+
+.variant-scourge{color:#d18aff!important}.quality-swatch[data-variant="SCOURGE"]{--swatch:radial-gradient(circle at 70% 30%,#e1a3ff,#7e16a9 35%,#181020 78%)}

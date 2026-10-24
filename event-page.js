@@ -1,6 +1,7 @@
-import { update135Panel } from './update-135.js?v=2026-10-18-mission-tools';
+import { scourgePanel } from './scourge.js?v=2026-10-24-scourge';
+import { update135Panel } from './update-135.js?v=2026-10-24-scourge';
 import {gonkArmyPanel,wireGonkArmyPanel} from './gonk-army.js?v=2026-10-18-mission-tools';
-import {EVENT_ID,EVENT_ITEMS,TREAT_ICON,treatDay,nextTreatReset,normaliseEventProgress,eventRoundStatus,eventWishlistTotals} from './event-data.js?v=2026-10-08-daily-treats';
+import {EVENT_ID,EVENT_ITEMS,TREAT_ICON,treatDay,nextTreatReset,normaliseEventProgress,eventRoundStatus,eventWishlistTotals} from './event-data.js?v=2026-10-24-scourge';
 
 const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clock=ms=>{const s=Math.ceil(ms/1000);return [Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(n=>String(n).padStart(2,'0')).join(':');};
@@ -18,7 +19,7 @@ export function eventPage({host,getProgress,setProgress}){
     const group=(key,title)=>`<fieldset class="event-check-group"><legend>${title}<span>${data[key].filter(Boolean).length}/5</span></legend><div>${data[key].map((checked,i)=>`<label class="${checked?'checked':''}"><input type="checkbox" data-event-visit="${key}" data-index="${i}" ${checked?'checked':''}><span>Visit ${i+1}</span><small>2 Treats</small></label>`).join('')}</div></fieldset>`;
     const shown=EVENT_ITEMS.filter(item=>(category==='All'||item.category===category)&&(!onlyWishlist||data.wishlist.includes(item.id)&&!data.owned.includes(item.id))&&item.name.toLowerCase().includes(search.toLowerCase()));
     host.innerHTML=`<section class="event-page"><header class="event-hero"><img src="assets/events/gonk-o-ween/T_GOW_Pumpkin_Icon.png" alt=""><div><p class="eyebrow">Event</p><h1>Gonk-o-Ween</h1><p>Your Treat runs, Halloween shop and reward wishlist.</p></div></header>
-      ${gonkArmyPanel()}${update135Panel()}<section class="event-panel"><div class="event-section-heading"><div><h2>Daily Trick or Treat Checklist</h2><p>Resets every day at <strong>00:00 UTC</strong> (${escape(new Date(nextTreatReset()).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit',timeZoneName:'short'}))} in your time zone). Everyone shares the same reset; collecting does not start a 24-hour timer.</p></div><div class="event-clock"><small>Next Daily Reset</small><strong data-event-countdown>${clock(status.remainingMs)}</strong></div></div>
+      ${scourgePanel()}${gonkArmyPanel()}${update135Panel()}<section class="event-panel"><div class="event-section-heading"><div><h2>Daily Trick or Treat Checklist</h2><p>Resets every day at <strong>00:00 UTC</strong> (${escape(new Date(nextTreatReset()).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit',timeZoneName:'short'}))} in your time zone). Everyone shares the same reset; collecting does not start a 24-hour timer.</p></div><div class="event-clock"><small>Next Daily Reset</small><strong data-event-countdown>${clock(status.remainingMs)}</strong></div></div>
       <div class="event-ready" data-event-ready role="status" ${status.ready?'':'hidden'}>A new UTC day has started. Your checklist has reset and today's Treat visits are available.</div>
       <div class="event-checklists">${group('baseVisits','Player bases')}${group('outskirtsVisits','Outskirts')}</div>
       <div class="event-round-footer"><span><strong>${status.completed}/10</strong> visits recorded · <strong>${status.baseTreats}</strong> base Treats today</span><button class="btn" data-event-start>Clear Today's Checklist</button></div>

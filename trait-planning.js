@@ -7,9 +7,13 @@ export function traitRollPool(droid,current=null){
 // Absorbing-state calculation: every unsuccessful roll becomes the next
 // excluded combination. A fixed geometric probability would be inaccurate.
 export function rerollEstimate(droid,current,target,attempts=10){
+  const exclusive=TRAITS.find(t=>t.exclusive_droids?.length&&traitEligible(t,droid));
+  const pity=exclusive?{id:exclusive.id,tier:Object.keys(exclusive.values)[0],probability:1}:null;
+  const rollsDone=current?Math.max(0,current.rerolls||0)+1:0;
   const key=t=>`${t.id}:${t.tier}`,hit=t=>t.id===target.id&&t.tier===target.tier;
   if(current&&hit(current))return {already:true,nextChance:0,expectedRolls:0,expectedNova:0,chance:1};
   const all=traitRollPool(droid);
+  const nextPool=pity&&rollsDone+1>=60?[pity]:traitRollPool(droid,current);
   if(!all.some(hit))return null;
   let dist=new Map([[current?key(current):'none',1]]),expectedRolls=0,expectedNova=0,chance=0;
   const states=new Map(all.map(t=>[key(t),t]));if(current)states.set(key(current),current);
@@ -19,13 +23,14 @@ export function rerollEstimate(droid,current,target,attempts=10){
     const remaining=[...dist.values()].reduce((a,b)=>a+b,0);
     if(remaining<1e-12){if(n<=attempts)chance=1;break;}
     expectedRolls+=remaining;
-    expectedNova+=remaining*base*(droid.rarity==='ICONIC'?1:(current?.rerolls||0)+n);
+    expectedNova+=remaining*(droid.rarity==='ICONIC'?200:(droid.variants?.[droid.variant||'DEFAULT']?.cost||0)*(current||n>1?1.25**((current?.rerolls||0)+n-1):3));
+    if(pity&&rollsDone+n>=60&&!hit(pity)){return {nextChance:nextPool.filter(hit).reduce((s,t)=>s+t.probability,0),expectedRolls:Infinity,expectedNova:Infinity,chance:attempts<n?chance:1-remaining,pityBlocked:true};}
     const next=new Map();
-    for(const [k,mass] of dist)for(const t of transitions.get(k)||[]){if(hit(t))continue;const id=key(t);next.set(id,(next.get(id)||0)+mass*t.probability);}
+    for(const [k,mass] of dist)for(const t of pity&&rollsDone+n>=60?[pity]:transitions.get(k)||[]){if(hit(t))continue;const id=key(t);next.set(id,(next.get(id)||0)+mass*t.probability);}
     dist=next;
     if(n===attempts)chance=1-[...dist.values()].reduce((a,b)=>a+b,0);
   }
-  return {nextChance:traitRollPool(droid,current).filter(hit).reduce((s,t)=>s+t.probability,0),expectedRolls,expectedNova,chance};
+  return {nextChance:nextPool.filter(hit).reduce((s,t)=>s+t.probability,0),expectedRolls,expectedNova,chance};
 }
 export const ICONIC_TRAIT_ADVICE=[
   ['CB-23',24,'Mission rewards','Hyperdrive triples the chip and Nova amounts in its mission reward pool. Use an Astromech mission slot.'],

@@ -7,7 +7,7 @@ const level=value=>Math.max(0,Math.floor(Number(value)||0));
 export function companionAttributeValue(d,variant='DEFAULT'){
   const rarity=RARITY_POWER[d?.rarity];
   if(!rarity)return 0;
-  const quality=Math.max(0,QUALITIES.indexOf(variant.startsWith('KYBER_')?'KYBER':variant));
+  const quality=Math.max(0,QUALITIES.indexOf(variant==='SCOURGE'||variant.startsWith('KYBER_')?'KYBER':variant));
   const additional=Number(d.additionalPowerScale)||0;
   if(d.type==='WORKER')return Math.round(.2*(rarity+quality+additional)*1e6)/1e6;
   if(d.type==='ASTROMECH')return rarity+quality+additional;

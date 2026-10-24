@@ -2,6 +2,19 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-10-24-scourge",
+      "date": "2026-10-24",
+      "title": "Scourge variants and event",
+      "summary": "Scourge is now supported throughout your Archives.",
+      "changes": [
+        "Added Scourge portraits, prices, crafting times and income for all 90 eligible droids.",
+        "Track Scourge in your Base and Droidex, and use it for all rebirth variant requirements.",
+        "Base and Optimise now include Hive Mind income from eligible Scourge placements.",
+        "Added Scourgedex rewards, event shop additions and Scourge Surge.",
+        "Updated trait scan costs and the Iconic reroll calculator for the 60-roll guarantee."
+      ]
+    },
+    {
       "id": "2026-10-18-signin-fix",
       "date": "2026-10-18",
       "title": "Sign-in recovery and clearer traits",

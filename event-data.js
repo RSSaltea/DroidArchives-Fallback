@@ -5,6 +5,9 @@ export const nextTreatReset=(now=Date.now())=>(treatDay(now)+1)*TREAT_DAY_MS;
 const art=name=>`assets/events/gonk-o-ween/${name}.png`;
 export const TREAT_ICON=art('T_Icon_Treat');
 export const EVENT_ITEMS=[
+  ['nova-10','10 Nova Crystals','Consumables',2,null],
+  ['chips-500','500 Upgrade Chips','Consumables',1,null],
+  ['scourge-box','Scourge blueprint box','Consumables',10,null],
   ['bat-hat','Bat hat','Hats',20,'T_Icon_DroidHat46'],
   ['candy-corn-hat','Candy Corn hat','Hats',20,'T_Icon_DroidHat48'],
   ['witch-hat','Witch hat','Hats',20,'T_Icon_DroidHat47'],
@@ -24,9 +27,9 @@ export const EVENT_ITEMS=[
   ['stellar-surge','Stellar Surge','Tokens',null,null],
   ['kyber-surge','Kyber Surge','Tokens',null,null],
   ['event-pass','Gonk-o-Ween pass','Pass',null,'T_GOW_Pumpkin_Icon'],
-  ['c1-mnst4','C1-MNST4 Chopper costume','Event rewards',null,'T_Portrait_C1_MNST4'],
+  ['c1-mnst4','C1-MNST4 Chopper costume','Costumes',80,'T_Portrait_C1_MNST4'],
   ['reward-treats','60 Treats','Event rewards',null,'T_Icon_Treat'],
-  ['pumpkin-workshop','Pumpkin Workshop Paint','Event rewards',null,'T_GOW_Pumpkin_Icon'],
+  ['pumpkin-workshop','Pumpkin Workshop Paint','Base paints',160,'T_GOW_Pumpkin_Icon'],
   ['reward-crafting','Crafting Boost Token','Event rewards',null,null]
 ].map(([id,name,category,price,image])=>({id,name,category,price,image:image?art(image):id.includes('crafting')?'assets/nova-shop/CraftingBoost.png':id.includes('surge')?'assets/nova-shop/SurgeBoost.png':null}));
 const ids=new Set(EVENT_ITEMS.map(item=>item.id));
