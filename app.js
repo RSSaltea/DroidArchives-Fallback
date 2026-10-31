@@ -391,7 +391,7 @@ function optimiseBase(p,currentIncome){
   const rank=name=>name==='R2-D2'?0:name==='CB-23'?1:2;
   // The Companions an activity asks for are settled first: they leave whatever
   // job they had, and the search fills the base without them.
-  const activityPicks=companionActivityPicks(p).picks,activityKeys=new Set(activityPicks.map(keyOf));
+  const activityChoice=companionActivityPicks(p),activityPicks=activityChoice.picks,activityKeys=new Set(activityPicks.map(keyOf));
   const candidates=expandedOwned().filter(x=>{const d=state.droids.find(d=>d.name===x.name);return d?.type==='ASTROMECH'&&(!isIconic(d)||missionIconic(d))&&!fixedKeys.has(keyOf(x))&&!activityKeys.has(keyOf(x));})
     .sort((a,b)=>rank(a.name)-rank(b.name)||missionProgress({...b,station:'ASTROMECH',slot:0},state.droids.find(d=>d.name===b.name)).progress-missionProgress({...a,station:'ASTROMECH',slot:0},state.droids.find(d=>d.name===a.name)).progress||a.name.localeCompare(b.name));
   const picks=candidates.slice(0,missionSlots.length),used=new Set(),reservations=[];
@@ -399,6 +399,21 @@ function optimiseBase(p,currentIncome){
   // a reason to displace one of these assignments for a higher credit earner.
   for(const unit of picks){const old=p.placed.find(x=>keyOf(x)===keyOf(unit));if(old?.station==='ASTROMECH'&&missionSlots.includes(old.slot)&&!used.has(old.slot)){used.add(old.slot);reservations.push({...unit,station:'ASTROMECH',slot:old.slot});}}
   for(const unit of picks)if(!reservations.some(x=>keyOf(x)===keyOf(unit))){const slot=missionSlots.find(x=>!used.has(x));used.add(slot);reservations.push({...unit,station:'ASTROMECH',slot});}
+  // Traits which activate a companion perk at work must survive the credit search.
+  // Mission reservations take precedence; they already activate these work traits.
+  for(const unit of activityChoice.working||[]){
+    if(fixedKeys.has(keyOf(unit))||reservations.some(x=>keyOf(x)===keyOf(unit)))continue;
+    const old=p.placed.find(x=>keyOf(x)===keyOf(unit)),d=state.droids.find(x=>x.name===unit.name);
+    const spots=productiveStations().filter(spot=>!fixed.some(x=>x.station===spot.station&&x.slot===spot.slot)&&!reservations.some(x=>x.station===spot.station&&x.slot===spot.slot));
+    spots.sort((a,b)=>Number(b.station===old?.station&&b.slot===old?.slot)-Number(a.station===old?.station&&a.slot===old?.slot)||Number(b.station===d?.type)-Number(a.station===d?.type));
+    if(!spots.length){
+      // If every free work slot became a mission reservation, keep the requested
+      // activity perk and release the lowest-priority mission pick for replanning.
+      const index=reservations.findLastIndex(x=>!activityChoice.working.some(u=>keyOf(u)===keyOf(x)));
+      if(index>=0){const displaced=reservations.splice(index,1)[0];spots.push({station:displaced.station,slot:displaced.slot});}
+    }
+    if(spots[0])reservations.push({...unit,...spots[0],activityPerk:true});
+  }
   for(const unit of activityPicks)reservations.push({...unit,companionActivity:true});
   if(!reservations.length){
     const result=repairReachableLayout(optimiseUnreservedBase(p,currentIncome),p);
@@ -407,7 +422,7 @@ function optimiseBase(p,currentIncome){
   const keys=new Set(reservations.map(keyOf)),spots=new Set(reservations.map(x=>`${x.station}:${x.slot}`));
   const constrained={...p,placed:[...p.placed.filter(x=>!keys.has(keyOf(x))&&!spots.has(`${x.station}:${x.slot}`)),...reservations.map(x=>({...x,lockedSlot:true}))]};
   const result=repairReachableLayout(optimiseUnreservedBase(constrained,currentIncome),constrained);
-  const assignments=[...result.assignments,...reservations.map(x=>({key:keyOf(x),name:x.name,variant:x.variant,station:x.station,slot:x.slot,...(x.companionActivity?{companionActivity:true}:{missionPriority:true})}))];
+  const assignments=[...result.assignments,...reservations.map(x=>({key:keyOf(x),name:x.name,variant:x.variant,station:x.station,slot:x.slot,...(x.companionActivity?{companionActivity:true}:x.activityPerk?{}:{missionPriority:true})}))];
   return {...result,assignments,moves:optimiseAssignmentMoves(assignments,p)};
 }
 function optimiseUnreservedBase(p,currentIncome){
@@ -1858,9 +1873,9 @@ const companionSlotCount=()=>stationSlotIndices('COMPANION').length;
 const COMPANION_ACTIVITIES={
   scrap:{label:'Scrap farming',prefer:[],goal:'credits',why:'the Protocol droids worth more beside you than in a Credits slot'},
   crafting:{label:'Crafting',prefer:['CHOPPER'],goal:'pickaxe',why:'CHOPPER and the best pickaxe level'},
-  combat:{label:'Combat',missions:true,prefer:['DJ R-3X','MISTER BONES'],goal:'health',why:'DJ R-3X, then MISTER BONES or the best max health'},
-  mining:{label:'Mining',missions:true,prefer:['DJ R-3X','CHOPPER'],goal:'pickaxe',why:'DJ R-3X, then CHOPPER or the best pickaxe level'},
-  fishing:{label:'Fishing',missions:true,prefer:['DJ R-3X','BB-8'],goal:null,why:'DJ R-3X, then BB-8'}
+  combat:{label:'Combat',missions:true,prefer:['DJ R-3X','MISTER BONES'],goal:'health',why:'the DJ R-3X perk, then MISTER BONES or the best max health'},
+  mining:{label:'Mining',missions:true,prefer:['DJ R-3X','CHOPPER'],goal:'pickaxe',why:'the DJ R-3X perk, then CHOPPER or the best pickaxe level'},
+  fishing:{label:'Fishing',missions:true,prefer:['DJ R-3X','BB-8'],goal:null,why:'the DJ R-3X and BB-8 perks'}
 };
 const COMPANION_ACTIVITY_KEY='droid-archive-companion-activity';
 const companionActivity=()=>{try{const id=localStorage.getItem(COMPANION_ACTIVITY_KEY);return COMPANION_ACTIVITIES[id]?id:null}catch{return null}};
@@ -1907,11 +1922,15 @@ function companionActivityPicks(p){
   if(!activity)return {id:null,picks:[],missing:[],locked:[]};
   const keyOf=x=>`${x.source}:${x.unit}`,fixed=p.placed.filter(x=>x.lockedSlot||isBuilding(x)),fixedKeys=new Set(fixed.map(keyOf));
   const locked=fixed.filter(x=>x.station==='COMPANION'),seats=stationSlotIndices('COMPANION').filter(slot=>!locked.some(x=>x.slot===slot));
-  const units=expandedOwned().filter(x=>!fixedKeys.has(keyOf(x))),chosen=[],missing=[];
+  const units=expandedOwned().filter(x=>!fixedKeys.has(keyOf(x))),chosen=[],missing=[],working=[];
+  const workCapacity=productiveStations().filter(spot=>!fixed.some(x=>x.station===spot.station&&x.slot===spot.slot)).length;
   for(const name of activity.prefer){
-    if(locked.some(x=>x.name===name)||p.placed.some(x=>x.station!=='COMPANION'&&companionPerkActive(x,name)))continue;
+    if(locked.some(x=>x.name===name))continue;
+    const active=fixed.find(x=>x.station!=='COMPANION'&&companionPerkActive(x,name));
+    if(active){working.push(active);continue;}
     const unit=units.find(x=>x.name===name);
     if(!unit){missing.push(name);continue}
+    if(working.filter(x=>!fixedKeys.has(keyOf(x))).length<workCapacity&&companionPerkActive({...unit,station:'WORKER'},name)){working.push(unit);continue;}
     if(chosen.length<seats.length)chosen.push({unit,why:'preferred'});
   }
   // Scrap farming is a trade-off rather than a ranking, so it has its own choice.
@@ -1920,7 +1939,7 @@ function companionActivityPicks(p){
   const goal=id==='scrap'?null:COMPANION_GOALS.find(g=>g.id===activity.goal);
   if(goal){
     const value=x=>unitCompanionGoal(x,goal.id),income=x=>state.droids.find(d=>d.name===x.name)?.variants?.[x.variant]?.income||0;
-    const pool=units.filter(x=>value(x)>0&&!chosen.some(c=>keyOf(c.unit)===keyOf(x)))
+    const pool=units.filter(x=>value(x)>0&&!working.some(u=>keyOf(u)===keyOf(x))&&!chosen.some(c=>keyOf(c.unit)===keyOf(x)))
       // Best perk first; between equals, the one that earns least is missed least.
       .sort((a,b)=>value(b)-value(a)||income(a)-income(b));
     while(chosen.length<seats.length&&pool.length)chosen.push({unit:pool.shift(),why:goal.short});
@@ -1929,7 +1948,7 @@ function companionActivityPicks(p){
   const free=[...seats],picks=[];
   for(const c of chosen){const now=p.placed.find(x=>keyOf(x)===keyOf(c.unit));if(now?.station==='COMPANION'&&free.includes(now.slot)){free.splice(free.indexOf(now.slot),1);picks.push({...c.unit,station:'COMPANION',slot:now.slot,companionWhy:c.why})}}
   for(const c of chosen)if(!picks.some(x=>keyOf(x)===keyOf(c.unit)))picks.push({...c.unit,station:'COMPANION',slot:free.shift(),companionWhy:c.why});
-  return {id,picks,missing,locked,gain};
+  return {id,picks,missing,locked,gain,working};
 }
 const preferredCompanionsFull=()=>preferredCompanions().length>=companionSlotCount();
 const droidexGapsAbove=(name,variant)=>{const d=state.droids.find(x=>x.name===name);if(!d||isIconic(d))return[];return VARIANTS.slice(variantRank(variant)+1).filter(v=>!droidexEntry(name,v))};
@@ -4007,7 +4026,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-31-map-panels',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-31-activity-traits',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
@@ -4264,7 +4283,7 @@ function prepareOptimiseLayout(baseP=placements(),progress){
   const useful=unit=>unit&&(PRODUCTIVE_STATIONS.includes(unit.station)||isProtocolStation(unit.station)||unit.station==='COMPANION');
   const score=projected=>{
     const placed=projected.placed,companions=placed.filter(u=>u.station==='COMPANION');
-    const wanted=preferences.map(name=>Number(companions.some(u=>u.name===name)));
+    const wanted=preferences.map(name=>Number(activity?placed.some(u=>companionPerkActive(u,name)):companions.some(u=>u.name===name)));
     const mission=placed.filter(u=>u.missionPriority).reduce((n,u)=>n+(u.name==='R2-D2'?2:1),0);
     const goals=activity?.goal?[activity.goal]:companionGoals();
     const boosts=goals.map(id=>companions.reduce((n,u)=>{const d=state.droids.find(d=>d.name===u.name),goal=COMPANION_GOALS.find(g=>g.id===id);return n+unitCompanionGoal(u,goal.id)},0));
@@ -4347,11 +4366,12 @@ function optimiseSettledHtml(plan,p){
 // Three buttons for what you are doing, the World missions one opening its three
 // kinds. Pressing the active one again turns the mode off.
 function companionActivityHtml(baseP){
-  const active=companionActivity(),activity=COMPANION_ACTIVITIES[active],{picks,missing,locked,gain}=companionActivityPicks(baseP);
+  const active=companionActivity(),activity=COMPANION_ACTIVITIES[active],{picks,missing,locked,gain,working=[]}=companionActivityPicks(baseP);
   const button=(id,label,on)=>`<button type="button" class="btn secondary companion-activity-button ${on?'active':''}" data-companion-activity="${id}" aria-pressed="${on}">${label}</button>`;
   const notes=[];
   if(activity){
-    notes.push(picks.length?`Companions: ${picks.map(x=>`${x.name}${isIconic(state.droids.find(d=>d.name===x.name))?'':` ${variantLabel(x.variant)} (${droidAttribute(state.droids.find(d=>d.name===x.name),x.variant)})`}`).join(' + ')}`:'No droid you own fits this yet.');
+    notes.push(picks.length?`Companions: ${picks.map(x=>`${x.name}${isIconic(state.droids.find(d=>d.name===x.name))?'':` ${variantLabel(x.variant)} (${droidAttribute(state.droids.find(d=>d.name===x.name),x.variant)})`}`).join(' + ')}`:working.length?'Requested perks are covered at work.':'No droid you own fits this yet.');
+    if(working.length)notes.push(`Perks active while working: ${working.map(x=>x.name).join(', ')} (trait; no Companion seat needed)`);
     if(active==='scrap'&&gain!==null)notes.push(gain>0.0005?`about +${(gain*100).toFixed(1)}% credits over your Companions and Credits slots as they are, counting the Protocol slots the rest can fill`:'your Companions and Credits slots already earn the most');
     if(active==='scrap')notes.push(`uses your Base multiplier ×${effectiveMultiplier()}, which should be the one the game shows with no Protocol droid beside you`);
     if(missing.length)notes.push(`Not on your Base: ${missing.join(', ')}`);

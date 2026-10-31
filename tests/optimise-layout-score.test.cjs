@@ -11,7 +11,7 @@ test('compiled candidate scores match the full income and crafting calculations'
   {name:'protocol',type:'PROTOCOL',income:0,credit:56,craft:12},
   {name:'strong protocol',type:'PROTOCOL',income:0,credit:200,craft:40}
  ].map(d=>({...d,variants:{DEFAULT:{income:d.income,protocolCpsBonusPercent:d.credit||0,protocolCraftingBonusPercent:d.craft||0}}}));
- const state={droids},context=vm.createContext({...require('../traits.js'),state,PRODUCTIVE_STATIONS:regions,PROTOCOL_REGIONS:regions,workingIncome,
+ const state={droids},context=vm.createContext({...await import('../scourge.js'),...require('../traits.js'),state,PRODUCTIVE_STATIONS:regions,PROTOCOL_REGIONS:regions,workingIncome,
   isIconic:d=>!!d?.iconic,iconicIncome:d=>d?.iconic?d.dynamic:0,effectiveMultiplier:()=>18.7,
   protocolBonus:(d,v,role)=>d?.variants[v]?.[role==='CREDITS'?'protocolCpsBonusPercent':'protocolCraftingBonusPercent']||0,
   placedBaseIncome:placed=>placed.reduce((sum,u)=>{const d=droids.find(x=>x.name===u.name);return sum+(d.iconic?0:d.income)},0)});
