@@ -13,7 +13,7 @@ import {eventPage,startEventReminders} from './event-page.js?v=2026-10-31-r2-cra
 import { companionPage } from './companion-page.js?v=2026-10-08-beta37';
 import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES, normaliseParty, partyBonuses } from './economy.js?v=2026-10-18-mission-tools';
 import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-10-31-r2-crates';
-import { testMapPage } from './test-map.js?v=2026-10-31-map-panels';
+import { testMapPage } from './test-map.js?v=2026-10-31-lounge-vertical';
 import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-10-05-layouts';
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
@@ -5665,7 +5665,7 @@ function refreshKyberRelease(rerender=true){
 }
 setInterval(()=>refreshKyberRelease(),10000);
 siteActivity=startSiteActivity({client:()=>supabaseClient});
-const DATA_VERSION='2026-10-31-r2-crates';
+const DATA_VERSION='2026-10-31-gonk-portraits';
 const loadJson=async path=>{const response=await fetch(`${path}${path.includes('?')?'&':'?'}v=${DATA_VERSION}`,{cache:'no-cache'});if(!response.ok)throw Error(`Unable to load ${path}`);return response.json()};
 function applyStellarData(droids,stellarStats={}){const rules=stellarStats._rules||{},images=stellarStats._images||{},round=value=>Math.round(value*1e6)/1e6;for(const droid of droids){if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;if(droid.rarity==='ICONIC'||droid.variants.STELLAR)continue;const base=droid.variants.DEFAULT,known=stellarStats[droid.name]||{},costMultiplier=rules.costMultiplier?.[droid.rarity],incomeMultiplier=rules.incomeMultiplier?.[droid.rarity],craftingMultiplier=rules.craftingMultiplier;droid.variants.STELLAR={cost:known.cost??(knownNumber(base?.cost)&&knownNumber(costMultiplier)?round(base.cost*costMultiplier):null),income:known.income??(knownNumber(base?.income)&&knownNumber(incomeMultiplier)?round(base.income*incomeMultiplier):null),craftingSeconds:known.craftingSeconds??(knownNumber(base?.craftingSeconds)&&knownNumber(craftingMultiplier)?round(base.craftingSeconds*craftingMultiplier):null)};if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;}return droids}
 async function loadEvents(){try{const index=await loadJson('data/events/index.json');if(!Array.isArray(index.events))return[];return Promise.all(index.events.map(file=>loadJson(`data/events/${file}`)))}catch{return[]}}

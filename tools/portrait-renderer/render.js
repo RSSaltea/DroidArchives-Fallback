@@ -6,6 +6,7 @@ const vertex=`attribute vec2 p;varying vec2 uv;void main(){uv=(p+1.)*.5;gl_Posit
 // Compact material-response calibration. The coefficients are global, never per droid.
 const toon=await(await fetch(new URL('./scourge-calibration.json',import.meta.url))).json();
 const crystal=await(await fetch(new URL('./kyber-calibration.json',import.meta.url))).json();
+const classic=await(await fetch(new URL('./classic-calibration.json',import.meta.url))).json();
 const product=(name,powers)=>powers.flatMap((count,i)=>Array(count).fill(name+'.'+'xyz'[i])).join('*')||'1.0';
 const polynomial=(model,name)=>model.powers.map((p,i)=>`(${model.coefficients[i].toFixed(9)}*${product(name,p)})`);
 const toonCode=polynomial(toon,'n').join('+');
@@ -13,8 +14,11 @@ const terms=polynomial(crystal,'n');let ci=crystal.powers.length;
 for(let i=0;i<3;i++)terms.push(`(${crystal.coefficients[ci++].toFixed(9)}*t.${'xyz'[i]})`);
 for(let i=0;i<3;i++)for(let j=i;j<3;j++)terms.push(`(${crystal.coefficients[ci++].toFixed(9)}*t.${'xyz'[i]}*t.${'xyz'[j]})`);
 for(let i=0;i<3;i++)for(let j=0;j<3;j++)terms.push(`(${crystal.coefficients[ci++].toFixed(9)}*n.${'xyz'[i]}*t.${'xyz'[j]})`);
+const classicVariants=['GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR'];
+const classicCode=classicVariants.map((v,i)=>`if(variant==${i+1})return ${classic.powers.map((p,j)=>`vec3(${classic.models[v][j].map(x=>x.toFixed(9)).join(',')})*(${product('n',p)})`).join('+')};`).join('\n');
 const fragment=`precision highp float;
 varying vec2 uv;uniform sampler2D baseTex,maskTex,normalTex,patternTex,starsTex;uniform int variant;
+vec3 classicResponse(vec3 n){${classicCode}return vec3(0.);}
 float toonResponse(vec3 n){return ${toonCode};}
 float crystalResponse(vec3 n,vec3 t){return ${terms.join("+")};}
 vec3 ramp(float x,vec3 low,vec3 mid,vec3 high){return x<.55?mix(low,mid,x/.55):mix(mid,high,(x-.55)/.45);}
@@ -25,7 +29,20 @@ void main(){
  float sheen=pow(max(0.,dot(normalize(n),normalize(vec3(-.3,.5,.8)))),18.);
  vec3 c=base.rgb;vec3 pattern=texture2D(patternTex,fract(q*2.+n.xy*.045)).rgb;
  // Surface detail comes from the exported object-space normals, not a flat colour filter.
- if(variant==11){
+ if(variant>=1&&variant<=6){
+  vec3 surface=clamp(classicResponse(n),0.,1.);
+  vec3 detail=texture2D(patternTex,fract(q+n.xy*.06)).rgb;
+  float glint=pow(max(0.,dot(normalize(n),normalize(vec3(-.5,.2,.8)))),32.);
+  if(variant==1||variant==2){surface*=.82+.36*dot(detail,vec3(.333));surface+=glint*.20;}
+  if(variant==3){surface=texture2D(patternTex,vec2(fract(q.x*.55+q.y*.4+n.x*.18),.5)).rgb*(.35+.85*shade)+glint*.45;}
+  if(variant==4)surface*=.65+.65*detail.r;
+  if(variant==6)surface*=.65+.6*detail.r;
+  if(variant==5||variant==6)surface+=texture2D(starsTex,fract(q*1.6+n.xy*.035)).rgb*(variant==5?vec3(.8):vec3(1.,.7,.3));
+  c=mix(base.rgb,clamp(surface,0.,1.),mask.g);
+  // Extracted base textures contain a green matte on antialiased edges.
+  // Despill only those edge pixels; retain opaque material colours and alpha.
+  if(base.a<.95&&c.g>c.r*1.3&&c.g>c.b*1.3)c.g=max(c.r,c.b);
+ }else if(variant==11){
   float band=smoothstep(-.15,.15,toonResponse(n));
   c=mix(vec3(.050,.018,.073)*(.35+.65*(1.-q.y)),vec3(.269,.173,.320),band);
   float edge=clamp(base.a-texture2D(baseTex,q-vec2(1.5/512.)).a,0.,1.);

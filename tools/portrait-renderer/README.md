@@ -1,8 +1,8 @@
 ﻿# Local portrait renderer
 
-This is a local, deterministic reconstruction of the Kyber and Scourge materials. It uses our extracted game portrait, mask, normal and crystal textures. It does **not** download portraits, call an image service or embed reference pixels in the generated images.
+This is a local, deterministic reconstruction of the droid variant materials. It uses our extracted game portrait, mask, normal and crystal textures. It does **not** download portraits, call an image service or embed reference pixels in the generated images.
 
-It is not the original Unreal shader: cooked material exports retain texture/parameter information but strip the authoring graphs. The material response was calibrated against the user-supplied portrait pack. It is closer to that reference, not a claim of pixel-perfect in-game reproduction. Gold, Diamond, Rainbow, Beskar, Galactic and Stellar are outside this renderer's scope.
+It is not the original Unreal shader: cooked material exports retain texture/parameter information but strip the authoring graphs. The material response was calibrated against the user-supplied portrait pack. It is closer to that reference, not a claim of pixel-perfect in-game reproduction. Gold, Diamond, Rainbow, Beskar, Galactic and Stellar use a shared normal-response calibration plus the extracted game material textures. This replaces the older Gonk Army colour-ramp renderer.
 
 ## Rebuild
 
@@ -45,3 +45,9 @@ node tests/variant-portraits-ui.cjs
 ```
 
 Review the rendered comparison on both dark and light backgrounds as well. File validity alone is not an appearance test.
+
+## Gonk Army materials
+
+The seven new Gonk Army droids use this same renderer for Gold through Stellar. Generate with `--variants GOLD,DIAMOND,RAINBOW,BESKAR,GALACTIC,STELLAR` and a manifest containing ECG, EG-58, EGL, KT, MPH, JO9-4MN and PLNK. Output goes to `assets/droids/gonk-army-v2`. Ordinary variants retain the green-channel material mask and the original unpainted details. Kyber and Scourge continue to cover the whole droid.
+
+`classic-calibration.json` contains shared RGB response coefficients from five established droids, excluding the new Gonk Army models. The downloaded reference pack is needed only to rerun `calibrate-classic.py`, never to generate portraits. Rainbow uses the local spectrum texture; other materials combine the shared normal response with local surface textures. Animation remains a fixed snapshot and these are reconstructions, not exact Unreal shader outputs. The generator hashes all textures actually used.
