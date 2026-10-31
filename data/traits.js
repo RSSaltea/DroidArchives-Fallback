@@ -1,6 +1,6 @@
 export const TRAIT_DATA = {
-  "gameVersion": "1.36.0",
-  "checkedAt": "2026-10-24",
+  "gameVersion": "1.37.0",
+  "checkedAt": "2026-10-31",
   "costs": [
     {
       "rarity": "Common",
@@ -375,7 +375,7 @@ export const TRAIT_DATA = {
       "exclude_iconics": false,
       "stat": "AstroDoubleCrateChance",
       "multiplier": false,
-      "effect": "50% chance to receive two Astromech crates."
+      "effect": "While R2-D2 occupies an Astromech mission slot, other missions that normally award one crate have a 50% chance of awarding two. R2-D2 still receives its usual two crates. The highest active chance is used; it does not stack."
     },
     {
       "id": 20,
@@ -476,6 +476,23 @@ export const TRAIT_DATA = {
       "stat": "GoldSplashRefill",
       "multiplier": false,
       "effect": "Refills Golden Splash while hitting a depot, with a 120-second cooldown."
+    },
+    {
+      "id": 26,
+      "name": "Hive Mind Master",
+      "active_in": "Worker",
+      "values": {
+        "Rainbow": 5
+      },
+      "value_format": "Flat",
+      "description": "+5 effective Hive Mind droids",
+      "exclusive_droids": [
+        "SCOURGE PRIME"
+      ],
+      "exclude_iconics": false,
+      "stat": "ScourgeHiveMind",
+      "multiplier": false,
+      "effect": "Adds five effective droids to Hive Mind while working, including Protocol slots. Does not add physical droids or a flat 5% bonus."
     }
   ]
 };

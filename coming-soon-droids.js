@@ -1,7 +1,8 @@
+import {primeAvailable} from './scourge.js?v=2026-10-31-r2-crates';
 // Announcement previews are separate from the playable catalogue. Unknown
 // values must never become zero-income droids in Base or Optimise.
 export const COMING_SOON_DROIDS=[];
-export const isComingSoonDroid=name=>COMING_SOON_DROIDS.some(d=>d.name===name);
+export const isComingSoonDroid=name=>(name==='SCOURGE PRIME'&&!primeAvailable())||COMING_SOON_DROIDS.some(d=>d.name===name);
 
 export function comingSoonCard(d,variantText,variant='DEFAULT'){
   return `<a class="droid-card coming-soon-droid" href="#/droid/${d.name.toLowerCase()}" data-coming-soon="${d.name}"><div class="droid-image"><span class="upcoming-portrait">Portrait coming soon</span></div><div class="card-body"><span class="badge">Coming soon</span><h3>${d.name}</h3><div class="card-meta"><span>${d.rarity||'Rarity coming soon'}</span><span>${variantText(variant)}</span></div></div></a>`;

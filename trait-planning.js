@@ -1,4 +1,4 @@
-import { TRAITS, traitEligible } from './traits.js?v=2026-10-18-signin-fix';
+import { TRAITS, traitEligible } from './traits.js?v=2026-10-31-r2-crates';
 const tiers=['Default','Gold','Diamond','Rainbow'];
 export function traitRollPool(droid,current=null){
   const groups=tiers.map(tier=>TRAITS.filter(t=>traitEligible(t,droid)&&Object.hasOwn(t.values,tier)&&!(t.id===current?.id&&tier===current?.tier)).map(t=>({id:t.id,tier}))).filter(g=>g.length);
@@ -33,8 +33,9 @@ export function rerollEstimate(droid,current,target,attempts=10){
   return {nextChance:nextPool.filter(hit).reduce((s,t)=>s+t.probability,0),expectedRolls,expectedNova,chance};
 }
 export const ICONIC_TRAIT_ADVICE=[
+  ['SCOURGE PRIME',26,'Hive Mind income','Hive Mind Master adds five effective Hive Mind members while working or in a Protocol slot. A credit Protocol slot also links eligible regional droids.'],
   ['CB-23',24,'Mission rewards','Hyperdrive triples the chip and Nova amounts in its mission reward pool. Use an Astromech mission slot.'],
-  ['R2-D2',19,'Mission crates','Do not reroll for Double Crate at present: the code only rolls it for a one-crate reward, while R2-D2 already gives two. Choose a companion trait if you equip it instead.'],
+  ['R2-D2',19,'Mission crates','Recommended for your mission team: station R2-D2 in a mission slot to give other one-crate missions a 50% chance of two crates. R2-D2 keeps its usual two crates; the highest active chance applies without stacking.'],
   ['D-O',17,'Fusion','Fusion Master activates its companion perk while working, freeing a Companion slot.'],
   ['BB-8',21,'Upgrade chips','Upgrade Chip Master activates its companion perk while working, freeing a Companion slot.'],
   ['C-3PO',20,'Selling droids','Droid Sell Master activates its companion perk while working.'],
@@ -44,3 +45,6 @@ export const ICONIC_TRAIT_ADVICE=[
   ['MISTER BONES',15,'Combat','Lifesteal restores 20% of maximum health per kill while equipped.'],
   ['IG-11 MARSHAL',16,'Blueprint protection','Blueprint Protector is a utility choice while equipped.']
 ];
+
+// Initial reveal and rerolls on this particular droid, not account-wide rolls.
+export const iconicTraitPrice=current=>Math.max(0,3000-50*Math.min(60,current?1+Math.max(0,Math.floor(Number(current.rerolls)||0)):0));

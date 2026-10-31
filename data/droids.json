@@ -9598,5 +9598,36 @@
       "maxQuantity": 1,
       "passive": "2× Flawless Chance (Companion)"
     }
+  },
+  {
+    "name": "SCOURGE PRIME",
+    "rarity": "ICONIC",
+    "type": "PROTOCOL",
+    "variants": {
+      "DEFAULT": {
+        "cost": null,
+        "income": 50,
+        "protocolCpsBonusPercent": 200,
+        "protocolCraftingBonusPercent": 4000
+      }
+    },
+    "craftingXp": 18000000,
+    "portraits": {
+      "DEFAULT": "assets/droids/scourge-prime.png"
+    },
+    "availableAt": "2026-10-31T14:00:00Z",
+    "acquisition": {
+      "method": "event",
+      "label": "Scourge boss reward",
+      "description": "Earn 120,000 personal progress in the Scourge boss event to unlock Scourge Prime. Available from 31 October 2026 at 14:00 UTC. Not a conveyor or Astromech mission drop.",
+      "obtainFromAstromech": false
+    },
+    "special": {
+      "incomePercent": 0.15,
+      "onlyDefaultVariant": true,
+      "cannotSell": true,
+      "maxQuantity": 1,
+      "passive": "Credit Protocol: +200% regional credits and Hive Mind links. Crafting Protocol: +40/s regional build speed."
+    }
   }
 ]

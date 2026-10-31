@@ -1,4 +1,4 @@
-import { companionPerkActive, overclockFactor, traitSum } from './traits.js?v=2026-10-18-signin-fix';
+import { companionPerkActive, overclockFactor, traitSum } from './traits.js?v=2026-10-31-r2-crates';
 // Passive crafting rules. Pickaxe hits, critical hits and rushes are additional.
 const RARITY_POWER={COMMON:1,RARE:2,EPIC:3,LEGENDARY:4,MYTHIC:5};
 const QUALITIES=['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR','KYBER'];

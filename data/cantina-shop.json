@@ -259,6 +259,22 @@
         "blueprint-storage": 6,
         "lounge-slot": 6
       }
+    },
+    {
+      "id": "scourge-surge",
+      "name": "Scourge Surge",
+      "category": "surges",
+      "icon": "assets/nova-shop/SurgeBoost.png",
+      "durationMinutes": 5,
+      "description": "Sends Scourge energy across the Sandcrawler conveyor every 30 seconds for 5 minutes.",
+      "details": [
+        "Each wave has a 10% chance to turn blueprints it passes into Scourge variants.",
+        "At least one Scourge conversion is guaranteed per wave.",
+        "A lobby conveyor boost, not a multiplier to the income of droids you already own."
+      ],
+      "vbucksCost": 500,
+      "novaCost": 450,
+      "novaUpgradeId": "scourge-surge-token"
     }
   ]
 }

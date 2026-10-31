@@ -4,8 +4,8 @@ const {workingIncome}=require('../economy.js');
 const {craftingEstimate}=require('../crafting.js');
 const {createAssignmentScorer}=require('../optimise-layout-score.js');
 const unit=(id,tier='Rainbow',station='COMPANION')=>({trait:{id,tier},station});
-test('catalogue has 26 unique traits and rejects impossible imported traits',()=>{
- assert.equal(new Set(TRAITS.map(t=>t.id)).size,26);
+test('catalogue has 27 unique traits and rejects impossible imported traits',()=>{
+ assert.equal(new Set(TRAITS.map(t=>t.id)).size,27);
  assert.equal(normaliseTrait({id:24,tier:'Gold'}),null);
  assert.equal(normaliseTrait({id:24,tier:'Rainbow'},{name:'GONK',rarity:'COMMON'}),null);
  assert.equal(normaliseTrait({id:0,tier:'Rainbow'},{name:'CB-23',rarity:'ICONIC'}),null);

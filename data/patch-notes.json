@@ -2,6 +2,22 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-10-31-scourge-prime",
+      "date": "2026-10-31",
+      "title": "Scourge Prime and boss rewards",
+      "summary": "Plan Scourge Prime, its Hive Mind trait and the new boss event.",
+      "changes": [
+        "Added Scourge Prime with its game portrait and tracking available from the event start.",
+        "Base income and Optimise now include its Protocol bonuses, regional Hive Mind links and Hive Mind Master trait.",
+        "Added boss milestones, event rewards and updated Scourge information.",
+        "The Iconic reroll calculator now explains and calculates the discounted guaranteed-trait V-Buck price.",
+        "Droid pages now show eligible traits and recommendations; the Traits page lists every exclusive trait with its droid.",
+        "Fixed overflowing mission controls and large reward values, with improved phone and tablet layouts.",
+        "Added Scourge Surge to the Cantina and event guide, including its price, duration and conversion rules.",
+        "Corrected R2-D2 Double Crate Chance: it helps other one-crate missions. Mission estimates and trait recommendations now include the shared bonus."
+      ]
+    },
+    {
       "id": "2026-10-31-portraits-pack",
       "date": "2026-10-31",
       "title": "Variant portraits and Storage & Lounge Pack",

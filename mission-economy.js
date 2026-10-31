@@ -1,4 +1,4 @@
-import { traitAmount, traitSum } from './traits.js?v=2026-10-18-signin-fix';
+import { traitAmount, traitSum } from './traits.js?v=2026-10-31-r2-crates';
 // Curated from v1.35 AstromechMissions and depot completion code.
 // Credit rewards are seconds of generation, not fixed amounts.
 export const MISSION_SHIPS=[
@@ -19,13 +19,14 @@ export function normaliseMissionSettings(value={}){
     buildName:typeof v.buildName==='string'?v.buildName.slice(0,100):'',buildVariant:typeof v.buildVariant==='string'?v.buildVariant.slice(0,24):'DEFAULT',buildSlot:Math.min(2,Math.floor(number(v.buildSlot))),
     buildDelay:Math.min(3600,number(v.buildDelay,15))};
 }
-export function missionEstimate(unit,droid,{shipId,turnaround=30,speedBonus=0,creditsPerSecond=0,baseCrates=unit.name==='R2-D2'?2:1}={}){
+export const missionDoubleCrateChance=placed=>Math.max(0,...placed.filter(u=>u.built!==false).map(u=>traitAmount(u,19)));
+export function missionEstimate(unit,droid,{placed=[unit],shipId,turnaround=30,speedBonus=0,creditsPerSecond=0,baseCrates=unit.name==='R2-D2'?2:1}={}){
   if(unit.station!=='ASTROMECH'||![0,2,4,6,8].includes(unit.slot)||unit.built===false)return null;
   const ship=MISSION_SHIPS.find(s=>s.id===shipId&&(!s.exclusive||s.exclusive===unit.name));
   if(!ship)return null;
   const {base,efficiency,progress}=missionProgress(unit,droid);
   const duration=Math.ceil(ship.seconds*(1-Math.min(.95,number(speedBonus)))/progress);
-  const missions=3600/(duration+number(turnaround)),crates=baseCrates===1?1+traitAmount(unit,19):baseCrates;
+  const missions=3600/(duration+number(turnaround)),crates=baseCrates===1?1+missionDoubleCrateChance(placed):baseCrates;
   const hyperdrive=traitAmount(unit,24)||1;
   return {ship,base,efficiency,progress,duration,missions,crates,cratesPerHour:missions*crates,
     credits:missions*crates*ship.credits*number(creditsPerSecond),blueprints:missions*crates*ship.blueprints,

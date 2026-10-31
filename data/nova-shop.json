@@ -2736,7 +2736,7 @@
       "name": "Scourge Surge Token",
       "category": "lobby-boosts",
       "icon": "assets/nova-shop/SurgeBoost.png",
-      "description": "Scourge conveyor surge. Use in the Cantina Shop. Available from the Scourge event; costs 450 Nova Crystals.",
+      "description": "Sends a Scourge wave across the Sandcrawler conveyor every 30 seconds for 5 minutes. Each wave has a 10% conversion chance per blueprint it passes, with at least one guaranteed conversion. Use the token in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
       "costBase": 450,
@@ -2745,7 +2745,7 @@
         {
           "level": 1,
           "cost": 450,
-          "reward": "One Scourge Surge token"
+          "reward": "One 5-minute Scourge Surge token"
         }
       ]
     }

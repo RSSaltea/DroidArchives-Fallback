@@ -25,6 +25,7 @@ export const EVENT_ITEMS=[
   ['crafting-boost','Crafting Boost','Tokens',null,null],
   ['galactic-surge','Galactic Surge','Tokens',null,null],
   ['stellar-surge','Stellar Surge','Tokens',null,null],
+  ['scourge-surge','Scourge Surge','Tokens',null,null],
   ['kyber-surge','Kyber Surge','Tokens',null,null],
   ['event-pass','Gonk-o-Ween pass','Pass',null,'T_GOW_Pumpkin_Icon'],
   ['c1-mnst4','C1-MNST4 Chopper costume','Costumes',80,'T_Portrait_C1_MNST4'],

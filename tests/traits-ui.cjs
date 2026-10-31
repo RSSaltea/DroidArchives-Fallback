@@ -14,7 +14,7 @@ const server=http.createServer((req,res)=>{const pathname=new URL(req.url,'http:
   await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.traitTest={state,save,route,placements,incomeForPlaced,materializePlacements,optimisedRows,validateBaseImport,baseExport,stationSlotIndices,autoPurchaseEligibleSlots,commitOwned,showSuperRebirthConfirm,showTraitModal,runFusion,refreshProfileCatalogue};'}));
   await page.goto(`http://127.0.0.1:${server.address().port}/#/traits`);
   await page.waitForFunction(()=>window.traitTest?.state.droids.length);
-  assert.equal(await page.locator('.trait-catalogue .trait-card').count(),26);
+  assert.equal(await page.locator('.trait-catalogue .trait-card').count(),27);
   await page.locator('[data-trait-search]').fill('CB-23');assert.equal(await page.locator('.trait-catalogue .trait-card').count(),1);
   await page.locator('[data-trait-search]').fill('');
   assert(await page.locator('[data-roll-result]').innerText());

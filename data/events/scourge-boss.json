@@ -1,0 +1,11 @@
+{
+  "id": "scourge-boss",
+  "name": "Scourge Prime boss event",
+  "category": "Boss event",
+  "description": "Fight Scourge Prime and earn personal progress for Treats, a Crafting Boost token and the Iconic Protocol droid Scourge Prime. See the Event guide for milestone rewards.",
+  "startsAt": "2026-10-31T14:00:00Z",
+  "durationHours": 31,
+  "endedRetentionHours": 2,
+  "homepage": true,
+  "image": "assets/events/scourge-boss.png"
+}
