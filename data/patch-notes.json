@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-10-31-portraits-pack",
+      "date": "2026-10-31",
+      "title": "Variant portraits and Storage & Lounge Pack",
+      "summary": "Clearer Kyber and Scourge portraits, plus pack tracking.",
+      "changes": [
+        "Rebuilt inactive and coloured Kyber portraits and Scourge portraits for all 90 eligible droids.",
+        "Replaced browser colour filters with separate variant images.",
+        "Added the Storage & Lounge Pack: applies six Blueprint Storage and Lounge levels once, respecting their maximum levels."
+      ]
+    },
+    {
       "id": "2026-10-24-scourge",
       "date": "2026-10-24",
       "title": "Scourge variants and event",

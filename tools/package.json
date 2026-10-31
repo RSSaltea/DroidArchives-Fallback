@@ -4,6 +4,7 @@
   "description": "Development-only generator for the isolated Optimise worker",
   "devDependencies": {
     "acorn": "8.15.0",
-    "eslint-scope": "8.4.0"
+    "eslint-scope": "8.4.0",
+    "playwright": "1.63.0"
   }
 }

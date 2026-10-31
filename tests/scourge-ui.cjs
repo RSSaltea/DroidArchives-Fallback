@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http');
-let chromium;try{({chromium}=require('playwright'))}catch{({chromium}=require(path.join(process.env.LOCALAPPDATA,'DroidArchives/ui-test/node_modules/playwright')))}
+let chromium;try{({chromium}=require('playwright'))}catch{({chromium}=require(path.join(__dirname,'../research/tools/ui-test/node_modules/playwright')))}
 const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'app.js'),'utf8');
 const server=http.createServer((req,res)=>{const pathname=new URL(req.url,'http://localhost').pathname,file=path.resolve(root,'.'+(pathname==='/'?'/index.html':pathname));if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return}fs.readFile(file,(err,data)=>{if(err){res.writeHead(404).end();return}res.writeHead(200,{'Content-Type':{'.html':'text/html','.js':'text/javascript','.json':'application/json','.css':'text/css','.png':'image/png','.svg':'image/svg+xml'}[path.extname(file)]||'application/octet-stream'});res.end(data)});});
 (async()=>{
@@ -24,7 +24,7 @@ const server=http.createServer((req,res)=>{const pathname=new URL(req.url,'http:
     await page.goto(`http://127.0.0.1:${server.address().port}/${shell}#/droid/gonk`);
     await page.waitForFunction(()=>window.traitTest?.state.droids.length);
     await page.locator('[data-v="SCOURGE"]').click();
-    assert.match(await page.locator('.infobox .info-image img').getAttribute('src'),/scourge/);
+    assert.match(await page.locator('.infobox .info-image img').getAttribute('src'),/variants-v2\/.*_SCOURGE\.png/);
     assert(await page.locator('.infobox .info-image img').evaluate(i=>i.complete&&i.naturalWidth===512));
     await page.locator('#addBlueprintThis').click();
     await page.goto(`http://127.0.0.1:${server.address().port}/${shell}#/event`);

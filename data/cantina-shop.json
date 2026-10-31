@@ -239,6 +239,26 @@
       "vbucksCost": 500,
       "novaCost": 450,
       "novaUpgradeId": "kyber-surge-token"
+    },
+    {
+      "id": "storage-lounge-pack",
+      "name": "Storage & Lounge Pack",
+      "category": "packs",
+      "vbucksCost": null,
+      "icon": "assets/nova-shop/T_Icon_BPStorage.png",
+      "description": "Unlock the new Blueprint Storage appearance and add 6 levels each to Blueprint Storage and Lounge Slots.",
+      "details": [
+        "New Blueprint Storage appearance",
+        "Adds 6 Blueprint Storage levels, up to level 9",
+        "Adds 6 Lounge Slot levels, up to level 12",
+        "Marking this pack owned applies these levels once per profile. Reloading, importing or rechecking it will not add them again.",
+        "If your saved levels already include this pack, adjust them in Nova Shop after marking it owned.",
+        "The game refunds Nova Crystals for levels beyond the maximum; the Archives does not track your Nova balance."
+      ],
+      "novaLevelGrants": {
+        "blueprint-storage": 6,
+        "lounge-slot": 6
+      }
     }
   ]
 }

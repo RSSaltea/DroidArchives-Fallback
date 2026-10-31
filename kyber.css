@@ -18,13 +18,10 @@
 
 .rebirth-quality-option.quality-kyber{color:#e0e2e5;border-color:#a1a5ad;background:linear-gradient(135deg,#303238,#51555d);box-shadow:inset 0 0 9px #c7cbd020}
 
-/* Activated Kyber colours use the shared green portrait and a crystal-only mask. */
-/* Inactive Kyber retains the fractured surface, with neutral grey shading. */
-img[data-kyber-colour="inactive"]{filter:grayscale(1) brightness(.82) contrast(.85)}
+/* Each Kyber state now has its own rendered portrait. */
+
 .spawn-kyber>img{filter:grayscale(1)}
 .spawn-kyber strong{color:#e0e2e5}
-img[data-kyber-colour="blue"]{filter:url(#kyber-portrait-blue)}
-img[data-kyber-colour="purple"]{filter:url(#kyber-portrait-purple)}
 
 /* Reserve equal label space so activated colours do not shift their portraits. */
 .variant-choice{grid-auto-rows:1fr}

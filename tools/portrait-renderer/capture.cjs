@@ -1,0 +1,2 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});try{const p=await b.newPage({viewport:{width:1500,height:780}});p.on('pageerror',e=>console.error(e));await p.goto('http://localhost:8000/tools/portrait-renderer/review.html');await p.waitForFunction(()=>window.reviewReady);await p.screenshot({path:'research/uefn/october31/portrait-review/comparison.png'});}finally{await b.close();}})();
