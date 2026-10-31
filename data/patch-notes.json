@@ -14,7 +14,8 @@
         "Droid pages now show eligible traits and recommendations; the Traits page lists every exclusive trait with its droid.",
         "Fixed overflowing mission controls and large reward values, with improved phone and tablet layouts.",
         "Added Scourge Surge to the Cantina and event guide, including its price, duration and conversion rules.",
-        "Corrected R2-D2 Double Crate Chance: it helps other one-crate missions. Mission estimates and trait recommendations now include the shared bonus."
+        "Corrected R2-D2 Double Crate Chance: it helps other one-crate missions. Mission estimates and trait recommendations now include the shared bonus.",
+        "Restored Astromech Settings in the Settings sidebar so each Iconic can be reserved for missions."
       ]
     },
     {
