@@ -2,6 +2,18 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-10-31-map-commands",
+      "date": "2026-10-31",
+      "title": "Quick actions on the Base map",
+      "summary": "Manage droids directly from their map panel.",
+      "changes": [
+        "Added Work, Companion, Lounge and Fusion actions to eligible droids on the map.",
+        "Added Sell for regular droids and Return for Iconics, keeping their recorded traits.",
+        "Actions unlock when a build is marked complete.",
+        "Moves use the existing slot pathing, with a swap choice when Companion slots are full."
+      ]
+    },
+    {
       "id": "2026-10-31-fusion-fixes",
       "date": "2026-10-31",
       "title": "Fusion fixes and refreshed portraits",

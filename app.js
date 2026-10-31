@@ -13,7 +13,7 @@ import {eventPage,startEventReminders} from './event-page.js?v=2026-10-31-r2-cra
 import { companionPage } from './companion-page.js?v=2026-10-08-beta37';
 import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES, normaliseParty, partyBonuses } from './economy.js?v=2026-10-18-mission-tools';
 import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-10-31-r2-crates';
-import { testMapPage } from './test-map.js?v=2026-10-31-lounge-vertical';
+import { testMapPage } from './test-map.js?v=2026-10-31-map-commands';
 import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-10-05-layouts';
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
@@ -2744,6 +2744,38 @@ function showTraitModal(card,onDone){
 }
 document.addEventListener('click',event=>{const button=event.target.closest?.('[data-edit-trait]');if(!button)return;if(state.sharedView&&!state.sharedView.canEdit)return;const card=expandedOwned().find(u=>u.source===Number(button.dataset.editTrait)&&u.unit===Number(button.dataset.traitUnit));if(card)showTraitModal(card,()=>route());},true);
 function showCardVariantModal(card,onDone){const root=document.querySelector('#modalRoot'),d=state.droids.find(x=>x.name===card.name);if(!d||isIconic(d))return;root.innerHTML=`<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true"><p class="eyebrow">Change quality</p><h2>${d.name}</h2><p class="picker-hint">Choose the quality and activation colour you own. Kyber without a colour means dormant. This updates this exact card without removing it from its slot.</p><div class="variant-choice">${DISPLAY_VARIANTS.map(v=>`<button data-card-variant="${v}" ${v===card.variant?'disabled':''}>${picture(d,v)}<strong>${variantText(v)}</strong><small>${v===card.variant?'Current quality':variantIncomeText(d,v)}</small></button>`).join('')}</div><button class="btn ghost" id="cancelVariantChange">Cancel</button></section></div>`;root.querySelectorAll('[data-card-variant]').forEach(button=>button.onclick=()=>{changeOwnedUnitVariant(card.source,button.dataset.cardVariant,card.station,card.slot);root.innerHTML='';onDone()});root.querySelector('#cancelVariantChange').onclick=()=>root.innerHTML=''}
+// Map commands mirror the game command from this droid's current attachment point.
+function mapDroidAction(card,action,onDone){
+  if(state.sharedView&&!state.sharedView.canEdit)return;
+  const p=placements(),unit=p.placed.find(u=>u.source===card.source&&u.unit===card.unit&&u.name===card.name&&u.variant===card.variant);
+  if(!unit||isBuilding(unit))return toast('Complete this build before using these actions.');
+  const d=state.droids.find(d=>d.name===unit.name),rules=optimiseRouteRules();
+  if(action==='sell'||action==='return'){
+    if((action==='return')!==isIconic(d))return;
+    if(action==='sell'&&!confirm(`Sell ${variantLabel(unit.variant)} ${unit.name}? ${traitLossText([unit])}`))return;
+    if(action==='return'&&!confirm(`Return ${unit.name}? Its recorded Iconic trait will be kept for reclaiming it.`))return;
+    state.iconicTraits=rememberIconicTraits(state.iconicTraits,state.owned,state.droids);
+    const indices=materializePlacements(p);state.owned.splice(indices.get(`${unit.source}:${unit.unit}`),1);save();onDone();return;
+  }
+  const station={companion:'COMPANION',lounge:'LOUNGE',fusion:'FUSION'}[action];
+  if(station===unit.station)return toast(`This droid is already in ${placeName(station)}.`);
+  const target=action==='work'?predictWorkLanding(unit,p.placed,rules):station?predictStationLanding(unit,p.placed,station,rules):null;
+  if(!target){
+    if(action==='companion'){
+      const choices=p.placed.filter(u=>u.station==='COMPANION'&&!isBuilding(u)&&rules.canUse(u,unit.station));
+      if(choices.length){
+        const root=document.querySelector('#modalRoot');
+        root.innerHTML=`<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true"><h2>Choose a Companion to swap</h2><p>The selected Companion takes this droid's current slot.</p>${choices.map(u=>`<button class="btn secondary" data-command-companion="${u.source}:${u.unit}">${escapeAttr(u.name)} ? Slot ${u.slot+1}</button>`).join('')}<button class="btn ghost" id="cancelMapCommand">Cancel</button></section></div>`;
+        root.querySelector('#cancelMapCommand').onclick=()=>root.innerHTML='';
+        root.querySelectorAll('[data-command-companion]').forEach(b=>b.onclick=()=>{root.innerHTML='';moveUnitByKey(`${unit.source}:${unit.unit}`,b.dataset.commandCompanion,onDone);});return;
+      }
+    }
+    return toast('No available destination for this command.');
+  }
+  if(target.assumed&&!confirm(`Predicted destination: ${placeName(target.station)} ${target.slot+1}. The exact landing is uncertain; check it in game and correct the map if needed. Record this move?`))return;
+  moveUnitToSlot(`${unit.source}:${unit.unit}`,target.station,target.slot,onDone);
+  toast(`${unit.name}: ${placeName(target.station)} ${target.slot+1}`);
+}
 function showSwapModal(card,onDone){const root=document.querySelector('#modalRoot'),p=placements(),source=p.placed.find(x=>x.source===card.source&&x.unit===card.unit),occupiedKey=(station,slot)=>`${station}:${slot}`,occupied=new Set(p.placed.map(x=>occupiedKey(x.station,x.slot))),items=p.placed.filter(x=>!(x.source===card.source&&x.unit===card.unit)).map(x=>({...x,targetType:'occupied'})),emptySlots=Object.keys(SLOT_RULES).filter(station=>station!=='BUILD').flatMap(station=>stationSlotIndices(station).filter(slot=>!occupied.has(occupiedKey(station,slot))).map(slot=>({targetType:'empty',station,slot,name:`Empty ${station} ${slot+1}`,variant:'DEFAULT'})));if(!source)return;root.innerHTML=`<div class="modal-backdrop"><section class="modal slot-picker" role="dialog" aria-modal="true"><p class="eyebrow">Manual swap</p><h2>Move ${source.name}</h2><p class="picker-hint">Choose another droid to swap with, or an empty unlocked non-Build slot to move into. Build slots must be swapped with an existing Build droid.</p><input id="swapSearch" class="form-control picker-search" placeholder="Search droids or slots…" autofocus><div id="swapResults" class="picker-results"></div><button class="btn ghost" id="cancelSwap">Cancel</button></section></div>`;const draw=()=>{const q=root.querySelector('#swapSearch').value.toLowerCase(),targets=[...items,...emptySlots].filter(x=>canUseStation(state.droids.find(d=>d.name===source.name),x.station)&&(x.targetType==='empty'||canUseStation(state.droids.find(d=>d.name===x.name),source.station))).filter(x=>x.name.toLowerCase().includes(q)||x.station.toLowerCase().includes(q)||String(x.slot+1).includes(q));root.querySelector('#swapResults').innerHTML=targets.map(x=>{if(x.targetType==='empty')return `<button class="picker-droid empty-slot-choice" data-empty-station="${x.station}" data-empty-slot="${x.slot}"><span class="slot-icon">${stationIcon(x.station)}</span><b>${x.name}</b><small>Move into empty slot</small></button>`;const d=state.droids.find(y=>y.name===x.name);return `<button class="picker-droid" data-swap-key="${x.source}:${x.unit}"><span>${picture(d,x.variant)}</span><b>${x.name}</b><small>${variantText(x.variant)} · ${x.station} ${x.slot+1}</small></button>`}).join('')||'<p class="roster-empty">No matching droids or empty slots.</p>';root.querySelectorAll('[data-swap-key]').forEach(b=>b.onclick=()=>{moveUnitByKey(`${source.source}:${source.unit}`,b.dataset.swapKey,onDone);root.innerHTML=''});root.querySelectorAll('[data-empty-station]').forEach(b=>b.onclick=()=>{moveUnitToSlot(`${source.source}:${source.unit}`,b.dataset.emptyStation,Number(b.dataset.emptySlot),onDone);root.innerHTML=''})};root.querySelector('#swapSearch').oninput=draw;root.querySelector('#cancelSwap').onclick=()=>root.innerHTML='';draw()}
 function showSuperRebirthConfirm(rerender,really=false){const root=document.querySelector('#modalRoot'),question=really?'Are you really sure you want to super rebirth?':'Are you sure you want to super rebirth?';root.innerHTML=`<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="superRebirthTitle"><p class="eyebrow">Destructive action</p><h2 id="superRebirthTitle">${question}</h2><p>This will remove every droid from your base and reset its progression. Your regular Rebirth bonus of +${regularRebirthMultiplier().toFixed(2)}x will be removed and the Super Rebirth reward of +${(Number(rebirthReward(state.rebirth)?.creditMultPercent||0)/100).toFixed(2)}x added. Your resulting multiplier will be ${superRebirthMultiplier().toFixed(2)}x (minimum 1x if your entered total is below the bonuses being removed). This cannot be undone unless you exported your base first.</p><p>${escapeAttr(traitLossText(expandedOwned()))}Iconic traits, tiers and reroll counts are retained and restored when received again.</p><div class="modal-actions"><button class="btn danger" id="confirmSuperRebirth">Yes, super rebirth</button><button class="btn ghost" id="cancelSuperRebirth">Cancel</button></div></section></div>`;root.querySelector('#cancelSuperRebirth').onclick=()=>root.innerHTML='';root.querySelector('#confirmSuperRebirth').onclick=()=>{if(!really){showSuperRebirthConfirm(rerender,true);return}if(!rebirthReward(state.rebirth)){toast('Super Rebirth is available from Rebirth 12');return;}state.iconicTraits=rememberIconicTraits(state.iconicTraits,state.owned,state.droids);state.owned=[];state.multiplier=superRebirthMultiplier();state.rebirth=0;state.purchasedSlots=[];state.loungePurchased=0;state.novaLevel=0;const cycleCount=Object.keys(state.rebirths).length;state.cycle=cycleCount?(state.cycle+1)%cycleCount:0;save();root.innerHTML='';toast(`Super rebirth complete · Cycle ${state.cycle+1}`);rerender()}}
 function cloudDocFromCurrent(name='Main'){const id=cloudId();return{app:'Droid Archives',version:1,updatedAt:new Date().toISOString(),activeProfileId:id,ui:{theme:state.theme},profiles:[{id,name,updatedAt:new Date().toISOString(),data:profileDataFromState()}]}}
@@ -3292,6 +3324,8 @@ function basePageV2(){
       craft:x=>craftBlueprint(x.blueprintIndex,render),
       lock:x=>{toggleSlotLock(x.source,x.unit);render();},
       complete:x=>{completeBuild(x.source,x.unit);render();},
+      iconic:x=>isIconic(state.droids.find(d=>d.name===x.name)),
+      ...Object.fromEntries(['work','companion','lounge','fusion','sell','return'].map(action=>[action,x=>mapDroidAction(x,action,render)])),
       lockedLabel:s=>s.station==='BLUEPRINT_STORAGE'?'Unlock Blueprint Storage in Nova Shop':lockedSlotLabel(s.station,s.slot),price:s=>slotPriceLabel(s.station,s.slot),
       purchase:s=>{if(isSlotEligible(s.station,s.slot))purchaseRebirthSlot(s.station,s.slot,render);},
       eligible:s=>s.station!=='BLUEPRINT_STORAGE'&&isSlotEligible(s.station,s.slot),
