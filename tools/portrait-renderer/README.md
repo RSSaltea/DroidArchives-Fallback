@@ -51,3 +51,9 @@ Review the rendered comparison on both dark and light backgrounds as well. File 
 The seven new Gonk Army droids use this same renderer for Gold through Stellar. Generate with `--variants GOLD,DIAMOND,RAINBOW,BESKAR,GALACTIC,STELLAR` and a manifest containing ECG, EG-58, EGL, KT, MPH, JO9-4MN and PLNK. Output goes to `assets/droids/gonk-army-v2`. Ordinary variants retain the green-channel material mask and the original unpainted details. Kyber and Scourge continue to cover the whole droid.
 
 `classic-calibration.json` contains shared RGB response coefficients from five established droids, excluding the new Gonk Army models. The downloaded reference pack is needed only to rerun `calibrate-classic.py`, never to generate portraits. Rainbow uses the local spectrum texture; other materials combine the shared normal response with local surface textures. Animation remains a fixed snapshot and these are reconstructions, not exact Unreal shader outputs. The generator hashes all textures actually used.
+
+## Full catalogue rebuild
+
+`--variants DEFAULT,GOLD,DIAMOND,RAINBOW,BESKAR,GALACTIC,STELLAR,KYBER,KYBER_GREEN,KYBER_BLUE,KYBER_PURPLE,SCOURGE` rebuilds every supported material, including the original base portrait with edge despill. A manifest row can specify `variants` to restrict its outputs. Iconic rows must specify `["DEFAULT"]`; their legacy catalogue stat rows are not alternative portrait forms. Default-only rows may repeat the base file in all three texture entries since the default shader does not read a mask or normal.
+
+The complete local input manifest is `research/uefn/october31/portrait-renderer/all-droids.json`. Generate to `assets/droids/rendered-v3` and retain the generation report privately. The catalogue now points to 1,091 images: twelve forms for each of 90 regular droids and one default for each of 11 Iconics. Source textures and comparison packs remain private. No images are downloaded during a rebuild.

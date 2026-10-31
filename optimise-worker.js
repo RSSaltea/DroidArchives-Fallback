@@ -1,7 +1,7 @@
-import { planOptimiseRoute, shortenOptimiseWalk, optimiseWalkDistance } from './optimise-route.js?v=2026-10-31-r2-crates';
+import { planOptimiseRoute, shortenOptimiseWalk, optimiseWalkDistance } from './optimise-route.js?v=2026-10-31-fusion-fixes';
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-10-31-r2-crates';
 import { workerRules } from './optimise-worker-rules.js?v=2026-10-31-lounge';
-import { createOptimiseLayoutContext } from './optimise-layout-context.js?v=2026-10-31-activity-traits';
+import { createOptimiseLayoutContext } from './optimise-layout-context.js?v=2026-10-31-fusion-fixes';
 
 const less = (a, b) => { for (let i=0;i<a.length;i++) if(a[i]!==b[i]) return a[i]<b[i]; return false; };
 self.onmessage = ({data:{id,snapshot}}) => {

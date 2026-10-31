@@ -92,11 +92,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 100.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/MOUSE_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/MOUSE_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/MOUSE_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/MOUSE_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/MOUSE_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/MOUSE_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/MOUSE_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/MOUSE_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/MOUSE_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/MOUSE_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/MOUSE_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/MOUSE_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/MOUSE_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/MOUSE_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/MOUSE_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/MOUSE_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/MOUSE_SCOURGE.png"
     }
   },
   {
@@ -192,11 +199,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 120.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/PIT_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/PIT_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/PIT_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/PIT_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/PIT_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/PIT_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/PIT_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/PIT_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/PIT_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/PIT_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/PIT_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/PIT_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/PIT_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/PIT_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/PIT_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/PIT_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/PIT_SCOURGE.png"
     }
   },
   {
@@ -292,11 +306,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 140.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/GONK_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/GONK_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/GONK_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/GONK_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/GONK_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/GONK_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/GONK_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/GONK_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/GONK_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/GONK_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/GONK_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/GONK_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/GONK_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/GONK_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/GONK_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/GONK_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/GONK_SCOURGE.png"
     }
   },
   {
@@ -392,11 +413,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 160.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/CB_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/CB_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/CB_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/CB_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/CB_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/CB_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/CB_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/CB_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/CB_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/CB_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/CB_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/CB_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/CB_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/CB_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/CB_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/CB_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/CB_SCOURGE.png"
     }
   },
   {
@@ -492,11 +520,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 190.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/R3_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/R3_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/R3_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/R3_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/R3_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/R3_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/R3_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/R3_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/R3_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/R3_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/R3_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/R3_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/R3_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/R3_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/R3_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/R3_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/R3_SCOURGE.png"
     }
   },
   {
@@ -592,11 +627,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 220.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/R5_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/R5_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/R5_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/R5_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/R5_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/R5_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/R5_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/R5_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/R5_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/R5_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/R5_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/R5_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/R5_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/R5_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/R5_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/R5_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/R5_SCOURGE.png"
     }
   },
   {
@@ -692,11 +734,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 260.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/R8_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/R8_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/R8_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/R8_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/R8_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/R8_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/R8_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/R8_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/R8_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/R8_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/R8_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/R8_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/R8_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/R8_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/R8_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/R8_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/R8_SCOURGE.png"
     }
   },
   {
@@ -792,11 +841,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 500.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/IMPERIAL_PROBE_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/IMPERIAL_PROBE_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/IMPERIAL_PROBE_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/IMPERIAL_PROBE_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/IMPERIAL_PROBE_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/IMPERIAL_PROBE_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/IMPERIAL_PROBE_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/IMPERIAL_PROBE_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/IMPERIAL_PROBE_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/IMPERIAL_PROBE_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/IMPERIAL_PROBE_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/IMPERIAL_PROBE_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/IMPERIAL_PROBE_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/IMPERIAL_PROBE_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/IMPERIAL_PROBE_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/IMPERIAL_PROBE_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/IMPERIAL_PROBE_SCOURGE.png"
     }
   },
   {
@@ -892,11 +948,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 420.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/B1_BATTLE_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/B1_BATTLE_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/B1_BATTLE_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/B1_BATTLE_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/B1_BATTLE_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/B1_BATTLE_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/B1_BATTLE_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/B1_BATTLE_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/B1_BATTLE_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/B1_BATTLE_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/B1_BATTLE_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/B1_BATTLE_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/B1_BATTLE_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/B1_BATTLE_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/B1_BATTLE_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/B1_BATTLE_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/B1_BATTLE_SCOURGE.png"
     }
   },
   {
@@ -992,11 +1055,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 300.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/DRK-1_PROBE_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/DRK-1_PROBE_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/DRK-1_PROBE_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/DRK-1_PROBE_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/DRK-1_PROBE_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/DRK-1_PROBE_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/DRK-1_PROBE_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/DRK-1_PROBE_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/DRK-1_PROBE_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/DRK-1_PROBE_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/DRK-1_PROBE_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/DRK-1_PROBE_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/DRK-1_PROBE_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/DRK-1_PROBE_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/DRK-1_PROBE_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/DRK-1_PROBE_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/DRK-1_PROBE_SCOURGE.png"
     }
   },
   {
@@ -1092,11 +1162,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 350.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/ID10_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/ID10_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/ID10_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/ID10_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/ID10_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/ID10_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/ID10_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/ID10_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/ID10_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/ID10_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/ID10_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/ID10_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/ID10_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/ID10_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/ID10_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/ID10_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/ID10_SCOURGE.png"
     }
   },
   {
@@ -1192,11 +1269,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 2500.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/BDX_EXPLORER_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/BDX_EXPLORER_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/BDX_EXPLORER_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/BDX_EXPLORER_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/BDX_EXPLORER_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/BDX_EXPLORER_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/BDX_EXPLORER_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/BDX_EXPLORER_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/BDX_EXPLORER_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/BDX_EXPLORER_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/BDX_EXPLORER_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/BDX_EXPLORER_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/BDX_EXPLORER_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/BDX_EXPLORER_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/BDX_EXPLORER_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/BDX_EXPLORER_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/BDX_EXPLORER_SCOURGE.png"
     }
   },
   {
@@ -1292,11 +1376,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 8800.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/ARG_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/ARG_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/ARG_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/ARG_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/ARG_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/ARG_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/ARG_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/ARG_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/ARG_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/ARG_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/ARG_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/ARG_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/ARG_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/ARG_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/ARG_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/ARG_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/ARG_SCOURGE.png"
     }
   },
   {
@@ -1392,11 +1483,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 10000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/SENATE_HOVERCAM_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/SENATE_HOVERCAM_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/SENATE_HOVERCAM_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/SENATE_HOVERCAM_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/SENATE_HOVERCAM_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/SENATE_HOVERCAM_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/SENATE_HOVERCAM_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/SENATE_HOVERCAM_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/SENATE_HOVERCAM_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/SENATE_HOVERCAM_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/SENATE_HOVERCAM_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/SENATE_HOVERCAM_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/SENATE_HOVERCAM_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/SENATE_HOVERCAM_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/SENATE_HOVERCAM_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/SENATE_HOVERCAM_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/SENATE_HOVERCAM_SCOURGE.png"
     }
   },
   {
@@ -1492,11 +1590,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 13000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/B-U4D_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/B-U4D_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/B-U4D_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/B-U4D_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/B-U4D_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/B-U4D_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/B-U4D_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/B-U4D_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/B-U4D_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/B-U4D_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/B-U4D_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/B-U4D_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/B-U4D_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/B-U4D_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/B-U4D_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/B-U4D_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/B-U4D_SCOURGE.png"
     }
   },
   {
@@ -1592,11 +1697,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 4300.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/BAL-CORE_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/BAL-CORE_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/BAL-CORE_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/BAL-CORE_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/BAL-CORE_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/BAL-CORE_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/BAL-CORE_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/BAL-CORE_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/BAL-CORE_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/BAL-CORE_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/BAL-CORE_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/BAL-CORE_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/BAL-CORE_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/BAL-CORE_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/BAL-CORE_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/BAL-CORE_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/BAL-CORE_SCOURGE.png"
     }
   },
   {
@@ -1692,11 +1804,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 6200.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/ROLL-R_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/ROLL-R_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/ROLL-R_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/ROLL-R_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/ROLL-R_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/ROLL-R_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/ROLL-R_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/ROLL-R_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/ROLL-R_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/ROLL-R_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/ROLL-R_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/ROLL-R_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/ROLL-R_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/ROLL-R_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/ROLL-R_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/ROLL-R_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/ROLL-R_SCOURGE.png"
     }
   },
   {
@@ -1792,11 +1911,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 3000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/2BB_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/2BB_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/2BB_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/2BB_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/2BB_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/2BB_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/2BB_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/2BB_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/2BB_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/2BB_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/2BB_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/2BB_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/2BB_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/2BB_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/2BB_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/2BB_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/2BB_SCOURGE.png"
     }
   },
   {
@@ -1892,11 +2018,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 7400.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/A-LT_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/A-LT_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/A-LT_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/A-LT_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/A-LT_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/A-LT_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/A-LT_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/A-LT_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/A-LT_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/A-LT_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/A-LT_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/A-LT_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/A-LT_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/A-LT_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/A-LT_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/A-LT_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/A-LT_SCOURGE.png"
     }
   },
   {
@@ -1992,11 +2125,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 11000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/R4_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/R4_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/R4_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/R4_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/R4_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/R4_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/R4_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/R4_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/R4_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/R4_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/R4_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/R4_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/R4_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/R4_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/R4_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/R4_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/R4_SCOURGE.png"
     }
   },
   {
@@ -2092,11 +2232,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 12000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/R9_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/R9_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/R9_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/R9_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/R9_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/R9_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/R9_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/R9_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/R9_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/R9_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/R9_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/R9_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/R9_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/R9_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/R9_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/R9_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/R9_SCOURGE.png"
     }
   },
   {
@@ -2192,11 +2339,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 15000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/B1_SECURITY_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/B1_SECURITY_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/B1_SECURITY_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/B1_SECURITY_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/B1_SECURITY_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/B1_SECURITY_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/B1_SECURITY_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/B1_SECURITY_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/B1_SECURITY_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/B1_SECURITY_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/B1_SECURITY_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/B1_SECURITY_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/B1_SECURITY_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/B1_SECURITY_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/B1_SECURITY_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/B1_SECURITY_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/B1_SECURITY_SCOURGE.png"
     }
   },
   {
@@ -2292,11 +2446,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 3600.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/NAV-EX_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/NAV-EX_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/NAV-EX_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/NAV-EX_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/NAV-EX_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/NAV-EX_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/NAV-EX_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/NAV-EX_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/NAV-EX_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/NAV-EX_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/NAV-EX_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/NAV-EX_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/NAV-EX_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/NAV-EX_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/NAV-EX_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/NAV-EX_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/NAV-EX_SCOURGE.png"
     }
   },
   {
@@ -2392,11 +2553,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 5200.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/VECT-ARM_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/VECT-ARM_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/VECT-ARM_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/VECT-ARM_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/VECT-ARM_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/VECT-ARM_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/VECT-ARM_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/VECT-ARM_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/VECT-ARM_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/VECT-ARM_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/VECT-ARM_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/VECT-ARM_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/VECT-ARM_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/VECT-ARM_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/VECT-ARM_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/VECT-ARM_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/VECT-ARM_SCOURGE.png"
     }
   },
   {
@@ -2492,11 +2660,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 14000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/HOV-R_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/HOV-R_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/HOV-R_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/HOV-R_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/HOV-R_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/HOV-R_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/HOV-R_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/HOV-R_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/HOV-R_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/HOV-R_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/HOV-R_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/HOV-R_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/HOV-R_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/HOV-R_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/HOV-R_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/HOV-R_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/HOV-R_SCOURGE.png"
     }
   },
   {
@@ -2592,11 +2767,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 90000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/GROUNDMECH_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/GROUNDMECH_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/GROUNDMECH_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/GROUNDMECH_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/GROUNDMECH_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/GROUNDMECH_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/GROUNDMECH_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/GROUNDMECH_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/GROUNDMECH_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/GROUNDMECH_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/GROUNDMECH_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/GROUNDMECH_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/GROUNDMECH_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/GROUNDMECH_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/GROUNDMECH_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/GROUNDMECH_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/GROUNDMECH_SCOURGE.png"
     }
   },
   {
@@ -2692,11 +2874,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 210000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/LO_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/LO_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/LO_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/LO_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/LO_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/LO_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/LO_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/LO_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/LO_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/LO_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/LO_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/LO_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/LO_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/LO_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/LO_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/LO_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/LO_SCOURGE.png"
     }
   },
   {
@@ -2792,11 +2981,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 540000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/AMP_WALKER_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/AMP_WALKER_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/AMP_WALKER_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/AMP_WALKER_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/AMP_WALKER_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/AMP_WALKER_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/AMP_WALKER_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/AMP_WALKER_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/AMP_WALKER_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/AMP_WALKER_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/AMP_WALKER_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/AMP_WALKER_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/AMP_WALKER_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/AMP_WALKER_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/AMP_WALKER_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/AMP_WALKER_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/AMP_WALKER_SCOURGE.png"
     }
   },
   {
@@ -2892,11 +3088,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 480000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/SEN-TRI_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/SEN-TRI_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/SEN-TRI_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/SEN-TRI_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/SEN-TRI_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/SEN-TRI_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/SEN-TRI_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/SEN-TRI_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/SEN-TRI_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/SEN-TRI_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/SEN-TRI_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/SEN-TRI_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/SEN-TRI_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/SEN-TRI_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/SEN-TRI_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/SEN-TRI_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/SEN-TRI_SCOURGE.png"
     }
   },
   {
@@ -2992,11 +3195,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 360000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/OPTI-POD_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/OPTI-POD_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/OPTI-POD_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/OPTI-POD_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/OPTI-POD_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/OPTI-POD_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/OPTI-POD_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/OPTI-POD_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/OPTI-POD_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/OPTI-POD_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/OPTI-POD_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/OPTI-POD_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/OPTI-POD_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/OPTI-POD_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/OPTI-POD_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/OPTI-POD_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/OPTI-POD_SCOURGE.png"
     }
   },
   {
@@ -3092,11 +3302,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 630000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/GUNRUNNER_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/GUNRUNNER_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/GUNRUNNER_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/GUNRUNNER_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/GUNRUNNER_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/GUNRUNNER_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/GUNRUNNER_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/GUNRUNNER_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/GUNRUNNER_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/GUNRUNNER_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/GUNRUNNER_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/GUNRUNNER_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/GUNRUNNER_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/GUNRUNNER_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/GUNRUNNER_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/GUNRUNNER_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/GUNRUNNER_SCOURGE.png"
     }
   },
   {
@@ -3192,11 +3409,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 120000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/BB_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/BB_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/BB_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/BB_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/BB_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/BB_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/BB_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/BB_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/BB_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/BB_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/BB_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/BB_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/BB_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/BB_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/BB_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/BB_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/BB_SCOURGE.png"
     }
   },
   {
@@ -3292,11 +3516,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 450000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/R2_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/R2_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/R2_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/R2_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/R2_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/R2_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/R2_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/R2_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/R2_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/R2_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/R2_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/R2_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/R2_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/R2_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/R2_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/R2_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/R2_SCOURGE.png"
     }
   },
   {
@@ -3392,11 +3623,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 270000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/R6_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/R6_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/R6_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/R6_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/R6_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/R6_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/R6_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/R6_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/R6_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/R6_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/R6_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/R6_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/R6_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/R6_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/R6_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/R6_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/R6_SCOURGE.png"
     }
   },
   {
@@ -3492,11 +3730,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 300000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/TRAK-R_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/TRAK-R_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/TRAK-R_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/TRAK-R_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/TRAK-R_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/TRAK-R_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/TRAK-R_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/TRAK-R_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/TRAK-R_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/TRAK-R_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/TRAK-R_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/TRAK-R_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/TRAK-R_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/TRAK-R_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/TRAK-R_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/TRAK-R_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/TRAK-R_SCOURGE.png"
     }
   },
   {
@@ -3592,11 +3837,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 150000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/ORB-WALKER_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/ORB-WALKER_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/ORB-WALKER_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/ORB-WALKER_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/ORB-WALKER_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/ORB-WALKER_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/ORB-WALKER_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/ORB-WALKER_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/ORB-WALKER_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/ORB-WALKER_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/ORB-WALKER_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/ORB-WALKER_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/ORB-WALKER_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/ORB-WALKER_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/ORB-WALKER_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/ORB-WALKER_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/ORB-WALKER_SCOURGE.png"
     }
   },
   {
@@ -3692,11 +3944,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 180000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/UTIL-TEC_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/UTIL-TEC_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/UTIL-TEC_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/UTIL-TEC_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/UTIL-TEC_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/UTIL-TEC_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/UTIL-TEC_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/UTIL-TEC_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/UTIL-TEC_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/UTIL-TEC_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/UTIL-TEC_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/UTIL-TEC_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/UTIL-TEC_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/UTIL-TEC_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/UTIL-TEC_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/UTIL-TEC_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/UTIL-TEC_SCOURGE.png"
     }
   },
   {
@@ -3792,11 +4051,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 600000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/B1_HEAVY_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/B1_HEAVY_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/B1_HEAVY_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/B1_HEAVY_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/B1_HEAVY_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/B1_HEAVY_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/B1_HEAVY_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/B1_HEAVY_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/B1_HEAVY_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/B1_HEAVY_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/B1_HEAVY_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/B1_HEAVY_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/B1_HEAVY_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/B1_HEAVY_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/B1_HEAVY_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/B1_HEAVY_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/B1_HEAVY_SCOURGE.png"
     }
   },
   {
@@ -3892,11 +4158,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 390000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/B2_SUPER_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/B2_SUPER_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/B2_SUPER_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/B2_SUPER_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/B2_SUPER_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/B2_SUPER_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/B2_SUPER_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/B2_SUPER_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/B2_SUPER_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/B2_SUPER_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/B2_SUPER_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/B2_SUPER_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/B2_SUPER_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/B2_SUPER_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/B2_SUPER_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/B2_SUPER_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/B2_SUPER_SCOURGE.png"
     }
   },
   {
@@ -3992,11 +4265,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 330000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/B2_HEAVY_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/B2_HEAVY_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/B2_HEAVY_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/B2_HEAVY_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/B2_HEAVY_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/B2_HEAVY_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/B2_HEAVY_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/B2_HEAVY_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/B2_HEAVY_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/B2_HEAVY_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/B2_HEAVY_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/B2_HEAVY_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/B2_HEAVY_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/B2_HEAVY_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/B2_HEAVY_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/B2_HEAVY_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/B2_HEAVY_SCOURGE.png"
     }
   },
   {
@@ -4092,11 +4372,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 510000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/STRIKE-ORB_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/STRIKE-ORB_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/STRIKE-ORB_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/STRIKE-ORB_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/STRIKE-ORB_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/STRIKE-ORB_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/STRIKE-ORB_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/STRIKE-ORB_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/STRIKE-ORB_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/STRIKE-ORB_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/STRIKE-ORB_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/STRIKE-ORB_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/STRIKE-ORB_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/STRIKE-ORB_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/STRIKE-ORB_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/STRIKE-ORB_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/STRIKE-ORB_SCOURGE.png"
     }
   },
   {
@@ -4192,11 +4479,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 240000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/HAUL-R_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/HAUL-R_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/HAUL-R_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/HAUL-R_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/HAUL-R_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/HAUL-R_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/HAUL-R_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/HAUL-R_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/HAUL-R_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/HAUL-R_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/HAUL-R_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/HAUL-R_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/HAUL-R_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/HAUL-R_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/HAUL-R_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/HAUL-R_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/HAUL-R_SCOURGE.png"
     }
   },
   {
@@ -4292,11 +4586,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 420000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/LNG-SHOT_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/LNG-SHOT_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/LNG-SHOT_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/LNG-SHOT_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/LNG-SHOT_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/LNG-SHOT_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/LNG-SHOT_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/LNG-SHOT_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/LNG-SHOT_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/LNG-SHOT_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/LNG-SHOT_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/LNG-SHOT_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/LNG-SHOT_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/LNG-SHOT_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/LNG-SHOT_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/LNG-SHOT_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/LNG-SHOT_SCOURGE.png"
     }
   },
   {
@@ -4392,11 +4693,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 2200000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/PROTO-ROLLER_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/PROTO-ROLLER_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/PROTO-ROLLER_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/PROTO-ROLLER_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/PROTO-ROLLER_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/PROTO-ROLLER_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/PROTO-ROLLER_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/PROTO-ROLLER_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/PROTO-ROLLER_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/PROTO-ROLLER_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/PROTO-ROLLER_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/PROTO-ROLLER_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/PROTO-ROLLER_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/PROTO-ROLLER_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/PROTO-ROLLER_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/PROTO-ROLLER_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/PROTO-ROLLER_SCOURGE.png"
     }
   },
   {
@@ -4492,11 +4800,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 2400000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/MECHA-DROID_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/MECHA-DROID_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/MECHA-DROID_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/MECHA-DROID_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/MECHA-DROID_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/MECHA-DROID_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/MECHA-DROID_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/MECHA-DROID_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/MECHA-DROID_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/MECHA-DROID_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/MECHA-DROID_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/MECHA-DROID_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/MECHA-DROID_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/MECHA-DROID_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/MECHA-DROID_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/MECHA-DROID_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/MECHA-DROID_SCOURGE.png"
     }
   },
   {
@@ -4592,11 +4907,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 2600000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/MONO-WALKER_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/MONO-WALKER_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/MONO-WALKER_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/MONO-WALKER_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/MONO-WALKER_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/MONO-WALKER_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/MONO-WALKER_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/MONO-WALKER_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/MONO-WALKER_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/MONO-WALKER_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/MONO-WALKER_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/MONO-WALKER_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/MONO-WALKER_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/MONO-WALKER_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/MONO-WALKER_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/MONO-WALKER_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/MONO-WALKER_SCOURGE.png"
     }
   },
   {
@@ -4692,11 +5014,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 2000000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/BB9_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/BB9_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/BB9_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/BB9_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/BB9_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/BB9_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/BB9_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/BB9_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/BB9_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/BB9_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/BB9_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/BB9_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/BB9_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/BB9_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/BB9_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/BB9_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/BB9_SCOURGE.png"
     }
   },
   {
@@ -4792,11 +5121,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 2800000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/R7_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/R7_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/R7_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/R7_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/R7_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/R7_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/R7_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/R7_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/R7_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/R7_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/R7_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/R7_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/R7_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/R7_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/R7_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/R7_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/R7_SCOURGE.png"
     }
   },
   {
@@ -4892,11 +5228,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 3400000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/B2-RP_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/B2-RP_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/B2-RP_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/B2-RP_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/B2-RP_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/B2-RP_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/B2-RP_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/B2-RP_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/B2-RP_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/B2-RP_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/B2-RP_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/B2-RP_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/B2-RP_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/B2-RP_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/B2-RP_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/B2-RP_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/B2-RP_SCOURGE.png"
     }
   },
   {
@@ -4992,11 +5335,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 3000000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/CYCLO-GRAV_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/CYCLO-GRAV_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/CYCLO-GRAV_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/CYCLO-GRAV_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/CYCLO-GRAV_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/CYCLO-GRAV_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/CYCLO-GRAV_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/CYCLO-GRAV_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/CYCLO-GRAV_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/CYCLO-GRAV_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/CYCLO-GRAV_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/CYCLO-GRAV_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/CYCLO-GRAV_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/CYCLO-GRAV_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/CYCLO-GRAV_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/CYCLO-GRAV_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/CYCLO-GRAV_SCOURGE.png"
     }
   },
   {
@@ -5092,11 +5442,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 3700000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/OPTI-STRIKE_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/OPTI-STRIKE_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/OPTI-STRIKE_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/OPTI-STRIKE_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/OPTI-STRIKE_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/OPTI-STRIKE_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/OPTI-STRIKE_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/OPTI-STRIKE_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/OPTI-STRIKE_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/OPTI-STRIKE_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/OPTI-STRIKE_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/OPTI-STRIKE_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/OPTI-STRIKE_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/OPTI-STRIKE_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/OPTI-STRIKE_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/OPTI-STRIKE_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/OPTI-STRIKE_SCOURGE.png"
     }
   },
   {
@@ -5192,11 +5549,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 9000000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/SNOW_MOUSE_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/SNOW_MOUSE_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/SNOW_MOUSE_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/SNOW_MOUSE_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/SNOW_MOUSE_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/SNOW_MOUSE_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/SNOW_MOUSE_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/SNOW_MOUSE_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/SNOW_MOUSE_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/SNOW_MOUSE_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/SNOW_MOUSE_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/SNOW_MOUSE_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/SNOW_MOUSE_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/SNOW_MOUSE_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/SNOW_MOUSE_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/SNOW_MOUSE_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/SNOW_MOUSE_SCOURGE.png"
     }
   },
   {
@@ -5292,11 +5656,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 10200000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/RIC_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/RIC_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/RIC_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/RIC_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/RIC_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/RIC_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/RIC_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/RIC_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/RIC_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/RIC_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/RIC_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/RIC_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/RIC_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/RIC_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/RIC_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/RIC_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/RIC_SCOURGE.png"
     }
   },
   {
@@ -5392,11 +5763,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 30000000,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/LOADLIFTER_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/LOADLIFTER_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/LOADLIFTER_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/LOADLIFTER_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/LOADLIFTER_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/LOADLIFTER_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/LOADLIFTER_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/LOADLIFTER_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/LOADLIFTER_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/LOADLIFTER_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/LOADLIFTER_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/LOADLIFTER_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/LOADLIFTER_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/LOADLIFTER_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/LOADLIFTER_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/LOADLIFTER_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/LOADLIFTER_SCOURGE.png"
     }
   },
   {
@@ -5492,11 +5870,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 25200000,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/LEP_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/LEP_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/LEP_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/LEP_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/LEP_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/LEP_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/LEP_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/LEP_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/LEP_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/LEP_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/LEP_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/LEP_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/LEP_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/LEP_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/LEP_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/LEP_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/LEP_SCOURGE.png"
     }
   },
   {
@@ -5592,11 +5977,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 22800000,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/RIC-1200_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/RIC-1200_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/RIC-1200_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/RIC-1200_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/RIC-1200_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/RIC-1200_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/RIC-1200_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/RIC-1200_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/RIC-1200_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/RIC-1200_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/RIC-1200_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/RIC-1200_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/RIC-1200_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/RIC-1200_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/RIC-1200_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/RIC-1200_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/RIC-1200_SCOURGE.png"
     }
   },
   {
@@ -5692,11 +6084,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 11400000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/DRFT-R_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/DRFT-R_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/DRFT-R_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/DRFT-R_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/DRFT-R_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/DRFT-R_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/DRFT-R_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/DRFT-R_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/DRFT-R_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/DRFT-R_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/DRFT-R_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/DRFT-R_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/DRFT-R_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/DRFT-R_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/DRFT-R_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/DRFT-R_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/DRFT-R_SCOURGE.png"
     }
   },
   {
@@ -5792,11 +6191,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 9000000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/CYCLENS_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/CYCLENS_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/CYCLENS_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/CYCLENS_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/CYCLENS_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/CYCLENS_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/CYCLENS_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/CYCLENS_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/CYCLENS_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/CYCLENS_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/CYCLENS_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/CYCLENS_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/CYCLENS_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/CYCLENS_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/CYCLENS_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/CYCLENS_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/CYCLENS_SCOURGE.png"
     }
   },
   {
@@ -5892,11 +6298,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 30000000,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/MO-TRAK_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/MO-TRAK_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/MO-TRAK_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/MO-TRAK_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/MO-TRAK_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/MO-TRAK_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/MO-TRAK_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/MO-TRAK_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/MO-TRAK_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/MO-TRAK_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/MO-TRAK_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/MO-TRAK_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/MO-TRAK_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/MO-TRAK_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/MO-TRAK_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/MO-TRAK_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/MO-TRAK_SCOURGE.png"
     }
   },
   {
@@ -5992,11 +6405,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 25200000,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/TRI-TEK_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/TRI-TEK_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/TRI-TEK_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/TRI-TEK_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/TRI-TEK_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/TRI-TEK_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/TRI-TEK_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/TRI-TEK_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/TRI-TEK_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/TRI-TEK_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/TRI-TEK_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/TRI-TEK_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/TRI-TEK_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/TRI-TEK_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/TRI-TEK_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/TRI-TEK_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/TRI-TEK_SCOURGE.png"
     }
   },
   {
@@ -6092,11 +6512,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 11400000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/IG_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/IG_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/IG_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/IG_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/IG_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/IG_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/IG_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/IG_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/IG_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/IG_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/IG_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/IG_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/IG_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/IG_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/IG_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/IG_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/IG_SCOURGE.png"
     }
   },
   {
@@ -6192,11 +6619,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 15000000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/KX_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/KX_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/KX_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/KX_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/KX_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/KX_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/KX_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/KX_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/KX_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/KX_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/KX_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/KX_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/KX_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/KX_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/KX_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/KX_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/KX_SCOURGE.png"
     }
   },
   {
@@ -6233,7 +6667,10 @@
     },
     "novaCrystalCost": 100,
     "additionalPowerScale": 0,
-    "craftingXp": 18000000.0
+    "craftingXp": 18000000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/rendered-v3/BB-8_DEFAULT.png"
+    }
   },
   {
     "name": "CB-23",
@@ -6269,7 +6706,10 @@
     },
     "novaCrystalCost": 250,
     "additionalPowerScale": 0,
-    "craftingXp": 18000000.0
+    "craftingXp": 18000000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/rendered-v3/CB-23_DEFAULT.png"
+    }
   },
   {
     "name": "R2-D2",
@@ -6305,7 +6745,10 @@
     },
     "novaCrystalCost": 200,
     "additionalPowerScale": 0,
-    "craftingXp": 18000000.0
+    "craftingXp": 18000000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/rendered-v3/R2-D2_DEFAULT.png"
+    }
   },
   {
     "name": "MISTER BONES",
@@ -6341,7 +6784,10 @@
     },
     "novaCrystalCost": 100,
     "additionalPowerScale": 0,
-    "craftingXp": 26000000.0
+    "craftingXp": 26000000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/rendered-v3/MISTER_BONES_DEFAULT.png"
+    }
   },
   {
     "name": "IG-11 MARSHAL",
@@ -6377,7 +6823,10 @@
     },
     "novaCrystalCost": 100,
     "additionalPowerScale": 0,
-    "craftingXp": 26000000.0
+    "craftingXp": 26000000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/rendered-v3/IG-11_MARSHAL_DEFAULT.png"
+    }
   },
   {
     "name": "DJ R-3X",
@@ -6413,7 +6862,10 @@
     },
     "novaCrystalCost": 100,
     "additionalPowerScale": 0,
-    "craftingXp": 22000000.0
+    "craftingXp": 22000000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/rendered-v3/DJ_R-3X_DEFAULT.png"
+    }
   },
   {
     "name": "C-3PO",
@@ -6451,7 +6903,10 @@
     },
     "novaCrystalCost": 200,
     "additionalPowerScale": 0,
-    "craftingXp": 18000000.0
+    "craftingXp": 18000000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/rendered-v3/C-3PO_DEFAULT.png"
+    }
   },
   {
     "name": "CHOPPER",
@@ -6488,7 +6943,10 @@
     },
     "novaCrystalCost": 100,
     "additionalPowerScale": 0,
-    "craftingXp": 22000000.0
+    "craftingXp": 22000000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/rendered-v3/CHOPPER_DEFAULT.png"
+    }
   },
   {
     "name": "D-O",
@@ -6525,7 +6983,10 @@
     },
     "novaCrystalCost": 100,
     "additionalPowerScale": 0,
-    "craftingXp": 18000000.0
+    "craftingXp": 18000000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/rendered-v3/D-O_DEFAULT.png"
+    }
   },
   {
     "name": "WHL-EX",
@@ -6621,11 +7082,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 16500.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/WHL-EX_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/WHL-EX_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/WHL-EX_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/WHL-EX_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/WHL-EX_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/WHL-EX_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/WHL-EX_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/WHL-EX_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/WHL-EX_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/WHL-EX_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/WHL-EX_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/WHL-EX_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/WHL-EX_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/WHL-EX_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/WHL-EX_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/WHL-EX_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/WHL-EX_SCOURGE.png"
     }
   },
   {
@@ -6722,11 +7190,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 16500.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/ZRO-TEC_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/ZRO-TEC_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/ZRO-TEC_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/ZRO-TEC_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/ZRO-TEC_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/ZRO-TEC_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/ZRO-TEC_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/ZRO-TEC_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/ZRO-TEC_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/ZRO-TEC_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/ZRO-TEC_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/ZRO-TEC_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/ZRO-TEC_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/ZRO-TEC_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/ZRO-TEC_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/ZRO-TEC_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/ZRO-TEC_SCOURGE.png"
     }
   },
   {
@@ -6823,11 +7298,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 16500.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/BTL-R_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/BTL-R_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/BTL-R_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/BTL-R_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/BTL-R_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/BTL-R_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/BTL-R_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/BTL-R_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/BTL-R_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/BTL-R_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/BTL-R_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/BTL-R_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/BTL-R_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/BTL-R_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/BTL-R_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/BTL-R_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/BTL-R_SCOURGE.png"
     }
   },
   {
@@ -6924,11 +7406,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 680000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/N-UL_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/N-UL_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/N-UL_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/N-UL_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/N-UL_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/N-UL_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/N-UL_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/N-UL_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/N-UL_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/N-UL_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/N-UL_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/N-UL_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/N-UL_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/N-UL_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/N-UL_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/N-UL_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/N-UL_SCOURGE.png"
     }
   },
   {
@@ -7025,11 +7514,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 680000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/SCRP-R_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/SCRP-R_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/SCRP-R_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/SCRP-R_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/SCRP-R_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/SCRP-R_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/SCRP-R_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/SCRP-R_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/SCRP-R_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/SCRP-R_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/SCRP-R_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/SCRP-R_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/SCRP-R_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/SCRP-R_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/SCRP-R_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/SCRP-R_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/SCRP-R_SCOURGE.png"
     }
   },
   {
@@ -7126,11 +7622,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 665000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/ARM-CORE_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/ARM-CORE_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/ARM-CORE_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/ARM-CORE_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/ARM-CORE_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/ARM-CORE_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/ARM-CORE_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/ARM-CORE_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/ARM-CORE_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/ARM-CORE_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/ARM-CORE_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/ARM-CORE_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/ARM-CORE_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/ARM-CORE_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/ARM-CORE_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/ARM-CORE_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/ARM-CORE_SCOURGE.png"
     }
   },
   {
@@ -7227,11 +7730,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 660000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/OPT-AR_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/OPT-AR_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/OPT-AR_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/OPT-AR_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/OPT-AR_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/OPT-AR_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/OPT-AR_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/OPT-AR_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/OPT-AR_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/OPT-AR_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/OPT-AR_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/OPT-AR_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/OPT-AR_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/OPT-AR_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/OPT-AR_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/OPT-AR_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/OPT-AR_SCOURGE.png"
     }
   },
   {
@@ -7328,11 +7838,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 3600000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/RO-TOR_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/RO-TOR_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/RO-TOR_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/RO-TOR_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/RO-TOR_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/RO-TOR_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/RO-TOR_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/RO-TOR_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/RO-TOR_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/RO-TOR_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/RO-TOR_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/RO-TOR_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/RO-TOR_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/RO-TOR_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/RO-TOR_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/RO-TOR_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/RO-TOR_SCOURGE.png"
     }
   },
   {
@@ -7429,11 +7946,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 4000000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/FUS-3_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/FUS-3_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/FUS-3_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/FUS-3_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/FUS-3_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/FUS-3_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/FUS-3_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/FUS-3_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/FUS-3_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/FUS-3_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/FUS-3_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/FUS-3_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/FUS-3_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/FUS-3_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/FUS-3_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/FUS-3_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/FUS-3_SCOURGE.png"
     }
   },
   {
@@ -7530,11 +8054,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 4000000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/QIK-BIT_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/QIK-BIT_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/QIK-BIT_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/QIK-BIT_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/QIK-BIT_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/QIK-BIT_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/QIK-BIT_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/QIK-BIT_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/QIK-BIT_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/QIK-BIT_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/QIK-BIT_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/QIK-BIT_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/QIK-BIT_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/QIK-BIT_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/QIK-BIT_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/QIK-BIT_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/QIK-BIT_SCOURGE.png"
     }
   },
   {
@@ -7631,11 +8162,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 4000000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/ORB-XL_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/ORB-XL_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/ORB-XL_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/ORB-XL_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/ORB-XL_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/ORB-XL_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/ORB-XL_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/ORB-XL_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/ORB-XL_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/ORB-XL_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/ORB-XL_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/ORB-XL_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/ORB-XL_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/ORB-XL_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/ORB-XL_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/ORB-XL_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/ORB-XL_SCOURGE.png"
     }
   },
   {
@@ -7732,11 +8270,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 9000000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/RIV-3T_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/RIV-3T_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/RIV-3T_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/RIV-3T_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/RIV-3T_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/RIV-3T_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/RIV-3T_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/RIV-3T_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/RIV-3T_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/RIV-3T_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/RIV-3T_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/RIV-3T_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/RIV-3T_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/RIV-3T_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/RIV-3T_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/RIV-3T_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/RIV-3T_SCOURGE.png"
     }
   },
   {
@@ -7833,11 +8378,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 8000000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/LUG-G_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/LUG-G_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/LUG-G_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/LUG-G_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/LUG-G_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/LUG-G_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/LUG-G_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/LUG-G_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/LUG-G_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/LUG-G_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/LUG-G_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/LUG-G_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/LUG-G_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/LUG-G_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/LUG-G_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/LUG-G_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/LUG-G_SCOURGE.png"
     }
   },
   {
@@ -7934,11 +8486,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 8500000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/LOW-MO_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/LOW-MO_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/LOW-MO_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/LOW-MO_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/LOW-MO_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/LOW-MO_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/LOW-MO_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/LOW-MO_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/LOW-MO_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/LOW-MO_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/LOW-MO_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/LOW-MO_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/LOW-MO_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/LOW-MO_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/LOW-MO_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/LOW-MO_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/LOW-MO_SCOURGE.png"
     }
   },
   {
@@ -8035,11 +8594,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 9000000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/AXI-POD_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/AXI-POD_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/AXI-POD_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/AXI-POD_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/AXI-POD_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/AXI-POD_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/AXI-POD_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/AXI-POD_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/AXI-POD_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/AXI-POD_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/AXI-POD_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/AXI-POD_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/AXI-POD_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/AXI-POD_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/AXI-POD_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/AXI-POD_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/AXI-POD_SCOURGE.png"
     }
   },
   {
@@ -8136,11 +8702,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 8000000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/SRV-O_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/SRV-O_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/SRV-O_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/SRV-O_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/SRV-O_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/SRV-O_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/SRV-O_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/SRV-O_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/SRV-O_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/SRV-O_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/SRV-O_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/SRV-O_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/SRV-O_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/SRV-O_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/SRV-O_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/SRV-O_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/SRV-O_SCOURGE.png"
     }
   },
   {
@@ -8237,11 +8810,18 @@
     "additionalPowerScale": 1.0,
     "craftingXp": 9000000.0,
     "portraits": {
-      "SCOURGE": "assets/droids/variants-v2/X-ONK_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/X-ONK_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/X-ONK_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/X-ONK_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/X-ONK_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/X-ONK_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/X-ONK_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/X-ONK_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/X-ONK_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/X-ONK_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/X-ONK_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/X-ONK_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/X-ONK_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/X-ONK_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/X-ONK_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/X-ONK_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/X-ONK_SCOURGE.png"
     }
   },
   {
@@ -8359,18 +8939,18 @@
       }
     },
     "portraits": {
-      "DEFAULT": "assets/droids/protocol/T_Portrait_SA5_Common.png",
-      "GOLD": "assets/droids/protocol/SA-5_Gold_v2.png",
-      "DIAMOND": "assets/droids/protocol/SA-5_Diamond_v2.png",
-      "RAINBOW": "assets/droids/protocol/SA-5_Rainbow_v2.png",
-      "BESKAR": "assets/droids/protocol/SA-5_Beskar_v2.png",
-      "GALACTIC": "assets/droids/protocol/SA-5_Galactic_v2.png",
-      "STELLAR": "assets/droids/protocol/SA-5_Stellar_v2.png",
-      "SCOURGE": "assets/droids/variants-v2/SA-5_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/SA-5_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/SA-5_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/SA-5_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/SA-5_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/SA-5_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/SA-5_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/SA-5_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/SA-5_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/SA-5_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/SA-5_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/SA-5_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/SA-5_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/SA-5_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/SA-5_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/SA-5_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/SA-5_SCOURGE.png"
     },
     "acquisition": "World Mission Protocol Crates",
     "source": "https://gonk.tools/wiki",
@@ -8493,18 +9073,18 @@
       }
     },
     "portraits": {
-      "DEFAULT": "assets/droids/protocol/T_Portrait_LOM_Common.png",
-      "GOLD": "assets/droids/protocol/LOM_Gold_v2.png",
-      "DIAMOND": "assets/droids/protocol/LOM_Diamond_v2.png",
-      "RAINBOW": "assets/droids/protocol/LOM_Rainbow_v2.png",
-      "BESKAR": "assets/droids/protocol/LOM_Beskar_v2.png",
-      "GALACTIC": "assets/droids/protocol/LOM_Galactic_v2.png",
-      "STELLAR": "assets/droids/protocol/LOM_Stellar_v2.png",
-      "SCOURGE": "assets/droids/variants-v2/LOM_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/LOM_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/LOM_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/LOM_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/LOM_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/LOM_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/LOM_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/LOM_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/LOM_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/LOM_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/LOM_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/LOM_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/LOM_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/LOM_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/LOM_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/LOM_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/LOM_SCOURGE.png"
     },
     "acquisition": "World Mission Protocol Crates",
     "source": "https://gonk.tools/wiki",
@@ -8627,18 +9207,18 @@
       }
     },
     "portraits": {
-      "DEFAULT": "assets/droids/protocol/T_Portrait_PZ_Common.png",
-      "GOLD": "assets/droids/protocol/PZ_Gold_v2.png",
-      "DIAMOND": "assets/droids/protocol/PZ_Diamond_v2.png",
-      "RAINBOW": "assets/droids/protocol/PZ_Rainbow_v2.png",
-      "BESKAR": "assets/droids/protocol/PZ_Beskar_v2.png",
-      "GALACTIC": "assets/droids/protocol/PZ_Galactic_v2.png",
-      "STELLAR": "assets/droids/protocol/PZ_Stellar_v2.png",
-      "SCOURGE": "assets/droids/variants-v2/PZ_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/PZ_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/PZ_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/PZ_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/PZ_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/PZ_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/PZ_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/PZ_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/PZ_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/PZ_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/PZ_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/PZ_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/PZ_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/PZ_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/PZ_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/PZ_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/PZ_SCOURGE.png"
     },
     "acquisition": "World Mission Protocol Crates",
     "source": "https://gonk.tools/wiki",
@@ -8761,18 +9341,18 @@
       }
     },
     "portraits": {
-      "DEFAULT": "assets/droids/protocol/T_Portrait_TDA_Common.png",
-      "GOLD": "assets/droids/protocol/TDA_Gold_v2.png",
-      "DIAMOND": "assets/droids/protocol/TDA_Diamond_v2.png",
-      "RAINBOW": "assets/droids/protocol/TDA_Rainbow_v2.png",
-      "BESKAR": "assets/droids/protocol/TDA_Beskar_v2.png",
-      "GALACTIC": "assets/droids/protocol/TDA_Galactic_v2.png",
-      "STELLAR": "assets/droids/protocol/TDA_Stellar_v2.png",
-      "SCOURGE": "assets/droids/variants-v2/TDA_SCOURGE.png",
-      "KYBER": "assets/droids/variants-v2/TDA_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/TDA_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/TDA_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/TDA_KYBER_PURPLE.png"
+      "DEFAULT": "assets/droids/rendered-v3/TDA_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/TDA_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/TDA_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/TDA_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/TDA_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/TDA_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/TDA_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/TDA_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/TDA_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/TDA_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/TDA_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/TDA_SCOURGE.png"
     },
     "acquisition": "World Mission Protocol Crates",
     "source": "https://gonk.tools/wiki",
@@ -8873,18 +9453,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 16000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/EG-58.png",
-      "GOLD": "assets/droids/gonk-army-v2/EG-58_GOLD.png",
-      "DIAMOND": "assets/droids/gonk-army-v2/EG-58_DIAMOND.png",
-      "RAINBOW": "assets/droids/gonk-army-v2/EG-58_RAINBOW.png",
-      "BESKAR": "assets/droids/gonk-army-v2/EG-58_BESKAR.png",
-      "GALACTIC": "assets/droids/gonk-army-v2/EG-58_GALACTIC.png",
-      "STELLAR": "assets/droids/gonk-army-v2/EG-58_STELLAR.png",
-      "KYBER": "assets/droids/variants-v2/EG-58_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/EG-58_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/EG-58_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/EG-58_KYBER_PURPLE.png",
-      "SCOURGE": "assets/droids/variants-v2/EG-58_SCOURGE.png"
+      "DEFAULT": "assets/droids/rendered-v3/EG-58_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/EG-58_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/EG-58_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/EG-58_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/EG-58_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/EG-58_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/EG-58_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/EG-58_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/EG-58_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/EG-58_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/EG-58_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/EG-58_SCOURGE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
@@ -8986,18 +9566,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 270000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/EGL.png",
-      "GOLD": "assets/droids/gonk-army-v2/EGL_GOLD.png",
-      "DIAMOND": "assets/droids/gonk-army-v2/EGL_DIAMOND.png",
-      "RAINBOW": "assets/droids/gonk-army-v2/EGL_RAINBOW.png",
-      "BESKAR": "assets/droids/gonk-army-v2/EGL_BESKAR.png",
-      "GALACTIC": "assets/droids/gonk-army-v2/EGL_GALACTIC.png",
-      "STELLAR": "assets/droids/gonk-army-v2/EGL_STELLAR.png",
-      "KYBER": "assets/droids/variants-v2/EGL_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/EGL_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/EGL_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/EGL_KYBER_PURPLE.png",
-      "SCOURGE": "assets/droids/variants-v2/EGL_SCOURGE.png"
+      "DEFAULT": "assets/droids/rendered-v3/EGL_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/EGL_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/EGL_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/EGL_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/EGL_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/EGL_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/EGL_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/EGL_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/EGL_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/EGL_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/EGL_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/EGL_SCOURGE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
@@ -9099,18 +9679,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 420000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/KT.png",
-      "GOLD": "assets/droids/gonk-army-v2/KT_GOLD.png",
-      "DIAMOND": "assets/droids/gonk-army-v2/KT_DIAMOND.png",
-      "RAINBOW": "assets/droids/gonk-army-v2/KT_RAINBOW.png",
-      "BESKAR": "assets/droids/gonk-army-v2/KT_BESKAR.png",
-      "GALACTIC": "assets/droids/gonk-army-v2/KT_GALACTIC.png",
-      "STELLAR": "assets/droids/gonk-army-v2/KT_STELLAR.png",
-      "KYBER": "assets/droids/variants-v2/KT_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/KT_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/KT_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/KT_KYBER_PURPLE.png",
-      "SCOURGE": "assets/droids/variants-v2/KT_SCOURGE.png"
+      "DEFAULT": "assets/droids/rendered-v3/KT_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/KT_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/KT_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/KT_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/KT_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/KT_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/KT_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/KT_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/KT_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/KT_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/KT_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/KT_SCOURGE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
@@ -9212,18 +9792,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 660000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/MPH.png",
-      "GOLD": "assets/droids/gonk-army-v2/MPH_GOLD.png",
-      "DIAMOND": "assets/droids/gonk-army-v2/MPH_DIAMOND.png",
-      "RAINBOW": "assets/droids/gonk-army-v2/MPH_RAINBOW.png",
-      "BESKAR": "assets/droids/gonk-army-v2/MPH_BESKAR.png",
-      "GALACTIC": "assets/droids/gonk-army-v2/MPH_GALACTIC.png",
-      "STELLAR": "assets/droids/gonk-army-v2/MPH_STELLAR.png",
-      "KYBER": "assets/droids/variants-v2/MPH_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/MPH_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/MPH_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/MPH_KYBER_PURPLE.png",
-      "SCOURGE": "assets/droids/variants-v2/MPH_SCOURGE.png"
+      "DEFAULT": "assets/droids/rendered-v3/MPH_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/MPH_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/MPH_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/MPH_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/MPH_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/MPH_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/MPH_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/MPH_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/MPH_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/MPH_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/MPH_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/MPH_SCOURGE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
@@ -9325,18 +9905,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 2800000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/JO9-4MN.png",
-      "GOLD": "assets/droids/gonk-army-v2/JO9-4MN_GOLD.png",
-      "DIAMOND": "assets/droids/gonk-army-v2/JO9-4MN_DIAMOND.png",
-      "RAINBOW": "assets/droids/gonk-army-v2/JO9-4MN_RAINBOW.png",
-      "BESKAR": "assets/droids/gonk-army-v2/JO9-4MN_BESKAR.png",
-      "GALACTIC": "assets/droids/gonk-army-v2/JO9-4MN_GALACTIC.png",
-      "STELLAR": "assets/droids/gonk-army-v2/JO9-4MN_STELLAR.png",
-      "KYBER": "assets/droids/variants-v2/JO9-4MN_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/JO9-4MN_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/JO9-4MN_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/JO9-4MN_KYBER_PURPLE.png",
-      "SCOURGE": "assets/droids/variants-v2/JO9-4MN_SCOURGE.png"
+      "DEFAULT": "assets/droids/rendered-v3/JO9-4MN_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/JO9-4MN_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/JO9-4MN_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/JO9-4MN_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/JO9-4MN_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/JO9-4MN_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/JO9-4MN_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/JO9-4MN_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/JO9-4MN_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/JO9-4MN_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/JO9-4MN_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/JO9-4MN_SCOURGE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
@@ -9438,18 +10018,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 3100000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/PLNK.png",
-      "GOLD": "assets/droids/gonk-army-v2/PLNK_GOLD.png",
-      "DIAMOND": "assets/droids/gonk-army-v2/PLNK_DIAMOND.png",
-      "RAINBOW": "assets/droids/gonk-army-v2/PLNK_RAINBOW.png",
-      "BESKAR": "assets/droids/gonk-army-v2/PLNK_BESKAR.png",
-      "GALACTIC": "assets/droids/gonk-army-v2/PLNK_GALACTIC.png",
-      "STELLAR": "assets/droids/gonk-army-v2/PLNK_STELLAR.png",
-      "KYBER": "assets/droids/variants-v2/PLNK_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/PLNK_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/PLNK_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/PLNK_KYBER_PURPLE.png",
-      "SCOURGE": "assets/droids/variants-v2/PLNK_SCOURGE.png"
+      "DEFAULT": "assets/droids/rendered-v3/PLNK_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/PLNK_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/PLNK_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/PLNK_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/PLNK_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/PLNK_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/PLNK_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/PLNK_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/PLNK_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/PLNK_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/PLNK_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/PLNK_SCOURGE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
@@ -9551,18 +10131,18 @@
     "additionalPowerScale": 0,
     "craftingXp": 24000000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/ECG.png",
-      "GOLD": "assets/droids/gonk-army-v2/ECG_GOLD.png",
-      "DIAMOND": "assets/droids/gonk-army-v2/ECG_DIAMOND.png",
-      "RAINBOW": "assets/droids/gonk-army-v2/ECG_RAINBOW.png",
-      "BESKAR": "assets/droids/gonk-army-v2/ECG_BESKAR.png",
-      "GALACTIC": "assets/droids/gonk-army-v2/ECG_GALACTIC.png",
-      "STELLAR": "assets/droids/gonk-army-v2/ECG_STELLAR.png",
-      "KYBER": "assets/droids/variants-v2/ECG_KYBER.png",
-      "KYBER_GREEN": "assets/droids/variants-v2/ECG_KYBER_GREEN.png",
-      "KYBER_BLUE": "assets/droids/variants-v2/ECG_KYBER_BLUE.png",
-      "KYBER_PURPLE": "assets/droids/variants-v2/ECG_KYBER_PURPLE.png",
-      "SCOURGE": "assets/droids/variants-v2/ECG_SCOURGE.png"
+      "DEFAULT": "assets/droids/rendered-v3/ECG_DEFAULT.png",
+      "GOLD": "assets/droids/rendered-v3/ECG_GOLD.png",
+      "DIAMOND": "assets/droids/rendered-v3/ECG_DIAMOND.png",
+      "RAINBOW": "assets/droids/rendered-v3/ECG_RAINBOW.png",
+      "BESKAR": "assets/droids/rendered-v3/ECG_BESKAR.png",
+      "GALACTIC": "assets/droids/rendered-v3/ECG_GALACTIC.png",
+      "STELLAR": "assets/droids/rendered-v3/ECG_STELLAR.png",
+      "KYBER": "assets/droids/rendered-v3/ECG_KYBER.png",
+      "KYBER_GREEN": "assets/droids/rendered-v3/ECG_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/rendered-v3/ECG_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/rendered-v3/ECG_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/rendered-v3/ECG_SCOURGE.png"
     },
     "acquisition": {
       "method": "sandcrawler",
@@ -9584,7 +10164,7 @@
     "additionalPowerScale": 0,
     "craftingXp": 100000.0,
     "portraits": {
-      "DEFAULT": "assets/droids/gonk-army/WG-22.png"
+      "DEFAULT": "assets/droids/rendered-v3/WG-22_DEFAULT.png"
     },
     "acquisition": {
       "method": "event",
@@ -9613,7 +10193,7 @@
     },
     "craftingXp": 18000000,
     "portraits": {
-      "DEFAULT": "assets/droids/scourge-prime.png"
+      "DEFAULT": "assets/droids/rendered-v3/SCOURGE_PRIME_DEFAULT.png"
     },
     "availableAt": "2026-10-31T14:00:00Z",
     "acquisition": {

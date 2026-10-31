@@ -225,6 +225,25 @@ export function optimiseWalkDistance(steps, {distance,slotDistanceSquared}) {
 }
 
 export function shortenOptimiseWalk(steps, { distance, isValid, slotDistanceSquared, withinOnly=false, maxPasses=12 }) {
+  // Drop a temporary out-and-back only when replaying the whole remaining plan
+  // proves it unnecessary. A vacancy needed by an intervening command must stay.
+  steps=[...steps];
+  const sameSpot=(a,b)=>a&&b&&a.station===b.station&&a.slot===b.slot;
+  let removed=true;
+  while(removed){
+    removed=false;
+    outer:for(let i=0;i<steps.length;i++){
+      const a=steps[i];if(a.type!=='move'||!a.unit||!a.from||!a.to)continue;
+      for(let j=i+1;j<steps.length;j++){
+        const b=steps[j];if(b.type!=='move'||!b.unit||keyOf(a.unit)!==keyOf(b.unit))continue;
+        if(sameSpot(a.from,b.to)&&sameSpot(a.to,b.from)){
+          const candidate=steps.filter((_,k)=>k!==i&&k!==j);
+          if(isValid(candidate)){steps=candidate;removed=true;break outer;}
+        }
+        break;
+      }
+    }
+  }
   const groups = [];
   for (const step of steps) {
     if (!groups.length || groups.at(-1)[0].visit !== step.visit) groups.push([]);
@@ -273,7 +292,8 @@ export function shortenOptimiseWalk(steps, { distance, isValid, slotDistanceSqua
     if (!improved) break;
     best = improved; bestDistance = improvedDistance;
   }
-  return { steps: flatten(best), stops: best.length, travelDistance: bestDistance };
+  const result=flatten(best);
+  return { steps: result, stops: best.length, travelDistance: bestDistance, commands:result.length, assumed:result.filter(s=>s.assumed).length, buffers:result.filter(s=>s.buffer).length };
 }
 
 function planOnce({ initial, target, rules, options = {} } = {}) {

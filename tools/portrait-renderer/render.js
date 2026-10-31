@@ -29,7 +29,10 @@ void main(){
  float sheen=pow(max(0.,dot(normalize(n),normalize(vec3(-.3,.5,.8)))),18.);
  vec3 c=base.rgb;vec3 pattern=texture2D(patternTex,fract(q*2.+n.xy*.045)).rgb;
  // Surface detail comes from the exported object-space normals, not a flat colour filter.
- if(variant>=1&&variant<=6){
+ if(variant==0){
+  c=base.rgb;
+  if(base.a<.95&&c.g>c.r*1.3&&c.g>c.b*1.3)c.g=max(c.r,c.b);
+ }else if(variant>=1&&variant<=6){
   vec3 surface=clamp(classicResponse(n),0.,1.);
   vec3 detail=texture2D(patternTex,fract(q+n.xy*.06)).rgb;
   float glint=pow(max(0.,dot(normalize(n),normalize(vec3(-.5,.2,.8)))),32.);

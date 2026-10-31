@@ -8,10 +8,10 @@ await page.goto(`http://127.0.0.1:${server.address().port}/${shell}#/kyber`);awa
 
 for(const name of ['2bb','r3','eg-58','egl','kt','mph','jo9-4mn','plnk','ecg']){
  await page.evaluate(name=>{location.hash='#/droid/'+name},name);
- for(const variant of ['KYBER','KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE','SCOURGE',...(!['2bb','r3'].includes(name)?['GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR']:[])]){
+ for(const variant of ['KYBER','KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE','SCOURGE','DEFAULT',...(!['2bb','r3'].includes(name)?['GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR']:[])]){
   await page.locator(`[data-v="${variant}"]`).click();
   const portrait=page.locator('.info-image img');
-  assert.match(await portrait.getAttribute('src'),new RegExp('/'+(['KYBER','KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE','SCOURGE'].includes(variant)?'variants-v2':'gonk-army-v2')+'/.*_'+variant+'\\.png'));
+  assert.match(await portrait.getAttribute('src'),new RegExp('/rendered-v3/.*_'+variant+'\\.png'));
   await portrait.evaluate(img=>img.decode());
   assert.equal(await portrait.evaluate(img=>img.naturalWidth),512);
   assert.equal(await portrait.evaluate(img=>getComputedStyle(img).filter),'none');

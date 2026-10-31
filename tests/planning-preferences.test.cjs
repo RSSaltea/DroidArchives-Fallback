@@ -4,8 +4,8 @@ const line=key=>src.split(/\r?\n/).find(s=>s.startsWith(key));
 const fn=key=>{const start=src.indexOf('function '+key+'(');assert(start>=0,key);let depth=0,end=src.indexOf('{',start);for(;end<src.length;end++){if(src[end]==='{')depth++;if(src[end]==='}'&&!--depth)return src.slice(start,end+1);}};
 const state={droids:JSON.parse(fs.readFileSync(path.join(root,'data/droids.json'))),fusion:JSON.parse(fs.readFileSync(path.join(root,'data/fusion.json'))),owned:[],droidex:[],novaUpgrades:{},rebirth:20,rebirths:{},cycle:0,superRebirthGoal:35};
 const sb={state,console,kyberIsReleased:()=>true,capacity:()=>1,rebirthGoal:()=>state.superRebirthGoal,futureRequirements:()=>state.requirements||[],rebirthTrackerStatus:(at,req)=>({selected:state.manualVariant,ready:state.manualReady})};vm.createContext(sb);
-for(const name of ['CHIP_COSTS','ALL_VARIANTS','VARIANTS','OWNED_VARIANTS','baseVariant','variantRank','RARITY_LADDER','isIconic','isFusion','fusionDroid','fusionRecipes','fusionRecipeWants','fusionKey','fusionRecipeFor','variantStep','rarityStep','nextVariant','nextRarity','lowestVariant','droidRarity','droidIncomeAt','droidexGapFor','PRODUCTIVE_STATIONS'])vm.runInContext(line('const '+name+'=')||line('let '+name+'='),sb);
-for(const name of ['normaliseFusionKeepRules','fusionReservedForUpgrade','fusionUpgradeTarget','chipsToVariant','normaliseNotificationPreferences','normaliseFusionPreferences','notificationCyclePlan','notificationRecommendations','fusionOutcome','fusionCountFrom','fusionBestVariant','fusionQualitySteps','fusionRaritySteps','fusionSpendFrom','fusionBestFrom','fusionChainFromSpares','typicalIncomeFor','droidexEntry'])vm.runInContext(fn(name),sb);
+for(const name of ['CHIP_COSTS','ALL_VARIANTS','VARIANTS','OWNED_VARIANTS','baseVariant','variantRank','RARITY_LADDER','isIconic','isFusion','fusionDroid','fusionRecipes','fusionRecipeWants','fusionKey','fusionRecipeFor','variantStep','rarityStep','nextVariant','nextRarity','fusionPower','lowestVariant','droidRarity','droidIncomeAt','droidexGapFor','PRODUCTIVE_STATIONS'])vm.runInContext(line('const '+name+'=')||line('let '+name+'='),sb);
+for(const name of ['fusionResultVariant','fusionRecipeSelection','normaliseFusionKeepRules','fusionReservedForUpgrade','fusionUpgradeTarget','chipsToVariant','normaliseNotificationPreferences','normaliseFusionPreferences','notificationCyclePlan','notificationRecommendations','fusionOutcome','fusionCountFrom','fusionBestVariant','fusionQualitySteps','fusionRaritySteps','fusionSpendFrom','fusionBestFrom','fusionChainFromSpares','typicalIncomeFor','droidexEntry'])vm.runInContext(fn(name),sb);
 const run=code=>vm.runInContext(code,sb);
 const requirements=[{droidName:'R6',variant:'GALACTIC',at:22},{droidName:'KX',variant:'STELLAR',at:34},{droidName:'RIC',variant:'GALACTIC',at:30},{droidName:'R6',variant:'STELLAR',at:35}];
 state.requirements=requirements;
@@ -247,3 +247,21 @@ assert.equal(chain([batch('SEN-TRI',2,'KYBER_GREEN'),batch('GUNRUNNER',1,'KYBER_
 assert.equal(chain([batch('SEN-TRI',3,'KYBER_GREEN')],{goal:'rarity'})[0].out.variant,'KYBER_BLUE','specific upgrade overrides general rarity goal');
 assert.equal(run("fusionUpgradeTarget('KYBER')"),null);assert.equal(run("fusionUpgradeTarget('KYBER_PURPLE')"),null);
 console.log('PASS: exact upgrade reserves, overlapping rules, named recipes, next-variant results, preference precedence and removal');
+
+// October 31 export: named recipes precede Kyber rules; Scourge has Stellar power.
+for(const variant of ['KYBER_PURPLE','SCOURGE']){
+ sb.inputs=['B2 HEAVY','ARG','ARG'].map(name=>({name,variant}));
+ assert.equal(run('fusionOutcome(inputs).name'),'ARM-CORE');
+ assert.equal(run('fusionOutcome(inputs).variant'),variant);
+ sb.recipe=state.fusion.recipes.find(r=>r.name==='ARM-CORE');
+ sb.stock=new Map([['B2 HEAVY',new Map([[variant,1]])],['ARG',new Map([[variant,2]])]]);
+ assert.equal(run('fusionRecipeSelection(recipe,stock).variant'),variant);
+}
+sb.inputs=[{name:'B2 HEAVY',variant:'SCOURGE'},{name:'ARG',variant:'STELLAR'},{name:'ARG',variant:'KYBER_PURPLE'}];
+assert.equal(run('fusionOutcome(inputs).variant'),'SCOURGE');
+sb.inputs.reverse();assert.equal(run('fusionOutcome(inputs).variant'),'STELLAR');
+sb.inputs=[{name:'B2 HEAVY',variant:'KYBER_PURPLE'},{name:'ARG',variant:'KYBER_GREEN'},{name:'ARG',variant:'KYBER_BLUE'}];
+assert.equal(run('fusionOutcome(inputs).variant'),'KYBER_BLUE');
+sb.inputs=Array(3).fill({name:'GONK',variant:'SCOURGE'});
+assert.equal(run('fusionOutcome(inputs).kind'),'rarity');assert.equal(run('fusionOutcome(inputs).variant'),'SCOURGE');
+console.log('Named Kyber recipes and Scourge fusion regressions passed.');

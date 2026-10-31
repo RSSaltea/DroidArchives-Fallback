@@ -18,7 +18,7 @@ import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-10-05-l
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-10-31-r2-crates';
-import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-10-31-r2-crates';
+import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-10-31-fusion-fixes';
 import { slotDistanceSquared, slotPosition } from './slot-geometry.js?v=2026-10-31-map-panels';
 import { createOptimiseBackground } from './optimise-background.js?v=2026-10-09-search';
 import { createAssignmentScorer } from './optimise-layout-score.js?v=2026-10-31-r2-crates';
@@ -1223,7 +1223,13 @@ document.addEventListener('click',event=>{
 const rarityStep=rarity=>RARITY_LADDER.indexOf(String(rarity||'').toUpperCase());
 const nextRarity=rarity=>RARITY_LADDER[rarityStep(rarity)+1]||'';
 const variantStep=variant=>Math.max(0,variantRank(variant));
-const lowestVariant=variants=>variants.reduce((low,variant)=>variantStep(variant)<variantStep(low)?variant:low,variants[0]||'DEFAULT');
+const fusionPower=variant=>variant==='SCOURGE'?6:variantStep(variant);
+const lowestVariant=variants=>variants.reduce((low,variant)=>fusionPower(variant)<fusionPower(low)?variant:low,variants[0]||'DEFAULT');
+function fusionResultVariant(rows){
+  const colours=['KYBER','KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE'];
+  if(rows.every(row=>colours.includes(row.variant)))return colours[Math.floor(rows.reduce((n,row)=>n+colours.indexOf(row.variant),0)/rows.length)];
+  return baseVariant(lowestVariant(rows.map(row=>row.variant)));
+}
 const droidRarity=name=>fusionDroid(name)?.rarity||'';
 // Three droids in, one out. A recorded recipe wins and names its result: those
 // are the combinations that make the Fusion droids, and the game special cases
@@ -1236,13 +1242,18 @@ const droidRarity=name=>fusionDroid(name)?.rarity||'';
 function fusionOutcome(units){
   const rows=(units||[]).slice(0,3).map(row=>({name:row.name,variant:row.variant||'DEFAULT'}));
   if(rows.length<3)return null;
-  if(rows.some(row=>row.variant.startsWith('KYBER_'))){
+  const recipe=fusionRecipeFor(rows.map(row=>row.name));
+  const mixedQuality=rows.some(row=>row.variant!==rows[0].variant);
+  const variant=fusionResultVariant(rows);
+  // Specific recipes precede generic colour/rarity recipes in ResolveFusionRecipe.
+  if(recipe)return{kind:'recipe',name:recipe.name,rarity:recipe.rarity,variant,mixedQuality,recipe};
+  if(rows.every(row=>baseVariant(row.variant)==='KYBER')&&rows.some(row=>row.variant.startsWith('KYBER_'))){
     // Exported fusion recipes: same-name/same-colour inputs push Green ->
     // Blue -> Purple first. Other same-rarity Kybers push rarity and floor the
     // average sub-mutation ID (-1 dormant, 0 green, 1 blue, 2 purple).
     const colours=['KYBER','KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE'];
     const ids=rows.map(row=>colours.indexOf(row.variant)-1),rarity=droidRarity(rows[0].name);
-    if(ids.some(id=>id< -1)||!RARITY_LADDER.includes(rarity)||rows.some(row=>droidRarity(row.name)!==rarity)||fusionRecipeFor(rows.map(row=>row.name)))return{kind:'unknown',variant:'KYBER',mixedQuality:true};
+    if(ids.some(id=>id< -1)||!RARITY_LADDER.includes(rarity)||rows.some(row=>droidRarity(row.name)!==rarity))return{kind:'unknown',variant:'KYBER',mixedQuality:true};
     const mixedQuality=rows.some(row=>row.variant!==rows[0].variant);
     if(!mixedQuality&&rows.every(row=>row.name===rows[0].name)&&ids[0]>=0&&ids[0]<2)
       return{kind:'quality',name:rows[0].name,rarity,from:rows[0].variant,variant:colours[ids[0]+2],mixedQuality};
@@ -1256,16 +1267,13 @@ function fusionOutcome(units){
     }
     return{kind:'rarity',rarity:nextRarity(rarity)||rarity,from:rarity,variant:colours[Math.floor(ids.reduce((a,b)=>a+b,0)/3)+1],mixedQuality};
   }
-  const variant=lowestVariant(rows.map(row=>row.variant));
-  const mixedQuality=rows.some(row=>row.variant!==rows[0].variant);
-  const recipe=fusionRecipeFor(rows.map(row=>row.name));
-  if(recipe)return{kind:'recipe',name:recipe.name,rarity:recipe.rarity,variant,mixedQuality,recipe};
+
   const names=[...new Set(rows.map(row=>row.name))];
   if(names.length===1){
     const d=fusionDroid(names[0]);
     // Three of one droid at three different qualities is not something anyone
     // has written down, so it is asked rather than guessed at.
-    if(mixedQuality)return{kind:'unknown',variant,mixedQuality};
+    if(mixedQuality){const own=droidRarity(names[0]);return nextRarity(own)?{kind:'rarity',rarity:nextRarity(own),from:own,variant,mixedQuality}:{kind:'unknown',variant,mixedQuality};}
     if(d&&isIconic(d))return{kind:'unknown',variant,mixedQuality};
     const own=droidRarity(names[0]);
     if(nextVariant(variant))return{kind:'quality',name:names[0],rarity:own,variant:nextVariant(variant),from:variant,mixedQuality};
@@ -1273,11 +1281,13 @@ function fusionOutcome(units){
     // instead: three Legendary Kyber make a random Mythic Kyber. A Mythic
     // has no rarity above it either and rolls into another random Mythic
     // Kyber rather than being a dead end.
+    if(own==='MYTHIC'&&variant==='SCOURGE')return{kind:'unknown',variant,mixedQuality};
     if(own)return{kind:'rarity',rarity:nextRarity(own)||own,from:own,variant,mixedQuality};
     return{kind:'capped',name:names[0],rarity:own,variant,mixedQuality};
   }
   const rarities=[...new Set(rows.map(row=>droidRarity(row.name)))];
   if(rarities.length===1&&rarities[0]==='MYTHIC'){
+    if(variant==='SCOURGE')return{kind:'unknown',variant,mixedQuality};
     if(mixedQuality)return{kind:'unknown',variant,mixedQuality};
     const upgraded=nextVariant(variant)||variant;
     return{kind:'rarity',rarity:'MYTHIC',from:'MYTHIC',variant:upgraded,fromVariant:variant,variantUpgrade:upgraded!==variant,mixedQuality};
@@ -1314,22 +1324,36 @@ function fusionStock(){
 // is allowed, just wasteful, so a better copy still counts as cover.
 function fusionCountFrom(byVariant,variant){
   if(!byVariant)return 0;
-  const floor=variantStep(variant);
+  const floor=fusionPower(variant);
   let total=0;
-  for(const [held,count] of byVariant)if(variantStep(held)>=floor)total+=count;
+  for(const [held,count] of byVariant)if(fusionPower(held)>=floor)total+=count;
   return total;
 }
 const fusionRecipeWants=recipe=>{const wanted=new Map();for(const input of recipe.inputs)wanted.set(input,(wanted.get(input)||0)+1);return wanted};
 // The best quality a recipe could come out at: the highest one where every
 // ingredient is covered at that quality or better.
-function fusionBestVariant(recipe,stock){
-  const wanted=fusionRecipeWants(recipe);
-  for(let i=VARIANTS.length-1;i>=0;i--){
-    const variant=VARIANTS[i];
-    if([...wanted].every(([name,need])=>fusionCountFrom(stock.get(name),variant)>=need))return variant;
-  }
-  return'';
+function fusionRecipeSelection(recipe,stock,allowOrderDependent=true){
+  let best=null;
+  const visit=(rows)=>{
+    if(rows.length===recipe.inputs.length){
+      // Equal-power Stellar/Scourge inputs depend on the physical table order.
+      // Automatic plans use unambiguous sets; manual fusion honours slot order.
+      if(rows.some(r=>r.variant==='SCOURGE')&&rows.some(r=>r.variant==='STELLAR')){
+        if(!allowOrderDependent)return;
+        rows=[...rows].sort((a,b)=>Number(b.variant==='SCOURGE')-Number(a.variant==='SCOURGE'));
+      }
+      const variant=fusionResultVariant(rows),score=fusionPower(variant)*10+(variant==='SCOURGE'?1:['KYBER','KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE'].indexOf(variant)/4);
+      const cost=rows.reduce((n,r)=>n+fusionPower(r.variant),0);
+      if(best&&(best.score>score||(best.score===score&&best.cost<=cost)))return;
+      const spend=[];for(const row of rows){const part=spend.find(p=>p.name===row.name&&p.variant===row.variant);if(part)part.count++;else spend.push({...row,count:1});}
+      best={variant,spend,score,cost};return;
+    }
+    const name=recipe.inputs[rows.length];
+    for(const [variant,count] of stock.get(name)||[])if(rows.filter(r=>r.name===name&&r.variant===variant).length<count)visit([...rows,{name,variant}]);
+  };
+  visit([]);return best;
 }
+function fusionBestVariant(recipe,stock){return fusionRecipeSelection(recipe,stock)?.variant||'';}
 // Three of one droid at one quality make that droid a quality higher.
 function fusionQualitySteps(stock){
   const steps=[];
@@ -1476,8 +1500,8 @@ function fusionRoutesToNeeded(){
 function fusionSpendFrom(stock,name,variant,need){
   const byVariant=stock.get(name);
   if(!byVariant)return null;
-  const floor=variantStep(variant);
-  const options=[...byVariant].filter(([held])=>variantStep(held)>=floor).sort((a,b)=>variantStep(a[0])-variantStep(b[0]));
+  const floor=fusionPower(variant);
+  const options=[...byVariant].filter(([held])=>fusionPower(held)>=floor).sort((a,b)=>fusionPower(a[0])-fusionPower(b[0]));
   const spend=[];
   let left=need;
   for(const [held,count] of options){
@@ -1502,17 +1526,9 @@ function fusionBestFrom(stock,floor,made,protocolFloors){
   const protocolGain=(name,variant)=>{const pd=fusionDroid(name);if(!protocolFloors||pd?.type!=='PROTOCOL')return 0;return Math.max(protocolBonus(pd,variant,'CREDITS')-protocolFloors.CREDITS,protocolBonus(pd,variant,'CRAFTING')-protocolFloors.CRAFTING,0)};
   const usesMade=spend=>[...new Set(spend.map(part=>made.get(part.name+'|'+part.variant)).filter(i=>i!==undefined))];
   for(const recipe of fusionRecipes()){
-    const at=fusionBestVariant(recipe,mixedStock);
-    if(!at)continue;
-    const spend=[];
-    let ok=true;
-    for(const [name,need] of fusionRecipeWants(recipe)){
-      const part=fusionSpendFrom(mixedStock,name,at,need);
-      if(!part){ok=false;break}
-      spend.push(...part);
-    }
-    if(!ok)continue;
-    if(spend.some(part=>part.variant.startsWith('KYBER_')))continue; // Named colour recipes remain unaudited.
+    const selection=fusionRecipeSelection(recipe,mixedStock,false);
+    if(!selection)continue;
+    const {variant:at,spend}=selection;
     options.push({kind:'recipe',out:{name:recipe.name,variant:at},spend,sure:true,
       income:droidIncomeAt(recipe.name,at),fills:droidexGapFor(recipe.name,at),bonusGain:protocolGain(recipe.name,at),protocol:fusionDroid(recipe.name)?.type==='PROTOCOL',after:usesMade(spend)});
   }
@@ -1699,7 +1715,7 @@ function fusionMineHtml(){
 }
 function showFusionMineModal(){
   const root=document.querySelector('#modalRoot');
-  root.innerHTML=`<div class="modal-backdrop"><section class="modal fusion-mine-modal" role="dialog" aria-modal="true"><p class="eyebrow">Fusion</p><h2>My fusions</h2><p class="picker-hint">The Fusion droids your own droids can make. Three go in and they are spent; the result comes out at the worst quality that went in.</p><div class="fusion-mine-list">${fusionMineHtml()}</div><div class="modal-actions"><a class="btn secondary" href="#/fusion-lab" id="fusionMineLab">All recipes</a><button class="btn ghost" id="fusionMineClose">Close</button></div></section></div>`;
+  root.innerHTML=`<div class="modal-backdrop"><section class="modal fusion-mine-modal" role="dialog" aria-modal="true"><p class="eyebrow">Fusion</p><h2>My fusions</h2><p class="picker-hint">The Fusion droids your own droids can make. Three go in and they are spent; named recipes use the lowest fusion strength among their inputs. Scourge and Stellar have equal fusion strength; Kyber colours are averaged.</p><div class="fusion-mine-list">${fusionMineHtml()}</div><div class="modal-actions"><a class="btn secondary" href="#/fusion-lab" id="fusionMineLab">All recipes</a><button class="btn ghost" id="fusionMineClose">Close</button></div></section></div>`;
   const close=()=>{root.innerHTML=''};
   root.querySelector('#fusionMineClose').onclick=close;root.querySelector('#fusionMineLab').onclick=close;
   root.querySelector('.modal-backdrop').onclick=event=>{if(event.target===event.currentTarget)close()};
@@ -1736,7 +1752,7 @@ function fusionLabPage(){
   const log=fusionLogSummary();
   const logHtml=log.length?`<section class="fusion-log"><header><div><p class="eyebrow">Recorded</p><h2>What came out</h2><p>Every fusion you have run, and what it produced. Combinations with no known recipe are the ones worth adding to.</p></div><span class="fusion-outlook-count">${log.reduce((total,row)=>total+row.total,0)} fused</span></header><ul>${log.map(row=>`<li><span class="fusion-log-inputs">${row.inputs.map(input=>escapeAttr(input.name)).join(' + ')}</span><span class="fusion-log-results">${row.results.map(([label,count])=>`<em>${escapeAttr(label)}${count>1?` x${count}`:''}</em>`).join(' ')}</span></li>`).join('')}</ul></section>`:'';
   app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Fusion Lab</div>
-    <section class="dex-hero"><div><p class="eyebrow">Droid Fusion</p><h1>Fusion Lab</h1><p>Three droids go into the Fusion room and one comes out. Track the ones you are working towards and they appear in the Fusion Outlook on your Base.</p></div>
+    <section class="dex-hero"><div><p class="eyebrow">Droid Fusion</p><h1>Fusion Lab</h1><p>Three droids go into the Fusion room and one comes out. Track the ones you are working towards and they appear in the Fusion Outlook on your Base.</p><p>Named recipes also work with Kyber colours and Scourge. Scourge has the same fusion strength as Stellar. If you mix those two, the first input of that strength decides the result: put Scourge in the first Fusion slot to keep Scourge. All-Kyber recipes average the activation colours. Three Scourge droids of one rarity can roll the next rarity while staying Scourge; this does not provide a Mythic Scourge reroll.</p></div>
       <div class="dex-totals"><strong>${ready}/${recipes.length}</strong><span>ready to fuse</span></div></section>
     <div class="dex-toolbar"><input id="fusionSearch" class="form-control" placeholder="Search a droid or a result…">
       <div class="dex-filters"><label class="dex-switch"><input id="fusionReadyOnly" type="checkbox"><span class="dex-switch-track" aria-hidden="true"></span><span>Ready only</span></label>
@@ -2726,7 +2742,7 @@ function showTraitModal(card,onDone){
     save();root.innerHTML='';onDone();
   };
 }
-document.addEventListener('click',event=>{const button=event.target.closest?.('[data-edit-trait]');if(!button)return;if(state.sharedView&&!state.sharedView.canEdit)return;const card=expandedOwned().find(u=>u.source===Number(button.dataset.editTrait)&&u.unit===Number(button.dataset.traitUnit));if(card)showTraitModal(card,()=>route());});
+document.addEventListener('click',event=>{const button=event.target.closest?.('[data-edit-trait]');if(!button)return;if(state.sharedView&&!state.sharedView.canEdit)return;const card=expandedOwned().find(u=>u.source===Number(button.dataset.editTrait)&&u.unit===Number(button.dataset.traitUnit));if(card)showTraitModal(card,()=>route());},true);
 function showCardVariantModal(card,onDone){const root=document.querySelector('#modalRoot'),d=state.droids.find(x=>x.name===card.name);if(!d||isIconic(d))return;root.innerHTML=`<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true"><p class="eyebrow">Change quality</p><h2>${d.name}</h2><p class="picker-hint">Choose the quality and activation colour you own. Kyber without a colour means dormant. This updates this exact card without removing it from its slot.</p><div class="variant-choice">${DISPLAY_VARIANTS.map(v=>`<button data-card-variant="${v}" ${v===card.variant?'disabled':''}>${picture(d,v)}<strong>${variantText(v)}</strong><small>${v===card.variant?'Current quality':variantIncomeText(d,v)}</small></button>`).join('')}</div><button class="btn ghost" id="cancelVariantChange">Cancel</button></section></div>`;root.querySelectorAll('[data-card-variant]').forEach(button=>button.onclick=()=>{changeOwnedUnitVariant(card.source,button.dataset.cardVariant,card.station,card.slot);root.innerHTML='';onDone()});root.querySelector('#cancelVariantChange').onclick=()=>root.innerHTML=''}
 function showSwapModal(card,onDone){const root=document.querySelector('#modalRoot'),p=placements(),source=p.placed.find(x=>x.source===card.source&&x.unit===card.unit),occupiedKey=(station,slot)=>`${station}:${slot}`,occupied=new Set(p.placed.map(x=>occupiedKey(x.station,x.slot))),items=p.placed.filter(x=>!(x.source===card.source&&x.unit===card.unit)).map(x=>({...x,targetType:'occupied'})),emptySlots=Object.keys(SLOT_RULES).filter(station=>station!=='BUILD').flatMap(station=>stationSlotIndices(station).filter(slot=>!occupied.has(occupiedKey(station,slot))).map(slot=>({targetType:'empty',station,slot,name:`Empty ${station} ${slot+1}`,variant:'DEFAULT'})));if(!source)return;root.innerHTML=`<div class="modal-backdrop"><section class="modal slot-picker" role="dialog" aria-modal="true"><p class="eyebrow">Manual swap</p><h2>Move ${source.name}</h2><p class="picker-hint">Choose another droid to swap with, or an empty unlocked non-Build slot to move into. Build slots must be swapped with an existing Build droid.</p><input id="swapSearch" class="form-control picker-search" placeholder="Search droids or slots…" autofocus><div id="swapResults" class="picker-results"></div><button class="btn ghost" id="cancelSwap">Cancel</button></section></div>`;const draw=()=>{const q=root.querySelector('#swapSearch').value.toLowerCase(),targets=[...items,...emptySlots].filter(x=>canUseStation(state.droids.find(d=>d.name===source.name),x.station)&&(x.targetType==='empty'||canUseStation(state.droids.find(d=>d.name===x.name),source.station))).filter(x=>x.name.toLowerCase().includes(q)||x.station.toLowerCase().includes(q)||String(x.slot+1).includes(q));root.querySelector('#swapResults').innerHTML=targets.map(x=>{if(x.targetType==='empty')return `<button class="picker-droid empty-slot-choice" data-empty-station="${x.station}" data-empty-slot="${x.slot}"><span class="slot-icon">${stationIcon(x.station)}</span><b>${x.name}</b><small>Move into empty slot</small></button>`;const d=state.droids.find(y=>y.name===x.name);return `<button class="picker-droid" data-swap-key="${x.source}:${x.unit}"><span>${picture(d,x.variant)}</span><b>${x.name}</b><small>${variantText(x.variant)} · ${x.station} ${x.slot+1}</small></button>`}).join('')||'<p class="roster-empty">No matching droids or empty slots.</p>';root.querySelectorAll('[data-swap-key]').forEach(b=>b.onclick=()=>{moveUnitByKey(`${source.source}:${source.unit}`,b.dataset.swapKey,onDone);root.innerHTML=''});root.querySelectorAll('[data-empty-station]').forEach(b=>b.onclick=()=>{moveUnitToSlot(`${source.source}:${source.unit}`,b.dataset.emptyStation,Number(b.dataset.emptySlot),onDone);root.innerHTML=''})};root.querySelector('#swapSearch').oninput=draw;root.querySelector('#cancelSwap').onclick=()=>root.innerHTML='';draw()}
 function showSuperRebirthConfirm(rerender,really=false){const root=document.querySelector('#modalRoot'),question=really?'Are you really sure you want to super rebirth?':'Are you sure you want to super rebirth?';root.innerHTML=`<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="superRebirthTitle"><p class="eyebrow">Destructive action</p><h2 id="superRebirthTitle">${question}</h2><p>This will remove every droid from your base and reset its progression. Your regular Rebirth bonus of +${regularRebirthMultiplier().toFixed(2)}x will be removed and the Super Rebirth reward of +${(Number(rebirthReward(state.rebirth)?.creditMultPercent||0)/100).toFixed(2)}x added. Your resulting multiplier will be ${superRebirthMultiplier().toFixed(2)}x (minimum 1x if your entered total is below the bonuses being removed). This cannot be undone unless you exported your base first.</p><p>${escapeAttr(traitLossText(expandedOwned()))}Iconic traits, tiers and reroll counts are retained and restored when received again.</p><div class="modal-actions"><button class="btn danger" id="confirmSuperRebirth">Yes, super rebirth</button><button class="btn ghost" id="cancelSuperRebirth">Cancel</button></div></section></div>`;root.querySelector('#cancelSuperRebirth').onclick=()=>root.innerHTML='';root.querySelector('#confirmSuperRebirth').onclick=()=>{if(!really){showSuperRebirthConfirm(rerender,true);return}if(!rebirthReward(state.rebirth)){toast('Super Rebirth is available from Rebirth 12');return;}state.iconicTraits=rememberIconicTraits(state.iconicTraits,state.owned,state.droids);state.owned=[];state.multiplier=superRebirthMultiplier();state.rebirth=0;state.purchasedSlots=[];state.loungePurchased=0;state.novaLevel=0;const cycleCount=Object.keys(state.rebirths).length;state.cycle=cycleCount?(state.cycle+1)%cycleCount:0;save();root.innerHTML='';toast(`Super rebirth complete · Cycle ${state.cycle+1}`);rerender()}}
@@ -4026,7 +4042,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-31-activity-traits',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-31-fusion-fixes',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
@@ -5685,7 +5701,7 @@ function refreshKyberRelease(rerender=true){
 }
 setInterval(()=>refreshKyberRelease(),10000);
 siteActivity=startSiteActivity({client:()=>supabaseClient});
-const DATA_VERSION='2026-10-31-gonk-portraits';
+const DATA_VERSION='2026-10-31-all-portraits';
 const loadJson=async path=>{const response=await fetch(`${path}${path.includes('?')?'&':'?'}v=${DATA_VERSION}`,{cache:'no-cache'});if(!response.ok)throw Error(`Unable to load ${path}`);return response.json()};
 function applyStellarData(droids,stellarStats={}){const rules=stellarStats._rules||{},images=stellarStats._images||{},round=value=>Math.round(value*1e6)/1e6;for(const droid of droids){if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;if(droid.rarity==='ICONIC'||droid.variants.STELLAR)continue;const base=droid.variants.DEFAULT,known=stellarStats[droid.name]||{},costMultiplier=rules.costMultiplier?.[droid.rarity],incomeMultiplier=rules.incomeMultiplier?.[droid.rarity],craftingMultiplier=rules.craftingMultiplier;droid.variants.STELLAR={cost:known.cost??(knownNumber(base?.cost)&&knownNumber(costMultiplier)?round(base.cost*costMultiplier):null),income:known.income??(knownNumber(base?.income)&&knownNumber(incomeMultiplier)?round(base.income*incomeMultiplier):null),craftingSeconds:known.craftingSeconds??(knownNumber(base?.craftingSeconds)&&knownNumber(craftingMultiplier)?round(base.craftingSeconds*craftingMultiplier):null)};if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;}return droids}
 async function loadEvents(){try{const index=await loadJson('data/events/index.json');if(!Array.isArray(index.events))return[];return Promise.all(index.events.map(file=>loadJson(`data/events/${file}`)))}catch{return[]}}

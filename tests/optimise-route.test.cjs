@@ -559,3 +559,33 @@ for(const tank of ['BUILD','FUSION_BUILD'])test(`finished ${tank} droid can use 
   assert.equal(a.trait.id,14,'planning must not mutate the original profile');
   assert.equal(route.finalPlaced.length,2);
  });
+
+test('shortening removes a pointless lounge return before a companion swap',async()=>{
+ const mod=await load();nextSource=0;
+ const b=unit('WORK-B2','WORKER',0),pal=unit('WORK-TDA','COMPANION',0),sold=unit('WORK-SPARE','LOUNGE',0);
+ const rules=rulesFor({WORKER:1,LOUNGE:2,COMPANION:1});rules.workLanding=(u,p)=>mod.predictWorkLanding(u,p,rules);
+ const initial={placed:[b,pal,sold]},projected={placed:[at(b,'COMPANION'),at(pal,'WORKER')],sell:[sold]};
+ const steps=[
+  {type:'move',kind:'lounge',at:'WORKER',visit:0,unit:b,from:{station:'WORKER',slot:0},to:{station:'LOUNGE',slot:1}},
+  {type:'sell',at:'LOUNGE',visit:1,unit:sold,from:{station:'LOUNGE',slot:0}},
+  {type:'move',kind:'work',workCommand:true,at:'LOUNGE',visit:1,unit:b,from:{station:'LOUNGE',slot:1},to:{station:'WORKER',slot:0}},
+  {type:'swap',at:'WORKER',visit:2,unit:b,withUnit:pal,withFrom:{station:'COMPANION',slot:0},from:{station:'WORKER',slot:0},to:{station:'COMPANION',slot:0}}
+ ];
+ const valid=steps=>mod.validateOptimisePlan({initial,projected,steps,rules}).ok;
+ assert(valid(steps),mod.validateOptimisePlan({initial,projected,steps,rules}).issues.join('; '));
+ const shorter=mod.shortenOptimiseWalk(steps,{distance:rules.distance,isValid:valid});
+ assert(valid(shorter.steps));assert.deepEqual(shorter.steps.map(s=>s.type),['sell','swap']);
+});
+test('shortening retains a round trip when its vacancy is needed by another droid',async()=>{
+ const mod=await load();nextSource=0;const a=unit('WORK-A','WORKER',0),b=unit('WORK-B','LOUNGE',0);
+ const rules=rulesFor({WORKER:1,LOUNGE:2});rules.workLanding=(u,p)=>mod.predictWorkLanding(u,p,rules);
+ const initial={placed:[a,b]},projected={placed:[a],sell:[b]};
+ const steps=[
+  {type:'move',kind:'lounge',at:'WORKER',visit:0,unit:a,from:{station:'WORKER',slot:0},to:{station:'LOUNGE',slot:1}},
+  {type:'move',kind:'work',workCommand:true,at:'LOUNGE',visit:1,unit:b,from:{station:'LOUNGE',slot:0},to:{station:'WORKER',slot:0}},
+  {type:'sell',at:'WORKER',visit:2,unit:b,from:{station:'WORKER',slot:0}},
+  {type:'move',kind:'work',workCommand:true,at:'LOUNGE',visit:3,unit:a,from:{station:'LOUNGE',slot:1},to:{station:'WORKER',slot:0}}
+ ];
+ const valid=steps=>mod.validateOptimisePlan({initial,projected,steps,rules}).ok;assert(valid(steps));
+ const shorter=mod.shortenOptimiseWalk(steps,{distance:rules.distance,isValid:valid});assert(valid(shorter.steps));assert.equal(shorter.steps.length,4);
+});

@@ -2,6 +2,19 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-10-31-fusion-fixes",
+      "date": "2026-10-31",
+      "title": "Fusion fixes and refreshed portraits",
+      "summary": "Correct Kyber recipes, working Classic traits and fewer unnecessary moves.",
+      "changes": [
+        "Rebuilt all droid portraits using the updated local renderer.",
+        "Fixed Trait buttons in Classic and Legacy, with desktop and mobile checks.",
+        "Named fusion recipes now recognise coloured Kyber inputs, including ARM-CORE.",
+        "Updated Scourge fusion rules and explained mixed Stellar/Scourge slot order.",
+        "Optimise now removes unnecessary trips to the Lounge and back when the remaining plan is valid."
+      ]
+    },
+    {
       "id": "2026-10-31-scourge-prime",
       "date": "2026-10-31",
       "title": "Scourge Prime and boss rewards",
