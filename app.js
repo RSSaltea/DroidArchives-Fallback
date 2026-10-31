@@ -13,13 +13,13 @@ import {eventPage,startEventReminders} from './event-page.js?v=2026-10-31-r2-cra
 import { companionPage } from './companion-page.js?v=2026-10-08-beta37';
 import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES, normaliseParty, partyBonuses } from './economy.js?v=2026-10-18-mission-tools';
 import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-10-31-r2-crates';
-import { testMapPage } from './test-map.js?v=2026-10-18-mission-tools';
+import { testMapPage } from './test-map.js?v=2026-10-31-map-panels';
 import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-10-05-layouts';
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-10-31-r2-crates';
 import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-10-31-r2-crates';
-import { slotDistanceSquared, slotPosition } from './slot-geometry.js?v=2026-10-18-mission-tools';
+import { slotDistanceSquared, slotPosition } from './slot-geometry.js?v=2026-10-31-map-panels';
 import { createOptimiseBackground } from './optimise-background.js?v=2026-10-09-search';
 import { createAssignmentScorer } from './optimise-layout-score.js?v=2026-10-31-r2-crates';
 import { createArchiveExperience } from './archive-experience.js?v=2026-09-28-gonkoween';
@@ -636,7 +636,7 @@ const blueprintStorageSlots=()=>novaLevelFor('blueprint-storage');
 const loungeSlotMeta=index=>index<5?{kind:'base',label:'Lounge slot'}:index<9?{kind:'rebirth',rebirth:index+12,label:`Unlocks at Rebirth ${index+12}`}:{kind:'nova',level:index-8,label:`Nova Shop Lounge Slot ${index-8}`};
 const loungeSlotLabel=index=>loungeSlotMeta(index).label;
 const lockedSlotLabel=(type,index)=>type==='FUSION_BUILD'&&fusionBuildTank(index)?`Needs Fusion Tank level ${fusionBuildTank(index)} — Nova Shop or Cantina`:type==='FUSION'||type==='FUSION_BUILD'?`Unlocks at Rebirth ${FUSION_REBIRTH}`:type==='COMPANION'&&index===1?'Unlock Second Companion in Nova Shop':type==='UPGRADE_CHIP'?'Unlock Upgrade Chip Station in Nova Shop':type==='LOUNGE'?loungeSlotLabel(index):`Unlocks at Rebirth ${slotUnlockRebirth(type,index)}`;
-const loungeDivider=index=>index===5?'<div class="upper-level-divider"><span>Upper Level</span></div>':index===9?'<div class="upper-level-divider"><span>Nova Shop</span></div>':'';
+const loungeDivider=index=>index===5?'<div class="upper-level-divider"><span>Rebirth Unlocks</span></div>':index===9?'<div class="upper-level-divider"><span>Nova Shop</span></div>':index===16?'<div class="upper-level-divider"><span>Upstairs Lounge (Nova Shop)</span></div>':'';
 // The Firing Range gained a second floor with the Rebirth 17-22 Battle slots.
 // Battle is the only station split over two floors, so a slot number on its own
 // does not tell you which one to walk to. Everything that names a Battle slot
@@ -645,7 +645,7 @@ const BATTLE_UPSTAIRS_FROM=5;
 // The eleven Worker slots stand in two places: eight on the round worker
 // platform and, from the ninth unlocked onwards, three outside the main one.
 const WORKER_MAIN_PLATFORM_FROM=8;
-const slotFloor=(station,index)=>station==='BATTLE'?(index>=BATTLE_UPSTAIRS_FROM?'upstairs':'downstairs'):'';
+const slotFloor=(station,index)=>station==='BATTLE'?(index>=BATTLE_UPSTAIRS_FROM?'upstairs':'downstairs'):station==='LOUNGE'?(index>=16?'upstairs':'downstairs'):'';
 const floorNote=(station,index)=>{const floor=slotFloor(station,index);return floor?` (${floor})`:''};
 const stationSlotLabel=(station,index)=>`${stationName(station)} ${index+1}${floorNote(station,index)}`;
 const slotDivider=(type,index)=>type==='LOUNGE'?loungeDivider(index):type==='BATTLE'&&index===BATTLE_UPSTAIRS_FROM?'<div class="upper-level-divider"><span>Second Floor</span></div>':type==='WORKER'&&index===WORKER_MAIN_PLATFORM_FROM?'<div class="upper-level-divider"><span>Outside Main Platform</span></div>':'';
@@ -4007,7 +4007,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-31-r2-crates',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-31-map-panels',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},

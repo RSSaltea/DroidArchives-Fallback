@@ -1,4 +1,4 @@
-import { slotDistanceSquared } from './slot-geometry.js?v=2026-10-18-mission-tools';
+import { slotDistanceSquared } from './slot-geometry.js?v=2026-10-31-lounge';
 import { predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding } from './optimise-route.js?v=2026-10-31-r2-crates';
 
 // Functions cannot cross a worker boundary. Rebuild them from the exact slots,
