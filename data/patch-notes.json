@@ -2,6 +2,17 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-11-01-prime-layout",
+      "date": "2026-11-01",
+      "title": "Smarter Scourge Prime layouts",
+      "summary": "Optimise compares more room layouts for Scourge Prime and C-3PO.",
+      "changes": [
+        "Optimise now tries Scourge Prime in each available credit room and compares the resulting droid placements.",
+        "Layouts account for Iconics receiving no Hive Mind bonus, while preserving mission priorities and locked slots.",
+        "Room choices depend on your base rather than forcing Prime or C-3PO into a fixed room."
+      ]
+    },
+    {
       "id": "2026-10-31-map-commands",
       "date": "2026-10-31",
       "title": "Quick actions on the Base map",

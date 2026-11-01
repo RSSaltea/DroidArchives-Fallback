@@ -448,6 +448,21 @@ function optimiseUnreservedBase(p,currentIncome){
   // that only ever starts from the credit layout can commit to a region flip in
   // its first step that no later single move undoes.
   const seeds=[seedFrom(initial.assignments),seedFrom(p.placed.filter(x=>!lockedKeys.has(keyOf(x))).map(x=>({...x,key:keyOf(x)})))];
+  // Prime's best region depends on the droids we subsequently move into it.
+  // Try each legal credit region even when swapping Protocols alone loses
+  // income: the following climb can then regroup Iconics and Hive members.
+  const primeIndex=units.findIndex(u=>u.name==='SCOURGE PRIME');
+  if(primeIndex>=0)for(const seed of [...seeds]){
+    const from=seed.indexOf(primeIndex);
+    for(let to=0;to<slots.length;to++){
+      if(to===from||PROTOCOL_SLOTS[slots[to].station]?.role!=='CREDITS'||!allowed(primeIndex,slots[to]))continue;
+      if(from>=0&&!allowed(seed[to],slots[from]))continue;
+      const candidate=[...seed];
+      if(from>=0)candidate[from]=candidate[to];
+      candidate[to]=primeIndex;
+      if(!seeds.some(s=>s.every((u,i)=>u===candidate[i])))seeds.push(candidate);
+    }
+  }
   let best=null;
   for(const seed of seeds){const result=climb(seed);if(!best||better(result.value,best.value))best=result;}
   let {assignment}=best;
@@ -4076,7 +4091,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-10-31-fusion-fixes',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-01-prime-layout',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},

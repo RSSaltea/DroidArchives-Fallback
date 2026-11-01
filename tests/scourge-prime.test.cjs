@@ -36,3 +36,17 @@ test('assignment scorer follows Prime when moved between credit regions and acco
  near(score([-1,0])[0],(100+50)*1.1*2+10*1.1*2*3+(100+10)*7*.1045);
  assert(score([0,-1])[0]>score([-1,0])[0]);
 });
+
+test('Prime rewards non-Iconic rooms while C-3PO supports Iconics; room names do not decide',()=>{
+ const regions=['WORKER','BATTLE'];
+ const slots=regions.map((region,i)=>({station:`PROTOCOL_${region}_CREDITS`,region:-1,creditRegion:i,craftRegion:-1}));
+ const units=[{prime:true,iconic:true,base:50,type:'PROTOCOL',creditBonus:2},{iconic:true,base:50,type:'PROTOCOL',creditBonus:2}];
+ const worker=(iconic,region)=>({base:100,iconic,type:regions[region],station:regions[region],region,creditRegion:-1,craftRegion:-1});
+ const make=locked=>createAssignmentScorer({units,slots,locked,regions,multiplier:1,lambda:0,craftSeconds:[0,0],craftBaseSpeed:1});
+ const battle=make([worker(true,0),worker(true,0),worker(false,1),worker(false,1)]);
+ assert(battle([1,0])[0]>battle([0,1])[0],'Prime should support the non-Iconic Battle droids');
+ const work=make([worker(false,0),worker(false,0),worker(true,1),worker(true,1)]);
+ assert(work([0,1])[0]>work([1,0])[0],'Reverse the choice when the eligible droids are in Worker');
+ const iconics=make([worker(true,0),worker(true,1)]);
+ near(iconics([0,1])[0],iconics([1,0])[0]);
+});
