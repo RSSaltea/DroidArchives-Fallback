@@ -3,3 +3,8 @@
 html[data-ui-style] .site-header .snow-toggle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-width:74px;min-height:32px;padding:5px 8px;border:1px solid var(--line,#43546b);border-radius:5px;background:var(--panel,#172333);color:var(--text,#eaf5ff);font:600 11px/1.2 system-ui;white-space:nowrap;cursor:pointer}
 html[data-ui-style] .site-header .snow-toggle:focus-visible{outline:2px solid #64dbff;outline-offset:2px}
 @media(max-width:650px){html[data-ui-style] .site-header .snow-toggle{min-width:65px;padding:5px 4px}}
+
+.snow-build-stats{position:fixed;left:10px;bottom:40px;z-index:45;font:12px/1.4 system-ui;color:var(--text,#eaf5ff)}
+.snow-build-stats>summary{width:max-content;cursor:pointer;list-style:none;border:1px solid var(--line,#43546b);border-radius:16px;padding:5px 10px;background:var(--panel,#172333)}
+.snow-build-stats>section{position:absolute;bottom:35px;left:0;width:min(310px,calc(100vw - 20px));max-height:70vh;overflow:auto;box-sizing:border-box;padding:14px;border:1px solid var(--line,#43546b);border-radius:9px;background:var(--panel,#172333);box-shadow:0 6px 24px #0007}
+.snow-build-stats table{width:100%;table-layout:fixed;font-size:12px}.snow-build-stats th,.snow-build-stats td{padding:5px;text-align:right}.snow-build-stats th:first-child{text-align:left}.snow-build-stats p{font-size:11px;color:var(--muted,#abc0d4);margin:10px 0}.snow-build-stats button{padding:5px 10px;margin-right:6px;cursor:pointer}.snow-build-stats summary:focus-visible{outline:2px solid #64dbff;outline-offset:2px}

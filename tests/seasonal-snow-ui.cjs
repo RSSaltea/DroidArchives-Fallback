@@ -15,7 +15,7 @@ try{
   await page.reload();assert.equal(await page.locator('#snowToggle').getAttribute('aria-pressed'),'false');
   console.log(shell,style,'toggle, mobile placement, click-through, remembered preference passed');
  }
- const model=await page.evaluate(async()=>{const {SnowBank}=await import('./seasonal-snow.js?v=2026-11-01-snow-v21');const b=new SnowBank(100);b.setLevel(30);const alpha=(x,y)=>b.ctx.getImageData(x,y,1,1).data[3];const coverage=b.coverage();b.wipe({x:20,y:20},{x:30,y:20},4);const after=b.surface(25);const other=alpha(75,20);b.setLevel(0);b.ctx.fillStyle='white';b.ctx.fillRect(20,0,20,5);b.settle();return {height:b.canvas.height,coverage,after,other,floating:alpha(30,0),grounded:alpha(30,29)};});
+ const model=await page.evaluate(async()=>{const {SnowBank}=await import('./seasonal-snow.js?v=2026-11-01-snow-v22');const b=new SnowBank(100);b.setLevel(30);const alpha=(x,y)=>b.ctx.getImageData(x,y,1,1).data[3];const coverage=b.coverage();b.wipe({x:20,y:20},{x:30,y:20},4);const after=b.surface(25);const other=alpha(75,20);b.setLevel(0);b.ctx.fillStyle='white';b.ctx.fillRect(20,0,20,5);b.settle();return {height:b.canvas.height,coverage,after,other,floating:alpha(30,0),grounded:alpha(30,29)};});
  assert.equal(model.height,30);assert.equal(model.coverage,1);assert(model.after>0);assert(model.other>0);assert.equal(model.floating,0);assert(model.grounded>0);console.log('30px cap, local wipe collapse and gravity without pointer passed');
  await page.evaluate(()=>window.snowOwnerTest(true));
  await page.locator('#snowTestSettings').evaluate(e=>e.open=true);
@@ -37,9 +37,9 @@ try{
  console.log('Hidden-tab elapsed snow accumulation passed');
  await page.evaluate(()=>window.snowOwnerTest(false));assert.equal(await page.locator('#snowTestSettings').count(),0);
  const builders=await page.evaluate(async()=>{
-  const {createSnowBuilders,snowSpritesReady}=await import('./snow-builders.js?v=2026-11-01-builders-upright');await snowSpritesReady;
+  const {createSnowBuilders,snowSpritesReady}=await import('./snow-builders.js?v=2026-11-01-builders-counts');await snowSpritesReady;
   let seed=12;const random=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);
-  const b=createSnowBuilders(random),c=document.createElement('canvas').getContext('2d'),bank={canvas:{height:30},surface:()=>0,scoop:()=>90};
+  const completed=[];const b=createSnowBuilders(random,{onComplete:event=>completed.push(event)}),c=document.createElement('canvas').getContext('2d'),bank={canvas:{height:30},surface:()=>0,scoop:()=>90};
   let crewOnSixth=0,maxPeople=0,maxDroids=0,entryTogether=false,nearestExit=true,pairsTogether=true;
   const exiting=new Set();
   for(let i=0;i<16000;i++){
@@ -50,13 +50,13 @@ try{
    maxPeople=Math.max(maxPeople,b.workers.length);maxDroids=Math.max(maxDroids,b.scenes.length);
    crewOnSixth=Math.max(crewOnSixth,b.workers.filter(w=>w.scene===b.scenes[5]&&w.scene).length);
   }
-  const result={entryTogether,nearestExit,pairsTogether,positions:b.scenes.map(s=>s.position),maxPeople,maxDroids,crewOnSixth,finished:b.scenes.filter(s=>s.snow>=720).length,exited:b.workers.every(w=>w.phase==='exit'&&(w.x<0||w.x>1000)),outfits:new Set(b.workers.map(w=>JSON.stringify(w.clothes))).size};
+  const result={counted:completed.length,unique:new Set(completed.map(e=>e.id)).size,entryTogether,nearestExit,pairsTogether,positions:b.scenes.map(s=>s.position),maxPeople,maxDroids,crewOnSixth,finished:b.scenes.filter(s=>s.snow>=720).length,exited:b.workers.every(w=>w.phase==='exit'&&(w.x<0||w.x>1000)),outfits:new Set(b.workers.map(w=>JSON.stringify(w.clothes))).size};
   b.reset();return{...result,empty:b.scenes.length,peopleAfterReset:b.workers.length};
  });
- assert(builders.entryTogether);assert(builders.nearestExit);assert(builders.pairsTogether);assert.equal(new Set(builders.positions).size,6);assert.equal(builders.maxPeople,4);assert.equal(builders.maxDroids,6);assert.equal(builders.crewOnSixth,4);assert.equal(builders.finished,6);assert(builders.exited);assert(builders.outfits>1);assert.equal(builders.empty,0);assert.equal(builders.peopleAfterReset,0);
+ assert.equal(builders.counted,6);assert.equal(builders.unique,6);assert(builders.entryTogether);assert(builders.nearestExit);assert(builders.pairsTogether);assert.equal(new Set(builders.positions).size,6);assert.equal(builders.maxPeople,4);assert.equal(builders.maxDroids,6);assert.equal(builders.crewOnSixth,4);assert.equal(builders.finished,6);assert(builders.exited);assert(builders.outfits>1);assert.equal(builders.empty,0);assert.equal(builders.peopleAfterReset,0);
  console.log('Four persistent builders, six droids, shared final build, varied outfits and exit/reset passed');
  const structures=await page.evaluate(async()=>{
-  const {createSnowBuilders,SNOW_DROIDS,snowSpritesReady}=await import('./snow-builders.js?v=2026-11-01-builders-upright');await snowSpritesReady;
+  const {createSnowBuilders,SNOW_DROIDS,snowSpritesReady}=await import('./snow-builders.js?v=2026-11-01-builders-counts');await snowSpritesReady;
   const c=document.createElement('canvas').getContext('2d'),results=[];
   for(let type=0;type<SNOW_DROIDS.length;type++){
    const b=createSnowBuilders(()=> (type+.1)/SNOW_DROIDS.length),bank={canvas:{height:30},surface:()=>0,scoop:(_x,amount)=>amount};
@@ -73,7 +73,7 @@ try{
  for(const row of structures){assert(row.complete,`${row.type} must finish every supported part`);assert(row.steps>15,`${row.type} needs finer construction steps`);assert(row.localGrowth,`${row.type} should grow unevenly from local deliveries`);}
  console.log('All thirteen snow-droid shapes complete with fine, local construction steps');
  const repairs=await page.evaluate(async()=>{
-  const {createSnowBuilders,snowSpritesReady}=await import('./snow-builders.js?v=2026-11-01-builders-upright');await snowSpritesReady;
+  const {createSnowBuilders,snowSpritesReady}=await import('./snow-builders.js?v=2026-11-01-builders-counts');await snowSpritesReady;
   const b=createSnowBuilders(()=>.999),c=document.createElement('canvas').getContext('2d');let depth=0;
   const bank={canvas:{height:30},surface:()=>depth,scoop:()=>36,deposit:()=>{}},phases=new Set();let leftScreen=false,carriedBack=false;
   const draw=()=>{b.draw(c,{dt:.2,width:390,height:200,bank,active:true});for(const w of b.workers){phases.add(w.phase);if(w.decoration&&(w.x<0||w.x>390))leftScreen=true;if(w.phase==='bring-tinsel'&&w.x>=0&&w.x<=390)carriedBack=true;}};
@@ -88,7 +88,7 @@ try{
  assert(repairs.decorated);assert(repairs.leftScreen);assert(repairs.carriedBack);assert(repairs.phases.includes('decorate'));assert.equal(repairs.rebuilt,2);assert.equal(repairs.maxPeople,4);assert.equal(repairs.count,6);
  console.log('Offscreen tinsel collection, decoration and repeated replacement jobs passed');
  const burial=await page.evaluate(async()=>{
-  const {createSnowBuilders,snowSpritesReady}=await import('./snow-builders.js?v=2026-11-01-builders-upright');await snowSpritesReady;
+  const {createSnowBuilders,snowSpritesReady}=await import('./snow-builders.js?v=2026-11-01-builders-counts');await snowSpritesReady;
   let depth=18;const bank={canvas:{height:30},surface:()=>depth,scoop:()=>30,deposit:()=>{}},b=createSnowBuilders(()=>.25),c=document.createElement('canvas').getContext('2d');
   const draw=height=>b.draw(c,{dt:.1,width:390,height,bank,active:true});
   for(let i=0;i<3000;i++){draw(200);if(b.scenes[0]?.structure.built>10)break;}
@@ -99,7 +99,7 @@ try{
  assert.equal(burial.initial,burial.buried);assert(burial.standing);assert.equal(burial.resized,burial.initial+50);assert(burial.collapsed);
  console.log('New snow buries the fixed sculpture; only lost original footing collapses it');
  const collapseStages=await page.evaluate(async()=>{
-  const {createSnowBuilders,snowSpritesReady}=await import('./snow-builders.js?v=2026-11-01-builders-upright');await snowSpritesReady;
+  const {createSnowBuilders,snowSpritesReady}=await import('./snow-builders.js?v=2026-11-01-builders-counts');await snowSpritesReady;
   const c=document.createElement('canvas').getContext('2d'),results=[];
   for(const fraction of [.03,.3,.7,1]){
    let depth=0,deposits=0;const bank={canvas:{height:30},surface:()=>depth,scoop:()=>30,deposit:()=>deposits++},b=createSnowBuilders(()=>.25);

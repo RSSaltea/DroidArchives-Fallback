@@ -1,3 +1,4 @@
+import {mountSnowCounters} from './snow-build-stats.js?v=2026-11-01-snow-counts';
 const KEY='droid-archives-snow';
 export const MAX_SNOW_HEIGHT=30;
 
@@ -82,6 +83,7 @@ let ownerAllowed=false,snowControls=null;
 export function setSnowOwner(allowed){ownerAllowed=Boolean(allowed);snowControls?.();}
 export function mountSnow(){
  const header=document.querySelector('.site-header');if(!header||document.querySelector('#snowToggle'))return;
+ const counters=mountSnowCounters();let testMode=false;
  const motion=matchMedia('(prefers-reduced-motion: reduce)');
  const read=()=>{try{return localStorage.getItem(KEY)}catch{return null}};
  let explicit=read(),enabled=explicit===null?!motion.matches:explicit==='on';
@@ -89,16 +91,16 @@ export function mountSnow(){
  const canvas=document.createElement('canvas');canvas.className='seasonal-snow';canvas.setAttribute('aria-hidden','true');document.body.append(canvas);
  const ctx=canvas.getContext('2d');if(!ctx){button.remove();canvas.remove();return}
  let width=0,height=0,bank=new SnowBank(1),flakes=[],raf=0,last=0,spawn=0,previous=null,settleTime=0,full=false,builders=null,buildersEnabled=true,hiddenAt=null;
- if(EXPERIMENTAL_SNOW_BUILDERS)import('./snow-builders.js?v=2026-11-01-builders-upright').then(m=>{builders=m.createSnowBuilders()}).catch(()=>{});
+ if(EXPERIMENTAL_SNOW_BUILDERS)import('./snow-builders.js?v=2026-11-01-builders-counts').then(m=>{builders=m.createSnowBuilders(Math.random,{onComplete:event=>{if(!testMode)counters.record(event)}})}).catch(()=>{});
  function ownerControls(){
   const host=document.querySelector('#baseSidebarControls');
   if(!ownerAllowed){document.querySelector('#snowTestSettings')?.remove();return}
   if(!host||host.querySelector('#snowTestSettings'))return;
-  const panel=document.createElement('details');panel.id='snowTestSettings';panel.className='side-group';panel.innerHTML='<summary>Snow testing (owner)</summary><label class="side-field">Snow depth (0-30px)<input data-snow-depth type="range" min="0" max="30" step="1" value="0"><output data-snow-depth-value>0px</output></label><label class="side-check"><input data-snow-builders type="checkbox" checked> Experimental snow-droid builders</label><button type="button" data-snow-reset>Clear snow and builders</button>';
-  panel.querySelector('[data-snow-depth]').oninput=e=>{if(!ownerAllowed)return;bank.setLevel(e.target.value);panel.querySelector('output').textContent=e.target.value+'px';flakes=[];builders?.reset();if(!enabled){enabled=true;sync()}};
+  const panel=document.createElement('details');panel.id='snowTestSettings';panel.className='side-group';panel.innerHTML='<summary>Snow testing (owner)</summary><label class="side-field">Snow depth (0-30px)<input data-snow-depth type="range" min="0" max="30" step="1" value="0"><output data-snow-depth-value>0px</output></label><label class="side-check"><input data-snow-builders type="checkbox" checked> Experimental snow-droid builders</label><button type="button" data-snow-reset>Clear snow and builders</button><small>Manual depth builds are excluded from counts. Clear snow to return to normal tracking.</small>';
+  panel.querySelector('[data-snow-depth]').oninput=e=>{if(!ownerAllowed)return;testMode=true;bank.setLevel(e.target.value);panel.querySelector('output').textContent=e.target.value+'px';flakes=[];builders?.reset();if(!enabled){enabled=true;sync()}};
   panel.querySelector('[data-snow-builders]').checked=buildersEnabled;
   panel.querySelector('[data-snow-builders]').onchange=e=>{if(ownerAllowed){buildersEnabled=e.target.checked;builders?.reset()}};
-  panel.querySelector('[data-snow-reset]').onclick=()=>{if(ownerAllowed){bank.setLevel(0);flakes=[];builders?.reset();panel.querySelector('input').value=0;panel.querySelector('output').textContent='0px'}};
+  panel.querySelector('[data-snow-reset]').onclick=()=>{if(ownerAllowed){testMode=false;bank.setLevel(0);flakes=[];builders?.reset();panel.querySelector('input').value=0;panel.querySelector('output').textContent='0px'}};
   host.append(panel);
  }
  snowControls=ownerControls;new MutationObserver(ownerControls).observe(document.querySelector('#baseSidebarControls')||document.body,{childList:true});ownerControls();

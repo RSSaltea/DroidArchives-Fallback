@@ -65,7 +65,7 @@ export function fitSnowFooting(feet,bank,x){
  const depth=Math.max(...contacts.map(p=>bank.surface(x+p.x)+4-p.y));
  return{angle,depth,contacts};
 }
-export function createSnowBuilders(random=Math.random){
+export function createSnowBuilders(random=Math.random,{onComplete=()=>{}}={}){
  let scenes=[],workers=[],debris=[],started=false,age=0;
  const pick=values=>values[Math.floor(random()*values.length)];
  const outfit=()=>({coat:pick(['#d45757','#4a9b92','#8276cc','#d69838','#4c85bc','#bc6899']),hat:pick(['#e36168','#64b7a0','#e8be5c','#9b8bd6']),trousers:pick(['#26384c','#524365','#494e39']),skin:pick(['#f5cdaa','#c88d65','#87583f']),style:Math.floor(random()*3),hatStyle:Math.floor(random()*3)});
@@ -107,6 +107,7 @@ export function createSnowBuilders(random=Math.random){
    candidates[0].built=true;model.built++;
   }
   s.snow=model.built===model.cells.length?720:Math.min(719,s.snow+amount);
+  if(s.snow===720&&!s.counted){s.counted=true;try{onComplete({id:s.buildId,name:s.type})}catch{/* Counting cannot interrupt animation. */}}
  }
  function collapse(scene,y){
   // Capture only built sections. Never reveal the missing part of a droid
@@ -143,7 +144,7 @@ export function createSnowBuilders(random=Math.random){
    const positions=Array.from({length:6},(_,i)=>i).filter(slot=>!scenes.some(s=>s.position===slot));
    positions.sort((a,b)=>Math.abs((a+.5)*width/6-near)-Math.abs((b+.5)*width/6-near));
    const position=positions[0],scene={index:scenes.length,position,x:(position+.5)*width/6,type:pick(SNOW_DROIDS.filter(name=>snowSprites.has(name))),snow:0};
-   scene.structure=structure(scene.type);scene.tinselWraps=1+Math.floor(random()*3);scene.tinselPattern=createTinselPattern(random,scene.tinselWraps);scenes.push(scene);return scene;
+   scene.buildId=crypto.randomUUID();scene.counted=false;scene.structure=structure(scene.type);scene.tinselWraps=1+Math.floor(random()*3);scene.tinselPattern=createTinselPattern(random,scene.tinselWraps);scenes.push(scene);return scene;
   };
   if(active&&!started&&snowSprites.size){
    started=true;addScene(0);addScene(width);
@@ -169,7 +170,7 @@ export function createSnowBuilders(random=Math.random){
    const repair=scenes.filter(s=>s.collapsed&&age-s.collapsedAt>4&&bank.surface(s.x)<24).sort((a,b)=>Math.abs(a.x-near)-Math.abs(b.x-near))[0];
    if(repair){
     Object.assign(repair,{collapsed:false,snow:0,footing:null,restDepth:undefined,tinsel:0,type:pick(SNOW_DROIDS.filter(name=>snowSprites.has(name)))});
-    repair.structure=structure(repair.type);repair.tinselWraps=1+Math.floor(random()*3);repair.tinselPattern=createTinselPattern(random,repair.tinselWraps);available=repair;
+    repair.buildId=crypto.randomUUID();repair.counted=false;repair.structure=structure(repair.type);repair.tinselWraps=1+Math.floor(random()*3);repair.tinselPattern=createTinselPattern(random,repair.tinselWraps);available=repair;
    }
    else if(scenes.length<5)available=addScene(near);
    else if(scenes.length===5&&scenes.every(s=>s.snow>=720&&(s.type!=='OPTI-POD'||s.tinsel>=1))&&!workers.some(w=>w.decoration))available=addScene(near);
