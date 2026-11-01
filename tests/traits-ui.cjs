@@ -8,6 +8,7 @@ const server=http.createServer((req,res)=>{const pathname=new URL(req.url,'http:
  const browser=await chromium.launch({headless:true,...(executablePath?{executablePath}:{})});
  try{
   const page=await browser.newPage({viewport:{width:1360,height:960}}),errors=[];
+  await page.addInitScript(()=>localStorage.setItem('droid-archives-site-help-v1',JSON.stringify({invited:true})));
   page.on('pageerror',e=>errors.push(e.message));
   await page.route('https://**/*',r=>r.abort());
   await page.route('**/data/patch-notes.json*',r=>r.fulfill({contentType:'application/json',body:'{"notes":[]}'}));
@@ -46,11 +47,18 @@ const server=http.createServer((req,res)=>{const pathname=new URL(req.url,'http:
   await page.evaluate(()=>window.traitTest.showSuperRebirthConfirm(()=>window.traitTest.route(),true));
   await page.locator('#confirmSuperRebirth').click();
   const retained=await page.evaluate(()=>{const t=window.traitTest;return {owned:t.state.owned.length,trait:t.state.iconicTraits['CB-23']};});
-  assert.equal(retained.owned,0);assert.equal(retained.trait.rerolls,2);
-  await page.evaluate(()=>window.traitTest.commitOwned('CB-23','DEFAULT',1,'ASTROMECH',0));
-  assert.equal(await page.evaluate(()=>window.traitTest.state.owned[0].trait.id),24);
+  const expectedIconicTrait={id:24,tier:'Rainbow',rerolls:2};
+  assert.equal(retained.owned,0);assert.deepEqual(retained.trait,expectedIconicTrait);
+  // The saved trait must survive closing the site before reclaiming the Iconic.
   await page.reload();await page.waitForFunction(()=>window.traitTest?.state.droids.length);
-  assert.equal(await page.evaluate(()=>window.traitTest.state.owned[0].trait.id),24);
+  const afterRebirthReload=await page.evaluate(()=>{const t=window.traitTest;return {owned:t.state.owned.length,trait:t.state.iconicTraits['CB-23'],exported:t.validateBaseImport(t.baseExport()).iconicTraits['CB-23']};});
+  assert.equal(afterRebirthReload.owned,0);
+  assert.deepEqual(afterRebirthReload.trait,expectedIconicTrait);
+  assert.deepEqual(afterRebirthReload.exported,expectedIconicTrait);
+  await page.evaluate(()=>window.traitTest.commitOwned('CB-23','DEFAULT',1,'ASTROMECH',0));
+  assert.deepEqual(await page.evaluate(()=>window.traitTest.state.owned[0].trait),expectedIconicTrait);
+  await page.reload();await page.waitForFunction(()=>window.traitTest?.state.droids.length);
+  assert.deepEqual(await page.evaluate(()=>window.traitTest.state.owned[0].trait),expectedIconicTrait);
   page.on('dialog',d=>d.accept());
   const preserved=await page.evaluate(()=>{const t=window.traitTest;t.state.rebirth=40;t.autoPurchaseEligibleSlots();t.state.owned=[0,1,2].map(slot=>({name:'GONK',variant:'DEFAULT',qty:1,built:true,preferred:'FUSION',preferredSlot:slot,...(slot===1?{trait:{id:14,tier:'Rainbow'}}:{})}));t.runFusion();return t.placements().placed.map(u=>({name:u.name,variant:u.variant,station:u.station,slot:u.slot,trait:u.trait}));});
   assert(preserved.some(u=>u.name==='GONK'&&u.variant==='DEFAULT'&&u.station==='FUSION'&&u.slot===1&&!u.trait));

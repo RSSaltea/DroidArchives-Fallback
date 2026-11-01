@@ -11,9 +11,21 @@ const steps=[
   {id:'backup',title:'Save and check your profile',route:'/base',target:'#transferBase',task:'Check my profile and export a backup',text:'Use the account control to manage sign-in and profiles. Use Base’s Import / Export controls to save a backup before large changes. Imported files replace recorded information, so check the selected profile first. Local-only data belongs to this browser.'}
 ];
 const read=()=>{try{const value=JSON.parse(localStorage.getItem(KEY)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{}}catch{return {}}};
-let saved=read(),active=-1,panel=null,highlight=null,initialized=false,inviteTimer=null,spotlight=null,spotlightFrame=0;
+let saved=read(),active=-1,panel=null,highlight=null,initialized=false,inviteTimer=null,spotlight=null,spotlightFrame=0,spotlightWidth=0,spotlightLayout='';
 const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(saved))}catch{}};
 const clearHighlight=()=>{highlight?.classList.remove('site-tour-target');highlight=null};
+function attachHighlight(target){
+  if(target===highlight)return false;
+  clearHighlight();highlight=target;highlight?.classList.add('site-tour-target');return true;
+}
+function closeSettingsForPageStep(){
+  if(!onStepPage()||steps[active].id==='settings')return;
+  // The shell owns the drawer's blur layer and scroll lock. Close it through
+  // its real control rather than hiding a backdrop or overriding its styles.
+  const drawer=document.querySelector('.sidebar.mobile-open');
+  if(drawer&&document.querySelector('#baseDrawerClose'))document.querySelector('#baseDrawerClose').click();
+}
+
 function closeTour(){cancelAnimationFrame(spotlightFrame);spotlight?.remove();spotlight=null;clearHighlight();panel?.remove();panel=null;active=-1;document.querySelector('#siteHelpLink')?.focus({preventScroll:true})}
 function stopTour(done=false){saved.invited=true;saved.tour=done?'finished':'skipped';persist();closeTour()}
 const onStepPage=()=>{const path=location.hash.slice(1).split('?')[0]||'/';return path===steps[active].route||path.startsWith(steps[active].route+'/')};
@@ -21,7 +33,7 @@ const destinationName=()=>({'/base':'Base','/optimise':'Optimise','/rebirth':'Re
 const visibleTarget=el=>{const r=el.getBoundingClientRect(),style=getComputedStyle(el);return r.width>0&&r.height>0&&style.visibility!=='hidden'&&style.display!=='none'&&r.right>0&&r.left<innerWidth};
 function showStep(){
   if(active<0)return;
-  const step=steps[active],waiting=!onStepPage();clearHighlight();
+  const step=steps[active],waiting=!onStepPage();clearHighlight();closeSettingsForPageStep();
   if(!panel){panel=document.createElement('section');panel.className='site-tour';panel.setAttribute('role','region');panel.setAttribute('aria-label','Site walkthrough');document.body.append(panel)}
   panel.dataset.tourPhase=waiting?'navigation':'content';panel.dataset.tourDestination=step.route;
   panel.innerHTML=`<p class="eyebrow">Site walkthrough · ${active+1} of ${steps.length}</p><h2 tabindex="-1" id="siteTourTitle">${waiting?'Open '+destinationName():step.title}</h2><p>${waiting?'Select <strong>'+destinationName()+'</strong> in the site navigation. If it is hidden, open the highlighted menu first. Once the page opens, this walkthrough will explain what to do there.':step.text}</p><div class="site-help-actions"><button type="button" data-tour="back" ${active===0?'disabled':''}>Back</button><button type="button" data-tour="next" ${waiting?'disabled':''}>${active===steps.length-1?'Finish':'Next'}</button><button type="button" data-tour="skip">Skip tour</button></div><small>You can use the page while this guide is open. Press Escape to close.</small>`;
@@ -42,57 +54,80 @@ function targetForStep(){
   }
   return document.querySelector('#app h1');
 }
+function revealTarget(target){
+  if(!target||target.matches('.sidebar'))return;
+  const viewport=window.visualViewport,top=viewport?.offsetTop||0,bottom=top+(viewport?.height||innerHeight);
+  let safeTop=top+12;
+  for(const bar of document.querySelectorAll('.site-header,.toolbar,.base-heading')){
+    const style=getComputedStyle(bar),r=bar.getBoundingClientRect();
+    if(['sticky','fixed'].includes(style.position)&&r.bottom>top&&r.top<bottom/2)safeTop=Math.max(safeTop,r.bottom+12);
+  }
+  const r=target.getBoundingClientRect();
+  if(r.top>=safeTop&&r.bottom<=bottom-12)return;
+  target.scrollIntoView({block:r.height>(bottom-safeTop)*.65?'start':'center',behavior:'instant'});
+  const after=target.getBoundingClientRect();
+  if(after.top<safeTop)window.scrollBy({top:after.top-safeTop,behavior:'instant'});
+}
 function startSpotlight(){
   cancelAnimationFrame(spotlightFrame);
   if(!spotlight){
-    spotlight=document.createElementNS('http://www.w3.org/2000/svg','svg');spotlight.classList.add('site-tour-spotlight');spotlight.setAttribute('aria-hidden','true');
-    spotlight.innerHTML='<defs><marker id="tourArrowHead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#76ffd0"/></marker></defs><path class="tour-shade" fill-rule="evenodd"/><rect class="tour-ring" rx="8"/><path class="tour-pointer" marker-end="url(#tourArrowHead)"/>';
+    spotlight=document.createElement('div');spotlight.className='site-tour-spotlight';
+    spotlight.innerHTML='<div class="tour-shade" aria-hidden="true"></div>'.repeat(4);
     document.body.append(spotlight);
   }
-  const target=targetForStep();
-  if(target){const r=target.getBoundingClientRect();if(r.top<110||r.bottom>innerHeight-panel.offsetHeight-35)target.scrollIntoView({block:'center',behavior:'instant'});}
-  let last=0;
-  const update=time=>{
+  // One containing block for the card and shading. The outline itself belongs
+  // to the real control, so scrolling, wrapping and Safari zoom cannot detach it.
+  spotlight.append(panel);
+  spotlightWidth=0;spotlightLayout='';
+  const update=()=>{
     if(active<0||!panel||!spotlight)return;
-    if(time-last>50){last=time;placeSpotlight();}
+    placeSpotlight();
     spotlightFrame=requestAnimationFrame(update);
   };
   placeSpotlight();spotlightFrame=requestAnimationFrame(update);
 }
 function placeSpotlight(){
-  const target=targetForStep(),w=innerWidth,h=innerHeight;
-  spotlight.setAttribute('viewBox',`0 0 ${w} ${h}`);
-  const r=target?.getBoundingClientRect();
-  const visible=r&&r.bottom>0&&r.top<h;
-  const x=visible?Math.max(4,r.left-7):0,y=visible?Math.max(4,r.top-7):0;
-  const right=visible?Math.min(w-4,r.right+7):0,bottom=visible?Math.min(h-4,r.bottom+7):0;
-  const width=Math.max(0,right-x),height=Math.max(0,bottom-y);
-  // A real transparent hole avoids changing the target's stacking or click behaviour.
-  spotlight.querySelector('.tour-shade').setAttribute('d',`M0 0H${w}V${h}H0Z`+(visible?` M${x} ${y}H${right}V${bottom}H${x}Z`:''));
-  const ring=spotlight.querySelector('.tour-ring');ring.style.display=visible?'':'none';
-  for(const [key,value] of Object.entries({x,y,width,height}))ring.setAttribute(key,value);
-  const ph=panel.offsetHeight,pw=panel.offsetWidth,margin=12;
-  let px=w-pw-margin,py=h-ph-margin;
-  // Keep the explanation clear of its target, including a Settings drawer.
-  if(visible&&px<right&&px+pw>x&&py<bottom&&py+ph>y){
-    if(y>ph+margin*2)py=y-ph-margin;
-    else if(bottom+ph+margin<h)py=bottom+margin;
-    else if(x>pw+margin*2)px=margin;
-    else if(right+pw+margin<w)px=right+margin;
-    else py=y>h/2?margin:h-ph-margin;
-  }
-  panel.style.left=`${Math.max(margin,px)}px`;panel.style.top=`${Math.max(margin,py)}px`;panel.style.right='auto';panel.style.bottom='auto';
-  const arrow=spotlight.querySelector('.tour-pointer');arrow.style.display=visible?'':'none';
+  // A drawer the user opens mid-step is a real occluder, not a tour blur. Point
+  // at its close control until the page is available again.
+  const close=document.querySelector('.sidebar.mobile-open #baseDrawerClose');
+  const target=onStepPage()&&steps[active].id!=='settings'&&close?close:targetForStep();
+  const changed=attachHighlight(target);
+  const surface=spotlight.getBoundingClientRect(),w=surface.width,h=surface.height;
+  if(changed||w!==spotlightWidth)revealTarget(target);
+  spotlightWidth=w;
+  const r=target?.getBoundingClientRect(),pad=8;
+  const visible=r&&r.bottom>surface.top&&r.top<surface.bottom&&r.right>surface.left&&r.left<surface.right;
+  const x=visible?Math.max(0,r.left-surface.left-pad):0,y=visible?Math.max(0,r.top-surface.top-pad):0;
+  const right=visible?Math.min(w,r.right-surface.left+pad):0,bottom=visible?Math.min(h,r.bottom-surface.top+pad):0;
+  const viewport=window.visualViewport,margin=12;
+  const vx=Math.max(0,(viewport?.offsetLeft||0)-surface.left),vy=Math.max(0,(viewport?.offsetTop||0)-surface.top);
+  const vw=Math.min(w-vx,viewport?.width||w),vh=Math.min(h-vy,viewport?.height||h);
+  const layout=[x,y,right,bottom,w,h,vx,vy,vw,vh,panel.offsetWidth,panel.offsetHeight].join(',');
+  if(layout===spotlightLayout)return;
+  spotlightLayout=layout;
+  const boxes=visible?[[0,0,w,y],[0,y,x,bottom-y],[right,y,w-right,bottom-y],[0,bottom,w,h-bottom]]:[[0,0,w,h],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+  spotlight.querySelectorAll('.tour-shade').forEach((shade,i)=>{
+    const [left,top,width,height]=boxes[i];
+    Object.assign(shade.style,{left:left+'px',top:top+'px',width:width+'px',height:height+'px'});
+  });
+  panel.style.width=Math.max(0,Math.min(440,vw-margin*2))+'px';
+  panel.style.maxHeight=Math.max(0,vh*(vw<=600?.44:.6))+'px';
+  const ph=panel.offsetHeight,pw=panel.offsetWidth;
+  let px=vx+vw-pw-margin,py=vy+vh-ph-margin;
+  // Prefer a nearby position outside the target; a large map uses a docked card.
   if(visible){
-    const cx=x+width/2,cy=y+height/2,pcx=px+pw/2,pcy=py+ph/2;
-    const dx=cx-pcx,dy=cy-pcy;
-    const t=1/Math.max(Math.abs(dx)/(pw/2+8),Math.abs(dy)/(ph/2+8),1);
-    const end=1/Math.max(Math.abs(dx)/(width/2+10),Math.abs(dy)/(height/2+10),1);
-    if(px<right&&px+pw>x&&py<bottom&&py+ph>y&&y<py-24){
-      const tipX=Math.max(x+12,Math.min(right-12,pcx)),tipY=Math.min(py-24,y+height/2);
-      arrow.setAttribute('d',`M${pcx} ${py-8} L${tipX} ${tipY}`);
-    }else arrow.setAttribute('d',`M${pcx+dx*t} ${pcy+dy*t} L${cx-dx*end} ${cy-dy*end}`);
+    const beside=right+margin+pw<=vx+vw-margin;
+    const before=x-margin-pw>=vx+margin;
+    const below=bottom+margin+ph<=vy+vh-margin;
+    const above=y-margin-ph>=vy+margin;
+    if(vw>760&&beside){px=right+margin;py=y;}
+    else if(vw>760&&before){px=x-margin-pw;py=y;}
+    else if(below){px=x;py=bottom+margin;}
+    else if(above){px=x;py=y-margin-ph;}
   }
+  px=Math.max(vx+margin,Math.min(vx+vw-pw-margin,px));
+  py=Math.max(vy+margin,Math.min(vy+vh-ph-margin,py));
+  Object.assign(panel.style,{left:px+'px',top:py+'px',right:'auto',bottom:'auto'});
 }
 function go(index){active=Math.max(0,Math.min(index,steps.length-1));saved.invited=true;persist();showStep()}
 function invite(){
