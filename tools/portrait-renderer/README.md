@@ -57,3 +57,14 @@ The seven new Gonk Army droids use this same renderer for Gold through Stellar. 
 `--variants DEFAULT,GOLD,DIAMOND,RAINBOW,BESKAR,GALACTIC,STELLAR,KYBER,KYBER_GREEN,KYBER_BLUE,KYBER_PURPLE,SCOURGE` rebuilds every supported material, including the original base portrait with edge despill. A manifest row can specify `variants` to restrict its outputs. Iconic rows must specify `["DEFAULT"]`; their legacy catalogue stat rows are not alternative portrait forms. Default-only rows may repeat the base file in all three texture entries since the default shader does not read a mask or normal.
 
 The complete local input manifest is `research/uefn/october31/portrait-renderer/all-droids.json`. Generate to `assets/droids/rendered-v3` and retain the generation report privately. The catalogue now points to 1,091 images: twelve forms for each of 90 regular droids and one default for each of 11 Iconics. Source textures and comparison packs remain private. No images are downloaded during a rebuild.
+
+## Cosmetic snow sprites
+
+`SNOW` (material 12) is a custom matte white material, not an in-game variant. It uses exported portrait normals for broad lighting, desaturated base luminance for subtle creases, and masks for darker eyes. Existing game materials are unchanged.
+
+```powershell
+node tools/portrait-renderer/generate.cjs --manifest research/uefn/october31/snow-renderer/manifest.json --variants SNOW --out research/uefn/october31/snow-renderer/generated --report research/uefn/october31/snow-renderer/report.json
+node tools/portrait-renderer/pack-snow.cjs
+```
+
+The packer crops transparent margins and creates small WebP sprites in `assets/snow-droids`. The seasonal animation uses these sprites, not WebGL. All eight snow droids, including R7 and BB, use the same rendered material.

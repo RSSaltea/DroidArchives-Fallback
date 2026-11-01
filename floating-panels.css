@@ -1,0 +1,4 @@
+/* Spawn timers retain their original shell drag behaviour. */
+.rebirth-quick-bar{touch-action:none;cursor:grab;max-width:calc(100vw - 16px)}
+.rebirth-quick-bar.panel-dragging{cursor:grabbing!important;user-select:none}
+.rebirth-quick-bar:focus-visible{outline:2px solid #6ddaff;outline-offset:3px}

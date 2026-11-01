@@ -6,12 +6,12 @@
   <meta name="description" content="A community-built Droid Tycoon wiki and base planner.">
   <title>Droid Archives</title>
   <script>try{document.documentElement.dataset.uiStyle=localStorage.getItem('droid-archive-ui-style')==='legacy'?'legacy':'modern'}catch{document.documentElement.dataset.uiStyle='modern'}</script>
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/other/icon-gonkoween-64.png?v=2026-09-28-gonkoween">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/other/icon-gonkoween-180.png?v=2026-09-28-gonkoween">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/other/icon-christmas-64.png?v=2026-11-01-christmas">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/other/icon-christmas-180.png?v=2026-11-01-christmas">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Slab:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2026-10-31-trait-guide">
+  <link rel="stylesheet" href="styles.css?v=2026-11-01-christmas">
   <link rel="stylesheet" href="cantina.css?v=2026-07-25-2">
   <link rel="stylesheet" href="modern.css?v=2026-09-21-main">
   <link rel="stylesheet" href="archive-experience.css?v=2026-09-16-card-redesign">
@@ -23,6 +23,8 @@
   <link rel="stylesheet" href="classic-nav.css?v=2026-10-05-menu-settings-bottom">
   <link rel="stylesheet" href="ui-labels.css?v=2026-10-08-title-case">
   <link rel="stylesheet" href="traits.css?v=2026-10-31-mobile-surge">
+  <link rel="stylesheet" href="seasonal-snow.css?v=2026-11-01-snow">
+  <link rel="stylesheet" href="floating-panels.css?v=2026-11-01-rebirth-drag">
 </head>
 <body>
   <!-- Recolour crystal-green pixels while retaining the original metal and accents. -->
@@ -43,7 +45,7 @@
 
   <header class="site-header">
     <a class="brand" href="#/">
-      <span class="brand-mark"><picture style="display:contents"><source media="(prefers-reduced-motion: no-preference)" srcset="assets/other/icon-gonkoween-header.webp?v=2026-09-28-gonkoween" type="image/webp"><img src="assets/other/icon-gonkoween.webp?v=2026-09-28-gonkoween" alt="Droid Archives"></picture></span>
+      <span class="brand-mark christmas-logo"><picture style="display:contents"><source media="(prefers-reduced-motion: no-preference)" srcset="assets/other/icon-christmas-header.webp?v=2026-11-01-christmas" type="image/webp"><img src="assets/other/icon-christmas.webp?v=2026-11-01-christmas" alt="Droid Archives"></picture></span>
       <span><strong>Droid Archives</strong><small>Tycoon wiki & planner</small></span>
     </a>
     <button class="menu-button" id="menuButton" aria-label="Toggle navigation">☰</button>
@@ -92,7 +94,9 @@
   <footer><span>Unofficial community tool for Fortnite: Droid Tycoon · Protocol data checked 13 September 2026</span><span>Issues, feedback or corrections? Add <strong>.saltea</strong> on Discord. <button id="copyDiscord" type="button">Copy username</button></span></footer>
   <div id="toast" role="status"></div>
   <div id="modalRoot"></div>
-  <script type="module" src="app.js?v=2026-11-01-prime-layout"></script>
+  <script type="module" src="app.js?v=2026-11-01-snow-v21"></script>
   <script type="module" src="classic-nav.js?v=2026-10-05-menu-settings-bottom"></script>
+  <script type="module" src="seasonal-snow.js?v=2026-11-01-snow-v21"></script>
+  <script type="module" src="floating-panels.js?v=2026-11-01-rebirth-drag"></script>
 </body>
 </html>

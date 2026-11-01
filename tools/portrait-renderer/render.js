@@ -45,6 +45,15 @@ void main(){
   // Extracted base textures contain a green matte on antialiased edges.
   // Despill only those edge pixels; retain opaque material colours and alpha.
   if(base.a<.95&&c.g>c.r*1.3&&c.g>c.b*1.3)c.g=max(c.r,c.b);
+ }else if(variant==12){
+  // Cosmetic snow sculpture: matte white, broad soft shading and carved detail.
+  // No source colour survives, and the original portrait alpha is preserved.
+  float light=max(0.,dot(normalize(n),normalize(vec3(-.4,.65,.8))));
+  float grain=fract(sin(dot(q*512.,vec2(12.9898,78.233)))*43758.5453);
+  float value=.73+.23*light+.055*l+(grain-.5)*.025;
+  c=vec3(value*.97,value*.99,min(1.,value*1.025));
+  c*=.88+.12*smoothstep(.02,.35,l);
+  c=mix(c,vec3(.32,.43,.51),mask.b*.75);
  }else if(variant==11){
   float band=smoothstep(-.15,.15,toonResponse(n));
   c=mix(vec3(.050,.018,.073)*(.35+.65*(1.-q.y)),vec3(.269,.173,.320),band);

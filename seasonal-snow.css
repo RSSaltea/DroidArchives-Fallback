@@ -1,0 +1,5 @@
+.seasonal-snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none!important;z-index:31}
+.seasonal-snow[hidden]{display:none}
+html[data-ui-style] .site-header .snow-toggle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-width:74px;min-height:32px;padding:5px 8px;border:1px solid var(--line,#43546b);border-radius:5px;background:var(--panel,#172333);color:var(--text,#eaf5ff);font:600 11px/1.2 system-ui;white-space:nowrap;cursor:pointer}
+html[data-ui-style] .site-header .snow-toggle:focus-visible{outline:2px solid #64dbff;outline-offset:2px}
+@media(max-width:650px){html[data-ui-style] .site-header .snow-toggle{min-width:65px;padding:5px 4px}}

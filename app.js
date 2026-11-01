@@ -1,3 +1,4 @@
+import { setSnowOwner } from './seasonal-snow.js?v=2026-11-01-snow-v21';
 import {droidTraitsHtml} from './droid-traits.js?v=2026-10-31-iconic-copy';
 import { scourgeCount, hiveMindBonus, placedHive } from './scourge.js?v=2026-10-31-r2-crates';
 import {ensureProfileCatalogue} from './profile-catalogue.js?v=2026-10-18-signin-fix';
@@ -4091,7 +4092,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-01-prime-layout',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-01-scourge-protocol',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
@@ -5729,7 +5730,7 @@ async function verifyKyberPreview(){
   if(!supabaseClient||!state.cloud.session)return;
   try{const {data,error}=await supabaseClient.auth.getUser();if(check!==previewCheck)return;kyberPreviewVerified=!error&&isKyberPreviewUser(data?.user);refreshKyberRelease()}catch{if(check===previewCheck){kyberPreviewVerified=false;refreshKyberRelease()}}
 }
-function refreshKyberRelease(rerender=true){
+function refreshKyberRelease(rerender=true){setSnowOwner(kyberPreviewVerified);
   if(!releaseData)return;
   const released=kyberIsReleased(kyberPreviewVerified),audience=`${released}:${kyberPreviewVerified}`;
   if(audience===releaseAudience)return;
@@ -5750,7 +5751,7 @@ function refreshKyberRelease(rerender=true){
 }
 setInterval(()=>refreshKyberRelease(),10000);
 siteActivity=startSiteActivity({client:()=>supabaseClient});
-const DATA_VERSION='2026-10-31-all-portraits';
+const DATA_VERSION='2026-11-01-scourge-protocol';
 const loadJson=async path=>{const response=await fetch(`${path}${path.includes('?')?'&':'?'}v=${DATA_VERSION}`,{cache:'no-cache'});if(!response.ok)throw Error(`Unable to load ${path}`);return response.json()};
 function applyStellarData(droids,stellarStats={}){const rules=stellarStats._rules||{},images=stellarStats._images||{},round=value=>Math.round(value*1e6)/1e6;for(const droid of droids){if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;if(droid.rarity==='ICONIC'||droid.variants.STELLAR)continue;const base=droid.variants.DEFAULT,known=stellarStats[droid.name]||{},costMultiplier=rules.costMultiplier?.[droid.rarity],incomeMultiplier=rules.incomeMultiplier?.[droid.rarity],craftingMultiplier=rules.craftingMultiplier;droid.variants.STELLAR={cost:known.cost??(knownNumber(base?.cost)&&knownNumber(costMultiplier)?round(base.cost*costMultiplier):null),income:known.income??(knownNumber(base?.income)&&knownNumber(incomeMultiplier)?round(base.income*incomeMultiplier):null),craftingSeconds:known.craftingSeconds??(knownNumber(base?.craftingSeconds)&&knownNumber(craftingMultiplier)?round(base.craftingSeconds*craftingMultiplier):null)};if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;}return droids}
 async function loadEvents(){try{const index=await loadJson('data/events/index.json');if(!Array.isArray(index.events))return[];return Promise.all(index.events.map(file=>loadJson(`data/events/${file}`)))}catch{return[]}}

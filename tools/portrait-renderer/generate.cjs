@@ -8,7 +8,7 @@ const args=process.argv.slice(2),arg=(key,fallback)=>{const i=args.indexOf(key);
 const manifestPath=path.resolve(root,arg('--manifest','research/uefn/october31/portrait-renderer/manifest.json'));
 const output=path.resolve(root,arg('--out','research/uefn/october31/portrait-review/generated'));
 const pattern=arg('--crystal','research/uefn/october24/variant-materials/T_Variant_Kyber_Crystal.png');
-const variants={DEFAULT:0,GOLD:1,DIAMOND:2,RAINBOW:3,BESKAR:4,GALACTIC:5,STELLAR:6,KYBER:7,KYBER_GREEN:8,KYBER_BLUE:9,KYBER_PURPLE:10,SCOURGE:11};
+const variants={DEFAULT:0,GOLD:1,DIAMOND:2,RAINBOW:3,BESKAR:4,GALACTIC:5,STELLAR:6,KYBER:7,KYBER_GREEN:8,KYBER_BLUE:9,KYBER_PURPLE:10,SCOURGE:11,SNOW:12};
 const requested=arg('--variants','KYBER,KYBER_GREEN,KYBER_BLUE,KYBER_PURPLE,SCOURGE').split(',');
 for(const v of requested)if(!(v in variants))throw Error('Unknown variant: '+v);
 if(!output.startsWith(root+path.sep))throw Error('Output must be inside the workspace');

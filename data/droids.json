@@ -8934,8 +8934,8 @@
         "craftingSeconds": 763.98,
         "sellCredits": 4032000,
         "sellUpgradeChips": 24,
-        "protocolCpsBonusPercent": 64,
-        "protocolCraftingBonusPercent": 960
+        "protocolCpsBonusPercent": 56,
+        "protocolCraftingBonusPercent": 840
       }
     },
     "portraits": {
@@ -9068,8 +9068,8 @@
         "craftingSeconds": 2999.85,
         "sellCredits": 4777500000,
         "sellUpgradeChips": 48,
-        "protocolCpsBonusPercent": 96,
-        "protocolCraftingBonusPercent": 1440
+        "protocolCpsBonusPercent": 84,
+        "protocolCraftingBonusPercent": 1260
       }
     },
     "portraits": {
@@ -9202,8 +9202,8 @@
         "craftingSeconds": 22533,
         "sellCredits": 488215000000,
         "sellUpgradeChips": 102,
-        "protocolCpsBonusPercent": 128,
-        "protocolCraftingBonusPercent": 1920
+        "protocolCpsBonusPercent": 112,
+        "protocolCraftingBonusPercent": 1680
       }
     },
     "portraits": {
@@ -9336,8 +9336,8 @@
         "craftingSeconds": 69160,
         "sellCredits": 10192000000000,
         "sellUpgradeChips": 210,
-        "protocolCpsBonusPercent": 160,
-        "protocolCraftingBonusPercent": 2400
+        "protocolCpsBonusPercent": 140,
+        "protocolCraftingBonusPercent": 2100
       }
     },
     "portraits": {
