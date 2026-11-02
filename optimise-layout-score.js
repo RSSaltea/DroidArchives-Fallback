@@ -1,10 +1,10 @@
 import { workingIncome } from './economy.js?v=2026-10-18-mission-tools';
-import { hiveMembership } from './scourge.js?v=2026-10-31-r2-crates';
+import { hiveMembership } from './scourge.js?v=2026-11-02-scourgedex-crit';
 
 // Compile the fixed inputs once per layout search. Candidate scoring needs
 // numbers only; building UI income breakdowns here made Iconic comparisons
 // take longer than the entire worker budget.
-export function createAssignmentScorer({units,slots,locked,regions,multiplier,lambda,craftSeconds,craftBaseSpeed,craftingPriority}) {
+export function createAssignmentScorer({units,slots,locked,regions,multiplier,lambda,craftSeconds,craftBaseSpeed,craftingPriority,permanentMembers=0}) {
   const fixedCredits=regions.map(()=>1),fixedCraft=regions.map(()=>0),fixedWork=[];
   let fixedBase=0;
   for(const unit of locked){
@@ -30,7 +30,7 @@ export function createAssignmentScorer({units,slots,locked,regions,multiplier,la
     const rate=(unit,region)=>workingIncome({base:unit.base,dynamicPercent:unit.dynamic,staticIncome:base,traitBonus:unit.traitBonus||0,matching:unit.type===regions[region],multiplier}).total;
     for(const unit of fixedWork)income[unit.region]+=rate(unit,unit.region);
     for(let i=0;i<assignment.length;i++)if(assignment[i]>=0&&slots[i].region>=0)income[slots[i].region]+=rate(units[assignment[i]],slots[i].region);
-    let hive=0;const membership=hiveMembership(hiveUnits);
+    let hive=0;const membership=hiveMembership(hiveUnits,permanentMembers);
     for(const unit of hiveUnits)if(unit.region>=0&&membership.eligible(unit))hive+=Math.max(unit.base,(unit.dynamic||0)*base)*(1+(unit.traitBonus||0))*membership.bonusFor(unit);
     const total=income.reduce((sum,value,i)=>sum+value*credits[i],0)+hive-lambda*moveCost;
     const craftTotal=craft.reduce((sum,value)=>sum+value,0);

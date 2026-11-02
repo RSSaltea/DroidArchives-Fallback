@@ -1,4 +1,4 @@
-import { traitAmount, traitSum } from './traits.js?v=2026-10-31-r2-crates';
+import { traitAmount, traitSum } from './traits.js?v=2026-11-02-scourgedex-crit';
 // Curated from v1.35 AstromechMissions and depot completion code.
 // Credit rewards are seconds of generation, not fixed amounts.
 export const MISSION_SHIPS=[

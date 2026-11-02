@@ -1,4 +1,4 @@
-import { scourgePanel } from './scourge.js?v=2026-10-31-r2-crates';
+import { scourgePanel } from './scourge.js?v=2026-11-02-scourgedex-crit';
 import { update135Panel } from './update-135.js?v=2026-10-31-prime';
 import {gonkArmyPanel,wireGonkArmyPanel} from './gonk-army.js?v=2026-10-18-mission-tools';
 import {EVENT_ID,EVENT_ITEMS,TREAT_ICON,treatDay,nextTreatReset,normaliseEventProgress,eventRoundStatus,eventWishlistTotals} from './event-data.js?v=2026-10-31-r2-crates';

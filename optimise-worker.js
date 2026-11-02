@@ -1,7 +1,7 @@
-import { planOptimiseRoute, shortenOptimiseWalk, optimiseWalkDistance } from './optimise-route.js?v=2026-10-31-fusion-fixes';
-import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-10-31-r2-crates';
-import { workerRules } from './optimise-worker-rules.js?v=2026-10-31-lounge';
-import { createOptimiseLayoutContext } from './optimise-layout-context.js?v=2026-11-01-scourge-protocol';
+import { planOptimiseRoute, shortenOptimiseWalk, optimiseWalkDistance } from './optimise-route.js?v=2026-11-02-scourgedex-crit';
+import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-11-02-scourgedex-crit';
+import { workerRules } from './optimise-worker-rules.js?v=2026-11-02-scourgedex-crit';
+import { createOptimiseLayoutContext } from './optimise-layout-context.js?v=2026-11-02-scourgedex-crit';
 
 const less = (a, b) => { for (let i=0;i<a.length;i++) if(a[i]!==b[i]) return a[i]<b[i]; return false; };
 self.onmessage = ({data:{id,snapshot}}) => {
@@ -24,7 +24,7 @@ self.onmessage = ({data:{id,snapshot}}) => {
         const target = snapshot.targets[index];
         const route = planOptimiseRoute({initial:snapshot.initial,target,rules,options:{beamWidth,firstComplete:true}});
         if (!route.complete) {self.postMessage({id,type:'diagnostic',issues:route.issues});continue;}
-        const projected = {placed:route.finalPlaced,overflow:target.overflow || [],sell:target.sell || [],returns:target.returns || []};
+        const projected = {submissions:target.submissions||[],placed:route.finalPlaced,overflow:target.overflow || [],sell:target.sell || [],returns:target.returns || []};
         const valid = steps => validateOptimisePlan({initial:snapshot.initial,projected,steps,rules}).ok;
         const validation=validateOptimisePlan({initial:snapshot.initial,projected,steps:route.steps,rules});
         if (!validation.ok) {self.postMessage({id,type:'diagnostic',issues:validation.issues});continue;}

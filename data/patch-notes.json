@@ -2,6 +2,18 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-11-02-scourgedex",
+      "date": "2026-11-02",
+      "title": "Scourgedex and Chopper updates",
+      "summary": "Track Scourge hand-ins, completed collections and your permanent Hive Mind bonus.",
+      "changes": [
+        "Added a themed Scourgedex with a purple vine transition.",
+        "Optimise plans Lounge hand-ins, protects future rebirth droids and reminds you to submit remaining Scourge at your rebirth goal. Applying the steps updates Scourgedex.",
+        "Record each completed collection reset to add its permanent Hive Mind bonus.",
+        "Crit Calc now includes Chopper's guaranteed first Multi Crit in damage and upgrade recommendations."
+      ]
+    },
+    {
       "id": "2026-11-01-prime-layout",
       "date": "2026-11-01",
       "title": "Smarter Scourge Prime layouts",

@@ -351,14 +351,14 @@ export const TRAIT_DATA = {
         "Rainbow": 1.0
       },
       "value_format": "Flat",
-      "description": "+{Value} Multi Crit",
+      "description": "Guarantees first Multi Crit",
       "exclusive_droids": [
         "Chopper"
       ],
       "exclude_iconics": false,
       "stat": "MultiCrit",
       "multiplier": false,
-      "effect": "Adds one Multi Crit level while equipped as a companion."
+      "effect": "Guarantees the first extra crit after a successful first crit while equipped as a companion. Also adds one Multi Crit level; later random rolls start at half the original crit chance."
     },
     {
       "id": 19,

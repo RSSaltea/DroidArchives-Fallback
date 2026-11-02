@@ -1,5 +1,5 @@
-import { MISSION_SHIPS,normaliseMissionSettings,missionEstimate,offlineEstimate,chipFinderEstimate } from './mission-economy.js?v=2026-10-31-r2-crates';
-import { traitSum } from './traits.js?v=2026-10-31-r2-crates';
+import { MISSION_SHIPS,normaliseMissionSettings,missionEstimate,offlineEstimate,chipFinderEstimate } from './mission-economy.js?v=2026-11-02-scourgedex-crit';
+import { traitSum } from './traits.js?v=2026-11-02-scourgedex-crit';
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=x=>Number(x).toLocaleString(undefined,{maximumFractionDigits:2});
 const amount=x=>Math.abs(Number(x))>=1e6?`<abbr title="${esc(fmt(x))}" aria-label="${esc(fmt(x))}">${Number(x).toLocaleString(undefined,{notation:'compact',maximumFractionDigits:2})}</abbr>`:fmt(x);

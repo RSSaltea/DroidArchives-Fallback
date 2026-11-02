@@ -1,5 +1,5 @@
-import { TRAITS, traitEligible, traitOptionLabel } from './traits.js?v=2026-10-31-r2-crates';
-import { ICONIC_TRAIT_ADVICE, rerollEstimate, iconicTraitPrice } from './trait-planning.js?v=2026-10-31-r2-crates';
+import { TRAITS, traitEligible, traitOptionLabel } from './traits.js?v=2026-11-02-scourgedex-crit';
+import { ICONIC_TRAIT_ADVICE, rerollEstimate, iconicTraitPrice } from './trait-planning.js?v=2026-11-02-scourgedex-crit';
 import { cb23RewardsHtml, WORLD_MISSION_BOOSTS } from './update-135.js?v=2026-10-31-prime';
 export function mountTraitTools(host,droids){
   const iconics=droids.filter(d=>d.rarity==='ICONIC');

@@ -1,4 +1,4 @@
-import {primeAvailable} from './scourge.js?v=2026-10-31-r2-crates';
+import {primeAvailable} from './scourge.js?v=2026-11-02-scourgedex-crit';
 // Announcement previews are separate from the playable catalogue. Unknown
 // values must never become zero-income droids in Base or Optimise.
 export const COMING_SOON_DROIDS=[];

@@ -1,9 +1,9 @@
-import {traitAmount} from './traits.js?v=2026-10-31-r2-crates';
+import {traitAmount} from './traits.js?v=2026-11-02-scourgedex-crit';
 // Replay instructions independently of the planner before offering an Apply action.
 // Inputs are copied; a rejected step never changes the simulated base.
 export function validateOptimisePlan({ initial, projected, steps, rules } = {}) {
   const issues = [], units = new Map(), positions = new Map(), staged = new Map(), stagedSlots=new Map();
-  const generated = new Set(), seen = new Set(), sold = new Set(), returned = new Set();
+  const generated = new Set(), seen = new Set(), sold = new Set(), returned = new Set(), submitted = new Set();
   const companionLocks = new Map();
   const issue = message => issues.push(message);
   const keyOf = unit => unit && (typeof unit.source === 'string' || Number.isFinite(unit.source)) &&
@@ -34,7 +34,7 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
   const current = key => ({ ...units.get(key), ...(positions.get(key) || {}) });
   const movable = (key, label) => {
     const unit = current(key);
-    if (unit.lockedSlot&&!companionLocks.has(key) || rule('isBuilding', unit)) {
+    if (unit.lockedSlot&&!companionLocks.has(key)&&!(projected?.submissions?.some(u=>keyOf(u)===key)&&rule('forceSubmit',unit)) || rule('isBuilding', unit)) {
       issue(`${label}: ${key} is locked or still building.`); return false;
     }
     return true;
@@ -163,6 +163,11 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
       if (!key || !checkFrom(key, positionOf(step, 'from'), label, true) || !movable(key, label)) continue;
       if (purchases.has(key) || !rule('canReturn', current(key))) { issue(`${label}: this droid cannot be returned.`); continue; }
       returned.add(key); remove(key);
+    } else if (step.type === 'submit') {
+      const key=resolve(step.unit,label);
+      if(!key||!checkFrom(key,positionOf(step,'from'),label)||!movable(key,label))continue;
+      if(positions.get(key)?.station!=='LOUNGE'||!rule('canSubmit',current(key))){issue(`${label}: only eligible Scourge droids in the Lounge can be submitted.`);continue;}
+      submitted.add(key);companionLocks.delete(key);remove(key);
     } else if (step.type === 'sell') {
       const key = resolve(step.unit, label);
       if (!key || !checkFrom(key, positionOf(step, 'from'), label) || !movable(key, label)) continue;
@@ -282,6 +287,14 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
   }
   for(const key of targetReturned)if(!returned.has(key))issue(`Projected return ${key} was not performed.`);
   for(const key of returned)if(!targetReturned.has(key))issue(`Replay returns an unexpected droid ${key}.`);
+  const targetSubmitted=new Set();
+  for(const unit of array(projected?.submissions,'Projected Scourge submissions',true)){
+    const key=keyOf(unit),original=[...initialPlaced,...initialOverflow].find(u=>keyOf(u)===key);
+    if(!key||targetSubmitted.has(key)||targetUnits.has(key)||targetSold.has(key)||targetReturned.has(key)||!original||!sameDroid(unit,original))issue('Projected Scourge submissions contain an invalid or duplicate droid.');
+    targetSubmitted.add(key);
+  }
+  for(const key of targetSubmitted)if(!submitted.has(key))issue(`Projected submission ${key} was not performed.`);
+  for(const key of submitted)if(!targetSubmitted.has(key))issue(`Replay submits an unexpected droid ${key}.`);
   const companionsRestored=[...companionLocks].every(([key,place])=>samePlace(positions.get(key),place));
   if(!companionsRestored)issue('Locked Companions must return to their original slots before applying the layout.');
   return { ok: issues.length === 0, issues, placed: placed(), companionsRestored };

@@ -1,4 +1,4 @@
-import { TRAITS, traitEligible } from './traits.js?v=2026-10-31-r2-crates';
+import { TRAITS, traitEligible } from './traits.js?v=2026-11-02-scourgedex-crit';
 const tiers=['Default','Gold','Diamond','Rainbow'];
 export function traitRollPool(droid,current=null){
   const groups=tiers.map(tier=>TRAITS.filter(t=>traitEligible(t,droid)&&Object.hasOwn(t.values,tier)&&!(t.id===current?.id&&tier===current?.tier)).map(t=>({id:t.id,tier}))).filter(g=>g.length);
@@ -40,7 +40,7 @@ export const ICONIC_TRAIT_ADVICE=[
   ['BB-8',21,'Upgrade chips','Upgrade Chip Master activates its companion perk while working, freeing a Companion slot.'],
   ['C-3PO',20,'Selling droids','Droid Sell Master activates its companion perk while working.'],
   ['DJ R-3X',22,'World missions','World Mission Master activates its companion perk while working.'],
-  ['CHOPPER',18,'Critical hits','Crit Expert adds one Multi Crit while equipped as a companion.'],
+  ['CHOPPER',18,'Critical hits','Crit Expert guarantees the first extra crit after a successful crit, and adds one Multi Crit level, while equipped as a companion.'],
   ['WG-22',23,'Flawless builds','Flawless Duplicator rewards a blueprint on a flawless build while equipped.'],
   ['MISTER BONES',15,'Combat','Lifesteal restores 20% of maximum health per kill while equipped.'],
   ['IG-11 MARSHAL',16,'Blueprint protection','Blueprint Protector is a utility choice while equipped.']

@@ -1,10 +1,12 @@
 import { slotDistanceSquared } from './slot-geometry.js?v=2026-10-31-lounge';
-import { predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding } from './optimise-route.js?v=2026-10-31-r2-crates';
+import { predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding } from './optimise-route.js?v=2026-11-02-scourgedex-crit';
 
 // Functions cannot cross a worker boundary. Rebuild them from the exact slots,
 // permissions and room costs captured by the app for this profile.
 export function workerRules(data) {
   const rules = {
+    canSubmit:unit=>unit.variant==='SCOURGE'&&Boolean(data.submittable?.includes(`${unit.source}:${unit.unit}`)),
+    forceSubmit:unit=>data.submitAtGoal&&unit.variant==='SCOURGE',
     allowTemporaryCompanionSwaps:Boolean(data.allowTemporaryCompanionSwaps),
     canPurchase: unit => Boolean(data.purchasable?.includes(unit.name) && unit.variant === 'DEFAULT' && unit.built === true && !unit.lockedSlot),
     canReturn: unit => Boolean(data.returnable?.includes(unit.name) && !unit.lockedSlot),

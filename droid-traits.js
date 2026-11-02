@@ -1,5 +1,5 @@
-import {TRAITS,traitEligible} from './traits.js?v=2026-10-31-r2-crates';
-import {ICONIC_TRAIT_ADVICE} from './trait-planning.js?v=2026-10-31-r2-crates';
+import {TRAITS,traitEligible} from './traits.js?v=2026-11-02-scourgedex-crit';
+import {ICONIC_TRAIT_ADVICE} from './trait-planning.js?v=2026-11-02-scourgedex-crit';
 const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const slug=name=>name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
 export const traitDroidLink=name=>`<a href="#/droid/${slug(name)}">${escape(name)}</a>`;
