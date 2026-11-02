@@ -1,13 +1,13 @@
 // Read-only orientation: touring a page never applies a plan or edits a profile.
 const KEY='droid-archives-site-help-v1';
 const steps=[
-  {id:'settings',title:'Set your progression first',route:'/base',target:'.sidebar, #baseDrawerButton, #toggleCommandSettings',task:'Check my rebirth, cycle and credit multiplier',text:'Before adding droids, open Settings and enter your current rebirth, Super Rebirth cycle and credit multiplier. Check your slot and purchase preferences too. This makes the available slots and later calculations match your progress.'},
+  {id:'settings',title:'Set your progression first',route:'/base',target:'.sidebar.mobile-open #baseSidebarControls, .modern-base-settings:not(.collapsed) .modern-settings-body, #baseSidebarControls, #baseDrawerButton, #toggleCommandSettings, #menuButton',task:'Check my rebirth, cycle and credit multiplier',text:'Before adding droids, open Settings (or the menu in Legacy) and enter your current rebirth, Super Rebirth cycle and credit multiplier. Check your slot and purchase preferences too. This makes the available slots and later calculations match your progress.'},
   {id:'base',title:'Record droids in the map',route:'/base',target:'#baseMapPanel .tm-viewport, #baseMapPanel, #toggleBaseMap',task:'Record my current droids, variants and completed builds',text:'Use Show Map if the map is hidden. Select an available empty slot to add the droid standing there in game, then choose its actual variant. Select an occupied slot to manage that copy. Mark builds complete only after they finish in game. The website records your Base; it does not control the game.'},
   {id:'cards',title:'Use cards to manage your Base',route:'/base',target:'#tmTraditionalCards .station, #tmTraditionalCards, #tmCardsToggle',task:'Try the map or cards view for managing my droids',text:'Cards are another view of the same Base, not a second collection. Use Show Cards if they are hidden, then choose an empty slot to add a droid or an occupied card to manage it. Changes appear in both views, so do not add the same copy twice. Use whichever view you find easier.'},
-  {id:'optimise',title:'Review an Optimise plan',route:'/optimise',target:'#optimiseTrack, #app .panel, #app h1',task:'Review an Optimise plan and my protection settings',text:'Optimise suggests moves using your recorded Base and preferences. Review the plan before following it in game. Locks and Keep for fusion rules protect copies you want to save. Record steps as you perform them; a plan is not an automatic in-game action.'},
-  {id:'rebirth',title:'Plan your next rebirth',route:'/rebirth',target:'.rebirth-hero',task:'Check my next rebirth requirements',text:'Check the correct cycle and the droids, variants and credits required for your next rank. The tracker helps you see what to keep. Only record a Rebirth or Super Rebirth after doing it in game.'},
-  {id:'traits',title:'Record traits and compare bonuses',route:'/traits',target:'.trait-filters, .traits-page h1',task:'Review traits and record any I have revealed',text:'Traits lists effects, restrictions and reroll costs. Record a revealed trait on the matching droid in Base using its Trait button. A trait belongs to that copy; it is separate from the droid variant. Iconic traits persist through Super Rebirth.'},
-  {id:'upgrades',title:'Keep your upgrades current',route:'/nova-shop',target:'.nova-hero',task:'Record my purchased Nova Shop levels',text:'Enter the Nova upgrades you actually own. Planned purchases are not owned upgrades. These levels feed crafting and other calculations. Droid Calc compares droids; Crit Calc helps compare pickaxe and critical upgrades.'},
+  {id:'optimise',title:'Review an Optimise plan',route:'/optimise',target:'.optimise-steps, .optimise-stats, #app section[role="status"]',task:'Review an Optimise plan and my protection settings',text:'Optimise suggests moves using your recorded Base and preferences. Review the plan before following it in game. Locks and Keep for fusion rules protect copies you want to save. Record steps as you perform them; a plan is not an automatic in-game action.'},
+  {id:'rebirth',title:'Plan your next rebirth',route:'/rebirth',target:'.rebirth-tracker-toolbar, .rebirth-detail-group:not(.past), .rebirth-page-summary',task:'Check my next rebirth requirements',text:'Check the correct cycle and the droids, variants and credits required for your next rank. The tracker helps you see what to keep. Only record a Rebirth or Super Rebirth after doing it in game.'},
+  {id:'traits',title:'Record traits and compare bonuses',route:'/traits',target:'.trait-filters',task:'Review traits and record any I have revealed',text:'Traits lists effects, restrictions and reroll costs. Record a revealed trait on the matching droid in Base using its Trait button. A trait belongs to that copy; it is separate from the droid variant. Iconic traits persist through Super Rebirth.'},
+  {id:'upgrades',title:'Keep your upgrades current',route:'/nova-shop',target:'.nova-level-control, .nova-plan-controls, .nova-iconic-unlock, .nova-category-rail',task:'Record my purchased Nova Shop levels',text:'Select an upgrade, then use its tracked-level controls to record what you actually own. In Planner, use Owned now for purchases already made and Target level for plans. For Iconic Droids, tick Unlocked permanently only after unlocking them. Planned purchases are not owned upgrades. These levels feed crafting and other calculations. Droid Calc compares droids; Crit Calc helps compare pickaxe and critical upgrades.'},
   {id:'backup',title:'Save and check your profile',route:'/base',target:'#transferBase',task:'Check my profile and export a backup',text:'Use the account control to manage sign-in and profiles. Use Base’s Import / Export controls to save a backup before large changes. Imported files replace recorded information, so check the selected profile first. Local-only data belongs to this browser.'}
 ];
 const read=()=>{try{const value=JSON.parse(localStorage.getItem(KEY)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{}}catch{return {}}};
@@ -23,14 +23,19 @@ function closeSettingsForPageStep(){
   // The shell owns the drawer's blur layer and scroll lock. Close it through
   // its real control rather than hiding a backdrop or overriding its styles.
   const drawer=document.querySelector('.sidebar.mobile-open');
-  if(drawer&&document.querySelector('#baseDrawerClose'))document.querySelector('#baseDrawerClose').click();
+  if(drawer)(document.querySelector('#baseDrawerClose')||document.querySelector('#menuButton'))?.click();
 }
 
 function closeTour(){cancelAnimationFrame(spotlightFrame);spotlight?.remove();spotlight=null;clearHighlight();panel?.remove();panel=null;active=-1;document.querySelector('#siteHelpLink')?.focus({preventScroll:true})}
 function stopTour(done=false){saved.invited=true;saved.tour=done?'finished':'skipped';persist();closeTour()}
 const onStepPage=()=>{const path=location.hash.slice(1).split('?')[0]||'/';return path===steps[active].route||path.startsWith(steps[active].route+'/')};
 const destinationName=()=>({'/base':'Base','/optimise':'Optimise','/rebirth':'Rebirth','/traits':'Traits','/nova-shop':'Nova Shop'}[steps[active].route]);
-const visibleTarget=el=>{const r=el.getBoundingClientRect(),style=getComputedStyle(el);return r.width>0&&r.height>0&&style.visibility!=='hidden'&&style.display!=='none'&&r.right>0&&r.left<innerWidth};
+const renderedTarget=el=>{
+  const r=el.getBoundingClientRect(),style=getComputedStyle(el),drawer=el.closest('.sidebar');
+  const dr=drawer?.getBoundingClientRect();
+  return r.width>0&&r.height>0&&style.visibility!=='hidden'&&style.display!=='none'&&(!dr||dr.right>0&&dr.left<innerWidth);
+};
+const visibleTarget=el=>{const r=el.getBoundingClientRect();return renderedTarget(el)&&r.right>0&&r.left<innerWidth};
 function showStep(){
   if(active<0)return;
   const step=steps[active],waiting=!onStepPage();clearHighlight();closeSettingsForPageStep();
@@ -49,13 +54,19 @@ function targetForStep(){
     return links.find(visibleTarget)||[...document.querySelectorAll('#menuButton,.menu-button')].find(visibleTarget)||document.querySelector('#nav');
   }
   for(const selector of steps[active].target.split(',')){
-    const el=[...document.querySelectorAll(selector.trim())].find(el=>{const r=el.getBoundingClientRect(),style=getComputedStyle(el);return r.width>0&&r.height>0&&style.visibility!=='hidden'&&style.display!=='none'&&r.right>0&&r.left<innerWidth});
+    // Controls in horizontally scrolling rows still exist: reveal them rather
+    // than treating them as missing (for example Base's Import / Export).
+    const el=[...document.querySelectorAll(selector.trim())].find(renderedTarget);
     if(el)return el;
   }
-  return document.querySelector('#app h1');
+  // Wait for the step's actual control to render. A heading is not a useful
+  // substitute and can silently hide a stale selector after a page redesign.
+  return null;
 }
 function revealTarget(target){
   if(!target||target.matches('.sidebar'))return;
+  // Cancel an in-flight smooth page scroll before measuring the new target.
+  window.scrollTo({left:scrollX,top:scrollY,behavior:'instant'});
   const viewport=window.visualViewport,top=viewport?.offsetTop||0,bottom=top+(viewport?.height||innerHeight);
   let safeTop=top+12;
   for(const bar of document.querySelectorAll('.site-header,.toolbar,.base-heading')){
@@ -63,8 +74,8 @@ function revealTarget(target){
     if(['sticky','fixed'].includes(style.position)&&r.bottom>top&&r.top<bottom/2)safeTop=Math.max(safeTop,r.bottom+12);
   }
   const r=target.getBoundingClientRect();
-  if(r.top>=safeTop&&r.bottom<=bottom-12)return;
-  target.scrollIntoView({block:r.height>(bottom-safeTop)*.65?'start':'center',behavior:'instant'});
+  if(r.top>=safeTop&&r.bottom<=bottom-12&&r.left>=12&&r.right<=innerWidth-12)return;
+  target.scrollIntoView({block:r.height>(bottom-safeTop)*.65?'start':'center',inline:'nearest',behavior:'instant'});
   const after=target.getBoundingClientRect();
   if(after.top<safeTop)window.scrollBy({top:after.top-safeTop,behavior:'instant'});
 }
@@ -89,7 +100,7 @@ function startSpotlight(){
 function placeSpotlight(){
   // A drawer the user opens mid-step is a real occluder, not a tour blur. Point
   // at its close control until the page is available again.
-  const close=document.querySelector('.sidebar.mobile-open #baseDrawerClose');
+  const close=document.querySelector('.sidebar.mobile-open')&&(document.querySelector('#baseDrawerClose')||document.querySelector('#menuButton'));
   const target=onStepPage()&&steps[active].id!=='settings'&&close?close:targetForStep();
   const changed=attachHighlight(target);
   const surface=spotlight.getBoundingClientRect(),w=surface.width,h=surface.height;

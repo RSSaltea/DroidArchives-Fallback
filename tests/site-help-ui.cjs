@@ -12,20 +12,38 @@ async function openTourDestination(page){
 }
 async function checkAttachedHighlight(page){
  await page.waitForFunction(()=>document.querySelectorAll('.site-tour-target').length===1);
- await page.waitForTimeout(100);
- const result=await page.evaluate(()=>{
+ // Capture a settled frame atomically; responsive CSS can move between calls.
+ const snapshot=await page.waitForFunction(()=>{
   const target=document.querySelector('.site-tour-target'),r=target.getBoundingClientRect();
   const overlap=[...document.querySelectorAll('.site-tour-spotlight>.tour-shade')].some(el=>{
    const s=el.getBoundingClientRect();return Math.min(s.right,r.right-1)>Math.max(s.left,r.left+1)&&Math.min(s.bottom,r.bottom-1)>Math.max(s.top,r.top+1);
   });
   const panel=document.querySelector('.site-tour').getBoundingClientRect(),v=visualViewport;
-  return {visible:r.bottom>0&&r.top<(visualViewport?.height||innerHeight)&&r.right>0&&r.left<innerWidth,target:target.id||target.className,rect:r.toJSON(),shades:[...document.querySelectorAll('.tour-shade')].map(e=>e.getBoundingClientRect().toJSON()),outline:getComputedStyle(target).outlineWidth,overlap,tag:document.querySelector('.site-tour-spotlight').tagName,
+  const result={visible:r.bottom>0&&r.top<(visualViewport?.height||innerHeight)&&r.right>0&&r.left<innerWidth,target:target.id||target.className,rect:r.toJSON(),shades:[...document.querySelectorAll('.tour-shade')].map(e=>e.getBoundingClientRect().toJSON()),outline:getComputedStyle(target).outlineWidth,overlap,tag:document.querySelector('.site-tour-spotlight').tagName,
    inViewport:panel.left>=v.offsetLeft-1&&panel.top>=v.offsetTop-1&&panel.right<=v.offsetLeft+v.width+1&&panel.bottom<=v.offsetTop+v.height+1};
+  return result.visible&&!result.overlap&&result.inViewport?result:false;
  });
+ const result=await snapshot.jsonValue();
  if(result.overlap||!result.visible)await page.screenshot({path:'research/guide/tour-overlap-failure.png'});assert(result.visible,JSON.stringify(result));assert.equal(result.outline,'3px');assert.equal(result.overlap,false,JSON.stringify(result));assert.equal(result.tag,'DIV');assert(result.inViewport,'tour card stays within visible viewport');
 }
+const stepTargets=[
+ '.modern-settings-body,#baseSidebarControls,#baseDrawerButton,#toggleCommandSettings,#menuButton',
+ '#baseMapPanel .tm-viewport,#baseMapPanel,#toggleBaseMap',
+ '#tmTraditionalCards .station,#tmTraditionalCards,#tmCardsToggle',
+ '.optimise-steps,.optimise-stats,#app section[role="status"]',
+ '.rebirth-tracker-toolbar,.rebirth-detail-group:not(.past),.rebirth-page-summary',
+ '.trait-filters',
+ '.nova-level-control,.nova-plan-controls,.nova-iconic-unlock,.nova-category-rail',
+ '#transferBase'
+];
+async function checkStepTarget(page,step){
+ try{await page.waitForFunction(selector=>document.querySelector('.site-tour-target')?.matches(selector),stepTargets[step]);}
+ catch(error){console.error('Step '+step,await page.evaluate(()=>({url:location.href,target:document.querySelector('.site-tour-target')?.outerHTML,headings:[...document.querySelectorAll('#app h1,#app h2')].map(e=>e.textContent)})));throw error;}
+ assert.equal(await page.locator('h1.site-tour-target,h2.site-tour-target,#optimiseTrack.site-tour-target').count(),0);
+ await checkAttachedHighlight(page);
+}
 (async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});
-try{for(const layout of ['index.html','classic.html','legacy']){
+try{for(const layout of (process.env.TOUR_LAYOUT?[process.env.TOUR_LAYOUT]:['index.html','classic.html','legacy'])){
  console.log('Testing '+layout);
  const shell=layout==='legacy'?'classic.html':layout;
  const context=await browser.newContext({viewport:{width:390,height:844}}),page=await context.newPage(),errors=[];page.on('pageerror',e=>{errors.push(e.message);console.error(layout+': '+e.message)});
@@ -68,7 +86,31 @@ try{for(const layout of ['index.html','classic.html','legacy']){
  await page.locator('[data-tour="back"]').click();assert.match(await page.locator('.site-tour').innerText(),/1 of 8/i);
  await page.locator('[data-tour="skip"]').click();assert.equal(await page.locator('.site-tour').count(),0);assert.equal(await page.locator('.site-tour-spotlight').count(),0);assert.equal(await page.locator('.site-tour-target').count(),0);
  await page.locator('#siteHelpLink').click();await page.locator('[data-help-step="7"]').click();await openTourDestination(page);await page.locator('[data-tour="next"]').click();assert.equal(await page.locator('.site-tour').count(),0);assert.equal(await page.locator('.site-tour-spotlight').count(),0);assert.equal(await page.locator('.site-tour-target').count(),0);
- await page.locator('#siteHelpLink').click();await page.locator('#startSiteTour').click();await openTourDestination(page);for(let i=0;i<7;i++){await page.locator('[data-tour="next"]').click();await openTourDestination(page);await page.waitForFunction(i=>document.querySelector('.site-tour .eyebrow')?.textContent.includes(`${i+2} of 8`),i)}
+ await page.locator('#siteHelpLink').click();await page.locator('#startSiteTour').click();await openTourDestination(page);
+ for(let step=0;step<8;step++){
+  if(step){await page.locator('[data-tour="next"]').click();await openTourDestination(page);}
+  await checkStepTarget(page,step);
+  await page.setViewportSize({width:1440,height:1000});await checkStepTarget(page,step);
+  await page.setViewportSize({width:390,height:844});await checkStepTarget(page,step);
+  if(step===0&&layout==='legacy'){
+   await page.locator('#menuButton').click();
+   await page.waitForFunction(()=>document.querySelector('.site-tour-target')?.matches('#baseSidebarControls'));
+   await checkStepTarget(page,step);
+  }
+  if(step===6){
+   await page.screenshot({path:`research/guide/${layout}-nova-tour-mobile.png`});
+   // Category changes redraw the page without changing the route. The guide
+   // must follow the new control instead of retaining a detached old target.
+   await page.locator('[data-nova-category="planner"]').click();
+   await page.waitForFunction(()=>document.querySelector('.site-tour-target')?.matches('.nova-plan-controls'));
+   await checkStepTarget(page,step);
+   await page.locator('[data-nova-category="featured"]').click();
+   await page.waitForFunction(()=>document.querySelector('.site-tour-target')?.matches('.nova-level-control'));
+   await page.locator('[data-nova-category="iconic"]').click();
+   await page.waitForFunction(()=>document.querySelector('.site-tour-target')?.matches('.nova-iconic-unlock'));
+   await checkStepTarget(page,step);
+  }
+ }
  assert.equal(await page.evaluate(()=>JSON.stringify(window.guideTest.state.owned)),before);
  await page.keyboard.press('Escape');assert.equal(await page.locator('.site-tour').count(),0);assert.equal(await page.locator('.site-tour-spotlight').count(),0);assert.equal(await page.locator('.site-tour-target').count(),0);
  await page.locator('#siteHelpLink').click();assert.equal(await page.locator('.site-help-page').evaluate(el=>el.scrollWidth>el.clientWidth),false);
