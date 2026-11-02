@@ -1,6 +1,6 @@
 import { normaliseScourgedex, scourgedexCatalogue, recordScourgeSubmissions, scourgeSubmissionCandidates, scourgedexPage, scourgeWipe } from './scourgedex.js?v=2026-11-02-vein-crossfade';
 import { siteHelpPage, siteHelpAfterRoute } from './site-help.js?v=2026-11-02-tour-targets';
-import { guidePage } from './guide-page.js?v=2026-11-02-guide-budget';
+import { guidePage } from './guide-page.js?v=2026-11-02-guide-saved-balance';
 import {setSnowStatsClient} from './snow-build-stats.js?v=2026-11-01-snow-counts';
 import { setSnowOwner } from './seasonal-snow.js?v=2026-11-01-snow-v22';
 import {droidTraitsHtml} from './droid-traits.js?v=2026-11-02-scourgedex-crit';
@@ -2607,6 +2607,8 @@ function neededCardHtml(req,{located,units,rebirth,className=''}={}){
   const at=Number(rebirth??req.at)||0,status=requirementStatus(req,located);
   const peak=requirementPeak(d.name,{after:at-1});
   const laterPeak=peak&&variantRank(peak)>variantRank(req.variant)?peak:null;
+  const laterStatus=laterPeak?requirementStatus({...req,variant:laterPeak},located):null;
+  const laterUpgrade=laterStatus?.needsUpgrade?`<em class="needed-later-upgrade">Later ${requirementVariantText(laterPeak)}: ${requirementNote(laterStatus)} (total from this copy)</em>`:'';
   const sellable=!isIconic(d)&&!d.special?.cannotSell&&at>state.rebirth&&requirementFinishesAt(d.name,at);
   const unit=units?.get(d.name);
   const stateClass=status.ready?'have':status.needsUpgrade?'upgrade':'missing';
@@ -2619,7 +2621,7 @@ function neededCardHtml(req,{located,units,rebirth,className=''}={}){
   const action=done?'':unit&&!isIconic(d)
     ?`<button class="needed-action needed-variant" data-needed-variant-source="${unit.source}" data-needed-variant-name="${escapeAttr(d.name)}" data-needed-variant-current="${unit.variant}" data-needed-variant-station="${escapeAttr(unit.station||'')}" data-needed-variant-slot="${Number(unit.slot)}" title="Change the quality of your ${d.name}" aria-label="Change the quality of your ${d.name}">&#9670;</button>`
     :`<button class="needed-action needed-add" data-needed-add="${escapeAttr(d.name)}" data-needed-add-variant="${req.variant}" title="Add ${d.name} at ${variantLabel(req.variant)} to your Base" aria-label="Add ${d.name} at ${variantLabel(req.variant)} to your Base">+<span>Add</span></button>`;
-  return `<article class="${['needed-card',className,stateClass,sellable?'sell-after':''].filter(Boolean).join(' ')}" data-needed-name="${d.name.toLowerCase()}"><a class="needed-card-link" href="#/droid/${slug(d.name)}"><div>${picture(d,req.variant)}</div><span><strong>${d.name}</strong><small>${requirementVariantText(req.variant)}${laterPeak?`<span class="needed-peak"> &rarr; ${requirementVariantText(laterPeak)} later</span>`:''}</small>${requirementWhere(status)}</span><b>${requirementNote(status)}</b></a>${action}${sellable?`<span class="needed-sell" title="Nothing after Rebirth ${at} needs ${d.name}, so it can be sold once this rebirth is done" aria-label="Sellable after Rebirth ${at}">$</span>`:''}</article>`;
+  return `<article class="${['needed-card',className,stateClass,sellable?'sell-after':''].filter(Boolean).join(' ')}" data-needed-name="${d.name.toLowerCase()}"><a class="needed-card-link" href="#/droid/${slug(d.name)}"><div>${picture(d,req.variant)}</div><span><strong>${d.name}</strong><small>${requirementVariantText(req.variant)}${laterPeak?`<span class="needed-peak"> &rarr; ${requirementVariantText(laterPeak)} later</span>`:''}</small>${requirementWhere(status)}${laterUpgrade}</span><b>${requirementNote(status)}</b></a>${action}${sellable?`<span class="needed-sell" title="Nothing after Rebirth ${at} needs ${d.name}, so it can be sold once this rebirth is done" aria-label="Sellable after Rebirth ${at}">$</span>`:''}</article>`;
 }
 // Wires the two buttons on a needed card. Called after any render that draws them.
 function attachNeededCardHandlers(rerender){
@@ -2637,12 +2639,13 @@ function requirementLocations(){
   const out=new Map();
   for(const unit of placements().placed){
     const key=`${unit.name}:${unit.variant}`;
-    if(!out.has(key))out.set(key,stationSlotLabel(unit.station,unit.slot));
+    const label=stationSlotLabel(unit.station,unit.slot);
+    out.set(key,out.has(key)?`${out.get(key)}; ${label}`:label);
   }
   return out;
 }
 const requirementNote=status=>status.ready?'&#10003; Ready':status.needsUpgrade?rebirthActionText(status.droid,status.have,status.required,status.chips):'Needed';
-const requirementWhere=status=>status.have?`<em>Best owned: ${variantText(status.have)}${status.where?` &middot; ${status.where}`:' &middot; not in your Base'}</em>`:'';
+const requirementWhere=status=>status.have?`<em>Best owned: ${variantText(status.have)}</em><em class="needed-location">Location: ${status.where?escapeAttr(status.where):'Over capacity / unplaced'}</em>`:'';
 // Every rebirth in this cycle that still wants a given droid, in order. Written
 // once because the Base list, the Rebirth page and the sell hints all ask the
 // same question: after this rebirth, is this droid finished with?

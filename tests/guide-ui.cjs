@@ -16,6 +16,7 @@ try{for(const shell of ['index.html','classic.html']){
  const chapter=page.locator('#guide-second-super [data-guide-milestone]');
  await page.locator('#guideNova').fill('16');
  assert.match(await chapter.textContent(),/532 Nova/);assert.match(await chapter.textContent(),/516 Nova/);assert.match(await chapter.textContent(),/R29/);
+ assert.match(await chapter.textContent(),/levels 3\u20136/);assert.doesNotMatch(await chapter.textContent(),/levels 3\?6/);
  // This chapter keeps its own milestone even if the dropdown plans another one.
  await page.locator('#guideMilestone').selectOption('3');assert.match(await chapter.textContent(),/532 Nova/);
  await page.locator('#guideNova').fill('532');assert.match(await chapter.textContent(),/buy these upgrades now/);assert.doesNotMatch(await chapter.textContent(),/Complete R/);
@@ -24,10 +25,18 @@ try{for(const shell of ['index.html','classic.html']){
  assert.match(await chapter.textContent(),/187 Nova/);assert.match(await chapter.textContent(),/completed R35 already funds/);
  await page.evaluate(()=>{const {state,route}=window.guideTest;state.novaUpgrades['scrap-value']=6;state.novaUpgrades['blueprint-scrap']=2;route();});
  assert.match(await chapter.textContent(),/already own the upgrades/);
+ await page.locator('#guideNova').fill('19');
  await page.locator('[data-guide-read="first-steps"]').check();await page.reload();await page.locator('#guideProgressCount').waitFor();assert.equal(await page.locator('[data-guide-read="first-steps"]').isChecked(),true);
+ assert.equal(await page.locator('#guideNova').inputValue(),'19');assert.match(await chapter.textContent(),/balance above is 19 Nova/);
+ await page.evaluate(()=>window.guideTest.route());assert.equal(await page.locator('#guideNova').inputValue(),'19');
  await page.locator('[data-guide-jump="surges"]').click();await page.locator('.guide-surge-helper>summary').click();assert(await page.locator('.guide-surge-helper .guide-extra').isVisible());
  assert.equal(await page.locator('header a[href="#/guide"],.sidebar a[href="#/guide"],.toolbar a[href="#/guide"]').count(),0);
+ const originalProfile=await page.evaluate(()=>window.guideTest.state.cloud.activeProfileId);
  await page.evaluate(()=>{const {state,route}=window.guideTest;state.cloud.activeProfileId='guide-other';route();});assert.equal(await page.locator('[data-guide-read="first-steps"]').isChecked(),false);
+ assert.equal(await page.locator('#guideNova').inputValue(),'0');
+ await page.locator('#guideNova').fill('77');
+ await page.evaluate(id=>{window.guideTest.state.cloud.activeProfileId=id;window.guideTest.route();},originalProfile);
+ assert.equal(await page.locator('#guideNova').inputValue(),'19');
  const target=await page.evaluate(()=>{const {state,route}=window.guideTest;state.cycle=0;state.rebirth=0;state.owned=[];state.fusionKeepRules=[];route();return state.droids.find(d=>d.rarity==='EPIC'&&state.rebirths[0].some(r=>r.requiredDroids?.some(q=>q.droidName===d.name)))?.name;});
  assert(target);assert((await page.locator('.guide-droids').textContent()).includes(target));
  fs.mkdirSync(path.join(root,'research/guide'),{recursive:true});await page.screenshot({path:path.join(root,'research/guide',shell+'-desktop.png')});
