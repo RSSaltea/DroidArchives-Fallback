@@ -207,11 +207,16 @@ export function planOptimiseRoute(args = {}) {
 // Reorder visits and nearby interactions only when replay confirms every
 // command still lands in the same slot. Include entry and exit slot positions.
 // This bounded local improvement preserves all commands and their uncertainty.
+export function scourgeSubmissionTrips(steps){
+  return steps.reduce((count,step,index)=>count+(step.type==='submit'&&(steps[index-1]?.type!=='submit'||steps[index-1]?.at!==step.at)?1:0),0);
+}
 export function optimiseWalkDistance(steps, {distance,slotDistanceSquared}) {
   let total=0,previous=null,previousRegion=null;
   for(const step of steps){
     const approach=step.approachSlot||step.approachProtocol;
-    const point=approach?step.to:step.from;
+    // Hand-ins happen at one Scourgedex console, not at the consumed droid's
+    // Lounge slot. Its exact coordinates are not mapped, so use region distance.
+    const point=step.type==='submit'?null:approach?step.to:step.from;
     // A Companion menu command is issued where the player already stands.
     if(!approach&&point?.station==='COMPANION')continue;
     const region=step.at==='ANY'?previousRegion:step.at;
@@ -260,6 +265,7 @@ export function shortenOptimiseWalk(steps, { distance, isValid, slotDistanceSqua
   const length = order => slotDistanceSquared?optimiseWalkDistance(order.flat(),{distance,slotDistanceSquared})
     :order.reduce((sum, group, i) => sum + (i ? distance(order[i-1][0].at, group[0].at) : 0), 0);
   const shoppingTrips = order => order.filter(group => group.some(step => step.at === 'ICONIC_SHOP')).length;
+  const submissionTrips = order => scourgeSubmissionTrips(order.flat());
   const flatten = order => order.flatMap((group, stop) => group.map(step => ({ ...step, stop, visit: `route-${stop}` }))).map((step, index) => ({ ...step, index }));
   let best = normalize(groups), bestDistance = length(best);
   for (let pass = 0; pass < maxPasses; pass++) {
@@ -270,10 +276,23 @@ export function shortenOptimiseWalk(steps, { distance, isValid, slotDistanceSqua
       // Cantina coordinates are not mapped. Prefer fewer trips there without
       // inventing a distance, then shorten the measured part of the base walk.
       if(shoppingTrips(order)>shoppingTrips(current))return;
-      if(shoppingTrips(order)===shoppingTrips(current)&&(slotDistanceSquared ? gap>=improvedDistance-1e-6 : order.length > current.length || order.length === current.length && gap >= improvedDistance - 1e-6))return;
+      if(shoppingTrips(order)===shoppingTrips(current)){
+        // Avoid leaving and reopening Scourgedex just to shorten a slot walk.
+        if(submissionTrips(order)>submissionTrips(current))return;
+        if(submissionTrips(order)===submissionTrips(current)&&(slotDistanceSquared ? gap>=improvedDistance-1e-6 : order.length > current.length || order.length === current.length && gap >= improvedDistance - 1e-6))return;
+      }
       if (!isValid(flatten(order))) return;
       improved = order; improvedDistance = gap;
     };
+    // Move the whole hand-in batch at once: single-step moves can get stuck
+    // when two already-consecutive batches are separated by ordinary actions.
+    for(let g=0;g<best.length;g++){
+      if(scourgeSubmissionTrips(best[g])<2)continue;
+      const submits=best[g].filter(step=>step.type==='submit'),other=best[g].filter(step=>step.type!=='submit');
+      for(let at=0;at<=other.length;at++){
+        const order=[...best];order[g]=[...other.slice(0,at),...submits,...other.slice(at)];consider(order);
+      }
+    }
     if(!withinOnly)for (let i = 0; i < best.length; i++) for (let j = 0; j < best.length; j++) {
       if (i === j) continue;
       const order = [...best], [group] = order.splice(i, 1);
@@ -283,7 +302,7 @@ export function shortenOptimiseWalk(steps, { distance, isValid, slotDistanceSqua
     // Within a room, include the previous stop's exit and next stop's entry.
     // Replay the entire plan before accepting an insertion or reversal: a nearby
     // droid may still have to wait until another droid frees its destination.
-    if(slotDistanceSquared)for(let g=0;g<best.length;g++)for(let i=0;i<best[g].length;i++)for(let j=0;j<best[g].length;j++){
+    if(slotDistanceSquared||submissionTrips(best)>0)for(let g=0;g<best.length;g++)for(let i=0;i<best[g].length;i++)for(let j=0;j<best[g].length;j++){
       if(i===j)continue;
       const moved=[...best[g]],[step]=moved.splice(i,1);moved.splice(j,0,step);
       const order=[...best];order[g]=moved;consider(order);

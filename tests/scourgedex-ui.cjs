@@ -66,6 +66,18 @@ const server=http.createServer((req,res)=>{const pathname=new URL(req.url,'http:
   await page.waitForFunction(()=>window.traitTest.backgroundOptimisePreview()?.projected?.planComplete,{},{timeout:60000});
   const worker=await page.evaluate(()=>{const p=window.traitTest.backgroundOptimisePreview();return {submissions:p.projected.submissions?.map(u=>u.name),steps:p.steps.map(s=>s.type)};});
   assert.deepEqual(worker.submissions,['GONK']);assert(worker.steps.includes('submit'));
+  // The background worker must keep ready Lounge hand-ins together even
+  // while ordinary Lounge droids are being moved to productive slots.
+  await page.evaluate(()=>{
+   const t=window.traitTest;t.state.rebirth=40;
+   t.state.owned=[...['GONK','R2','BB9','MONO-WALKER'].map((name,i)=>({name,variant:'SCOURGE',qty:1,built:true,preferred:'LOUNGE',preferredSlot:[8,7,5,0][i]})),
+    {name:'GONK',variant:'GOLD',qty:1,built:true,preferred:'LOUNGE',preferredSlot:3},
+    {name:'R2',variant:'GOLD',qty:1,built:true,preferred:'LOUNGE',preferredSlot:2}];
+   t.save();t.route();
+  });
+  await page.waitForFunction(()=>{const p=window.traitTest.backgroundOptimisePreview();return p?.projected?.planComplete&&p.projected.submissions?.length===4;},{},{timeout:60000});
+  const batches=await page.evaluate(()=>{const steps=window.traitTest.backgroundOptimisePreview().steps;return steps.filter((s,i)=>s.type==='submit'&&steps[i-1]?.type!=='submit').length;});
+  assert.equal(batches,1,'worker publishes one consecutive Scourgedex batch');
   const partial=await page.evaluate(()=>{
    const t=window.traitTest;t.state.rebirth=40;t.state.owned=[{name:'GONK',variant:'SCOURGE',qty:1,built:true,preferred:'LOUNGE',preferredSlot:0},{name:'R2',variant:'SCOURGE',qty:1,built:true,preferred:'LOUNGE',preferredSlot:1}];t.save();
    const base=t.placements(),target={placed:base.placed.map(u=>({...u})),sell:[],overflow:[],fusing:[]};const steps=t.safeOptimiseStepPlan(base,target);
