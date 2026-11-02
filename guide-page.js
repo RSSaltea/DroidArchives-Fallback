@@ -1,4 +1,4 @@
-import { GUIDE_CHAPTERS } from './guide-content.js?v=2026-11-01-guide-spacing';
+import { GUIDE_CHAPTERS } from './guide-content.js?v=2026-11-02-guide-budget';
 import { novaTotalCost } from './nova-levels.js?v=2026-10-07-unlimited';
 
 const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -40,7 +40,16 @@ export function guidePage({host, shop, owned, rebirth, cycle, profileKey, surgeC
     <div class="guide-chapters">${GUIDE_CHAPTERS.map((c,i)=>`<details class="guide-chapter" id="guide-${c.id}" ${progress['open:'+c.id]===true||(progress['open:'+c.id]===undefined&&i===0)?'open':''}><summary><span class="guide-number">${i+1}</span><span><strong>${c.title}</strong><small>${c.goal}</small></span></summary><div class="guide-chapter-body">${c.body}${c.id==='surges'?`<details class="guide-surge-helper"><summary>Surge Guide · what to leave on the belt</summary><div class="guide-extra"><p><strong>Cycle ${number(cycle+1)} · after R${number(rebirth)}</strong>. Includes requirements through the end of this cycle, even beyond your selected Super Rebirth goal.</p><p>Leave Legendaries and Mythics. These Epics are also worth keeping available for upgrades because they have an unmet rebirth requirement or match your saved fusion rules.</p><div class="guide-droids">${surgeCards||'<p>No extra Epic targets from your recorded Base and fusion rules. Check that your Base is up to date.</p>'}</div><p>Clear lower-priority droids, but collect anything needed for your own Base first. This list cannot see the live belt; it does not identify which droid the next wave will upgrade.</p></div></details>`:''}<label class="guide-read"><input type="checkbox" data-guide-read="${c.id}" ${progress[c.id]===true?'checked':''}> Completed this chapter</label></div></details>`).join('')}</div>
   </article>`;
   const updatePlan=()=>{
-    const plan=guideShoppingPlan({shop,owned,rebirth,milestone:Number(host.querySelector('#guideMilestone').value),balance:host.querySelector('#guideNova').value});
+    const balance=Math.max(0,Number(host.querySelector('#guideNova').value)||0);
+    const plan=guideShoppingPlan({shop,owned,rebirth,milestone:Number(host.querySelector('#guideMilestone').value),balance});
+    host.querySelectorAll('[data-guide-milestone]').forEach(section=>{
+      const chapterPlan=guideShoppingPlan({shop,owned,rebirth,milestone:Number(section.dataset.guideMilestone),balance});
+      const remaining=chapterPlan.rows.filter(row=>row.cost>0);
+      section.innerHTML=!chapterPlan.cost?'<p><strong>You already own the upgrades for this milestone.</strong> Continue to the next stage.</p>':
+        `<p>From your recorded upgrades, you need <strong>${number(chapterPlan.cost)} Nova</strong>: ${remaining.map(row=>`${number(row.cost)} for ${esc(row.name)} ${row.level-row.have===1?'level '+row.level:'levels '+(row.have+1)+'?'+row.level}`).join(' and ')}.</p>
+        <p>Your available balance above is <strong>${number(balance)} Nova</strong>${chapterPlan.shortfall?`, leaving <strong>${number(chapterPlan.shortfall)} Nova</strong> to earn.`:'. You can buy these upgrades now; no Super Rebirth is needed to fund them.'}</p>
+        ${chapterPlan.shortfall?`<p>${chapterPlan.rank!==null?(chapterPlan.rank<=rebirth?`Your completed <strong>R${chapterPlan.rank}</strong> already funds this milestone when you Super Rebirth.`:`Complete <strong>R${chapterPlan.rank}</strong>, then Super Rebirth to afford this milestone.`):'This run alone cannot fund the milestone. Keep saving, earn other Nova rewards, or plan another Super Rebirth.'} Includes regular Nova still to earn after your recorded R${number(rebirth)} and the Super Rebirth payout, with no other spending.</p>`:''}`;
+    });
     host.querySelector('#guideShoppingResult').innerHTML=`<ul class="guide-shopping-list">${plan.rows.map(r=>`<li><span>${esc(r.name)} <small>Owned ${number(r.have)} → goal ${r.level}</small></span><strong>${r.cost?number(r.cost)+' Nova':'Owned'}</strong></li>`).join('')}</ul><p><strong>${number(plan.cost)} Nova still to spend</strong>${plan.shortfall?` · ${number(plan.shortfall)} beyond your entered balance`:' · covered by your entered balance'}</p><p>${!plan.cost?'You already own this milestone. Choose the next one.':!plan.shortfall?'You can fund this milestone now; no Super Rebirth needed to cover its cost.':plan.rank!==null?`Complete <strong>R${plan.rank}</strong>, then Super Rebirth to fund this milestone under the assumptions below.`:'This run alone does not fund the full milestone. Keep saving, earn other Nova rewards, or plan another Super Rebirth.'}</p>`;
   };
   host.querySelector('#guideMilestone').onchange=updatePlan;

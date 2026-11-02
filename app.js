@@ -1,6 +1,6 @@
 import { normaliseScourgedex, scourgedexCatalogue, recordScourgeSubmissions, scourgeSubmissionCandidates, scourgedexPage, scourgeWipe } from './scourgedex.js?v=2026-11-02-vein-crossfade';
 import { siteHelpPage, siteHelpAfterRoute } from './site-help.js?v=2026-11-02-tour-targets';
-import { guidePage } from './guide-page.js?v=2026-11-01-guide-completed';
+import { guidePage } from './guide-page.js?v=2026-11-02-guide-budget';
 import {setSnowStatsClient} from './snow-build-stats.js?v=2026-11-01-snow-counts';
 import { setSnowOwner } from './seasonal-snow.js?v=2026-11-01-snow-v22';
 import {droidTraitsHtml} from './droid-traits.js?v=2026-11-02-scourgedex-crit';

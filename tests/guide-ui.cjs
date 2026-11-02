@@ -5,12 +5,25 @@ const server=http.createServer((req,res)=>{let file=path.resolve(root,'.'+decode
 (async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});
 try{for(const shell of ['index.html','classic.html']){
  const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage(),errors=[];page.on('pageerror',e=>{errors.push(e.message);console.error(e.message)});
+ await context.addInitScript(()=>localStorage.setItem('droid-archives-site-help-v1','{"invited":true}'));
  await page.route('https://**/*',r=>r.abort());await page.route('**/data/patch-notes.json*',r=>r.fulfill({json:{notes:[]}}));await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.guideTest={state,route};'}));
  await context.addInitScript(ids=>localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(ids)),JSON.parse(fs.readFileSync('data/patch-notes.json','utf8')).notes.map(n=>n.id));
  await page.goto(`http://127.0.0.1:${server.address().port}/${shell}#/guide`);await page.locator('#guideShoppingResult').waitFor({timeout:10000}).catch(async e=>{console.log(await page.locator('body').innerText());throw e});
  assert.match(await page.locator('#guide-first-steps').innerText(),/credit returns are very poor/);
  assert.match(await page.locator('#guideShoppingResult').innerText(),/91 Nova/);
  await page.locator('#guideNova').fill('91');assert.match(await page.locator('#guideShoppingResult').innerText(),/fund this milestone now/);
+ await page.evaluate(()=>{const {state,route}=window.guideTest;state.novaUpgrades={'rebirth-droid-alert':1,'blueprint-scrap':1,'scrap-value':2};state.rebirth=0;route();});
+ const chapter=page.locator('#guide-second-super [data-guide-milestone]');
+ await page.locator('#guideNova').fill('16');
+ assert.match(await chapter.textContent(),/532 Nova/);assert.match(await chapter.textContent(),/516 Nova/);assert.match(await chapter.textContent(),/R29/);
+ // This chapter keeps its own milestone even if the dropdown plans another one.
+ await page.locator('#guideMilestone').selectOption('3');assert.match(await chapter.textContent(),/532 Nova/);
+ await page.locator('#guideNova').fill('532');assert.match(await chapter.textContent(),/buy these upgrades now/);assert.doesNotMatch(await chapter.textContent(),/Complete R/);
+ await page.locator('#guideNova').fill('0');assert.match(await chapter.textContent(),/Complete R/);
+ await page.evaluate(()=>{const {state,route}=window.guideTest;state.novaUpgrades['scrap-value']=5;state.rebirth=35;route();});
+ assert.match(await chapter.textContent(),/187 Nova/);assert.match(await chapter.textContent(),/completed R35 already funds/);
+ await page.evaluate(()=>{const {state,route}=window.guideTest;state.novaUpgrades['scrap-value']=6;state.novaUpgrades['blueprint-scrap']=2;route();});
+ assert.match(await chapter.textContent(),/already own the upgrades/);
  await page.locator('[data-guide-read="first-steps"]').check();await page.reload();await page.locator('#guideProgressCount').waitFor();assert.equal(await page.locator('[data-guide-read="first-steps"]').isChecked(),true);
  await page.locator('[data-guide-jump="surges"]').click();await page.locator('.guide-surge-helper>summary').click();assert(await page.locator('.guide-surge-helper .guide-extra').isVisible());
  assert.equal(await page.locator('header a[href="#/guide"],.sidebar a[href="#/guide"],.toolbar a[href="#/guide"]').count(),0);
