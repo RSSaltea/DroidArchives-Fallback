@@ -671,10 +671,12 @@ const stationName=type=>PROTOCOL_SLOTS[type]?.label||({PROTOCOL:'Protocol',FUSIO
 const stationIcon=type=>isProtocolStation(type)?'<img src="assets/types/Protocol.svg" alt="">':TYPE_IMAGES[type]?`<img src="${TYPE_IMAGES[type]}" alt="">`:type==='UPGRADE_CHIP'?'<img src="assets/other/UpgradeChip.png" alt="">':type==='BUILD'?'⚒':type==='LOUNGE'?'◔':type==='BLUEPRINT_STORAGE'?'▣':'♟';
 const loungeNovaSlots=()=>Math.max(novaLevelFor('lounge-slot'),state.loungePurchased||0);
 const blueprintStorageSlots=()=>novaLevelFor('blueprint-storage');
-const loungeSlotMeta=index=>index<5?{kind:'base',label:'Lounge slot'}:index<9?{kind:'rebirth',rebirth:index+12,label:`Unlocks at Rebirth ${index+12}`}:{kind:'nova',level:index-8,label:`Nova Shop Lounge Slot ${index-8}`};
+// The Lounge tower unlocks at R4; its Nova slots need no second credit purchase.
+const LOUNGE_UPSTAIRS_REBIRTH=4;
+const loungeSlotMeta=index=>index<5?{kind:'base',label:'Lounge slot'}:index<9?{kind:'rebirth',rebirth:index+12,label:`Unlocks at Rebirth ${index+12}`}:{kind:'nova',level:index-8,minRebirth:index>=16?LOUNGE_UPSTAIRS_REBIRTH:0,label:`Nova Shop Lounge Slot ${index-8}${index>=16?` · Upstairs unlocks at Rebirth ${LOUNGE_UPSTAIRS_REBIRTH}`:''}`};
 const loungeSlotLabel=index=>loungeSlotMeta(index).label;
 const lockedSlotLabel=(type,index)=>type==='FUSION_BUILD'&&fusionBuildTank(index)?`Needs Fusion Tank level ${fusionBuildTank(index)} — Nova Shop or Cantina`:type==='FUSION'||type==='FUSION_BUILD'?`Unlocks at Rebirth ${FUSION_REBIRTH}`:type==='COMPANION'&&index===1?'Unlock Second Companion in Nova Shop':type==='UPGRADE_CHIP'?'Unlock Upgrade Chip Station in Nova Shop':type==='LOUNGE'?loungeSlotLabel(index):`Unlocks at Rebirth ${slotUnlockRebirth(type,index)}`;
-const loungeDivider=index=>index===5?'<div class="upper-level-divider"><span>Rebirth Unlocks</span></div>':index===9?'<div class="upper-level-divider"><span>Nova Shop</span></div>':index===16?'<div class="upper-level-divider"><span>Upstairs Lounge (Nova Shop)</span></div>':'';
+const loungeDivider=index=>index===5?'<div class="upper-level-divider"><span>Rebirth Unlocks</span></div>':index===9?'<div class="upper-level-divider"><span>Nova Shop</span></div>':index===16?`<div class="upper-level-divider"><span>Upstairs Lounge (Rebirth ${LOUNGE_UPSTAIRS_REBIRTH} + Nova Shop)</span></div>`:'';
 // The Firing Range gained a second floor with the Rebirth 17-22 Battle slots.
 // Battle is the only station split over two floors, so a slot number on its own
 // does not tell you which one to walk to. Everything that names a Battle slot
@@ -718,7 +720,7 @@ function isSlotEligible(type,index,rebirth=state.rebirth){if(type==='FUSION'||ty
     const tank=fusionBuildTank(index);
     return index<FUSION_BUILD_SLOTS&&(!tank||novaLevelFor('fusion-tank')>=tank);
   }
-  if(type==='LOUNGE'){const meta=loungeSlotMeta(index);return meta.kind==='base'||meta.kind==='rebirth'&&rebirth>=meta.rebirth||meta.kind==='nova'&&loungeNovaSlots()>=meta.level}if(type==='COMPANION')return index===0||index===1&&novaLevelFor('companion-slot')>=1;if(type==='UPGRADE_CHIP')return index===0&&novaLevelFor('upgrade-chip-station')>=1;const rule=SLOT_RULES[type];if(!rule)return false;if(index<rule.initial)return true;const unlock=slotUnlockRebirth(type,index);return unlock!==null&&rebirth>=unlock}
+  if(type==='LOUNGE'){const meta=loungeSlotMeta(index);return meta.kind==='base'||meta.kind==='rebirth'&&rebirth>=meta.rebirth||meta.kind==='nova'&&rebirth>=meta.minRebirth&&loungeNovaSlots()>=meta.level}if(type==='COMPANION')return index===0||index===1&&novaLevelFor('companion-slot')>=1;if(type==='UPGRADE_CHIP')return index===0&&novaLevelFor('upgrade-chip-station')>=1;const rule=SLOT_RULES[type];if(!rule)return false;if(index<rule.initial)return true;const unlock=slotUnlockRebirth(type,index);return unlock!==null&&rebirth>=unlock}
 const fusionRoomPurchaseKeys=()=>['FUSION:0','FUSION:1','FUSION:2','FUSION_BUILD:0'];
 const isSlotPurchased=(type,index)=>slotUnlockRebirth(type,index)===null||(type==='FUSION'||type==='FUSION_BUILD'&&index===0?fusionRoomPurchaseKeys().some(key=>state.purchasedSlots.includes(key)):state.purchasedSlots.includes(slotPurchaseKey(type,index)));
 const isSlotUnlocked=(type,index,rebirth=state.rebirth)=>isSlotEligible(type,index,rebirth)&&isSlotPurchased(type,index);
@@ -4118,7 +4120,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();refreshScourgeReminder();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-03-companion-seat',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-03-lounge-unlock',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
