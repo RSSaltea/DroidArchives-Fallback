@@ -10,12 +10,13 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
   page.on('pageerror',e=>errors.push(e.message));await page.route('https://**/*',r=>r.abort());
   await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.eventTest={state,route,baseExport,validateBaseImport,profileDataFromState,applyProfileData,blankProfileData,normalizeProfileDoc,cacheCloudDocLocally,optimiseInputStamp,eventReminders};'}));
   await context.addInitScript(ids=>localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(ids)),JSON.parse(fs.readFileSync('data/patch-notes.json','utf8')).notes.map(n=>n.id));
+ await context.addInitScript(()=>localStorage.setItem('droid-archives-site-help-v1',JSON.stringify({invited:true})));
   const url=`http://127.0.0.1:${server.address().port}/${shell}#/event`;
-  await page.goto(url);await page.locator('.event-page').waitFor();
+  await page.goto(url);await page.locator('.event-page').waitFor();await page.locator('[data-event-archive="gonk-o-ween"]>summary').click();
   await page.locator('[data-event-visit]').first().check();
   const day=await page.evaluate(()=>eventTest.state.eventProgress.visitDay);assert.equal(day,Math.floor(Date.now()/86400000));
   await page.locator('[data-event-visit]').nth(1).check();assert.equal(await page.evaluate(()=>eventTest.state.eventProgress.visitDay),day);
-  assert.match(await page.locator('.event-section-heading').first().innerText(),/00:00 UTC/);
+  assert.match(await page.locator('[data-event-archive="gonk-o-ween"] .event-section-heading').first().innerText(),/00:00 UTC/);
   assert.equal(await page.locator('#eventRemaining').count(),0);
   const stamp=await page.evaluate(()=>eventTest.optimiseInputStamp());
   await page.locator('[data-event-wish="bat-hat"]').click();await page.locator('[data-event-wish="ghoulish-gonk"]').click();await page.locator('[data-event-wish="event-pass"]').click();await page.locator('[data-event-wish="reward-treats"]').click();
@@ -28,7 +29,7 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
   const roundTrip=await page.evaluate(saved=>eventTest.normalizeProfileDoc({activeProfileId:'event-regression',profiles:[{id:'event-regression',data:saved}]}).profiles[0].data,saved);
   assert.deepEqual(roundTrip.eventProgress,saved.eventProgress,'Profile normalisation dropped Event progress');
   await page.evaluate(saved=>{const previous=eventTest.state.cloud.doc;eventTest.state.cloud.doc={activeProfileId:eventTest.state.cloud.activeProfileId,profiles:[{id:eventTest.state.cloud.activeProfileId,data:saved}]};eventTest.cacheCloudDocLocally();eventTest.state.cloud.doc=previous;},saved);
-  await page.reload();await page.locator('.event-page').waitFor();assert.equal(await page.locator('#eventTreatBalance').inputValue(),'30');assert(await page.locator('[data-event-visit]').nth(1).isChecked());assert(await page.locator('[data-event-owned="bat-hat"]').isChecked());assert.equal(await page.locator('[data-event-wish="ghoulish-gonk"]').getAttribute('aria-pressed'),'true');
+  await page.reload();await page.locator('.event-page').waitFor();await page.locator('[data-event-archive="gonk-o-ween"]>summary').click();assert.equal(await page.locator('#eventTreatBalance').inputValue(),'30');assert(await page.locator('[data-event-visit]').nth(1).isChecked());assert(await page.locator('[data-event-owned="bat-hat"]').isChecked());assert.equal(await page.locator('[data-event-wish="ghoulish-gonk"]').getAttribute('aria-pressed'),'true');
   await page.evaluate(()=>{eventTest.applyProfileData(eventTest.blankProfileData());eventTest.route()});assert.equal(await page.locator('#eventTreatBalance').inputValue(),'0');
   await page.evaluate(p=>{eventTest.applyProfileData(p);eventTest.route()},saved);assert.equal(await page.locator('#eventTreatBalance').inputValue(),'30');
   assert.equal((await page.evaluate(()=>eventTest.validateBaseImport({owned:[]}))).eventProgress.visitDay,day);
@@ -36,10 +37,11 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
   await page.locator('[data-event-start]').click();assert.equal(await page.locator('[data-event-visit]:checked').count(),0);
   // Exercise the real reminder scheduler with isolated progress and notification spies.
   const alertResult=await page.evaluate(async()=>{
+   const actualNow=Date.now;Date.now=()=>Date.parse('2026-10-08T12:00:00Z');
    const {startEventReminders}=await import('./event-page.js?v=2026-10-08-daily-treats');
    let data={eventId:'gonk-o-ween-2026',visitDay:Math.floor(Date.now()/86400000)-1,alerts:true},key='event-ui-test',count=0;
    const runner=startEventReminders({getProgress:()=>data,getProfileKey:()=>key,notify:()=>count++});
-   await runner.tick();await runner.tick();const once=count;data={...data,visitDay:data.visitDay-1};await runner.tick();key+='second-profile';await runner.tick();runner.dispose();return {once,count};
+   await runner.tick();await runner.tick();const once=count;data={...data,visitDay:data.visitDay-1};await runner.tick();key+='second-profile';await runner.tick();runner.dispose();Date.now=actualNow;return {once,count};
   });assert.deepEqual(alertResult,{once:1,count:2});
   // Advance across midnight while the page remains mounted.
   await page.locator('[data-event-visit]').first().check();

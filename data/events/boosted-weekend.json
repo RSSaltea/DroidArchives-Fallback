@@ -1,0 +1,12 @@
+{
+  "id": "boosted-weekend-2026-11-07",
+  "name": "Boosted Weekend",
+  "category": "Weekend event",
+  "description": "A 24-hour Boosted Weekend is scheduled. The exact bonuses and multipliers are not confirmed yet.",
+  "startsAt": "2026-11-07T21:00:00Z",
+  "endsAt": "2026-11-08T21:00:00Z",
+  "durationHours": 24,
+  "endedRetentionHours": 0,
+  "homepage": true,
+  "image": "assets/nova-shop/CraftingBoost.png"
+}

@@ -41,7 +41,7 @@ const server=http.createServer((req,res)=>{const pathname=new URL(req.url,'http:
   assert.equal(await page.locator('#baseMissionTools .mission-tools').count(),1);
   await page.locator('.tm-canvas [data-slot="WORKER:0"]').first().click();
   await page.locator('[data-action="trait"]').click();
-  await page.locator('#ownedTrait').selectOption('0');await page.locator('#ownedTraitTier').selectOption('Rainbow');await page.locator('#saveOwnedTrait').click();
+  await page.locator('.trait-picker>summary').click();await page.locator('[data-trait-choice=\"0\"]').click();await page.getByRole('radio',{name:/Rainbow/}).check();await page.locator('#saveOwnedTrait').click();
   const result=await page.evaluate(()=>{const t=window.traitTest,p=t.placements();t.materializePlacements(p);t.save();const exp=t.baseExport(),imported=t.validateBaseImport(exp),rows=t.optimisedRows(p.placed,p.overflow);return {income:t.incomeForPlaced(p.placed),traits:imported.owned.filter(u=>u.trait),projectedTraits:rows.filter(u=>u.trait).length,slots:t.stationSlotIndices('LOUNGE').length,memory:imported.iconicTraits};});
   assert(result.income>baseline);assert.equal(result.traits.length,2);assert.equal(result.projectedTraits,2);assert.equal(result.slots,21);assert.equal(result.memory['CB-23'].id,24);
   await page.evaluate(()=>window.traitTest.showSuperRebirthConfirm(()=>window.traitTest.route(),true));

@@ -17,7 +17,7 @@ const server=http.createServer((req,res)=>{const pathname=new URL(req.url,'http:
    await page.waitForFunction(()=>window.fixture?.state.droids.length);
    await page.evaluate(()=>{const t=window.fixture;Object.assign(t.state,t.blankProfileData());t.state.rebirth=40;t.state.autoPurchaseSlots=true;t.autoPurchaseEligibleSlots();t.state.owned=[{name:'GONK',variant:'DEFAULT',qty:1,preferred:'WORKER',preferredSlot:0}];t.route();});
    const trait=page.locator('[data-edit-trait="0"]').filter({visible:true}).first();
-   await trait.click();await page.locator('#ownedTrait').selectOption('3');
+   await trait.click();await page.locator('.trait-picker>summary').click();await page.locator('[data-trait-choice=\"3\"]').click();
    await page.locator('#saveOwnedTrait').click();
    assert.equal(await page.evaluate(()=>fixture.state.owned[0].trait.id),3,style);
    await page.locator('[data-edit-trait="0"]').filter({visible:true}).first().click();
