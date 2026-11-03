@@ -1,5 +1,5 @@
 import {mountTraitPicker,traitBonusText} from './trait-picker.js?v=2026-11-03-trait-picker';
-import {planScourgeSubmissions} from './scourge-submit-plan.js?v=2026-11-03-submit-only';
+import {planScourgeSubmissions} from './scourge-submit-plan.js?v=2026-11-03-companion-seat';
 import { normaliseScourgedex, scourgedexCatalogue, recordScourgeSubmissions, scourgeSubmissionCandidates, scourgedexPage, scourgeWipe } from './scourgedex.js?v=2026-11-02-vein-crossfade';
 import { siteHelpPage, siteHelpAfterRoute } from './site-help.js?v=2026-11-02-tour-targets';
 import { guidePage } from './guide-page.js?v=2026-11-02-guide-saved-balance';
@@ -25,7 +25,7 @@ import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-10-05-l
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-11-02-scourgedex-crit';
-import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-11-02-submit-batches';
+import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-11-03-companion-seat';
 import { slotDistanceSquared, slotPosition } from './slot-geometry.js?v=2026-10-31-map-panels';
 import { createOptimiseBackground } from './optimise-background.js?v=2026-10-09-search';
 import { createAssignmentScorer } from './optimise-layout-score.js?v=2026-11-02-scourgedex-crit';
@@ -4118,7 +4118,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();refreshScourgeReminder();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-02-submit-batches',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-03-companion-seat',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},

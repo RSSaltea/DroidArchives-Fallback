@@ -551,7 +551,17 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
         if (!otherGoal || otherGoal.kind !== 'place' || !(otherGoal.station === 'COMPANION' || goalMet(from, otherGoal, rules))) return false;
         return rules.canUse(units.get(other), from.station) && !(from.station === 'FUSION' && typeof rules.canPark === 'function' && !rules.canPark(units.get(other)));
       });
-      const seat = seats.find(([other]) => goalMet(from, state.goals.get(other), rules)) || seats[0];
+      const usefulSwap = seats.find(([other]) => goalMet(from, state.goals.get(other), rules));
+      // Picking up a passenger should not displace a settled Companion when
+      // another seat is empty. Preserve a tank occupant only when another
+      // droid must swap into that tank; empty Build slots cannot be refilled.
+      const preserveTank = ['BUILD', 'FUSION_BUILD'].includes(from.station) && arrivalsInto(state, from.station) > 0;
+      const freeSeat = goal?.kind==='place' && commandFor(goal)==='work' ? bookSlot('COMPANION', null, free, rules) : undefined;
+      if(!usefulSwap && !preserveTank && freeSeat!==undefined){
+        state.pos.set(key, { station: 'COMPANION', slot: freeSeat });
+        return { ...step, type: 'move', kind: 'direct', buffer: true, to: { station: 'COMPANION', slot: freeSeat } };
+      }
+      const seat = usefulSwap || seats[0];
       if (!seat) {
         // No Companion to trade with, but a seat is free: a droid bound for a
         // tank takes it with the Companion command and waits there for the

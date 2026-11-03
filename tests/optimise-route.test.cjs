@@ -589,3 +589,27 @@ test('shortening retains a round trip when its vacancy is needed by another droi
  const valid=steps=>mod.validateOptimisePlan({initial,projected,steps,rules}).ok;assert(valid(steps));
  const shorter=mod.shortenOptimiseWalk(steps,{distance:rules.distance,isValid:valid});assert(valid(shorter.steps));assert.equal(shorter.steps.length,4);
 });
+
+for(const tank of ['BUILD','FUSION_BUILD'])test(`a free Companion seat avoids moving Chopper out of and back into Companion for ${tank}`,async()=>{
+ const mod=await load();nextSource=0;
+ const droid=unit('BB9',tank,0,{built:true,variant:'SCOURGE'}),fill=unit('ASTRO-FILL','ASTROMECH',0,{lockedSlot:true}),pal=unit('CHOPPER','COMPANION',0,{lockedSlot:true});
+ const rules={...rulesFor({WORKER:2,ASTROMECH:1,BATTLE:1,LOUNGE:1,[tank]:1,COMPANION:2},{types:{BB9:'ASTROMECH',CHOPPER:'WORKER'}}),allowTemporaryCompanionSwaps:true,
+  slotDistanceSquared:(a,b)=>a.station==='COMPANION'?null:b.station==='WORKER'?b.slot+1:100};
+ rules.workLanding=(u,p)=>mod.predictWorkLanding(u,p,rules);
+ rules.companionWorkLanding=(u,p,t)=>mod.predictCompanionWorkLanding(u,p,t,rules);
+ const initial={placed:[droid,fill,pal]},target={placed:[at(droid,'BATTLE'),fill,pal],sell:[]};
+ const route=mod.planOptimiseRoute({initial,target,rules});assert(route.complete,route.issues.join('; '));
+ assert(!route.steps.some(s=>s.unit?.name==='CHOPPER'||s.withUnit?.name==='CHOPPER'),JSON.stringify(summary(route.steps)));
+ assert.equal(route.steps.length,2);assert.equal(route.steps[0].to.station,'COMPANION');assert.equal(route.steps[0].to.slot,1);
+ assert(route.steps[1].approachSlot);assert.equal(route.steps[1].to.station,'BATTLE');
+ const replay=mod.validateOptimisePlan({initial,projected:{placed:route.finalPlaced,sell:[]},steps:route.steps,rules});assert(replay.ok,replay.issues.join('; '));
+});
+
+test('a spare Companion seat must not empty a Build tank that another droid needs to swap into',async()=>{
+ nextSource=0;const pal=unit('WAR-PAL','COMPANION',0),done=unit('ASTRO-DONE','BUILD',0,{built:true}),weak=unit('WORK-WEAK','ASTROMECH',0);
+ const {route,summary}=await plan([pal,done,weak],[pal,at(done,'ASTROMECH',0),at(weak,'BUILD',0)],{ASTROMECH:1,BUILD:1,COMPANION:2,LOUNGE:0,FUSION:0});
+ assert(route.complete,route.issues.join('; '));
+ assert.equal(route.finalPlaced.find(u=>u.name==='WORK-WEAK').station,'BUILD');
+ assert.equal(route.finalPlaced.find(u=>u.name==='WAR-PAL').station,'COMPANION');
+ assert.equal(route.finalPlaced.find(u=>u.name==='ASTRO-DONE').station,'ASTROMECH');
+});

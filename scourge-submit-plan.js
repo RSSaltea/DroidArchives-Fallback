@@ -1,4 +1,4 @@
-import {planOptimiseRoute,shortenOptimiseWalk} from './optimise-route.js?v=2026-11-02-submit-batches';
+import {planOptimiseRoute,shortenOptimiseWalk} from './optimise-route.js?v=2026-11-03-companion-seat';
 import {validateOptimisePlan} from './optimise-plan-validation.js?v=2026-11-02-scourgedex-crit';
 
 // This target deliberately bypasses the income, shopping and fusion allocators.
