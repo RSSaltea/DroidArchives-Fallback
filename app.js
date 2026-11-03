@@ -1,4 +1,5 @@
 import {mountTraitPicker,traitBonusText} from './trait-picker.js?v=2026-11-03-trait-picker';
+import {planScourgeSubmissions} from './scourge-submit-plan.js?v=2026-11-03-submit-only';
 import { normaliseScourgedex, scourgedexCatalogue, recordScourgeSubmissions, scourgeSubmissionCandidates, scourgedexPage, scourgeWipe } from './scourgedex.js?v=2026-11-02-vein-crossfade';
 import { siteHelpPage, siteHelpAfterRoute } from './site-help.js?v=2026-11-02-tour-targets';
 import { guidePage } from './guide-page.js?v=2026-11-02-guide-saved-balance';
@@ -19,7 +20,7 @@ import {eventPage,startEventReminders} from './event-page.js?v=2026-11-03-event-
 import { companionPage } from './companion-page.js?v=2026-10-08-beta37';
 import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES, normaliseParty, partyBonuses } from './economy.js?v=2026-10-18-mission-tools';
 import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-11-02-scourgedex-crit';
-import { testMapPage } from './test-map.js?v=2026-10-31-map-commands';
+import { testMapPage } from './test-map.js?v=2026-11-03-submit-only';
 import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-10-05-layouts';
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
@@ -2775,6 +2776,15 @@ function mapDroidAction(card,action,onDone){
   const p=placements(),unit=p.placed.find(u=>u.source===card.source&&u.unit===card.unit&&u.name===card.name&&u.variant===card.variant);
   if(!unit||isBuilding(unit))return toast('Complete this build before using these actions.');
   const d=state.droids.find(d=>d.name===unit.name),rules=optimiseRouteRules();
+  if(action==='submit'){
+    if(unit.variant!=='SCOURGE'||isIconic(d))return;
+    if(unit.station!=='LOUNGE')return toast('Send this droid to the Lounge before submitting it.');
+    const needed=state.rebirth<rebirthGoal()&&futureRequirements().some(req=>req.droidName===unit.name);
+    if(!confirm(`Record ${unit.name} as submitted in-game? This removes this copy from Base and adds its hand-in to Scourgedex.${needed?' This droid is still needed for a future rebirth.':''}${unit.lockedSlot?' This copy is locked for Optimise.':''} ${traitLossText([unit])}`))return;
+    const indices=materializePlacements(p);state.owned.splice(indices.get(`${unit.source}:${unit.unit}`),1);
+    state.scourgedex=recordScourgeSubmissions(state.scourgedex,[unit],scourgedexCatalogue(state.droids)).progress;
+    save();onDone();refreshScourgeReminder();toast(`${unit.name} submitted to Scourgedex`);return;
+  }
   if(action==='sell'||action==='return'){
     if((action==='return')!==isIconic(d))return;
     if(action==='sell'&&!confirm(`Sell ${variantLabel(unit.variant)} ${unit.name}? ${traitLossText([unit])}`))return;
@@ -3350,7 +3360,7 @@ function basePageV2(){
       lock:x=>{toggleSlotLock(x.source,x.unit);render();},
       complete:x=>{completeBuild(x.source,x.unit);render();},
       iconic:x=>isIconic(state.droids.find(d=>d.name===x.name)),
-      ...Object.fromEntries(['work','companion','lounge','fusion','sell','return'].map(action=>[action,x=>mapDroidAction(x,action,render)])),
+      ...Object.fromEntries(['work','companion','lounge','fusion','sell','return','submit'].map(action=>[action,x=>mapDroidAction(x,action,render)])),
       lockedLabel:s=>s.station==='BLUEPRINT_STORAGE'?'Unlock Blueprint Storage in Nova Shop':lockedSlotLabel(s.station,s.slot),price:s=>slotPriceLabel(s.station,s.slot),
       purchase:s=>{if(isSlotEligible(s.station,s.slot))purchaseRebirthSlot(s.station,s.slot,render);},
       eligible:s=>s.station!=='BLUEPRINT_STORAGE'&&isSlotEligible(s.station,s.slot),
@@ -3768,7 +3778,7 @@ const optimiseTickedSteps=()=>readList('droid-archive-optimise-ticked');
 const toggleTickedStep=key=>{const list=optimiseTickedSteps(),i=list.indexOf(key);i>=0?list.splice(i,1):list.push(key);writeList('droid-archive-optimise-ticked',list)};
 // A step is the same step whatever its wording: the droid, the command and
 // where it starts and ends.
-const optimiseStepKey=step=>{const place=x=>x?typeof x==='string'?x:`${x.station}:${x.slot}`:'-';return `${step.type}|${step.unit?`${step.unit.source}:${step.unit.unit}`:'-'}|${place(step.from)}|${place(step.to)}`};
+const optimiseStepKey=step=>{const place=x=>x?typeof x==='string'?x:`${x.station}:${x.slot}`:'-';return `${step.submissionOnly?'scourge|':''}${step.type}|${step.unit?`${step.unit.source}:${step.unit.unit}`:'-'}|${place(step.from)}|${place(step.to)}`};
 // Droids you have told Optimise to spare. Cleared when a layout is applied,
 // since the keys are positions in the roster and those shift.
 const sparedFromSelling=()=>readList('droid-archive-optimise-spared');
@@ -4470,6 +4480,29 @@ function wireCompanionActivityButtons(){
     setCompanionActivity(id==='missions'?(inMissions?null:'combat'):id===active?null:id);
     optimisePage();
   }));
+}
+let scourgeSubmitPreviewCache=null;
+function scourgeSubmitPreview(){
+  const stamp=optimiseInputStamp();
+  if(scourgeSubmitPreviewCache?.stamp===stamp)return scourgeSubmitPreviewCache.preview;
+  const baseP=placements(),rules=optimiseRouteRules();
+  const result=planScourgeSubmissions(baseP,rules),{projected,pending}=result;
+  projected.rows=optimisedRows(projected.placed,projected.overflow);
+  const steps=result.steps.map(step=>({...step,submissionOnly:true,text:routeStepText(step)}));
+  const preview={...finishOptimisePreview(baseP,{moves:[]},projected,steps,stamp),pending};
+  scourgeSubmitPreviewCache={stamp,preview};return preview;
+}
+function scourgeSubmitPage(){
+  if(state.rebirth<rebirthGoal()){
+    app.innerHTML='<h1>Submit all Scourge droids</h1><p>This plan opens when you reach your rebirth goal. Until then, normal Optimise keeps the Scourge droids you still need.</p><a class="btn secondary" href="#/optimise">Open normal Optimise</a>';return;
+  }
+  const preview=scourgeSubmitPreview(),{projected,steps,pending}=preview;
+  const ticked=projected.planComplete?optimiseTickedProjection(preview):null,visits=optimiseVisits(steps),readOnly=Boolean(state.sharedView&&!state.sharedView.canEdit);
+  app.innerHTML=`<div class="breadcrumbs"><a href="#/base">Base</a> / <a href="#/optimise">Optimise</a> / Scourge submissions</div><div class="base-heading"><div><p class="eyebrow">Scourgedex hand-ins</p><h1>Submit all Scourge droids</h1><p class="lead">Move finished Scourge droids into the Lounge and submit them before Super Rebirth.</p></div><button class="btn" id="applyScourgeSubmissions" ${readOnly||!projected.planComplete||!projected.submissions.length?'disabled':''}>Apply submitted droids (${projected.submissions.length})</button></div><p class="notice">Follow these steps in-game first, then apply to remove the submitted copies from Base and record them in Scourgedex. This plan includes locked and income-producing Scourge droids at your rebirth goal. Other droids are only moved when needed to make Lounge space.</p>${pending.length?`<section class="panel"><h2>Finish these first</h2><ul>${pending.map(u=>`<li><strong>${escapeAttr(u.name)}</strong> - ${u.station?escapeAttr(slotLabel(u)):'not placed in Base'}: ${isBuilding(u)?'complete the build in-game and record it in Base':'record its current Base slot'}.</li>`).join('')}</ul><p>You can submit the ready droids now, then return for these.</p><a href="#/base">Open Base</a></section>`:''}${!projected.planComplete?`<p class="notice" role="alert">${projected.planIssues.map(escapeAttr).join('<br>')} <a href="#/base">Check Lounge space in Base</a></p>`:''}${steps.length?`<section class="optimise-steps"><header><h2>Submission steps</h2>${ticked?`<button class="btn secondary" id="applyScourgeSteps" ${readOnly?'disabled':''}>Apply ticked steps (${ticked.tickedCount}/${ticked.tickedTotal})</button>`:''}</header><ol class="optimise-visits">${visits.map(v=>`<li class="optimise-visit"><h3>${optimiseRegionName(v.at)}</h3><ul>${v.steps.map(step=>`<li class="${stepTicked(optimiseStepKey(step))?'step-done':''}">${stepHtml(step)}</li>`).join('')}</ul></li>`).join('')}</ol></section>`:!pending.length?'<p>No remaining Scourge droids to submit.</p>':''}<p><a href="#/optimise">Back to normal Optimise</a> &middot; <a href="#/scourgedex">Open Scourgedex</a></p>`;
+  const apply=async(button,candidate)=>{button.disabled=true;try{await applyOptimisedLayout(candidate)}finally{if(button.isConnected)button.disabled=false;}};
+  app.querySelector('#applyScourgeSubmissions').onclick=event=>apply(event.currentTarget,preview);
+  app.querySelector('#applyScourgeSteps')?.addEventListener('click',event=>apply(event.currentTarget,{...preview,projected:ticked}));
+  app.querySelectorAll('[data-step-tick]').forEach(box=>box.onclick=event=>{event.stopPropagation();toggleTickedStep(box.dataset.stepTick);const y=scrollY;route();scrollTo(0,y);});
 }
 function optimisePage(){
   const preview=backgroundOptimisePreview();
@@ -5444,7 +5477,7 @@ function journeyGuidePage(){
   }).join('');
   guidePage({host:app,shop:state.novaShop,owned:state.novaUpgrades,rebirth:state.rebirth,cycle:state.cycle,profileKey:state.cloud.activeProfileId||'local',surgeCards:cards});
 }
-function route(){refreshKyberRelease(false);const rawHash=location.hash.slice(1),path=isAuthCallbackHash(rawHash)?'/':rawHash.split('?')[0]||'/',routeChanged=path!==lastRoutePath;lastRoutePath=path;if(path==='/todo'||path==='/donate'||path==='/groups'||path==='/companion')app.querySelector('.archive-timers')?.remove();document.querySelector('.sidebar').classList.remove('mobile-open');document.querySelector('#rebirthQuickBar')?.dispose?.();renderBaseSidebar(()=>route());renderCloudHeader();syncSlotLabNav();if(path==='/')home();else if(path==='/reset-password'){home();Promise.resolve(supabaseReady()||loadSupabaseConfig()).then(()=>showAuthModal('reset'))}else if(path==='/shared')archiveExperience.sharedPage();else if(path==='/site-stats')showSiteStats({host:app,client:()=>supabaseClient,allowed:()=>kyberPreviewVerified});else if(path==='/kyber')app.innerHTML=kyberIsReleased(kyberPreviewVerified)?kyberGuide({privateSections:kyberPreviewVerified}):'<h1>Update not available yet</h1><p>This update opens on September 26 at 21:00 BST.</p>';else if(path==='/guide')journeyGuidePage();else if(path==='/site-guide')siteHelpPage(app);else if(path==='/scourgedex')scourgedexPage({host:app,droids:state.droids,getProgress:()=>state.scourgedex,setProgress:value=>{state.scourgedex=value;save()},picture,escape:escapeAttr,readOnly:Boolean(state.sharedView&&!state.sharedView.canEdit)});else if(path==='/event')eventPage({host:app,events:state.events,getProgress:()=>state.eventProgress,setProgress:value=>{state.eventProgress=value;save()}});else if(path==='/companion')companionPage(app,()=>supabaseClient);else if(path==='/droids')droidsPage();else if(path==='/droidex')droidexPage();else if(path==='/traits')traitsPage(app,state.droids,missionToolsContext(placements().placed));else if(path==='/fusion-lab')fusionLabPage();else if(path==='/nova-shop')novaShopPage();else if(path.startsWith('/nova-shop/'))novaDetailPage(path.split('/')[2]);else if(path==='/cantina-shop')cantinaShopPage();else if(path==='/groups')groupsPage();else if(path==='/galactic-reports'&&GALACTIC_REPORTS_ENABLED)galacticReportsPage();else if(path==='/todo')todoPage();else if(path==='/donate')donatePage();else if(path==='/testmap')basePageV2();else if(path==='/base')basePageV2();else if(path==='/droid-calc')droidCalcPage();else if(['/rebirth','/rebirth/reqs','/rebirth/tracker','/rebirth/tracker/skilltree'].includes(path))rebirthPage();else if(path==='/crit-calc')critCalcPage();else if(path==='/slot-lab')slotLabPage();else if(path==='/optimise')optimisePage();else if(path==='/lucky-droid')luckyDroidPageV2();else if(path.startsWith('/droid/'))detailPage(path.split('/')[2]);else notFound();decorateSharedView();if(routeChanged){try{app.focus({preventScroll:true})}catch{app.focus()}scrollTo(0,0)}setTimeout(showPatchNotesOnce,80);archiveExperience?.checkpoint('Profile opened');publishCompanionState();window.uiHooks?.afterRoute?.(path);siteHelpAfterRoute();refreshScourgeReminder()}
+function route(){refreshKyberRelease(false);const rawHash=location.hash.slice(1),path=isAuthCallbackHash(rawHash)?'/':rawHash.split('?')[0]||'/',routeChanged=path!==lastRoutePath;lastRoutePath=path;if(path==='/todo'||path==='/donate'||path==='/groups'||path==='/companion')app.querySelector('.archive-timers')?.remove();document.querySelector('.sidebar').classList.remove('mobile-open');document.querySelector('#rebirthQuickBar')?.dispose?.();renderBaseSidebar(()=>route());renderCloudHeader();syncSlotLabNav();if(path==='/')home();else if(path==='/reset-password'){home();Promise.resolve(supabaseReady()||loadSupabaseConfig()).then(()=>showAuthModal('reset'))}else if(path==='/shared')archiveExperience.sharedPage();else if(path==='/site-stats')showSiteStats({host:app,client:()=>supabaseClient,allowed:()=>kyberPreviewVerified});else if(path==='/kyber')app.innerHTML=kyberIsReleased(kyberPreviewVerified)?kyberGuide({privateSections:kyberPreviewVerified}):'<h1>Update not available yet</h1><p>This update opens on September 26 at 21:00 BST.</p>';else if(path==='/guide')journeyGuidePage();else if(path==='/site-guide')siteHelpPage(app);else if(path==='/scourgedex')scourgedexPage({host:app,droids:state.droids,getProgress:()=>state.scourgedex,setProgress:value=>{state.scourgedex=value;save()},picture,escape:escapeAttr,readOnly:Boolean(state.sharedView&&!state.sharedView.canEdit)});else if(path==='/event')eventPage({host:app,events:state.events,getProgress:()=>state.eventProgress,setProgress:value=>{state.eventProgress=value;save()}});else if(path==='/companion')companionPage(app,()=>supabaseClient);else if(path==='/droids')droidsPage();else if(path==='/droidex')droidexPage();else if(path==='/traits')traitsPage(app,state.droids,missionToolsContext(placements().placed));else if(path==='/fusion-lab')fusionLabPage();else if(path==='/nova-shop')novaShopPage();else if(path.startsWith('/nova-shop/'))novaDetailPage(path.split('/')[2]);else if(path==='/cantina-shop')cantinaShopPage();else if(path==='/groups')groupsPage();else if(path==='/galactic-reports'&&GALACTIC_REPORTS_ENABLED)galacticReportsPage();else if(path==='/todo')todoPage();else if(path==='/donate')donatePage();else if(path==='/testmap')basePageV2();else if(path==='/base')basePageV2();else if(path==='/droid-calc')droidCalcPage();else if(['/rebirth','/rebirth/reqs','/rebirth/tracker','/rebirth/tracker/skilltree'].includes(path))rebirthPage();else if(path==='/crit-calc')critCalcPage();else if(path==='/slot-lab')slotLabPage();else if(path==='/optimise/scourge')scourgeSubmitPage();else if(path==='/optimise')optimisePage();else if(path==='/lucky-droid')luckyDroidPageV2();else if(path.startsWith('/droid/'))detailPage(path.split('/')[2]);else notFound();decorateSharedView();if(routeChanged){try{app.focus({preventScroll:true})}catch{app.focus()}scrollTo(0,0)}setTimeout(showPatchNotesOnce,80);archiveExperience?.checkpoint('Profile opened');publishCompanionState();window.uiHooks?.afterRoute?.(path);siteHelpAfterRoute();refreshScourgeReminder()}
 const routeWithoutActiveNavigation=route;
 const activeNavigationHref=path=>path.startsWith('/droid/')||path==='/droids'?'#/droids':path.startsWith('/nova-shop')?'#/nova-shop':path==='/rebirth'||path.startsWith('/rebirth/')?'#/rebirth':`#${path}`;
 const COMMAND_ART={party:'Party',crafting:'Crafting',map:'Map',health:'Health',scrap:'Scrap',chips:'Chips',calc:'DroidCalc',outlook:'Outlook',groupOutlook:'GroupOutlook',fusion:'Fusion',detail:'Detail',transfer:'ImportExport'};
@@ -5973,7 +6006,7 @@ function refreshScourgeReminder(){
  if(state.rebirth<rebirthGoal())return;
  const remaining=placements().placed.filter(u=>u.variant==='SCOURGE');if(!remaining.length)return;
  const alert=document.createElement('section');alert.id='scourgeGoalReminder';alert.className='scourge-reminder';
- alert.innerHTML=`<h2>Submit remaining Scourge Droids!</h2><p>Your rebirth goal is reached. Submit these before Super Rebirth. Send each to the Lounge first; finish any builds before moving them.</p><ul>${remaining.map(u=>`<li><strong>${escapeAttr(u.name)}</strong> — ${escapeAttr(slotLabel(u))}${isBuilding(u)?' (still building)':''}</li>`).join('')}</ul><a href="#/optimise">Plan the Lounge moves and hand-ins</a> · <a href="#/scourgedex">Open Scourgedex</a>`;
+ alert.innerHTML=`<h2>Submit remaining Scourge Droids!</h2><p>Your rebirth goal is reached. Submit these before Super Rebirth. Send each to the Lounge first; finish any builds before moving them.</p><ul>${remaining.map(u=>`<li><strong>${escapeAttr(u.name)}</strong> — ${escapeAttr(slotLabel(u))}${isBuilding(u)?' (still building)':''}</li>`).join('')}</ul><a class="btn secondary" href="#/optimise/scourge">Submit all Scourge droids</a> · <a href="#/scourgedex">Open Scourgedex</a>`;
  app.prepend(alert);
 }
 function prepareScourgeSubmissions(baseP,target){

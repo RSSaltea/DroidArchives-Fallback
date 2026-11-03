@@ -82,3 +82,25 @@ test('batching preserves separate hand-ins when a full Lounge must be freed firs
  assert(isValid(result.steps));assert.deepEqual(result.steps.map(s=>s.type),['submit','move','submit']);
  assert.equal(scourgeSubmissionTrips(result.steps),2);
 });
+
+const {planScourgeSubmissions}=require('../scourge-submit-plan.js');
+test('submission-only plan preserves other droids and queues unfinished builds',()=>{
+ const a=unit('A','WORKER',0,{lockedSlot:true}),b=unit('B','LOUNGE'),normal=unit('C','LOUNGE',1,{variant:'GOLD',trait:{id:0,tier:'Gold'}}),building=unit('D','BUILD',0,{built:false});
+ const initial={placed:[a,b,normal,building],overflow:[]},rules=rulesFor({WORKER:2,LOUNGE:2,FUSION:3,BUILD:1,COMPANION:1},true);
+ const canSubmit=rules.canSubmit;rules.canSubmit=u=>canSubmit(u)&&!rules.isBuilding(u);
+ const result=planScourgeSubmissions(initial,rules);
+ assert(result.projected.planComplete,result.projected.planIssues.join(';'));
+ assert.deepEqual(result.projected.submissions.map(u=>u.name),['A','B']);
+ assert.deepEqual(result.pending.map(u=>u.name),['D']);
+ assert.deepEqual(result.projected.sell,[]);assert.deepEqual(result.projected.returns,[]);assert.deepEqual(result.projected.fusions,[]);
+ assert(result.steps.every(s=>!['sell','return','buy','fuse'].includes(s.type)));
+ assert.deepEqual(result.projected.placed.find(u=>u.name==='C'),normal);
+ assert.deepEqual(result.projected.placed.find(u=>u.name==='D'),building);
+});
+test('submission-only plan clears a full ordinary Lounge without consuming its occupants',()=>{
+ const initial={placed:[unit('A','WORKER'),unit('B','LOUNGE',0,{variant:'GOLD'})],overflow:[]};
+ const result=planScourgeSubmissions(initial,rulesFor({WORKER:1,LOUNGE:1,FUSION:3,COMPANION:1},true));
+ assert(result.projected.planComplete,result.projected.planIssues.join(';'));
+ assert.equal(result.projected.placed.length,1);assert.equal(result.projected.placed[0].name,'B');assert.equal(result.projected.placed[0].station,'LOUNGE');
+ assert.deepEqual(result.projected.sell,[]);
+});
