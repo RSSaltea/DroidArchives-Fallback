@@ -613,3 +613,19 @@ test('a spare Companion seat must not empty a Build tank that another droid need
  assert.equal(route.finalPlaced.find(u=>u.name==='WAR-PAL').station,'COMPANION');
  assert.equal(route.finalPlaced.find(u=>u.name==='ASTRO-DONE').station,'ASTROMECH');
 });
+
+
+test('sale protection permits relocation but prevents sales and Iconic returns',async()=>{
+ const mod=await load(),rules=rulesFor({WORKER:1,LOUNGE:2});
+ rules.workLanding=(u,p)=>mod.predictWorkLanding(u,p,rules);rules.canReturn=()=>true;
+ const kept=unit('WORK-kept','LOUNGE',0,{noSell:true}),initial={placed:[kept]};
+ const target={placed:[at(kept,'WORKER')],sell:[]};
+ const route=mod.planOptimiseRoute({initial,target,rules});
+ assert(route.complete,route.issues.join('; '));
+ assert(route.finalPlaced[0].noSell);assert(!route.finalPlaced[0].lockedSlot);
+ assert(mod.validateOptimisePlan({initial,projected:target,steps:route.steps,rules}).ok);
+ for(const action of ['sell','returns']){
+  const rejected=mod.planOptimiseRoute({initial,target:{placed:[],sell:[],[action]:[kept]},rules});
+  assert(!rejected.complete);assert(!rejected.steps.some(s=>['sell','return'].includes(s.type)));
+ }
+});

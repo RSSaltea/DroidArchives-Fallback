@@ -464,9 +464,9 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       if(from?.station!=='LOUNGE')return tryCommand(state,key,'lounge',allowAssumed,commandRegion);
       state.sold.add(key);state.pos.delete(key);return {...step,type:'submit'};
     }
-    if (kind === 'sell') { state.sold.add(key); state.pos.delete(key); return { ...step, type: 'sell' }; }
+    if (kind === 'sell') { if(unit.noSell)return null; state.sold.add(key); state.pos.delete(key); return { ...step, type: 'sell' }; }
     if (kind === 'return') {
-      if (!rules.canReturn?.(unit) || fixed(key) || companionLocks.has(key)) return null;
+      if (unit.noSell || !rules.canReturn?.(unit) || fixed(key) || companionLocks.has(key)) return null;
       state.sold.add(key); state.pos.delete(key); return { ...step, type: 'return' };
     }
     if (kind === 'fusion') {

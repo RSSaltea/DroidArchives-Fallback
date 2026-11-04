@@ -39,6 +39,10 @@ const path = require('node:path');
     rejects(check({ placed: [fixed] }, { sell: [fixed] }, [{ type: 'sell', unit: fixed }]), /locked or still building/);
     rejects(check({ placed: [fixed] }, {}, [{ type: 'fuse-in', unit: fixed }]), /locked or still building/);
   }
+  const protectedCopy={...a,noSell:true};
+  passes(check({placed:[protectedCopy]},{placed:[at(protectedCopy,'WORKER',0)]},[{...move,unit:protectedCopy}]));
+  rejects(check({placed:[protectedCopy]},{sell:[protectedCopy]},[{type:'sell',unit:a,from:position(a)}]),/protected from selling/);
+  rejects(check({placed:[protectedCopy]},{placed:[a]},[]),/sale protection/);
   const swap = { type: 'swap', unit: a, from: position(a), withUnit: b, withFrom: position(b) };
   passes(check({ placed: [a, b] }, { placed: [at(a, b.station, b.slot), at(b, a.station, a.slot)] }, [swap]));
   const completed = at({ ...b, built: true }, 'FUSION_BUILD', 0);

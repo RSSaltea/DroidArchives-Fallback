@@ -161,7 +161,7 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
     } else if (step.type === 'return') {
       const key = resolve(step.unit, label);
       if (!key || !checkFrom(key, positionOf(step, 'from'), label, true) || !movable(key, label)) continue;
-      if (purchases.has(key) || !rule('canReturn', current(key))) { issue(`${label}: this droid cannot be returned.`); continue; }
+      if (current(key).noSell || purchases.has(key) || !rule('canReturn', current(key))) { issue(`${label}: this droid cannot be returned.`); continue; }
       returned.add(key); remove(key);
     } else if (step.type === 'submit') {
       const key=resolve(step.unit,label);
@@ -171,6 +171,7 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
     } else if (step.type === 'sell') {
       const key = resolve(step.unit, label);
       if (!key || !checkFrom(key, positionOf(step, 'from'), label) || !movable(key, label)) continue;
+      if(current(key).noSell){issue(`${label}: this droid is protected from selling.`);continue;}
       sold.add(key); remove(key);
     } else if (step.type === 'fuse-in' || step.type === 'fuse-held') {
       const key = resolve(step.unit, label);
@@ -273,6 +274,7 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
     if (!generated.has(key) && Boolean(unit.lockedSlot) !== Boolean(replayed.lockedSlot)) {
       issue(`Projected lock for ${key} does not match the replay.`);
     }
+    if(Boolean(unit.noSell)!==Boolean(replayed.noSell))issue(`Projected sale protection for ${key} does not match the replay.`);
     const expected = targetPositions.get(key), actual = positions.get(key);
     if ((expected || actual) && !samePlace(expected, actual)) issue(`Projected position for ${key} does not match the replay.`);
   }

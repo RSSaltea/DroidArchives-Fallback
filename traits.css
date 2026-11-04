@@ -86,3 +86,8 @@
  .trait-comparison table{table-layout:fixed}
  .trait-comparison th,.trait-comparison td{overflow-wrap:anywhere;padding:6px}
 }
+
+/* Keep a copy without pinning its slot. */
+.slot-no-sell{position:absolute;left:5px;bottom:5px;z-index:2;padding:3px 5px;border:1px solid #50705c;border-radius:4px;background:#172a22;color:#b7d8c2;font-size:10px;cursor:pointer}
+.slot-no-sell.active,.tm-actions [data-action="noSell"][aria-pressed="true"]{border-color:#72dba1;background:#214936;color:#afffcc}
+.slot-card-menu .slot-no-sell{position:static;flex:0 0 auto;height:21px;line-height:1;padding:2px 5px}
