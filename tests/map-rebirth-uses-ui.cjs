@@ -6,7 +6,7 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+new 
 try{for(const shell of ['index.html','classic.html']){
  const ctx=await browser.newContext({viewport:{width:1500,height:1100}}),page=await ctx.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));await page.route('https://**/*',r=>r.abort());
- await page.addInitScript(notes=>{localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(notes));localStorage.setItem('droid-archive-map-hidden','0')},JSON.parse(fs.readFileSync('data/patch-notes.json','utf8')).notes.map(n=>n.id));
+ await page.addInitScript(notes=>{localStorage.setItem('droid-archives-site-help-v1',JSON.stringify({invited:true}));localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(notes));localStorage.setItem('droid-archive-map-hidden','0')},JSON.parse(fs.readFileSync('data/patch-notes.json','utf8')).notes.map(n=>n.id));
  await page.goto(`http://127.0.0.1:${server.address().port}/${shell}#/base`);await page.waitForFunction(()=>window.mapTest?.state.droids.length);
  await page.evaluate(()=>{const t=mapTest;Object.assign(t.state,{cycle:3,rebirth:36,superRebirthGoal:40,autoCompleteBuilds:false,autoPurchaseSlots:true,novaUpgrades:{'blueprint-storage':1},owned:[{name:'GUNRUNNER',variant:'BESKAR',qty:1,preferred:'LOUNGE',preferredSlot:0},{name:'GUNRUNNER',variant:'KYBER_GREEN',qty:1,preferred:'LOUNGE',preferredSlot:1}],blueprints:[{name:'SNOW MOUSE',variant:'KYBER',slot:0}]});t.autoPurchaseEligibleSlots();t.route()});
  const slot=k=>page.locator(`.tm-canvas [data-slot="${k}"]`),uses=page.locator('.tm-rebirth-uses');
@@ -20,7 +20,7 @@ try{for(const shell of ['index.html','classic.html']){
  assert.match(await uses.innerText(),/25K chips/);
  await page.locator('.base-heading h1').click();
  assert.match(await page.locator('.tm-droid-heading').innerText(),/GUNRUNNER/);
- await page.locator('.tm-viewport').click({position:{x:3,y:3}});
+ await page.locator('.tm-viewport').click({position:{x:3,y:200}});
  assert.equal(await page.locator('.tm-droid-heading').count(),0);
  await slot('LOUNGE:0').click();await slot('LOUNGE:0').hover();await page.keyboard.press('Escape');
  assert.equal(await page.locator('.tm-droid-heading').count(),0);
