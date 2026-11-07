@@ -86,7 +86,7 @@
       "id": "critical-chance",
       "sourceId": "CRIT_CH",
       "name": "Critical Chance",
-      "category": "featured",
+      "category": "core",
       "icon": "assets/nova-shop/T_Icon_CritChance.png",
       "description": "A stronger Pickaxe swing. +5% Critical Chance per level.",
       "uncapped": true,
@@ -351,7 +351,7 @@
       "id": "critical-amount",
       "sourceId": "CRIT_AM",
       "name": "Critical Amount",
-      "category": "featured",
+      "category": "core",
       "icon": "assets/nova-shop/T_Icon_CritAmount.png",
       "description": "+10% Critical Amount per level.",
       "uncapped": true,
@@ -616,8 +616,8 @@
     {
       "id": "multi-crit",
       "name": "Multi Crit",
-      "category": "featured",
-      "icon": "assets/nova-shop/Icon_CritMulti.png",
+      "category": "core",
+      "icon": "assets/nova-shop/T_Icon_CritMulti.png",
       "description": "Allows up to five total Critical hits. Each successful additional roll halves the next roll chance.",
       "prerequisite": "Critical Chance level 4",
       "levels": [
@@ -641,13 +641,14 @@
           "cost": 1600,
           "reward": "Up to 5 total Critical hits"
         }
-      ]
+      ],
+      "sourceId": "CR_M"
     },
     {
       "id": "companion-slot",
       "sourceId": "C2",
       "name": "Second Companion",
-      "category": "featured",
+      "category": "core",
       "icon": "assets/nova-shop/T_Icon_DoubleCompanion.png",
       "description": "Allows a second companion.",
       "levels": [
@@ -660,25 +661,30 @@
     },
     {
       "id": "upgrade-chip-station",
-      "sourceId": "UCS",
+      "sourceId": "UCG",
       "name": "Upgrade Chip Station",
-      "category": "featured",
-      "icon": "assets/nova-shop/UpgradeChipStation.png",
-      "description": "Adds a droid workstation that produces Upgrade Chips. Does not work offline and can only store one hour of chips.",
+      "category": "workshop",
+      "icon": "assets/nova-shop/T_Icon_UpgradeChipStation.png",
+      "description": "Unlock up to two droid workstations that generate Upgrade Chips. Each stores one hour by default; Capacity increases the cap and Offline Gains enables generation while away.",
       "levels": [
         {
           "level": 1,
           "cost": 120,
-          "reward": "Unlock the Upgrade Chip Station"
+          "reward": "Unlock Upgrade Chip Station 1"
+        },
+        {
+          "level": 2,
+          "cost": 1200,
+          "reward": "Unlock Upgrade Chip Station 2"
         }
       ]
     },
     {
       "id": "chip-sell-bonus",
-      "sourceId": "CSB",
+      "sourceId": "DSMCH",
       "name": "Chip Sell Bonus",
-      "category": "featured",
-      "icon": "assets/nova-shop/chipsellbonus.png",
+      "category": "core",
+      "icon": "assets/nova-shop/T_Icon_SellChipsBonus.png",
       "description": "Earn up to +200% Upgrade Chips when selling a Droid.",
       "levels": [
         {
@@ -705,10 +711,10 @@
     },
     {
       "id": "credit-sell-bonus",
-      "sourceId": "CRSB",
+      "sourceId": "DSMC",
       "name": "Credit Sell Bonus",
-      "category": "featured",
-      "icon": "assets/nova-shop/creditsellbonus.png",
+      "category": "core",
+      "icon": "assets/nova-shop/T_Icon_SellCreditsBonus.png",
       "description": "Earn up to +750% Credits when selling a Droid.",
       "levels": [
         {
@@ -807,10 +813,10 @@
     },
     {
       "id": "luck-boost-token",
-      "sourceId": "LBT",
+      "sourceId": "LuckBoost",
       "name": "Luck Boost Token",
       "category": "lobby-boosts",
-      "icon": "assets/nova-shop/SandcrawlerLuckBoost.png",
+      "icon": "assets/nova-shop/T_Icon_BoostLuck.png",
       "description": "Increases the odds of higher-rarity droids appearing on the Sandcrawler conveyor for 15 minutes. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
@@ -826,10 +832,10 @@
     },
     {
       "id": "crafting-boost-token",
-      "sourceId": "CBT",
+      "sourceId": "CraftingBoost",
       "name": "Crafting Boost Token",
       "category": "lobby-boosts",
-      "icon": "assets/nova-shop/CraftingBoost.png",
+      "icon": "assets/nova-shop/T_Icon_BoostCrafting.png",
       "description": "Doubles passive Droid Depot crafting speed and boosts pickaxe crafting progress by 100% for everyone in the session for 15 minutes. Does not boost passive fusion speed. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
@@ -845,10 +851,10 @@
     },
     {
       "id": "rainbow-surge-token",
-      "sourceId": "RST",
+      "sourceId": "RainbowSurge",
       "name": "Rainbow Surge Token",
       "category": "lobby-boosts",
-      "icon": "assets/nova-shop/SurgeBoost.png",
+      "icon": "assets/nova-shop/T_Icon_BoostSurge.png",
       "description": "Unavailable in the current Nova Shop. Existing ownership is retained.",
       "uncapped": true,
       "repeatable": true,
@@ -865,10 +871,10 @@
     },
     {
       "id": "beskar-surge-token",
-      "sourceId": "BST",
+      "sourceId": "BeskarSurge",
       "name": "Beskar Surge Token",
       "category": "lobby-boosts",
-      "icon": "assets/nova-shop/SurgeBoost.png",
+      "icon": "assets/nova-shop/T_Icon_BoostSurge.png",
       "description": "Sends Beskar Variant energy across the Sandcrawler conveyor every 30 seconds for 5 minutes. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
@@ -885,10 +891,10 @@
     },
     {
       "id": "galactic-surge-token",
-      "sourceId": "GST",
+      "sourceId": "GalacticSurge",
       "name": "Galactic Surge Token",
       "category": "lobby-boosts",
-      "icon": "assets/nova-shop/SurgeBoost.png",
+      "icon": "assets/nova-shop/T_Icon_BoostSurge.png",
       "description": "Sends Galactic Variant energy across the Sandcrawler conveyor every 30 seconds for 5 minutes. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
@@ -904,10 +910,10 @@
     },
     {
       "id": "stellar-surge-token",
-      "sourceId": "STELLAR_SURGE",
+      "sourceId": "StellarSurge",
       "name": "Stellar Surge Token",
       "category": "lobby-boosts",
-      "icon": "assets/nova-shop/SurgeBoost.png",
+      "icon": "assets/nova-shop/T_Icon_BoostSurge.png",
       "description": "Sends a wave of 'Stellar Variant' energy across the Sandcrawler conveyor every 30 seconds for 5 minutes. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
@@ -1418,10 +1424,10 @@
     },
     {
       "id": "daily-crystals",
-      "sourceId": "DQC",
+      "sourceId": "DCB",
       "name": "Daily Crystals",
       "category": "core",
-      "icon": "assets/nova-shop/DailyQuestCrystals.png",
+      "icon": "assets/nova-shop/T_Icon_DailyNovaCrystal.png",
       "description": "Earn Nova Crystals from all Daily Quests.",
       "levels": [
         {
@@ -1552,17 +1558,17 @@
         {
           "level": 1,
           "cost": 10,
-          "reward": "Unlock Gold Crates Â· Gold 100%"
+          "reward": "Unlock Gold Crates \u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00b7 Gold 100%"
         },
         {
           "level": 2,
           "cost": 25,
-          "reward": "Unlock Diamond Crates Â· Gold 66.67% Â· Diamond 33.33%"
+          "reward": "Unlock Diamond Crates \u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00b7 Gold 66.67% \u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00b7 Diamond 33.33%"
         },
         {
           "level": 3,
           "cost": 50,
-          "reward": "Unlock Rainbow Crates Â· Gold 60% Â· Diamond 30% Â· Rainbow 10%"
+          "reward": "Unlock Rainbow Crates \u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00b7 Gold 60% \u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00b7 Diamond 30% \u00c3\u0192\u00e2\u20ac\u0161\u00c3\u201a\u00c2\u00b7 Rainbow 10%"
         }
       ]
     },
@@ -2683,10 +2689,10 @@
     },
     {
       "id": "kyber-surge-token",
-      "sourceId": "KYBER_SURGE",
+      "sourceId": "KyberSurge",
       "name": "Kyber Surge Token",
       "category": "lobby-boosts",
-      "icon": "assets/nova-shop/SurgeBoost.png",
+      "icon": "assets/nova-shop/T_Icon_BoostSurge.png",
       "description": "Sends Kyber energy across the conveyor for 5 minutes. Use in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
@@ -2732,10 +2738,10 @@
     },
     {
       "id": "scourge-surge-token",
-      "sourceId": "SCOURGE_SURGE",
+      "sourceId": "ScourgeSurge",
       "name": "Scourge Surge Token",
       "category": "lobby-boosts",
-      "icon": "assets/nova-shop/SurgeBoost.png",
+      "icon": "assets/nova-shop/T_Icon_BoostSurge.png",
       "description": "Sends a Scourge wave across the Sandcrawler conveyor every 30 seconds for 5 minutes. Each wave has a 10% conversion chance per blueprint it passes, with at least one guaranteed conversion. Use the token in the Cantina Shop.",
       "uncapped": true,
       "repeatable": true,
@@ -2746,6 +2752,134 @@
           "level": 1,
           "cost": 450,
           "reward": "One 5-minute Scourge Surge token"
+        }
+      ]
+    },
+    {
+      "id": "crit-complete",
+      "sourceId": "CR_C",
+      "name": "Crit Complete",
+      "category": "featured",
+      "icon": "assets/nova-shop/T_Icon_CritComplete.png",
+      "description": "A critical hit completes a build when its remaining time is at or below the threshold. Applies to depot and fusion builds. This is a finishing threshold, not extra critical-hit chance.",
+      "levels": [
+        {
+          "level": 1,
+          "cost": 100,
+          "reward": "Complete on a critical hit at 2% remaining time or less"
+        },
+        {
+          "level": 2,
+          "cost": 400,
+          "reward": "Complete on a critical hit at 4% remaining time or less"
+        },
+        {
+          "level": 3,
+          "cost": 800,
+          "reward": "Complete on a critical hit at 6% remaining time or less"
+        },
+        {
+          "level": 4,
+          "cost": 1200,
+          "reward": "Complete on a critical hit at 8% remaining time or less"
+        },
+        {
+          "level": 5,
+          "cost": 2000,
+          "reward": "Complete on a critical hit at 10% remaining time or less"
+        }
+      ],
+      "prerequisite": "Critical Chance level 10"
+    },
+    {
+      "id": "upgrade-chip-capacity",
+      "sourceId": "UCC",
+      "name": "Upgrade Chip Station Capacity",
+      "category": "featured",
+      "icon": "assets/nova-shop/T_Icon_UpgradeChipStationCapacity.png",
+      "description": "Increase each Upgrade Chip Station's storage cap by 30 minutes per level, from one hour to six hours.",
+      "levels": [
+        {
+          "level": 1,
+          "cost": 200,
+          "reward": "Store up to 1.5 hours per station"
+        },
+        {
+          "level": 2,
+          "cost": 400,
+          "reward": "Store up to 2 hours per station"
+        },
+        {
+          "level": 3,
+          "cost": 600,
+          "reward": "Store up to 2.5 hours per station"
+        },
+        {
+          "level": 4,
+          "cost": 800,
+          "reward": "Store up to 3 hours per station"
+        },
+        {
+          "level": 5,
+          "cost": 1000,
+          "reward": "Store up to 3.5 hours per station"
+        },
+        {
+          "level": 6,
+          "cost": 1200,
+          "reward": "Store up to 4 hours per station"
+        },
+        {
+          "level": 7,
+          "cost": 1400,
+          "reward": "Store up to 4.5 hours per station"
+        },
+        {
+          "level": 8,
+          "cost": 1600,
+          "reward": "Store up to 5 hours per station"
+        },
+        {
+          "level": 9,
+          "cost": 1800,
+          "reward": "Store up to 5.5 hours per station"
+        },
+        {
+          "level": 10,
+          "cost": 2000,
+          "reward": "Store up to 6 hours per station"
+        }
+      ],
+      "prerequisite": "Upgrade Chip Station level 1"
+    },
+    {
+      "id": "upgrade-chip-offline",
+      "sourceId": "UCO",
+      "name": "Upgrade Chip Station Offline Gains",
+      "category": "featured",
+      "icon": "assets/nova-shop/T_Icon_UpgradeChipStationOffline.png",
+      "description": "Upgrade Chip Stations generate while you are offline, up to their storage capacity.",
+      "levels": [
+        {
+          "level": 1,
+          "cost": 5000,
+          "reward": "Enable offline chip generation"
+        }
+      ],
+      "prerequisite": "Upgrade Chip Station level 1"
+    },
+    {
+      "id": "fusion-combine-classes",
+      "sourceId": "FCC",
+      "name": "Fusion Combine Classes",
+      "category": "featured",
+      "icon": "assets/nova-shop/T_Icon_FusionCombine.png",
+      "description": "When all three inputs share a class, generic fusion results stay in that class. Named fusion recipes take priority and keep their defined result. Mixed-class inputs are unchanged.",
+      "levels": [
+        {
+          "level": 1,
+          "cost": 500,
+          "reward": "Keep the input class for generic same-class fusions"
         }
       ]
     }
@@ -2963,6 +3097,7 @@
       "xpMultPercent": 5290
     }
   ],
-  "rebirthRewardsNote": "Rebirth is the completed rank. regularNovaCrystals is paid on reaching that rank; novaCrystals is the separate Super Rebirth payout at that rank. Regular rewards and ranks 31-35 updated from player-provided reward table and in-game screenshots, 14 September 2026. Credit and XP percentages for ranks 31-35 supplied by a player, 16 September 2026. Ranks 36â€“40 added from v1.32.0 configuration; SRB bonuses use the verified 2% credits and 10% XP per Nova Crystal formulas.",
-  "pricesReviewedAt": "2026-09-26"
+  "rebirthRewardsNote": "Rebirth is the completed rank. regularNovaCrystals is paid on reaching that rank; novaCrystals is the separate Super Rebirth payout at that rank. Regular rewards and ranks 31-35 updated from player-provided reward table and in-game screenshots, 14 September 2026. Credit and XP percentages for ranks 31-35 supplied by a player, 16 September 2026. Ranks 36\u00c3\u0192\u00c2\u00a2\u00c3\u00a2\u00e2\u20ac\u0161\u00c2\u00ac\u00c3\u00a2\u00e2\u201a\u00ac\u00c5\u201c40 added from v1.32.0 configuration; SRB bonuses use the verified 2% credits and 10% XP per Nova Crystal formulas.",
+  "pricesReviewedAt": "2026-09-26",
+  "categoriesReviewedAt": "2026-11-07"
 }

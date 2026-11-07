@@ -1,4 +1,4 @@
-import { GUIDE_CHAPTERS } from './guide-content.js?v=2026-11-02-guide-budget';
+import { GUIDE_CHAPTERS } from './guide-content.js?v=2026-11-07-v138';
 import { novaTotalCost } from './nova-levels.js?v=2026-10-07-unlimited';
 
 const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -8,7 +8,7 @@ export const GUIDE_MILESTONES = [
   {name:'First essentials', targets:{'rebirth-droid-alert':1,'blueprint-scrap':1,'scrap-value':2}},
   {name:'Stronger scrap', targets:{'rebirth-droid-alert':1,'blueprint-scrap':2,'scrap-value':6}},
   {name:'Second Companion', targets:{'companion-slot':1}},
-  {name:'Pickaxe Mastery 10', targets:{'pickaxe-mastery':10}}
+  {name:'Pickaxe Mastery 13', targets:{'pickaxe-mastery':13}}
 ];
 
 export function guideShoppingPlan({shop, owned = {}, milestone = 0, balance = 0, rebirth = 0}) {

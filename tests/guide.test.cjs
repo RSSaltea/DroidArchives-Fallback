@@ -6,7 +6,7 @@ test('early milestone targets include regular rewards and completed-rank payout'
  const first=guideShoppingPlan({shop});assert.equal(first.cost,91);assert.equal(first.rank,21);
  const second=guideShoppingPlan({shop,milestone:1,balance:16,owned:{'rebirth-droid-alert':1,'blueprint-scrap':1,'scrap-value':2}});
  assert.equal(second.cost,532);assert.equal(second.rank,29);
- assert.equal(guideShoppingPlan({shop,milestone:3}).cost,395);
+ assert.equal(guideShoppingPlan({shop,milestone:3}).cost,770);
 });
 test('already-earned regular Nova is not counted again; owned levels cannot create a refund',async()=>{
  const {guideShoppingPlan}=await ready;

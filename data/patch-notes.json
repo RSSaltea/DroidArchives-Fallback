@@ -2,6 +2,25 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-11-07-trading-fusion-nova-review-2",
+      "date": "2026-11-07",
+      "title": "Trading, fusion planning and Nova Shop updates",
+      "summary": "New trading tools, updated game data and a smoother way to manage your Base.",
+      "changes": [
+        "Trading: list multiple droids and request droids or traits, with class, rarity and variant filters. Choose exact copies from your Base cards or map, or search the catalogue.",
+        "Choose Kyber of any active colour or request a specific colour. Free listings can leave their wanted section empty. Multiple-player listings keep a separate conversation for each trade.",
+        "Protect rebirth droids when trading: keep the highest-variant copy, offer equal-quality Lounge duplicates before working copies, and hide protected copies with one toggle. Spare copies no longer show rebirth warnings.",
+        "Completed trades add received droids to Unallocated with a Traded Once tag. Use Update Base: choose traded slots to remove the exact copies you gave away without removing the wrong duplicate.",
+        "Fusion: select a target droid to see recipes, what your Base already has, missing ingredients and blueprint farming suggestions. Rebirth cards now open fusion help in a compact popup.",
+        "Fusion droids now count towards their components' rebirth requirements. Fusion Combine Classes is included in fusion results and Optimise planning.",
+        "Added the second Upgrade Chip Station to Base cards and the map using its position, along with the new Nova upgrades and updated shop categories.",
+        "Nova Shop: infinite upgrades stay at the top and completed upgrades move to the bottom when you return or refresh. Buying upgrades keeps the current order steady.",
+        "Updated Nova Shop category icons to match the game, added a new Planner icon and blended icon backgrounds into the shop panels.",
+        "Base rebirth requirements can now be searched by name, rarity or variant, with rarity and required-variant filters beside the search box.",
+        "Improved page navigation, filter and draft retention, and Trading startup after a hard refresh. Droid search fields now disable browser autocomplete suggestions."
+      ]
+    },
+    {
       "id": "2026-11-02-scourgedex",
       "date": "2026-11-02",
       "title": "Scourgedex and Chopper updates",

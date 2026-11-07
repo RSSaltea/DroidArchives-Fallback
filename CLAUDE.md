@@ -88,3 +88,8 @@ stamp, or returning visitors keep running the old copy.
 - Existing published app download releases are separate from Git source
   tracking. Do not upload, delete, or migrate releases, or change download and
   updater destinations, as a side effect of a website deployment.
+
+## Droid Archives public wording
+
+- Never mention datamining, datamined data/assets/positions, extraction, or reverse engineering in public-facing Droid Archives copy, including patch notes and release announcements. Describe the feature or change itself (for example, "the map using its position"). Technical research can still be discussed privately when requested.
+- The unpublished general progression guide must not be mentioned in public patch notes, announcements, or navigation until the user explicitly authorizes its public release. Existing public event guides are separate.

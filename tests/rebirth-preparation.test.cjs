@@ -3,10 +3,10 @@ const root=path.resolve(__dirname,'..'),src=fs.readFileSync(path.join(root,'app.
 const line=key=>src.split(/\r?\n/).find(s=>s.startsWith(key));
 const fn=name=>{const start=src.indexOf('function '+name+'(');assert(start>=0,name);let depth=0,end=src.indexOf('{',start);for(;end<src.length;end++){if(src[end]==='{')depth++;if(src[end]==='}'&&!--depth)return src.slice(start,end+1)}};
 const state={droids:JSON.parse(fs.readFileSync(path.join(root,'data/droids.json'))),fusion:JSON.parse(fs.readFileSync(path.join(root,'data/fusion.json'))),cycle:0,rebirth:34,rebirths:{0:[{to:35,requiredDroids:[{droidName:'CYCLENS',variant:'STELLAR'},{droidName:'R7',variant:'STELLAR'},{droidName:'DRFT-R',variant:'STELLAR'}]}]}};
-const sb={state,console,partyBonuses:()=>({chips:1}),kyberIsReleased:()=>true,novaLevelFor:()=>4,isBuilding:u=>['BUILD','FUSION_BUILD'].includes(u.station)&&!u.built};vm.createContext(sb);
-for(const name of ['ALL_VARIANTS','VARIANTS','OWNED_VARIANTS','baseVariant','variantRank','isActiveKyber','rebirthVariantReady','RARITY_LADDER','isIconic','isFusion','fusionDroid','fusionRecipes','fusionKey','fusionRecipeFor','variantStep','nextVariant','nextRarity','rarityStep','fusionPower','lowestVariant','droidRarity','CHIP_COSTS','baseChipSellValue','chipSellBonusMultiplier','chipSellValue','knownNumber'])vm.runInContext(line('const '+name+'=')||line('let '+name+'='),sb);
+const sb={state,console,partyBonuses:()=>({chips:1}),kyberIsReleased:()=>true,novaLevelFor:id=>id==='fusion-combine-classes'?0:4,isBuilding:u=>['BUILD','FUSION_BUILD'].includes(u.station)&&!u.built};vm.createContext(sb);
+for(const name of ['rowIsBuilding','ALL_VARIANTS','VARIANTS','OWNED_VARIANTS','baseVariant','variantRank','isActiveKyber','rebirthVariantReady','RARITY_LADDER','isIconic','isFusion','fusionDroid','fusionRecipes','fusionKey','fusionRecipeFor','variantStep','nextVariant','nextRarity','rarityStep','fusionPower','lowestVariant','droidRarity','CHIP_COSTS','baseChipSellValue','chipSellBonusMultiplier','chipSellValue','knownNumber'])vm.runInContext(line('const '+name+'=')||line('let '+name+'='),sb);
 const sellStart=src.indexOf('const CHIP_SELL_VALUES=');vm.runInContext(src.slice(sellStart,src.indexOf('\n};',sellStart)+3),sb);
-for(const name of ['fusionResultVariant','fusionRecipeSelection','fusionOutcome','chipsToVariant','nextRebirthHoldBacks','rebirthFusionOptions','parseGalacticNumber','rebirthFusionCreditBudget'])vm.runInContext(fn(name),sb);
+for(const name of ['rebirthNames','fusionResultVariant','fusionRecipeSelection','fusionOutcome','chipsToVariant','nextRebirthHoldBacks','rebirthFusionOptions','parseGalacticNumber','rebirthFusionCreditBudget'])vm.runInContext(fn(name),sb);
 const run=code=>vm.runInContext(code,sb);
 function options(rows){
   sb.units=rows.map((u,source)=>({variant:'GALACTIC',unit:0,source,...u}));sb.held=run('nextRebirthHoldBacks(units)');
@@ -41,3 +41,11 @@ options([{name:'MOUSE',variant:'KYBER'}]);
 assert.equal([...sb.held.values()][0].variant,'KYBER','keep an inactive copy to activate when no active copy exists');
 assert.equal([...sb.held.values()][0].chipsNeeded,0,'activation uses crystals, not upgrade chips');
 console.log('PASS: active Kyber hold-back preference and inactive activation candidate');
+
+state.rebirths[0][0].requiredDroids=[{droidName:'KX',variant:'STELLAR'},{droidName:'GONK',variant:'GOLD'}];
+options([{name:'X-ONK',variant:'BESKAR'}]);
+assert.equal(sb.held.size,1,'one fusion can cover both direct component requirements');
+assert.equal([...sb.held.values()][0].required,'STELLAR','lower component requirement must not overwrite the higher upgrade target');
+options([{name:'X-ONK',variant:'SCOURGE',station:'FUSION_BUILD',built:false}]);
+assert.equal(sb.held.size,0,'unfinished fusion is not ready for rebirth');
+console.log('PASS: shared fusion component coverage, maximum hold-back quality and unfinished fusion exclusion');

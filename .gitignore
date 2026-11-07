@@ -99,3 +99,6 @@ tests/**/*.png
 /proposed-notes.json
 /assets/events/mega-crate-mini.png
 /assets/other/stellar-droid.png
+
+# Local Supabase CLI link metadata
+/supabase/.temp/
