@@ -1,0 +1,21 @@
+const assert=require('node:assert/strict'),fs=require('node:fs');
+(async()=>{
+ const {tradeValue,tradeDifference}=await import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync('trade-values.js','utf8')).toString('base64'));
+ const droids=JSON.parse(fs.readFileSync('data/droids.json')),mouse=droids.find(d=>d.name==='MOUSE'),r7=droids.find(d=>d.name==='R7');
+ assert.deepEqual(tradeValue(mouse,'DEFAULT'),{credits:950,chips:0,kyber:0});
+ assert.equal(tradeValue(mouse,'GOLD').chips,10);
+ assert.equal(tradeValue(r7,'SCOURGE').chips,30000);
+ assert.equal(tradeValue(r7,'SCOURGE').kyber,0);
+ assert.equal(tradeValue(r7,'KYBER').kyber,0);
+ assert.equal(tradeValue(r7,'KYBER_GREEN').kyber,4);
+ assert.equal(tradeValue(r7,'KYBER_BLUE').kyber,8);
+ assert.equal(tradeValue(r7,'KYBER_PURPLE').kyber,12);
+ assert.equal(tradeValue(r7,'KYBER_ACTIVE'),null);
+ assert.equal(tradeValue(r7,''),null);
+ assert.equal(tradeValue(droids.find(d=>d.rarity==='ICONIC'),'DEFAULT'),null);
+ const give={credits:100,chips:20,kyber:0},receive={credits:50,chips:30,kyber:2};
+ assert.deepEqual(tradeDifference(give,receive),{you:{credits:0,chips:10,kyber:2},other:{credits:50,chips:0,kyber:0}});
+ assert.deepEqual(tradeDifference(give,give),{you:{credits:0,chips:0,kyber:0},other:{credits:0,chips:0,kyber:0}});
+ assert.equal(tradeDifference(null,give),null);
+ console.log('PASS: trade values, variant and rarity costs, independent currency charges, unknown values and exclusions.');
+})().catch(e=>{console.error(e);process.exitCode=1});

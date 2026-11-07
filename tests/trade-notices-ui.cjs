@@ -1,0 +1,58 @@
+const assert=require('node:assert/strict');
+const {chromium}=require('../tools/node_modules/playwright');
+(async()=>{
+ const browser=await chromium.launch({headless:true,channel:'msedge'});
+ try{
+  const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('http://127.0.0.1:8765/trading.css');
+  await page.clock.install();
+  await page.clock.pauseAt(new Date(Date.now()+10000));
+  await page.evaluate(async()=>{
+   document.head.innerHTML='<link rel="stylesheet" href="/trading.css">';document.body.innerHTML='<main><div id="settings"></div><div id="cost"></div></main>';
+   window.mod=await import('/trade-notices.js');window.droids=await fetch('/data/droids.json').then(r=>r.json());
+   window.rows=[{id:'old',created_at:new Date(Date.now()-60000).toISOString(),status:'open'}];
+   window.addRow=(id,extra={})=>rows.push({id,created_at:new Date().toISOString(),status:'open',giving:[{name:'MOUSE',variant:'GOLD'}],criteria:[{name:'R7',variant:'BESKAR'}],...extra});
+   const picture=d=>`<img src="/assets/other/stellar-droid.png" alt="${d.name}">`;
+   window.service=mod.startTradeNotices({client:()=>({rpc:async()=>({data:rows})}),droids,picture});
+   mod.wireTradeNoticeSettings(document.querySelector('#settings'));
+   const {mountTradeComparison}=await import('/trade-comparison.js');
+   mountTradeComparison(document.querySelector('#cost'),{droids,giving:[{name:'MOUSE',variant:'GOLD'}],receiving:[{name:'MOUSE',variant:'DEFAULT'}],picture});
+  });
+  assert.equal(await page.locator('.trade-notice').count(),0);
+  await page.evaluate(async()=>{addRow('first');await service.poll()});
+  assert.equal(await page.locator('.trade-notice img').count(),2);
+  assert.equal(await page.locator('.trade-notice a').getAttribute('href'),'#/trading/first');
+  await page.clock.runFor(9999);assert.equal(await page.locator('.trade-notice').count(),1);
+  await page.clock.runFor(1);assert.equal(await page.locator('.trade-notice').count(),0);
+  await page.evaluate(async()=>{await service.poll()});assert.equal(await page.locator('.trade-notice').count(),0);
+  await page.evaluate(async()=>{addRow('second');await service.poll()});
+  await page.getByRole('button',{name:'Dismiss trade notification'}).click();assert.equal(await page.locator('.trade-notice').count(),0);
+  await page.locator('[data-trade-notices]').uncheck();
+  await page.evaluate(async()=>{addRow('disabled');await service.poll()});assert.equal(await page.locator('.trade-notice').count(),0);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('droid-archive-trade-notices')),'0');
+  await page.locator('[data-trade-notices]').check();await page.evaluate(async()=>{await service.poll()});assert.equal(await page.locator('.trade-notice').count(),0);
+  await page.evaluate(async()=>{addRow('mine',{mine:true});await service.poll()});assert.equal(await page.locator('.trade-notice').count(),0);
+  await page.evaluate(async()=>{addRow('third');await service.poll()});assert.equal(await page.locator('.trade-notice').count(),1);
+  await page.locator('[data-trade-notices]').uncheck();assert.equal(await page.locator('.trade-notice').count(),0);
+  assert.match(await page.locator('[data-cost-result]').innerText(),/Other player pays: 2,850 credits · 10 upgrade chips/);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  assert.deepEqual(errors,[]);
+  const app=await browser.newPage({viewport:{width:1280,height:900}}),appErrors=[];
+  app.on('pageerror',e=>appErrors.push(e.message));
+  await app.route('https://**/*',r=>r.abort());
+  await app.route('**/data/patch-notes.json*',r=>r.fulfill({contentType:'application/json',body:'{"notes":[]}'}));
+  await app.goto('http://127.0.0.1:8765/index.html?companion=1#/droid/mouse');
+  await app.locator('[data-droid-trade-comparison]').waitFor();
+  await app.locator('[data-droid-trade-comparison] [data-cost-right]').selectOption('1');
+  assert.match(await app.locator('[data-droid-trade-comparison] [data-cost-result]').innerText(),/You pay: 2,850 credits/);
+  assert.equal(await app.locator('[data-trade-notices]').count(),1);
+  await app.locator('[data-v=KYBER_PURPLE]').click();
+  assert.match(await app.locator('.droid-trade-values').innerText(),/3 Kyber crystals/);
+  await app.locator('.droid-trade-values').screenshot({path:require('node:path').join(process.env.TEMP,'droid-trade-cost.png')});
+  await app.setViewportSize({width:390,height:844});
+  assert.equal(await app.locator('.trade-cost-panel').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
+  assert.deepEqual(appErrors,[]);
+  console.log('PASS: new listings only, icon popup/link, 10-second timeout, early close, deduplication, own listing suppression, persistent opt-out, cost comparison and mobile width.');
+ }finally{await browser.close()}
+})().catch(e=>{console.error(e);process.exitCode=1});
