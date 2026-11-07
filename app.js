@@ -3388,20 +3388,17 @@ function outstandingDroidsHtml(p){
   const spareRow=row=>`<a class="outstanding-card spare" href="#/droid/${slug(row.d.name)}">${picture(row.d,row.unit.variant)}<span><strong>${row.d.name}</strong><small>${variantText(row.unit.variant)} &middot; ${stationSlotLabel(row.unit.station,row.unit.slot)}</small><em>Sells for ${fmt(row.chips)} chips</em></span></a>`;
   return `<details class="outstanding-panel" id="outstandingPanel" ${open?'open':''}><summary><span><strong>What is still left</strong><small>${outstanding.length} droid${outstanding.length===1?'':'s'} to find through R: ${goal}${spare.length?` &middot; ${spare.length} in your Base nothing needs`:''}</small></span></summary><div class="outstanding-body"><input id="outstandingSearch" class="form-control" aria-label="Search What is still left" placeholder="Search this panel..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"><p id="outstandingEmpty" class="empty" hidden>No droids in this panel match your search.</p><section><h4>Only these are still needed</h4><div class="outstanding-grid">${outstanding.map(findRow).join('')||'<p class="empty">Nothing is outstanding through your goal.</p>'}</div></section><section><h4>Nothing left in this cycle needs these</h4><div class="outstanding-grid">${spare.map(spareRow).join('')||'<p class="empty">Every droid in your Base is still spoken for.</p>'}</div></section></div></details>`;
 }
-// The Base settings box holds the rebirth controls and sits at the very top of a
-// page people keep scrolled to the bottom. Once it has scrolled past, a compact
-// bar takes over so a rebirth can be stepped without the round trip up and back.
+// Keep rebirth controls available throughout Base, including at the top.
 function attachRebirthQuickBar(rerender){
-  // A Base re-render calls this again; the previous bar has to take its
-  // observer with it rather than leaving one watching a detached node.
+  // Replace the previous bar when Base rerenders.
   document.querySelector('#rebirthQuickBar')?.dispose?.();
   // A read-only share has nothing to step; one you may edit changes its rebirth
   // from the settings box, so the bar belongs there too.
   if(state.sharedView&&!state.sharedView.canEdit)return;
   const anchor=document.querySelector('.modern-base-settings')||document.querySelector('.base-top');
-  if(!anchor||typeof IntersectionObserver!=='function')return;
+  if(!anchor)return;
   const bar=document.createElement('div');
-  bar.id='rebirthQuickBar';bar.className='rebirth-quick-bar';bar.hidden=true;
+  bar.id='rebirthQuickBar';bar.className='rebirth-quick-bar';bar.hidden=false;
   const step=delta=>{
     const next=Math.min(maxRebirth(),Math.max(0,state.rebirth+delta));
     if(next===state.rebirth)return;
@@ -3415,14 +3412,7 @@ function attachRebirthQuickBar(rerender){
     bar.querySelector('#rebirthQuickTop').onclick=()=>anchor.scrollIntoView({behavior:'smooth',block:'start'});
   };
   draw();document.body.appendChild(bar);document.body.classList.add('has-rebirth-quick-bar');
-  // Only show it once the settings box has gone past the top, never when the
-  // page is simply scrolled above it.
-  const observer=new IntersectionObserver(([entry])=>{
-    bar.hidden=entry.isIntersecting||entry.boundingClientRect.bottom>0;
-  },{threshold:0});
-  observer.observe(anchor);
-  // A rerender throws this bar away, so the observer has to go with it.
-  bar.dispose=()=>{observer.disconnect();bar.remove();document.body.classList.remove('has-rebirth-quick-bar')};
+  bar.dispose=()=>{bar.remove();document.body.classList.remove('has-rebirth-quick-bar')};
 }
 function mapRebirthUsesHtml(unit){
   const d=state.droids.find(d=>d.name===unit.name);if(!d)return '';
