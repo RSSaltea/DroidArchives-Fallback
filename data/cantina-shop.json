@@ -22,7 +22,7 @@
       "id": "luck-boost",
       "name": "Luck Boost",
       "category": "boosts",
-      "icon": "assets/nova-shop/SandcrawlerLuckBoost.png",
+      "icon": "assets/cantina-shop/DT_IIT_OfferBoostLucky_Icon.png",
       "vbucksCost": 400,
       "novaCost": 200,
       "novaUpgradeId": "luck-boost-token",
@@ -40,7 +40,7 @@
       "id": "crafting-boost",
       "name": "Crafting Boost",
       "category": "boosts",
-      "icon": "assets/nova-shop/CraftingBoost.png",
+      "icon": "assets/cantina-shop/DT_IIT_OfferBoostCrafting_Icon.png",
       "vbucksCost": 250,
       "novaCost": 150,
       "novaUpgradeId": "crafting-boost-token",
@@ -52,7 +52,7 @@
       "name": "Huyang Bundle",
       "category": "packs",
       "vbucksCost": 1500,
-      "icon": "assets/nova-shop/T_Icon_HuyangHologram.png",
+      "icon": "assets/cantina-shop/DT_IIT_KyberBundle_Icon.png",
       "description": "Permanently unlocks Huyang Hologram, in-base Kyber activation, Huyang Base Paint and the Kyber Droid Sell perk. Includes one Crafting Boost token.",
       "details": [
         "Huyang Hologram Super Rebirth Perk: activate Kyber Droids inside your Base",
@@ -70,7 +70,7 @@
       "name": "Companion Pack",
       "category": "packs",
       "vbucksCost": 1500,
-      "icon": "assets/nova-shop/T_Icon_DoubleCompanion.png",
+      "icon": "assets/cantina-shop/DT_IIT_OfferCompanion_Icon.png",
       "description": "A permanent bundle for companion-focused bases.",
       "details": [
         "Second Companion Slot",
@@ -86,7 +86,7 @@
       "name": "VIP Pack",
       "category": "packs",
       "vbucksCost": 2200,
-      "icon": "assets/nova-shop/UpgradeChipStation.png",
+      "icon": "assets/cantina-shop/DT_IIT_OfferVIP_Icon.png",
       "description": "A permanent VIP bundle with two Nova Shop perks.",
       "details": [
         "VIP Droid Crown hat",
@@ -104,7 +104,7 @@
       "name": "Starter Pack",
       "category": "packs",
       "vbucksCost": 600,
-      "icon": "assets/other/UpgradeChip.png",
+      "icon": "assets/cantina-shop/DT_IIT_OfferStarter_Icon.png",
       "description": "A permanent starter bundle with credits, chips and a Nova Shop perk.",
       "details": [
         "Permanent +200% Credit boost",
@@ -121,7 +121,7 @@
       "name": "Crit Pack",
       "category": "packs",
       "vbucksCost": 3800,
-      "icon": "assets/nova-shop/T_Icon_CritChance.png",
+      "icon": "assets/cantina-shop/DT_IIT_OfferCritBundle_Icon.png",
       "description": "A permanent bundle for Critical upgrades and effects.",
       "details": [
         "Special Crit visual effect when you get a Critical hit",
@@ -144,7 +144,7 @@
       "id": "rainbow-surge",
       "name": "Rainbow Surge",
       "category": "surges",
-      "icon": "assets/nova-shop/SurgeBoost.png",
+      "icon": "assets/cantina-shop/DT_IIT_OfferBoostSurgeRainbow_Icon.png",
       "vbucksCost": 200,
       "novaCost": 20,
       "novaUpgradeId": "rainbow-surge-token",
@@ -159,7 +159,7 @@
       "id": "beskar-surge",
       "name": "Beskar Surge",
       "category": "surges",
-      "icon": "assets/nova-shop/SurgeBoost.png",
+      "icon": "assets/cantina-shop/DT_IIT_OfferBoostSurgeBeskar_Icon.png",
       "vbucksCost": 200,
       "novaCost": 100,
       "novaUpgradeId": "beskar-surge-token",
@@ -174,7 +174,7 @@
       "id": "galactic-surge",
       "name": "Galactic Surge",
       "category": "surges",
-      "icon": "assets/nova-shop/SurgeBoost.png",
+      "icon": "assets/cantina-shop/DT_IIT_OfferBoostSurgeGalactic_Icon.png",
       "vbucksCost": 300,
       "novaCost": 150,
       "novaUpgradeId": "galactic-surge-token",
@@ -189,8 +189,8 @@
       "id": "fusion-pack",
       "name": "Fusion Pack",
       "category": "packs",
-      "vbucksCost": null,
-      "icon": "assets/nova-shop/T_Icon_FusionTank.png",
+      "vbucksCost": 1800,
+      "icon": "assets/cantina-shop/DT_IIT_OfferFusionBundle_Icon.png",
       "description": "Everything needed to get the Fusion room running.",
       "details": [
         "3 Fusion Rush Tokens",
@@ -207,7 +207,7 @@
       "name": "Fusion Tank (2nd level)",
       "category": "packs",
       "vbucksCost": 800,
-      "icon": "assets/nova-shop/T_Icon_FusionTank.png",
+      "icon": "assets/cantina-shop/DT_IIT_OfferFusionTank.png",
       "description": "The second Fusion Tank level, which is another Fusion Build slot.",
       "details": [
         "1 Fusion Tank"
@@ -220,7 +220,7 @@
       "id": "stellar-surge",
       "name": "Stellar Surge",
       "category": "surges",
-      "icon": "assets/nova-shop/SurgeBoost.png",
+      "icon": "assets/cantina-shop/DT_IIT_OfferBoostSurgeStellar_Icon.png",
       "durationMinutes": 5,
       "description": "Sends Stellar energy across the conveyor for 5 minutes.",
       "details": [],
@@ -232,7 +232,7 @@
       "id": "kyber-surge",
       "name": "Kyber Surge",
       "category": "surges",
-      "icon": "assets/nova-shop/SurgeBoost.png",
+      "icon": "assets/cantina-shop/DT_IIT_KyberSurge_Icon.png",
       "durationMinutes": 5,
       "description": "Sends Kyber energy across the conveyor for 5 minutes.",
       "details": [],
@@ -244,8 +244,8 @@
       "id": "storage-lounge-pack",
       "name": "Storage & Lounge Pack",
       "category": "packs",
-      "vbucksCost": null,
-      "icon": "assets/nova-shop/T_Icon_BPStorage.png",
+      "vbucksCost": 1000,
+      "icon": "assets/cantina-shop/DT_IIT_BlueprintStorage_Icon.png",
       "description": "Unlock the new Blueprint Storage appearance and add 6 levels each to Blueprint Storage and Lounge Slots.",
       "details": [
         "New Blueprint Storage appearance",
@@ -261,10 +261,32 @@
       }
     },
     {
+      "id": "droid-tracker-pack",
+      "name": "Droid Tracker Pack",
+      "category": "packs",
+      "vbucksCost": 1200,
+      "description": "Unlock Rebirth Droid Alert, five levels of Droidex Notifications, Variant Watch and Tracker Workshop Paint.",
+      "details": [
+        "Rebirth Droid Alert",
+        "Droidex Notifications: at least level 5",
+        "Variant Watch: alerts for the selected variant or higher",
+        "Tracker Workshop Paint",
+        "Marking this pack owned fills in missing upgrades. Existing higher levels are preserved; reloading or rechecking does not add extra levels."
+      ],
+      "novaUnlocks": [
+        "rebirth-droid-alert",
+        "variant-watch"
+      ],
+      "novaLevels": {
+        "droidex-notifications": 5
+      },
+      "icon": "assets/cantina-shop/DT_IIT_DroidTracker_Icon.png"
+    },
+    {
       "id": "scourge-surge",
       "name": "Scourge Surge",
       "category": "surges",
-      "icon": "assets/nova-shop/SurgeBoost.png",
+      "icon": "assets/cantina-shop/DT_IIT_OfferBoostSurgeScourge_Icon.png",
       "durationMinutes": 5,
       "description": "Sends Scourge energy across the Sandcrawler conveyor every 30 seconds for 5 minutes.",
       "details": [
