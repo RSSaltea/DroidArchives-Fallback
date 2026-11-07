@@ -1,5 +1,5 @@
 const fs=require('fs'),path=require('path'),http=require('http'),assert=require('node:assert/strict');
-const {chromium}=require(path.join(process.env.LOCALAPPDATA,'DroidArchivesResearch/ui-test/node_modules/playwright'));
+const {chromium}=require('../tools/node_modules/playwright');
 const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'app.js'),'utf8');
 const server=http.createServer((req,res)=>{
  const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname),file=path.resolve(root,'.'+(pathname==='/'?'/index.html':pathname));

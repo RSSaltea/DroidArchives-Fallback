@@ -1,5 +1,5 @@
-import {planOptimiseRoute,shortenOptimiseWalk} from './optimise-route.js?v=2026-11-03-companion-seat';
-import {validateOptimisePlan} from './optimise-plan-validation.js?v=2026-11-02-scourgedex-crit';
+import {planOptimiseRoute,shortenOptimiseWalk} from './optimise-route.js?v=2026-11-07-scourge-fusion';
+import {validateOptimisePlan} from './optimise-plan-validation.js?v=2026-11-07-scourge-fusion';
 
 // This target deliberately bypasses the income, shopping and fusion allocators.
 export function planScourgeSubmissions(initial,rules){

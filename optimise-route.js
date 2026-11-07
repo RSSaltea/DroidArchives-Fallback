@@ -478,6 +478,11 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       const occupied=[...placed,...[...state.stagedSlots].map(([k,p])=>({...unitAs(state,k),...p}))];
       const landing=from?.station==='FUSION'?from:predictStationLanding({...unit,...from},occupied,'FUSION',rules);
       if(!landing)return null;
+      const firstVariant=fusions.find(f=>f.index===goal.fusion)?.batch.fusion?.firstVariant;
+      if(firstVariant){
+        const firstSlot=Math.min(...rules.slots('FUSION'));
+        if((landing.slot===firstSlot)!==(unit.variant===firstVariant)||landing.assumed)return null;
+      }
       state.stagedSlots.set(key,{station:'FUSION',slot:landing.slot,positionUncertain:Boolean(landing.assumed)});
       state.staged.set(key, goal.fusion); state.pos.delete(key);
       return { ...step, type: from?.station === 'FUSION' ? 'fuse-held' : 'fuse-in', to: 'FUSION', toSlot: landing.slot, assumed:Boolean(landing.assumed) };

@@ -68,3 +68,8 @@
 .trade-notice-items{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:3px;max-height:170px;overflow:auto}.trade-notice-items small{font-size:.75rem;text-align:center}
 .trade-notice-icon{display:inline-flex;align-items:center;justify-content:center;width:38px;height:42px}.trade-notice-icon img{max-width:38px;max-height:42px;object-fit:contain}.trade-notice-arrow{font-size:26px;color:#69dfb6}
 @media(max-width:540px){.trade-notice{right:16px;top:80px}.trade-cost-selects{grid-template-columns:1fr}.trade-cost-selects>span{display:none}}
+.rebirth-fusion-modes{display:flex;gap:4px;padding:4px;border:1px solid #3b4f60;border-radius:8px;background:#0d1520;width:fit-content;margin:14px 0}
+.rebirth-fusion-modes button{padding:9px 18px;border:1px solid transparent;border-radius:5px;background:transparent;color:#cbd5e1;cursor:pointer;font:inherit}
+.rebirth-fusion-modes button[aria-pressed="true"]{background:#234336;border-color:#5ad5a0;color:#b9ffdd}
+.rebirth-fusion-modes button[data-fusion-mode="scourge"][aria-pressed="true"]{background:#362545;border-color:#bc78ea;color:#ebcaff}
+.rebirth-fusion-modes button:disabled{opacity:.45;cursor:default}

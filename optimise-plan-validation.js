@@ -197,6 +197,12 @@ export function validateOptimisePlan({ initial, projected, steps, rules } = {}) 
       if (staged.size + onTable + count > 3) { issue(`${label}: Fusion table capacity exceeded.`); continue; }
       for (const [key, unit] of matches) { staged.set(key, { ...unit, built: true }); remove(key); }
     } else if (step.type === 'fuse') {
+      if(step.fusion?.firstVariant){
+        const first=[...staged].sort(([a],[b])=>stagedSlots.get(a)?.slot-stagedSlots.get(b)?.slot)[0];
+        if(!first||first[1].variant!==step.fusion.firstVariant||[...stagedSlots.values()].some(p=>p.positionUncertain)){
+          issue(`${label}: the first Fusion slot must contain ${step.fusion.firstVariant} for this ordered recipe.`);continue;
+        }
+      }
       if (staged.size !== 3 || [...positions.values()].some(position => position.station === 'FUSION')) {
         issue(`${label}: Fusion requires exactly three staged inputs and a clear table.`); continue;
       }

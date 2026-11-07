@@ -36,6 +36,15 @@ validator and the slot log.
 
 ## Pipeline
 
+“Keep for fusion” rules also protect matching copies from automatic Scourgedex
+hand-ins, including at the rebirth goal. Spare reserves can enter fusion plans;
+rebirth protection, locks and unfinished builds still exclude unsafe inputs.
+One Scourge plus two Stellar Legendaries can form a Scourge Mythic rarity roll.
+For that equal-power combination, the route must put Scourge in the first
+Fusion slot; independent replay checks the order. The result's identity remains
+random, with Fusion Classes restricting the pool when all inputs share a class.
+An incomplete batch stays reserved rather than becoming a hand-in.
+
 1. `placements()` reads the current physical base.
    A companion activity (`COMPANION_ACTIVITIES`: Scrap farming, Crafting, and
    Combat, Mining and Fishing under World missions) is a mode kept in this

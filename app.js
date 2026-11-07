@@ -11,7 +11,7 @@ import {tradingPage,clearTradingSession} from './trading-page.js?v=2026-11-07-tr
 import {mountTraitPicker,traitBonusText} from './trait-picker.js?v=2026-11-03-trait-picker';
 import {compareProtocolTraits,mountProtocolTraits} from './protocol-traits.js?v=2026-11-04-protocol-traits';
 import {traitBadgeHtml,recordedTrait} from './trait-badges.js?v=2026-11-04-protocol-traits';
-import {planScourgeSubmissions} from './scourge-submit-plan.js?v=2026-11-03-companion-seat';
+import {planScourgeSubmissions} from './scourge-submit-plan.js?v=2026-11-07-scourge-fusion';
 import { normaliseScourgedex, scourgedexCatalogue, recordScourgeSubmissions, scourgeSubmissionCandidates, scourgedexPage, scourgeWipe } from './scourgedex.js?v=2026-11-07-nova-order-search';
 import { siteHelpPage, siteHelpAfterRoute } from './site-help.js?v=2026-11-07-trading-navigation';
 import { guidePage } from './guide-page.js?v=2026-11-07-nova-order-search';
@@ -36,8 +36,8 @@ import { testMapPage } from './test-map.js?v=2026-11-07-trade-controls-spares';
 import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-11-07-retire-legacy';
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
-import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-11-04-sale-protection';
-import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-11-04-sale-protection';
+import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-11-07-scourge-fusion';
+import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-11-07-scourge-fusion';
 import { slotDistanceSquared, slotPosition } from './slot-geometry.js?v=2026-11-07-v138';
 import { createOptimiseBackground } from './optimise-background.js?v=2026-10-09-search';
 import { createAssignmentScorer } from './optimise-layout-score.js?v=2026-11-02-scourgedex-crit';
@@ -1490,11 +1490,19 @@ function fusionRaritySteps(stock){
       group.names.push(name);group.holdings.push([name,count,variant]);group.copies+=count;groups.set(key,group);
     }
   }
+  // One Scourge plus two Stellar Legendary inputs can push to a Scourge
+  // Mythic. Scourge must occupy the first table slot for the equal-power tie.
+  const scourge=groups.get('LEGENDARY|SCOURGE'),stellar=groups.get('LEGENDARY|STELLAR');
+  if(scourge&&stellar&&stellar.copies>=2)groups.set('LEGENDARY|SCOURGE_STELLAR',{
+    rarity:'LEGENDARY',variant:'SCOURGE',mixedScourge:true,
+    names:[...new Set([...scourge.names,...stellar.names])],
+    holdings:[...scourge.holdings,...stellar.holdings],copies:scourge.copies+stellar.copies
+  });
   // Compare class-only batches as well as the mixed pool so Optimise can value
   // the restricted result pool, rather than choosing its inputs by name order.
   if(novaLevelFor('fusion-combine-classes')>0)for(const group of [...groups.values()]){
     const classes=new Map();for(const holding of group.holdings){const type=fusionDroid(holding[0])?.type;if(!classes.has(type))classes.set(type,[]);classes.get(type).push(holding);}
-    if(classes.size>1)for(const [type,holdings] of classes){const copies=holdings.reduce((n,h)=>n+h[1],0);if(copies>=3)groups.set(`${group.rarity}|${group.variant}|${type}`,{...group,holdings:[...holdings],names:holdings.map(h=>h[0]),copies});}
+    if(classes.size>1)for(const [type,holdings] of classes){const copies=holdings.reduce((n,h)=>n+h[1],0);if(copies>=3)groups.set(`${group.rarity}|${group.variant}|${type}|${Boolean(group.mixedScourge)}`,{...group,holdings:[...holdings],names:holdings.map(h=>h[0]),copies});}
   }
   const steps=[];
   for(const group of groups.values()){
@@ -1507,6 +1515,8 @@ function fusionRaritySteps(stock){
       const counts=new Map();for(const i of [a,b,c])counts.set(i,(counts.get(i)||0)+1);
       if([...counts].some(([i,n])=>holdings[i][1]<n))continue;
       const units=[a,b,c].map(i=>({name:holdings[i][0],variant:holdings[i][2]}));
+      if(group.mixedScourge&&units.filter(u=>u.variant==='SCOURGE').length!==1)continue;
+      if(group.mixedScourge)units.sort((a,b)=>Number(b.variant==='SCOURGE')-Number(a.variant==='SCOURGE'));
       const outcome=fusionOutcome(units);
       if(outcome?.kind!=='rarity'||outcome.rarity!==(nextRarity(group.rarity)||group.rarity))continue;
       combinations.push([...counts]);
@@ -1533,6 +1543,7 @@ function fusionRaritySteps(stock){
     const packed=pack(holdings.map(([,count])=>count));
     const spend=packed.combo?.map(([i,count])=>({name:holdings[i][0],variant:holdings[i][2],count}));
     if(spend){
+      if(group.mixedScourge)spend.sort((a,b)=>Number(b.variant==='SCOURGE')-Number(a.variant==='SCOURGE'));
       const outcome=fusionOutcome(spend.flatMap(part=>Array.from({length:part.count},()=>part)));
       steps.push({...group,fromVariant:group.variant,variant:outcome.variant,variantUpgrade:Boolean(outcome.variantUpgrade),requiredClass:outcome.requiredClass,to:outcome.rarity,spend,names:[...new Set(group.names)].sort()});
     }
@@ -1655,7 +1666,7 @@ function fusionBestFrom(stock,floor,made,protocolFloors){
     const spend=group.spend;
     // A roll does not say which droid arrives, so nothing goes back in the pool
     // and no Droidex square can be promised.
-    options.push({kind:'rarity',out:null,requiredClass:group.requiredClass,rarity:group.to,variant:group.variant,fromVariant:group.fromVariant,variantUpgrade:group.variantUpgrade,from:group.rarity,pool:group.names,spend,sure:false,
+    options.push({kind:'rarity',out:null,firstVariant:group.mixedScourge?'SCOURGE':null,requiredClass:group.requiredClass,rarity:group.to,variant:group.variant,fromVariant:group.fromVariant,variantUpgrade:group.variantUpgrade,from:group.rarity,pool:group.names,spend,sure:false,
       income:typicalIncomeFor(group.to,group.variant,group.requiredClass),fills:false,after:usesMade(spend)});
   }
   const preferences=normaliseFusionPreferences(state.fusionPreferences);
@@ -1679,7 +1690,7 @@ function fusionBestFrom(stock,floor,made,protocolFloors){
   const worth=permitted;
   if(!worth.length)return null;
   const rank=option=>(option.fills?1e12:0)+(option.sure?1e6:0)+(option.bonusGain>0?1e3*option.bonusGain:0)+(option.income-floor);
-  return worth.sort((a,b)=>rank(b)-rank(a))[0];
+  return worth.sort((a,b)=>rank(b)-rank(a)||a.spend.filter(p=>p.variant==='SCOURGE').reduce((n,p)=>n+p.count,0)-b.spend.filter(p=>p.variant==='SCOURGE').reduce((n,p)=>n+p.count,0))[0];
 }
 const droidexGapFor=(name,variant)=>{const d=fusionDroid(name);return Boolean(d)&&!isIconic(d)&&!droidexEntry(name,variant)};
 // What the Sell list could become instead of being sold. Every fusion takes
@@ -2736,13 +2747,25 @@ function requirementUnits(p){
 // page. Beyond the requirement itself it answers the three questions asked of
 // it: can I add this without scrolling back up, will I need it at a higher
 // quality later, and once this rebirth is done can I sell it for the slot.
-function rebirthFusionHelp(req,expanded=false){
+function rebirthFusionRecipeInputs(recipe,quality,scourge=false){
+  const count=rows=>{const parts=new Map();for(const row of rows){const key=row.name+'|'+row.variant;if(!parts.has(key))parts.set(key,{...row,need:0});parts.get(key).need++;}return [...parts.values()].map(part=>({...part,have:state.owned.filter(u=>u.name===part.name&&u.variant===part.variant&&!rowIsBuilding(u)).reduce((n,u)=>n+(Number(u.qty)||1),0)}));};
+  if(!scourge)return count(recipe.inputs.map(name=>({name,variant:quality})));
+  const choices=[];
+  for(let mask=1;mask<8;mask++){
+    const rows=recipe.inputs.map((name,i)=>({name,variant:mask&(1<<i)?'SCOURGE':'STELLAR'})).sort((a,b)=>Number(b.variant==='SCOURGE')-Number(a.variant==='SCOURGE'));
+    const result=fusionOutcome(rows);if(result?.name!==recipe.name||result.variant!=='SCOURGE')continue;
+    const parts=count(rows),missing=parts.reduce((n,p)=>n+Math.max(0,p.need-p.have),0),scourges=rows.filter(r=>r.variant==='SCOURGE').length;
+    choices.push({parts,missing,scourges});
+  }
+  return choices.sort((a,b)=>a.missing-b.missing||a.scourges-b.scourges)[0]?.parts||count(recipe.inputs.map(name=>({name,variant:'SCOURGE'})));
+}
+function rebirthFusionHelp(req,expanded=false,mode='regular'){
   if(!isSlotUnlocked('FUSION',0)||hasRequirement(req))return '';
   const recipes=fusionRecipes().filter(r=>r.name===req.droidName||r.inputs.includes(req.droidName));
   if(!recipes.length)return '';
   if(!expanded)return `<button class="rebirth-fusion-help" type="button" data-fusion-help="${escapeAttr(JSON.stringify(req))}">Make it with fusion &rarr;</button>`;
-  const quality=req.variant==='KYBER'?'KYBER_GREEN':req.variant;
-  return `<div class="rebirth-fusion-content"><p>Each result below counts for ${escapeAttr(req.droidName)}. Ingredients are counted at ${variantText(quality)}; other combinations can be checked in Fusion Lab. Finish the fusion build before rebirthing.</p>${recipes.map(r=>{const counts=new Map();r.inputs.forEach(n=>counts.set(n,(counts.get(n)||0)+1));return `<div class="rebirth-fusion-recipe"><a href="#/droid/${slug(r.name)}">${picture(fusionDroid(r.name),quality)}<strong>${escapeAttr(r.name)}</strong></a><span aria-hidden="true">&larr;</span>${[...counts].map(([name,need])=>{const have=state.owned.filter(u=>u.name===name&&u.variant===quality&&!rowIsBuilding(u)).reduce((n,u)=>n+u.qty,0);return `<span>${picture(fusionDroid(name),quality)}<strong>${escapeAttr(name)} x${need}</strong><small>${have>=need?'Ready':`Missing ${need-have}`} &middot; ${Math.min(have,need)}/${need} recorded</small></span>`;}).join('')}</div>`;}).join('')}<a href="#/fusion-lab">Open Fusion Lab</a></div>`;
+  const scourge=mode==='scourge'||req.variant==='SCOURGE',quality=scourge?'SCOURGE':req.variant==='KYBER'?'KYBER_GREEN':req.variant;
+  return `<div class="rebirth-fusion-content"><div class="rebirth-fusion-modes" role="group" aria-label="Fusion route"><button type="button" data-fusion-mode="regular" aria-pressed="${!scourge}" ${req.variant==='SCOURGE'?'disabled':''}>Regular</button><button type="button" data-fusion-mode="scourge" aria-pressed="${scourge}">Scourge</button></div><p>Each result below counts for ${escapeAttr(req.droidName)}. ${scourge?'Scourge can be harder to find, but one Scourge ingredient plus two Stellar ingredients can make the Scourge result. The combinations below favour your recorded copies. Put a Scourge ingredient in Fusion slot 1; put Stellar ingredients after it.':`Ingredients are counted at ${variantText(quality)}.`} Finish the fusion build before rebirthing.</p>${recipes.map(r=>{const parts=rebirthFusionRecipeInputs(r,quality,scourge);return `<div class="rebirth-fusion-recipe"><a href="#/droid/${slug(r.name)}">${picture(fusionDroid(r.name),quality)}<strong>${escapeAttr(r.name)}</strong><small>${variantText(quality)}</small></a><span aria-hidden="true">&larr;</span>${parts.map(({name,variant,need,have})=>`<span data-fusion-ingredient data-variant="${variant}">${picture(fusionDroid(name),variant)}<strong>${escapeAttr(name)} x${need}</strong><small>${variantText(variant)}</small><small>${have>=need?'Ready':`Missing ${need-have}`} &middot; ${Math.min(have,need)}/${need} recorded</small></span>`).join('')}</div>`;}).join('')}<a href="#/fusion-lab">Open Fusion Lab</a></div>`;
 }
 function neededCardHtml(req,{located,units,rebirth,className=''}={}){
   const d=state.droids.find(x=>x.name===req.droidName);if(!d)return'';
@@ -2771,7 +2794,12 @@ function attachNeededCardHandlers(rerender){
     e.preventDefault();e.stopPropagation();const req=JSON.parse(button.dataset.fusionHelp),root=document.querySelector('#modalRoot');
     root.innerHTML=`<div class="modal-backdrop"><section class="modal slot-picker rebirth-fusion-modal" role="dialog" aria-modal="true" aria-labelledby="fusionHelpTitle"><h2 id="fusionHelpTitle">Make ${escapeAttr(req.droidName)} with fusion</h2>${rebirthFusionHelp(req,true)}<button class="btn secondary" data-close-fusion-help>Close</button></section></div>`;
     const close=()=>{root.innerHTML='';button.focus();document.removeEventListener('keydown',keyboard)};
-    const keyboard=e=>{if(e.key==='Escape')close();if(e.key==='Tab'){const stops=[...root.querySelectorAll('a,button')];if(e.shiftKey&&document.activeElement===stops[0]){e.preventDefault();stops.at(-1).focus()}else if(!e.shiftKey&&document.activeElement===stops.at(-1)){e.preventDefault();stops[0].focus()}}};
+    const wireModes=()=>{root.querySelectorAll('[data-fusion-mode]').forEach(toggle=>toggle.onclick=()=>{
+      const mode=toggle.dataset.fusionMode,content=root.querySelector('.rebirth-fusion-content');
+      content.outerHTML=rebirthFusionHelp(req,true,mode);wireModes();root.querySelector(`[data-fusion-mode="${mode}"]`).focus();
+    });root.querySelectorAll('.rebirth-fusion-content a').forEach(a=>a.onclick=close);};
+    wireModes();
+    const keyboard=e=>{if(e.key==='Escape')close();if(e.key==='Tab'){const stops=[...root.querySelectorAll('a,button:not(:disabled)')];if(e.shiftKey&&document.activeElement===stops[0]){e.preventDefault();stops.at(-1).focus()}else if(!e.shiftKey&&document.activeElement===stops.at(-1)){e.preventDefault();stops[0].focus()}}};
     document.addEventListener('keydown',keyboard);root.querySelector('[data-close-fusion-help]').onclick=close;root.querySelector('.modal-backdrop').onclick=e=>{if(e.target.classList.contains('modal-backdrop'))close()};root.querySelectorAll('a').forEach(a=>a.addEventListener('click',close));root.querySelector('[data-close-fusion-help]').focus();
   });
   document.querySelectorAll('[data-needed-add]').forEach(button=>button.onclick=e=>{
@@ -3976,15 +4004,15 @@ function optimiseFusionExcluded(baseP){
   // Replacing the required copy by the same droid at a higher variant is safe.
   // Only exact upgrade rules permit this; the scorer forbids all mixed uses.
   const excluded=new Set([...Object.keys(state.groupTradeProtection||{}),...soldInsteadOfFusion(),...[...fusionRebirthProtectedKeys()].filter(key=>!upgradeKeys.has(key))]);
-  for(const unit of baseP?.placed||[])if(unit.variant==='SCOURGE'||unit.lockedSlot||isBuilding(unit))excluded.add(`${unit.source}:${unit.unit}`);
+  for(const unit of baseP?.placed||[])if(unit.variant==='SCOURGE'&&!keepForFusion(unit)||unit.lockedSlot||isBuilding(unit))excluded.add(`${unit.source}:${unit.unit}`);
   return excluded;
 }
-function optimiseFusionReserves(projected){
-  return [...new Map([...protocolFusionSpares(projected),...[...(projected?.placed||[]),...(projected?.overflow||[]),...(projected?.fusing||[])].filter(fusionReservedForUpgrade)].map(unit=>[`${unit.source}:${unit.unit}`,unit])).values()];
+function optimiseFusionReserves(projected,baseP=null){
+  return [...new Map([...(baseP?.placed||[]).filter(u=>u.station==='FUSION'&&keepForFusion(u)),...protocolFusionSpares(projected),...[...(projected?.placed||[]),...(projected?.overflow||[]),...(projected?.fusing||[])].filter(u=>fusionReservedForUpgrade(u)||keepForFusion(u)&&u.keepReason==='fusion')].map(unit=>[`${unit.source}:${unit.unit}`,unit])).values()];
 }
 function optimiseFusionChain(projected,baseP){
   const excluded=optimiseFusionExcluded(baseP);
-  const pool=[...new Map([...(projected?.sell||[]),...optimiseFusionReserves(projected)].map(unit=>[`${unit.source}:${unit.unit}`,unit])).values()];
+  const pool=[...new Map([...(projected?.sell||[]),...optimiseFusionReserves(projected,baseP)].map(unit=>[`${unit.source}:${unit.unit}`,unit])).values()];
   const spares=pool.filter(x=>!excluded.has(`${x.source}:${x.unit}`));
   // A kept droid on the table must be moved by the ordinary layout plan first. A
   // kept Protocol spare is the exception: it is there to be fused.
@@ -4021,7 +4049,7 @@ function withFusionSteps(steps,projected,baseP){
   // A kept Protocol spare has no sell step to turn into a fusion step, so it gets a
   // stand-in. If a fusion uses it, it is sent to Fusion; if not, it is simply kept
   // and never appears in the plan. It is fused from wherever it stands right now.
-  for(const unit of optimiseFusionReserves(projected)){
+  for(const unit of optimiseFusionReserves(projected,baseP)){
     if(excluded.has(`${unit.source}:${unit.unit}`))continue;
     if(available.some(s=>s.unit.source===unit.source&&s.unit.unit===unit.unit))continue;
     const now=(baseP?.placed||[]).find(x=>x.source===unit.source&&x.unit===unit.unit)||(unit.station?unit:null);
@@ -4076,7 +4104,7 @@ function withFusionSteps(steps,projected,baseP){
     const anyType=!step.sure&&!step.requiredClass&&step.spend.some(part=>fusionDroid(part.name)?.type==='PROTOCOL')?' It can be a Worker, Astromech, Battle or Protocol droid.':'';
     const why=step.staged?' These three are already on the table.':step.fills?' It is a Droidex square you do not have.':step.protocol&&step.bonusGain>0?' It gives a stronger Protocol bonus than the weakest one in your slots.':step.gain>0?` ${step.sure?'It':'The typical result'} out-earns the weakest droid working, by about ${fmt(step.gain*3600)}/hr.`:' It advances your fusion goals and frees two spaces overall.';
     const waits=step.after.length?' Do this one after the fusion above, which makes the copy it needs.':'';
-    const roll=step.sure?'':' Which droid arrives is a roll.';
+    const roll=(step.sure?'':' Which droid arrives is a roll.')+(step.firstVariant?' Keep the Scourge input in Fusion slot 1; Stellar inputs go in slots 2 and 3.':'');
     out.push({type:'fuse',kind:'fuse',at:'FUSION',visit:`fusion-${index}`,fusion:step,
       unit:step.out?{name:step.out.name,variant:step.out.variant}:null,
       text:`Fuse ${spend}. This makes ${makes}.${why}${roll}${anyType}${waits} Collect the result and clear the table before the next batch.`});
@@ -4262,7 +4290,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();refreshScourgeReminder();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-07-group-trading',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-07-scourge-fusion',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
@@ -6241,7 +6269,7 @@ function prepareScourgeSubmissions(baseP,target){
    break;
   }
  }
- const tradeSafeBase={...baseP,placed:baseP.placed.filter(u=>!state.groupTradeProtection?.[key(u)])};
+ const tradeSafeBase={...baseP,placed:baseP.placed.filter(u=>!state.groupTradeProtection?.[key(u)]&&!keepForFusion(u))};
  const submissions=scourgeSubmissionCandidates({initial:tradeSafeBase,projected:target,atGoal:state.rebirth>=rebirthGoal(),protectedKeys,isBuilding});
  const consumed=new Set(submissions.map(key));
  target.submissions=submissions;
