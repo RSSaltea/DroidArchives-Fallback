@@ -189,3 +189,18 @@ local static servers. The movement regression covers a finished Build droid
 going to work with nothing swapped into its slot, identical copies needing no
 commands, a Worker/Battle exchange buffering one room through the Lounge, and
 an unreachable Build target being refused.
+
+## Fusion preference and checklists
+
+Fusion settings default to preferring one Scourge plus two Stellar Legendaries
+for a Scourge Mythic. Matching Keep for fusion Scourge Legendaries can be taken
+from working slots for this mixed batch, at the cost of current production.
+They are not added to unrelated recipes or all-Scourge batches. Disabling the
+preference restores the spare-only pool and normal scoring. Rebirth reserves,
+locks, unfinished builds, exact upgrade reserves and group trade protection
+still apply. A batch whose input order cannot be proven remains deferred.
+
+Fusion completion keys include the batch's physical inputs and result identity;
+random outcomes must never share a generic completion key. Each room visit has
+a checkbox for that visit's actionable steps, with an indeterminate state when
+only some are checked. Repeated visits to the same room remain separate.

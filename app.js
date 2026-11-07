@@ -940,7 +940,7 @@ function notificationRangeText(variant,settings){
 }
 function normaliseFusionPreferences(value){
   return {goal:['balanced','rarity','variant'].includes(value?.goal)?value.goal:'balanced',
-    mythics:['variant','reroll','off'].includes(value?.mythics)?value.mythics:'variant',recipes:value?.recipes!==false};
+    mythics:['variant','reroll','off'].includes(value?.mythics)?value.mythics:'variant',recipes:value?.recipes!==false,preferScourge:value?.preferScourge!==false};
 }
 function notificationCyclePlan(settings){
   const cycle=Number(state.cycle)||0,keys=Object.keys(state.rebirths).map(Number).filter(Number.isFinite).sort((a,b)=>a-b),index=keys.indexOf(cycle);
@@ -1121,11 +1121,12 @@ function showFusionSettings(){
     <p>Choose what Optimise should make from spare droids. Droids reserved for rebirths stay protected.</p>
     <label class="field">Common through Legendary<select class="form-control" id="fusionGoal"><option value="balanced" ${settings.goal==='balanced'?'selected':''}>Balanced fusion progress</option><option value="rarity" ${settings.goal==='rarity'?'selected':''}>Higher rarity</option><option value="variant" ${settings.goal==='variant'?'selected':''}>Higher variant of the same droid</option></select></label>
     <label class="field">Mythic droids<select class="form-control" id="fusionMythics"><option value="variant" ${settings.mythics==='variant'?'selected':''}>Upgrade variants; reroll dormant Kybers</option><option value="reroll" ${settings.mythics==='reroll'?'selected':''}>Reroll for another Mythic</option><option value="off" ${settings.mythics==='off'?'selected':''}>Keep Mythics out of fusion</option></select></label>
+    <label class="planning-check"><input type="checkbox" id="fusionPreferScourge" ${settings.preferScourge?'checked':''}>Prefer 1 Scourge + 2 Stellar Legendaries for a Scourge Mythic</label><p class="picker-hint">Can use working Scourge Legendaries covered by Keep for fusion rules. This may reduce current production. Rebirth reserves, locked copies and group trades stay protected.</p>
     <label class="planning-check"><input type="checkbox" id="fusionRecipes" ${settings.recipes?'checked':''}>Allow named Fusion recipes that fit the selected goal</label>
     <p class="picker-hint">Three identical droids upgrade their variant and keep their identity. Mixed-name Mythics at the same variant also upgrade, but the resulting droid is random. Dormant Kyber Mythics reroll at dormant Kyber. If no suitable batch exists, no fusion is recommended. Use Keep for fusion rules to save spare inputs until then.</p>
     <div class="modal-actions"><button class="btn" id="saveFusionSettings">Save settings</button><button class="btn secondary" id="cancelFusionSettings">Cancel</button></div></section></div>`;
   root.querySelector('#saveFusionSettings').onclick=()=>{
-    state.fusionPreferences=normaliseFusionPreferences({goal:root.querySelector('#fusionGoal').value,mythics:root.querySelector('#fusionMythics').value,recipes:root.querySelector('#fusionRecipes').checked});save();closePlanningSettings(root);
+    state.fusionPreferences=normaliseFusionPreferences({goal:root.querySelector('#fusionGoal').value,mythics:root.querySelector('#fusionMythics').value,recipes:root.querySelector('#fusionRecipes').checked,preferScourge:root.querySelector('#fusionPreferScourge').checked});save();closePlanningSettings(root);
   };
   root.querySelector('#cancelFusionSettings').onclick=()=>closePlanningSettings(root);
   root.querySelector('.modal').onkeydown=e=>{if(e.key==='Escape')closePlanningSettings(root)};
@@ -1640,7 +1641,7 @@ function fusionSpendFrom(stock,name,variant,need){
 // One fusion the pool could make right now. A result that fills a Droidex square
 // wins outright: those cannot be bought back, while a better earner can. After
 // that a certain result beats a roll, and then it is simply the bigger gain.
-function fusionBestFrom(stock,floor,made,protocolFloors){
+function fusionBestFrom(stock,floor,made,protocolFloors,mixedOnly=new Map()){
   const options=[];
   // Exact upgrade reserves may only enter their matching three-of-a-kind batch.
   // Filter before scoring so a blocked batch cannot hide another legal recipe.
@@ -1671,6 +1672,7 @@ function fusionBestFrom(stock,floor,made,protocolFloors){
   }
   const preferences=normaliseFusionPreferences(state.fusionPreferences);
   const permitted=options.filter(option=>{
+    if(!option.firstVariant&&option.spend.some(p=>p.count>(stock.get(p.name)?.get(p.variant)||0)-(mixedOnly.get(p.name+'|'+p.variant)||0)))return false;
     const inputRarities=option.spend.map(part=>droidRarity(part.name));
     const hasMythic=inputRarities.includes('MYTHIC');
     if(hasMythic&&preferences.mythics==='off')return false;
@@ -1690,7 +1692,7 @@ function fusionBestFrom(stock,floor,made,protocolFloors){
   const worth=permitted;
   if(!worth.length)return null;
   const rank=option=>(option.fills?1e12:0)+(option.sure?1e6:0)+(option.bonusGain>0?1e3*option.bonusGain:0)+(option.income-floor);
-  return worth.sort((a,b)=>rank(b)-rank(a)||a.spend.filter(p=>p.variant==='SCOURGE').reduce((n,p)=>n+p.count,0)-b.spend.filter(p=>p.variant==='SCOURGE').reduce((n,p)=>n+p.count,0))[0];
+  return worth.sort((a,b)=>(preferences.preferScourge?Number(b.firstVariant==='SCOURGE')-Number(a.firstVariant==='SCOURGE'):0)||rank(b)-rank(a)||a.spend.filter(p=>p.variant==='SCOURGE').reduce((n,p)=>n+p.count,0)-b.spend.filter(p=>p.variant==='SCOURGE').reduce((n,p)=>n+p.count,0))[0];
 }
 const droidexGapFor=(name,variant)=>{const d=fusionDroid(name);return Boolean(d)&&!isIconic(d)&&!droidexEntry(name,variant)};
 // What the Sell list could become instead of being sold. Every fusion takes
@@ -1699,7 +1701,8 @@ const droidexGapFor=(name,variant)=>{const d=fusionDroid(name);return Boolean(d)
 // are not just a Rainbow Mythic; they are the third Rainbow that two spare ones
 // were waiting for, and together those are a Beskar.
 function fusionChainFromSpares(spares,placed){
-  const stock=new Map();
+  const stock=new Map(),mixedOnly=new Map();
+  for(const u of spares||[])if(u.mixedScourgeOnly){const key=u.name+'|'+u.variant;mixedOnly.set(key,(mixedOnly.get(key)||0)+1)}
   const add=(name,variant,count=1)=>{if(!stock.has(name))stock.set(name,new Map());const byVariant=stock.get(name);byVariant.set(variant,(byVariant.get(variant)||0)+count)};
   const take=(name,variant,count=1)=>{const byVariant=stock.get(name);if(!byVariant)return;const left=(byVariant.get(variant)||0)-count;left>0?byVariant.set(variant,left):byVariant.delete(variant);if(!byVariant.size)stock.delete(name)};
   for(const unit of spares||[])add(unit.name,unit.variant||'DEFAULT',unit.source!==undefined&&unit.unit!==undefined?1:(Number(unit.qty)||1));
@@ -1716,9 +1719,9 @@ function fusionChainFromSpares(spares,placed){
   // Each round spends three copies and adds at most one known result. Stop
   // when no batch matches the player's fusion preferences.
   for(let round=0;round<12;round++){
-    const pick=fusionBestFrom(stock,floor,made,protocolFloors);
+    const pick=fusionBestFrom(stock,floor,made,protocolFloors,mixedOnly);
     if(!pick)break;
-    for(const part of pick.spend)take(part.name,part.variant,part.count);
+    for(const part of pick.spend){const key=part.name+'|'+part.variant,restricted=mixedOnly.get(key)||0,regular=(stock.get(part.name)?.get(part.variant)||0)-restricted;mixedOnly.set(key,restricted-Math.max(0,part.count-regular));take(part.name,part.variant,part.count)}
     // Keep the promised named upgrade; never feed it straight into another roll.
     if(pick.out&&!pick.spend.some(fusionReservedForUpgrade)){add(pick.out.name,pick.out.variant);made.set(pick.out.name+'|'+pick.out.variant,steps.length)}
     steps.push({...pick,gain:pick.income-floor,step:steps.length+1});
@@ -3867,6 +3870,19 @@ const unitName=x=>`${x.name} ${variantText(x.variant)}`;
 const STEP_VERB_TONE={Submit:'fusion',Return:'stage',Buy:'place',Sell:'sell',Send:'stage',Move:'stage',Swap:'stage',Carry:'stage',Tell:'place',Make:'place',Put:'place'};
 const FUSION_STEP_TYPES=['fuse-in','fuse-held','fuse-deferred','fuse-result','fuse'];
 const stepTicked=text=>optimiseTickedSteps().includes(text);
+function roomTickHtml(visit){
+  const keys=visit.steps.filter(step=>step.type!=='note').map(optimiseStepKey);
+  return keys.length?`<label class="step-tick" title="Mark this room's steps as done"><input type="checkbox" data-room-tick="${escapeAttr(JSON.stringify(keys))}" aria-label="Mark all steps in ${escapeAttr(optimiseRegionName(visit.at))} as done"><span></span></label>`:'';
+}
+function bindOptimiseTicks(root){
+  const refresh=()=>{const y=scrollY;route();scrollTo(0,y)};
+  root.querySelectorAll('[data-step-tick]').forEach(box=>box.onclick=e=>{e.stopPropagation();toggleTickedStep(box.dataset.stepTick);refresh()});
+  root.querySelectorAll('[data-room-tick]').forEach(box=>{
+    const keys=JSON.parse(box.dataset.roomTick),done=keys.filter(stepTicked).length;
+    box.checked=done===keys.length;box.indeterminate=done>0&&done<keys.length;
+    box.onclick=e=>{e.stopPropagation();const ticks=new Set(optimiseTickedSteps());for(const key of keys)box.checked?ticks.add(key):ticks.delete(key);writeList('droid-archive-optimise-ticked',[...ticks]);refresh()};
+  });
+}
 function stepHtml(step,index){
   const d=state.droids.find(x=>x.name===step.unit?.name),trait=recordedTrait(step.unit),swapTrait=recordedTrait(step.withUnit);
   // A step for the Fusion room gets its own colour, so sending a droid to be fused
@@ -3950,7 +3966,7 @@ const optimiseTickedSteps=()=>readList('droid-archive-optimise-ticked');
 const toggleTickedStep=key=>{const list=optimiseTickedSteps(),i=list.indexOf(key);i>=0?list.splice(i,1):list.push(key);writeList('droid-archive-optimise-ticked',list)};
 // A step is the same step whatever its wording: the droid, the command and
 // where it starts and ends.
-const optimiseStepKey=step=>{const place=x=>x?typeof x==='string'?x:`${x.station}:${x.slot}`:'-';return `${step.submissionOnly?'scourge|':''}${step.type}|${step.unit?`${step.unit.source}:${step.unit.unit}`:'-'}|${place(step.from)}|${place(step.to)}`};
+const optimiseStepKey=step=>{const place=x=>x?typeof x==='string'?x:`${x.station}:${x.slot}`:'-';return `${step.submissionOnly?'scourge|':''}${step.type}|${step.unit?`${step.unit.source}:${step.unit.unit}`:'-'}|${place(step.from)}|${place(step.to)}${step.type==='fuse'?'|'+JSON.stringify([step.inputs||[],step.resultUnit?.source,step.visit,step.fusion?.step,step.fusion?.spend]):''}`};
 // Read older temporary Keep marks until the next Apply clears their roster keys.
 // New Keep choices are saved on the copy and survive applying a layout.
 const sparedFromSelling=()=>[...new Set([...readList('droid-archive-optimise-spared'),...Object.keys(state.groupTradeProtection||{})])];
@@ -4008,7 +4024,7 @@ function optimiseFusionExcluded(baseP){
   return excluded;
 }
 function optimiseFusionReserves(projected,baseP=null){
-  return [...new Map([...(baseP?.placed||[]).filter(u=>u.station==='FUSION'&&keepForFusion(u)),...protocolFusionSpares(projected),...[...(projected?.placed||[]),...(projected?.overflow||[]),...(projected?.fusing||[])].filter(u=>fusionReservedForUpgrade(u)||keepForFusion(u)&&u.keepReason==='fusion')].map(unit=>[`${unit.source}:${unit.unit}`,unit])).values()];
+  return [...new Map([...(baseP?.placed||[]).filter(u=>u.station==='FUSION'&&keepForFusion(u)),...protocolFusionSpares(projected),...[...(projected?.placed||[]),...(projected?.overflow||[]),...(projected?.fusing||[])].filter(u=>fusionReservedForUpgrade(u)||keepForFusion(u)&&(u.keepReason==='fusion'||normaliseFusionPreferences(state.fusionPreferences).preferScourge&&u.variant==='SCOURGE'&&droidRarity(u.name)==='LEGENDARY'&&!u.noSell&&!u.missionPriority&&!u.companionActivity&&u.keepReason!=='manual'&&u.station!=='COMPANION')).map(u=>({...u,mixedScourgeOnly:!fusionReservedForUpgrade(u)&&u.keepReason!=='fusion'}))].map(unit=>[`${unit.source}:${unit.unit}`,unit])).values()];
 }
 function optimiseFusionChain(projected,baseP){
   const excluded=optimiseFusionExcluded(baseP);
@@ -4290,7 +4306,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();refreshScourgeReminder();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-07-scourge-fusion',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-07-fusion-checklists',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
@@ -4676,11 +4692,11 @@ function scourgeSubmitPage(){
   }
   const preview=scourgeSubmitPreview(),{projected,steps,pending}=preview;
   const ticked=projected.planComplete?optimiseTickedProjection(preview):null,visits=optimiseVisits(steps),readOnly=Boolean(state.sharedView&&!state.sharedView.canEdit);
-  app.innerHTML=`<div class="breadcrumbs"><a href="#/base">Base</a> / <a href="#/optimise">Optimise</a> / Scourge submissions</div><div class="base-heading"><div><p class="eyebrow">Scourgedex hand-ins</p><h1>Submit all Scourge droids</h1><p class="lead">Move finished Scourge droids into the Lounge and submit them before Super Rebirth.</p></div><button class="btn" id="applyScourgeSubmissions" ${readOnly||!projected.planComplete||!projected.submissions.length?'disabled':''}>Apply submitted droids (${projected.submissions.length})</button></div><p class="notice">Follow these steps in-game first, then apply to remove the submitted copies from Base and record them in Scourgedex. This plan includes locked and income-producing Scourge droids at your rebirth goal. Other droids are only moved when needed to make Lounge space.</p>${pending.length?`<section class="panel"><h2>Finish these first</h2><ul>${pending.map(u=>`<li><strong>${escapeAttr(u.name)}</strong> - ${u.station?escapeAttr(slotLabel(u)):'not placed in Base'}: ${isBuilding(u)?'complete the build in-game and record it in Base':'record its current Base slot'}.</li>`).join('')}</ul><p>You can submit the ready droids now, then return for these.</p><a href="#/base">Open Base</a></section>`:''}${!projected.planComplete?`<p class="notice" role="alert">${projected.planIssues.map(escapeAttr).join('<br>')} <a href="#/base">Check Lounge space in Base</a></p>`:''}${steps.length?`<section class="optimise-steps"><header><h2>Submission steps</h2>${ticked?`<button class="btn secondary" id="applyScourgeSteps" ${readOnly?'disabled':''}>Apply ticked steps (${ticked.tickedCount}/${ticked.tickedTotal})</button>`:''}</header><ol class="optimise-visits">${visits.map(v=>`<li class="optimise-visit"><h3>${optimiseRegionName(v.at)}</h3><ul>${v.steps.map(step=>`<li class="${stepTicked(optimiseStepKey(step))?'step-done':''}">${stepHtml(step)}</li>`).join('')}</ul></li>`).join('')}</ol></section>`:!pending.length?'<p>No remaining Scourge droids to submit.</p>':''}<p><a href="#/optimise">Back to normal Optimise</a> &middot; <a href="#/scourgedex">Open Scourgedex</a></p>`;
+  app.innerHTML=`<div class="breadcrumbs"><a href="#/base">Base</a> / <a href="#/optimise">Optimise</a> / Scourge submissions</div><div class="base-heading"><div><p class="eyebrow">Scourgedex hand-ins</p><h1>Submit all Scourge droids</h1><p class="lead">Move finished Scourge droids into the Lounge and submit them before Super Rebirth.</p></div><button class="btn" id="applyScourgeSubmissions" ${readOnly||!projected.planComplete||!projected.submissions.length?'disabled':''}>Apply submitted droids (${projected.submissions.length})</button></div><p class="notice">Follow these steps in-game first, then apply to remove the submitted copies from Base and record them in Scourgedex. This plan includes locked and income-producing Scourge droids at your rebirth goal. Other droids are only moved when needed to make Lounge space.</p>${pending.length?`<section class="panel"><h2>Finish these first</h2><ul>${pending.map(u=>`<li><strong>${escapeAttr(u.name)}</strong> - ${u.station?escapeAttr(slotLabel(u)):'not placed in Base'}: ${isBuilding(u)?'complete the build in-game and record it in Base':'record its current Base slot'}.</li>`).join('')}</ul><p>You can submit the ready droids now, then return for these.</p><a href="#/base">Open Base</a></section>`:''}${!projected.planComplete?`<p class="notice" role="alert">${projected.planIssues.map(escapeAttr).join('<br>')} <a href="#/base">Check Lounge space in Base</a></p>`:''}${steps.length?`<section class="optimise-steps"><header><h2>Submission steps</h2>${ticked?`<button class="btn secondary" id="applyScourgeSteps" ${readOnly?'disabled':''}>Apply ticked steps (${ticked.tickedCount}/${ticked.tickedTotal})</button>`:''}</header><ol class="optimise-visits">${visits.map(v=>`<li class="optimise-visit"><h3>${roomTickHtml(v)}${optimiseRegionName(v.at)}</h3><ul>${v.steps.map(step=>`<li class="${stepTicked(optimiseStepKey(step))?'step-done':''}">${stepHtml(step)}</li>`).join('')}</ul></li>`).join('')}</ol></section>`:!pending.length?'<p>No remaining Scourge droids to submit.</p>':''}<p><a href="#/optimise">Back to normal Optimise</a> &middot; <a href="#/scourgedex">Open Scourgedex</a></p>`;
   const apply=async(button,candidate)=>{button.disabled=true;try{await applyOptimisedLayout(candidate)}finally{if(button.isConnected)button.disabled=false;}};
   app.querySelector('#applyScourgeSubmissions').onclick=event=>apply(event.currentTarget,preview);
   app.querySelector('#applyScourgeSteps')?.addEventListener('click',event=>apply(event.currentTarget,{...preview,projected:ticked}));
-  app.querySelectorAll('[data-step-tick]').forEach(box=>box.onclick=event=>{event.stopPropagation();toggleTickedStep(box.dataset.stepTick);const y=scrollY;route();scrollTo(0,y);});
+  bindOptimiseTicks(app);
 }
 function optimisePage(){
   if(cloudConnected()&&!state.sharedView&&(!state.groups.loaded||state.groups.error)){
@@ -4713,7 +4729,7 @@ function optimisePage(){
   const stepsEyebrow=classicSteps?'Slot-by-slot order':`Walk round the base · ${visits.length} stop${visits.length===1?'':'s'}`;
   const stepsList=classicSteps
     ?`<ol ${stepsCollapsed?'hidden':''}>${steps.map(step=>`<li class="${stepTicked(optimiseStepKey(step))?'step-done':''}">${stepHtml(step)}</li>`).join('')}</ol>`
-    :`<ol class="optimise-visits" ${stepsCollapsed?'hidden':''}>${visits.map(v=>{const droids=new Set(v.steps.filter(step=>step.unit).map(step=>`${step.unit.source}:${step.unit.unit}`)).size;return `<li class="optimise-visit"><h3>${optimiseRegionName(v.at)}<small>${droids} droid${droids===1?'':'s'}</small></h3><ul>${v.steps.map(step=>`<li class="${stepTicked(optimiseStepKey(step))?'step-done':''}">${stepHtml(step)}</li>`).join('')}</ul></li>`}).join('')}</ol>`;
+    :`<ol class="optimise-visits" ${stepsCollapsed?'hidden':''}>${visits.map(v=>{const droids=new Set(v.steps.filter(step=>step.unit).map(step=>`${step.unit.source}:${step.unit.unit}`)).size;return `<li class="optimise-visit"><h3>${roomTickHtml(v)}${optimiseRegionName(v.at)}<small>${droids} droid${droids===1?'':'s'}</small></h3><ul>${v.steps.map(step=>`<li class="${stepTicked(optimiseStepKey(step))?'step-done':''}">${stepHtml(step)}</li>`).join('')}</ul></li>`}).join('')}</ol>`;
   // Hidden unless the account that owns the research is signed in.
   const trackToggle=`<span class="optimise-track" id="optimiseTrack" hidden><button class="btn secondary" type="button">Track slot choices</button><small></small></span>`;
   const stepsStyleToggle=`<button class="btn secondary optimise-style-toggle" id="toggleStepStyle" title="${classicSteps?'Switch to the route-based plan that groups moves by station':'Switch to the original slot-by-slot plan'}">${classicSteps?'Use route plan':'Use classic plan'}</button>`;
@@ -4805,7 +4821,7 @@ function optimisePage(){
   });
   // A tick changes what "Apply ticked steps" would save, so the page redraws
   // (the plan itself is cached) without losing the scroll position.
-  document.querySelectorAll('[data-step-tick]').forEach(box=>box.onclick=e=>{e.stopPropagation();toggleTickedStep(box.dataset.stepTick);const y=scrollY;route();scrollTo(0,y)});
+  bindOptimiseTicks(document);
   document.querySelectorAll('[data-sell-instead]').forEach(button=>button.onclick=()=>{sellInsteadOfFusion(button.dataset.sellInstead);optimisePage()});
   document.querySelectorAll('[data-skip-sell]').forEach(button=>button.onclick=()=>{spareFromSelling(button.dataset.skipSell);optimisePage()});
   if(companionMode){
