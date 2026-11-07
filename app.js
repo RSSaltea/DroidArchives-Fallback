@@ -39,7 +39,7 @@ import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './releas
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-11-07-scourge-fusion';
 import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-11-07-scourge-fusion';
 import { slotDistanceSquared, slotPosition } from './slot-geometry.js?v=2026-11-07-v138';
-import { createOptimiseBackground } from './optimise-background.js?v=2026-10-09-search';
+import { createOptimiseBackground } from './optimise-background.js?v=2026-11-07-search-until-plan';
 import { createAssignmentScorer } from './optimise-layout-score.js?v=2026-11-02-scourgedex-crit';
 import { createArchiveExperience } from './archive-experience.js?v=2026-09-28-gonkoween';
 import { kyberGuide, kyberDroidDetails, kyberActivationCost } from './kyber-guide.js?v=2026-09-27-active-rebirth';
@@ -4306,21 +4306,21 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();refreshScourgeReminder();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-07-fusion-checklists',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-07-search-until-plan',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
   onResult:(message,stamp)=>{
-    if(stamp!==optimiseInputStamp()||optimiseBackgroundJob?.stamp!==stamp)return;
-    const {baseP,plan,targets}=optimiseBackgroundJob;if(!targets)return;
+    if(stamp!==optimiseInputStamp()||optimiseBackgroundJob?.stamp!==stamp)return false;
+    const {baseP,plan,targets}=optimiseBackgroundJob;if(!targets)return false;
     const projected=structuredClone(targets[message.index]);
     const recommendations=optimiseBackgroundJob.recommendations??=new Map();
     if(message.iconicOptions)recommendations.set(message.index,message.iconicOptions);
     projected.iconicOptions=recommendations.get(message.index);
     const steps=safeOptimiseStepPlan(baseP,projected,message.route);
-    if(!projected.planComplete)return;
+    if(!projected.planComplete)return false;
     const preview=finishOptimisePreview(baseP,plan,projected,steps,stamp);
-    optimisePreviewCache={stamp,preview};renderBackgroundOptimise();
+    optimisePreviewCache={stamp,preview};renderBackgroundOptimise();return true;
   }
 });
 // Pure preparation also feeds the isolated layout worker. Keep it free of UI,
@@ -4372,7 +4372,7 @@ function backgroundOptimisePreview(){
   return preview;
 }
 // Catches profile/cloud changes and companion activity that do not call save.
-// An unchanged snapshot never restarts a completed or budget-limited search.
+// An unchanged snapshot never restarts a completed search.
 setInterval(()=>{refreshBackgroundOptimise();if(optimiseBackgroundRender)renderBackgroundOptimise()},1000);
 function createOptimisePreview(baseP,plan){
   const cacheable=!baseP&&!plan,stamp=cacheable?optimiseInputStamp():null;
@@ -4713,7 +4713,6 @@ function optimisePage(){
     // switched again or off without waiting for the route.
     const comparing=searching&&!optimiseBackgroundJob?.targets,comparisons=optimiseBackgroundJob?.progress?.comparisons;
     const message=searching?(comparing?`Comparing Base layouts${comparisons?` (${comparisons} checked)`:''}. You can keep using the site.`:'Finding and checking the moves for your Base. You can keep using the site.')
-      :optimiseBackgroundStatus==='budget'?'The search reached its time limit before completing a plan. Your Base has not changed.'
       :optimiseBackgroundStatus==='error'?'Optimise could not finish this calculation. Your Base has not changed.'
       :'The search has not found a complete move sequence yet. Your Base has not changed.';
     const issues=!searching?optimiseBackgroundJob?.issues||[]:[];

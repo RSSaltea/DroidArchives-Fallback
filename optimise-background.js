@@ -13,9 +13,16 @@ export function createOptimiseBackground({ createWorker, onPrepared, onResult, o
         if (id !== generation) return;
         try {
           const routeBudget=Math.max(budget,Math.min(180000,Number(options.budget)||budget));
+          let hasResult=false,expired=false;
+          const expire=()=>{
+            if(id!==generation||!worker)return;
+            expired=true;
+            // The cap limits refinement, never the search for its first usable plan.
+            if(hasResult){stop();status('ready');}
+          };
           const armDeadline=()=>{
             clearTimeout(deadline);
-            deadline=setTimeout(()=>{if(id===generation){stop();status('budget');}},routeBudget);
+            expired=false;deadline=setTimeout(expire,routeBudget);
           };
           let prepared=false,comparisons=0;
           worker = createWorker(); status('searching');
@@ -30,17 +37,19 @@ export function createOptimiseBackground({ createWorker, onPrepared, onResult, o
             if(data.type==='progress'&&!prepared&&data.progress?.phase==='layout'&&Number.isInteger(data.progress.comparisons)&&data.progress.comparisons>comparisons){
               comparisons=data.progress.comparisons;onProgress?.(data,stamp);
               // Each completed comparison proves useful progress. A slower PC
-              // gets time to compare the remaining Iconics, with a hard limit
-              // as well as this per-comparison watchdog.
+              // gets time to compare the remaining Iconics before refinement is capped.
               armDeadline();
             }
-            if (data.type === 'result') onResult(data, stamp);
+            if (data.type === 'result') {
+              if(onResult(data, stamp)!==false)hasResult=true;
+              if(hasResult&&expired){stop();status('ready');return;}
+            }
             if (data.type === 'diagnostic') onProgress?.(data,stamp);
             if (data.type === 'done' || data.type === 'error') { stop(); status(data.type === 'done' ? 'ready' : 'error'); }
           };
           worker.onerror = () => { if (id === generation) { stop(); status('error'); } };
           armDeadline();
-          if(snapshot.layout)layoutDeadline=setTimeout(()=>{if(id===generation){stop();status('budget');}},layoutBudget);
+          if(snapshot.layout)layoutDeadline=setTimeout(expire,layoutBudget);
           worker.postMessage({ id, snapshot });
         } catch { stop(); status('error'); }
       }, delay);

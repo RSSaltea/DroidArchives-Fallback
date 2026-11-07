@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const pause=()=>new Promise(resolve=>setTimeout(resolve,15));
-test('completed layout comparisons extend the watchdog but never the hard layout limit',async(t)=>{
+test('layout time limits do not terminate a search without a usable result',async(t)=>{
  const {createOptimiseBackground}=await import('../optimise-background.js');
  t.mock.timers.enable({apis:['setTimeout']});
  let worker;const updates=[],statuses=[];
@@ -11,14 +11,14 @@ test('completed layout comparisons extend the watchdog but never the hard layout
  t.mock.timers.tick(80);progress(1);t.mock.timers.tick(80);assert(!worker.stopped);
  progress(2);progress(2);assert.equal(updates.length,2,'duplicate progress is ignored');
  t.mock.timers.tick(80);progress(3);t.mock.timers.tick(11);
- assert(worker.stopped,'hard ceiling still stops a progressing calculation');assert.equal(statuses.at(-1),'budget');
- progress(4);assert.equal(updates.length,3,'late progress cannot revive a stopped worker');manager.cancel();
+ assert(!worker.stopped,'no result means layout can continue');assert.equal(statuses.at(-1),'searching');
+ progress(4);assert.equal(updates.length,4);manager.cancel();assert(worker.stopped);
 });
 test('Search longer supplies a larger bounded budget without changing the default',async(t)=>{
  const {createOptimiseBackground}=await import('../optimise-background.js');t.mock.timers.enable({apis:['setTimeout']});
- let worker;const manager=createOptimiseBackground({createWorker:()=>worker={postMessage(){},terminate(){this.stopped=true}},delay:0,budget:100});
- manager.update('longer',{}, {budget:200});t.mock.timers.tick(0);t.mock.timers.tick(101);assert(!worker.stopped);t.mock.timers.tick(100);assert(worker.stopped);
- manager.update('next',{});t.mock.timers.tick(0);t.mock.timers.tick(101);assert(worker.stopped,'next normal job uses the original budget');manager.cancel();
+ let worker;const manager=createOptimiseBackground({createWorker:()=>worker={postMessage(x){this.job=x},terminate(){this.stopped=true}},onResult:()=>true,delay:0,budget:100});
+ manager.update('longer',{}, {budget:200});t.mock.timers.tick(0);worker.onmessage({data:{id:worker.job.id,type:'result'}});t.mock.timers.tick(101);assert(!worker.stopped);t.mock.timers.tick(100);assert(worker.stopped);
+ manager.update('next',{});t.mock.timers.tick(0);worker.onmessage({data:{id:worker.job.id,type:'result'}});t.mock.timers.tick(101);assert(worker.stopped,'next normal job uses the original budget');manager.cancel();
 });
 test('background generations cancel stale workers, debounce edits and retain only current results',async()=>{
  const {createOptimiseBackground}=await import('../optimise-background.js');
@@ -46,7 +46,7 @@ test('deadline terminates computation and rejects late messages without discardi
  const manager=createOptimiseBackground({createWorker:()=>worker={postMessage(x){this.job=x},terminate(){this.stopped=true}},onResult:x=>results.push(x),onStatus:x=>statuses.push(x),delay:0,budget:25});
  manager.update('base',{});await pause();
  worker.onmessage({data:{id:worker.job.id,type:'result',route:'valid'}});
- await new Promise(resolve=>setTimeout(resolve,30));assert(worker.stopped);assert(statuses.includes('budget'));
+ await new Promise(resolve=>setTimeout(resolve,30));assert(worker.stopped);assert(statuses.includes('ready'));
  worker.onmessage({data:{id:worker.job.id,type:'result',route:'late'}});assert.equal(results.length,1);manager.cancel();
 });
 
@@ -61,5 +61,23 @@ test('layout completion starts a full route budget, once per generation',async(t
  t.mock.timers.tick(80);assert(!worker.stopped,'layout does not consume the route budget');
  worker.onmessage({data:{id:worker.job.id,type:'prepared',prepared:{}}});
  assert.equal(preparations,1,'duplicate preparation cannot extend the deadline');
+ worker.onmessage({data:{id:worker.job.id,type:'result'}});
  t.mock.timers.tick(21);assert(worker.stopped);manager.cancel();
+});
+
+test('expired search continues until the UI accepts a result, then stops immediately',async(t)=>{
+ const {createOptimiseBackground}=await import('../optimise-background.js');t.mock.timers.enable({apis:['setTimeout']});
+ let worker;const accepted=[],statuses=[];
+ const manager=createOptimiseBackground({createWorker:()=>worker={postMessage(x){this.job=x},terminate(){this.stopped=true}},onResult:data=>{accepted.push(data.route);return data.route==='verified'},onStatus:x=>statuses.push(x),delay:0,budget:100});
+ manager.update('base',{});t.mock.timers.tick(0);t.mock.timers.tick(1000);
+ assert(!worker.stopped);assert.equal(statuses.at(-1),'searching');
+ worker.onmessage({data:{id:worker.job.id,type:'result',route:'rejected'}});assert(!worker.stopped,'rejected plans do not enable the cap');
+ worker.onmessage({data:{id:worker.job.id,type:'result',route:'verified'}});assert(worker.stopped);assert.equal(statuses.at(-1),'ready');
+ worker.onmessage({data:{id:worker.job.id,type:'result',route:'late'}});assert.deepEqual(accepted,['rejected','verified']);manager.cancel();
+});
+test('an overdue search is still cancelled when the base changes',async(t)=>{
+ const {createOptimiseBackground}=await import('../optimise-background.js');t.mock.timers.enable({apis:['setTimeout']});
+ const workers=[];const manager=createOptimiseBackground({createWorker:()=>{const w={postMessage(){},terminate(){this.stopped=true}};workers.push(w);return w},delay:0,budget:100});
+ manager.update('first',{});t.mock.timers.tick(1000);assert(!workers[0].stopped);
+ manager.update('second',{});t.mock.timers.tick(0);assert(workers[0].stopped);assert(!workers[1].stopped);manager.cancel();assert(workers[1].stopped);
 });

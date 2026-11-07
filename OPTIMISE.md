@@ -204,3 +204,13 @@ Fusion completion keys include the batch's physical inputs and result identity;
 random outcomes must never share a generic completion key. Each room visit has
 a checkbox for that visit's actionable steps, with an indeterminate state when
 only some are checked. Repeated visits to the same room remain separate.
+
+## Search time limits
+
+Time limits cap refinement only after the UI accepts a verified plan. If no
+usable result exists at the deadline, the current worker continues searching;
+the first accepted result after the deadline stops further refinement immediately.
+Rejected results do not enable the cap. Layout preparation still starts a fresh
+route budget. Changing the Base or cancelling terminates the old worker, and
+stale messages cannot replace the current plan. A worker that finishes its search
+or reports an error still stops normally; a timeout alone cannot end an unsolved search.

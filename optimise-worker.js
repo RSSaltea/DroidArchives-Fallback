@@ -1,7 +1,7 @@
 import { planOptimiseRoute, shortenOptimiseWalk, optimiseWalkDistance, scourgeSubmissionTrips } from './optimise-route.js?v=2026-11-07-scourge-fusion';
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-11-07-scourge-fusion';
 import { workerRules } from './optimise-worker-rules.js?v=2026-11-07-fusion-checklists';
-import { createOptimiseLayoutContext } from './optimise-layout-context.js?v=2026-11-07-fusion-checklists';
+import { createOptimiseLayoutContext } from './optimise-layout-context.js?v=2026-11-07-search-until-plan';
 
 const less = (a, b) => { for (let i=0;i<a.length;i++) if(a[i]!==b[i]) return a[i]<b[i]; return false; };
 self.onmessage = ({data:{id,snapshot}}) => {
