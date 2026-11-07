@@ -7,7 +7,7 @@ import {compareProtocolTraits,mountProtocolTraits} from './protocol-traits.js?v=
 import {traitBadgeHtml,recordedTrait} from './trait-badges.js?v=2026-11-04-protocol-traits';
 import {planScourgeSubmissions} from './scourge-submit-plan.js?v=2026-11-03-companion-seat';
 import { normaliseScourgedex, scourgedexCatalogue, recordScourgeSubmissions, scourgeSubmissionCandidates, scourgedexPage, scourgeWipe } from './scourgedex.js?v=2026-11-07-nova-order-search';
-import { siteHelpPage, siteHelpAfterRoute } from './site-help.js?v=2026-11-02-tour-targets';
+import { siteHelpPage, siteHelpAfterRoute } from './site-help.js?v=2026-11-07-retire-legacy';
 import { guidePage } from './guide-page.js?v=2026-11-07-nova-order-search';
 import {setSnowStatsClient} from './snow-build-stats.js?v=2026-11-01-snow-counts';
 import { setSnowOwner } from './seasonal-snow.js?v=2026-11-01-snow-v22';
@@ -27,7 +27,7 @@ import { companionPage } from './companion-page.js?v=2026-10-08-beta37';
 import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES, normaliseParty, partyBonuses } from './economy.js?v=2026-10-18-mission-tools';
 import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-11-02-scourgedex-crit';
 import { testMapPage } from './test-map.js?v=2026-11-07-trade-controls-spares';
-import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-10-05-layouts';
+import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-11-07-retire-legacy';
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-11-04-sale-protection';
@@ -5779,8 +5779,8 @@ if(window.ResizeObserver)new ResizeObserver(()=>scheduleHeaderNav()).observe(doc
 window.addEventListener('resize',()=>scheduleHeaderNav(true));
 document.fonts?.ready.then(()=>scheduleHeaderNav(true));
 const UI_STYLE_KEY='droid-archive-ui-style';
-function applyUiStyle(){if(document.documentElement.hasAttribute('data-ui-fixed'))return;const style=localStorage.getItem(UI_STYLE_KEY)==='legacy'?'legacy':'modern',button=document.querySelector('#uiStyleButton');document.documentElement.dataset.uiStyle=style;if(button){button.querySelector('strong').textContent=style==='modern'?'Classic':'Legacy';button.title=`Switch to ${style==='modern'?'Legacy':'Classic'} style`;button.setAttribute('aria-label',button.title);button.setAttribute('aria-pressed',String(style==='modern'))}}
-applyUiStyle();applyTheme();renderCloudHeader();scheduleHeaderNav(true);const uiStyleButton=document.querySelector('#uiStyleButton');if(uiStyleButton)uiStyleButton.onclick=()=>{const next=document.documentElement.dataset.uiStyle==='modern'?'legacy':'modern';localStorage.setItem(UI_STYLE_KEY,next);applyUiStyle();route();requestAnimationFrame(updateTimerDocking);toast(`${next==='modern'?'Classic':'Legacy'} style enabled`)};const themeButton=document.querySelector('#themeButton');if(themeButton)themeButton.onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';save();applyTheme();renderCloudHeader()};document.querySelector('#menuButton').onclick=()=>{const sidebar=document.querySelector('.sidebar'),dropdown=document.querySelector('#cloudDropdown'),cloudButton=document.querySelector('#cloudMenuButton');if(dropdown){dropdown.hidden=true;cloudButton?.setAttribute('aria-expanded','false')}sidebar.classList.toggle('mobile-open')};document.addEventListener('click',()=>{const dropdown=document.querySelector('#cloudDropdown'),button=document.querySelector('#cloudMenuButton');if(dropdown){dropdown.hidden=true;button?.setAttribute('aria-expanded','false')}});document.querySelector('#globalSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){location.hash='#/droids';setTimeout(()=>{const s=document.querySelector('#droidSearch');if(s){s.value=e.target.value;s.dispatchEvent(new Event('input'))}},20)}});window.addEventListener('hashchange',route);
+function applyUiStyle(){if(document.documentElement.hasAttribute('data-ui-fixed'))return;document.documentElement.dataset.uiStyle='modern';try{localStorage.setItem(UI_STYLE_KEY,'modern')}catch{}}
+applyUiStyle();applyTheme();renderCloudHeader();scheduleHeaderNav(true);const themeButton=document.querySelector('#themeButton');if(themeButton)themeButton.onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';save();applyTheme();renderCloudHeader()};document.querySelector('#menuButton').onclick=()=>{const sidebar=document.querySelector('.sidebar'),dropdown=document.querySelector('#cloudDropdown'),cloudButton=document.querySelector('#cloudMenuButton');if(dropdown){dropdown.hidden=true;cloudButton?.setAttribute('aria-expanded','false')}sidebar.classList.toggle('mobile-open')};document.addEventListener('click',()=>{const dropdown=document.querySelector('#cloudDropdown'),button=document.querySelector('#cloudMenuButton');if(dropdown){dropdown.hidden=true;button?.setAttribute('aria-expanded','false')}});document.querySelector('#globalSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){location.hash='#/droids';setTimeout(()=>{const s=document.querySelector('#droidSearch');if(s){s.value=e.target.value;s.dispatchEvent(new Event('input'))}},20)}});window.addEventListener('hashchange',route);
 document.querySelector('#copyDiscord').onclick=async()=>{try{await navigator.clipboard.writeText('.saltea');toast('Discord username copied')}catch{toast('Discord: .saltea')}};
 // The dashboard and companion use the same placements and income rules as Base.
 let archiveOverviewCache=null;

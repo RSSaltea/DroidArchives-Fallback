@@ -48,8 +48,8 @@ edited; `next/shell.css` holds the tokens and shell. The internal style name
 stays `next` because the CSS is keyed to it.
 
 `classic.html` is the previous interface, kept for anyone who prefers it
-(`styles.css` + `modern.css`). Its header button switches between two styles,
-shown to players as **Classic** (internally `modern`) and **Legacy**. It links
+(`styles.css` + `modern.css`). It uses **Classic** (internally `modern`) only. Legacy is retired; saved Legacy
+preferences are migrated to Classic. Do not restore the Legacy toggle. It links
 back to the main site with "New look"; the main site links to it with "Classic".
 Both shells run the same `app.js`, so keep both working.
 
