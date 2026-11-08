@@ -92,6 +92,29 @@ const server=http.createServer((req,res)=>{
  await page.evaluate(()=>{t.state.groups.workspace[0].profiles[0].data.rebirth=29;t.refreshGroupRequirementCards()});
  assert((await page.locator('.needed-group-owner').first().innerText()).includes('Rebirth 29'));
  assert((await page.locator('.needed-group-owner').first().innerText()).includes('Not needed for remaining rebirths'));
+
+ const linked=await page.evaluate(()=>{
+  t.state.cloud.doc.profiles=[{id:'mine',name:'My Base',data:{rebirth:26,cycle:0,owned:[{name:'TRI-TEK',variant:'BESKAR',qty:1,built:true}]}}];
+  t.state.sharedView={groupId:'g1',ownerId:'one',profileId:'base',ownerName:'Partner',profileName:'Partner Base',canEdit:false};
+  t.state.owned=[{name:'GONK',variant:'GOLD',qty:1,built:true}];
+  const before=JSON.stringify(t.state.owned),owners=t.groupRequirementOwners(req),m=t.groupRequirementTradeModel(req,'self:mine');
+  t.refreshGroupRequirementCards();
+  return {owners,offers:m.offers,targets:m.targets,unchanged:before===JSON.stringify(t.state.owned)};
+ });
+ assert(linked.owners.some(p=>p.isOwn&&p.have==='BESKAR'),'own Beskar appears from linked profile');
+ assert(!linked.owners.some(p=>p.ownerId==='one'),'viewed owner is excluded');
+ assert(linked.targets.some(u=>u.name==='TRI-TEK'&&u.variant==='BESKAR'));
+ assert(linked.offers.every(u=>u.name==='GONK'),'offers come from viewed partner Base');
+ assert(linked.unchanged,'comparison does not overwrite the viewed profile');
+ await page.locator('[data-group-trade-options]').filter({hasText:'Trade options'}).first().click();
+ assert((await page.locator('.group-trade-options').innerText()).includes('Partner pays'));
+ assert((await page.locator('.group-trade-options').innerText()).includes('You pay'));
+ for(const width of [1440,390]){
+  await page.setViewportSize({width,height:900});
+  await page.screenshot({path:'research/linked-group-trades-'+width+'.png',fullPage:true});
+ }
+ await page.keyboard.press('Escape');
+ await page.evaluate(()=>{t.state.sharedView=null});
  await page.evaluate(()=>{t.state.groups.workspace=[];t.refreshGroupRequirementCards()});
  assert.equal(await page.locator('.needed-group-owner').count(),0);
  assert.deepEqual(errors,[]);console.log('PASS: group ownership, future requirements, deduplication, safe text, refresh and responsive cards');
