@@ -1,0 +1,21 @@
+.blueprint-calculator{max-width:1200px;margin:auto}
+.blueprint-calculator .panel{padding:22px;margin:18px 0}
+.blueprint-current{display:flex;gap:36px;flex-wrap:wrap}
+.blueprint-current>div{display:grid;gap:6px}
+.blueprint-current small,.blueprint-counts small{color:var(--muted)}
+.blueprint-current strong{font-size:24px;color:var(--accent,#68e3b1)}
+.blueprint-sources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.blueprint-sources .panel{margin:0;display:flex;flex-direction:column;align-items:stretch}
+.blueprint-source label{display:grid;gap:8px;margin-top:12px}
+.blueprint-source button{margin-top:auto;align-self:flex-start}
+.blueprint-band{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.blueprint-combined{display:flex;align-items:center;justify-content:space-between;gap:24px;border-left:3px solid var(--accent,#68e3b1)}
+.blueprint-combined button{flex-shrink:0}
+.blueprint-counts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.blueprint-counts label{display:grid;gap:8px}
+.blueprint-moves{padding-left:24px}
+.blueprint-moves li{padding:12px 0;border-bottom:1px solid var(--line)}
+.blueprint-moves img{width:48px;height:56px;object-fit:contain;float:left;margin-right:14px}
+.blueprint-moves li>div{min-height:56px;align-content:center}
+.blueprint-rules summary{font-weight:700;cursor:pointer}
+@media(max-width:700px){.blueprint-sources{grid-template-columns:1fr}.blueprint-counts{grid-template-columns:repeat(2,minmax(0,1fr))}.blueprint-combined{align-items:flex-start;flex-direction:column}.blueprint-current{gap:20px}.blueprint-calculator .panel{padding:16px}}

@@ -2,6 +2,16 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-11-08-blueprint-calc",
+      "date": "2026-11-08",
+      "title": "Blueprint Calc",
+      "summary": "Plan your Base for the blueprint rarity you want.",
+      "changes": [
+        "Calculate Scrap and Mission blueprint targets separately, or find one Base setup for both.",
+        "See suggested moves to raise or lower your average rarity, and preview different droid counts without changing your saved Base."
+      ]
+    },
+    {
       "id": "2026-11-07-trading-fusion-nova-review-2",
       "date": "2026-11-07",
       "title": "Trading, fusion planning and Nova Shop updates",
