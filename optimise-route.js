@@ -245,6 +245,18 @@ export function shortenOptimiseWalk(steps, { distance, isValid, slotDistanceSqua
           const candidate=steps.filter((_,k)=>k!==i&&k!==j);
           if(isValid(candidate)){steps=candidate;removed=true;break outer;}
         }
+        // Lounge slot numbers can change on a temporary return. Keep the
+        // droid in its original slot and update its next command instead of
+        // requiring an exact-slot round trip. Full replay checks vacancies,
+        // predicted landings, locks and the final layout before accepting it.
+        if(a.from.station==='LOUNGE'&&b.to?.station==='LOUNGE'&&sameSpot(a.to,b.from)){
+          const next=steps.findIndex((step,k)=>k>j&&step.unit&&keyOf(step.unit)===keyOf(a.unit));
+          if(next>=0&&steps[next].at===a.at&&sameSpot(steps[next].from,b.to)){
+            const candidate=steps.flatMap((step,k)=>k===i||k===j?[]:
+              [k===next?{...step,from:{...a.from}}:step]);
+            if(isValid(candidate)){steps=candidate;removed=true;break outer;}
+          }
+        }
         break;
       }
     }
@@ -657,8 +669,8 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
       progress = false;
       // Make one reusable Lounge space without selling its retained occupant.
       // Hold that occupant in transit until the outstanding hand-ins finish.
-      if(region==='LOUNGE'&&needsSubmissionSpace(state)&&!occupancy(placedOf(state),rules).free('LOUNGE').length&&![...state.pos].some(([key,p])=>p.station==='LOUNGE'&&state.goals.get(key)?.kind==='submit')){
-        const holder=[...state.pos].find(([key,p])=>p.station==='LOUNGE'&&!fixed(key)&&state.goals.get(key)?.kind==='place'&&state.goals.get(key)?.station==='LOUNGE'&&!buffered.has(key));
+      if(needsSubmissionSpace(state)&&!occupancy(placedOf(state),rules).free('LOUNGE').length&&![...state.pos].some(([key,p])=>p.station==='LOUNGE'&&state.goals.get(key)?.kind==='submit')){
+        const holder=[...state.pos].find(([key,p])=>p.station==='LOUNGE'&&regionOfKey(state,key)===region&&!fixed(key)&&state.goals.get(key)?.kind==='place'&&state.goals.get(key)?.station==='LOUNGE'&&!buffered.has(key));
         if(holder){
           const moved=(policy.parkFirst?['park','transit','seat']:['transit','park','seat']).reduce((found,kind)=>found||tryCommand(state,holder[0],kind,policy.assumed,region),null);
           if(moved){buffered.add(holder[0]);steps.push({...moved,buffer:true});progress=true;}
@@ -762,7 +774,7 @@ function planOnce({ initial, target, rules, options = {} } = {}) {
   const idle = goal => goal.kind === 'stay' || goal.kind === 'done';
   const regionsWithWork = state => {
     const regions = new Set();
-    if(needsSubmissionSpace(state)&&!occupancy(placedOf(state),rules).free('LOUNGE').length&&[...state.pos].some(([key,p])=>p.station==='LOUNGE'&&!fixed(key)&&state.goals.get(key)?.kind==='place'))regions.add('LOUNGE');
+    if(needsSubmissionSpace(state)&&!occupancy(placedOf(state),rules).free('LOUNGE').length)for(const [key,p] of state.pos)if(p.station==='LOUNGE'&&!fixed(key)&&state.goals.get(key)?.kind==='place')regions.add(regionOfKey(state,key));
     for (const [key, goal] of state.goals) {
       if (idle(goal) || fixed(key) || state.sold.has(key) || state.staged.has(key)) continue;
       if (goal.kind === 'place' && goalMet(state.pos.get(key), goal, rules)) continue;

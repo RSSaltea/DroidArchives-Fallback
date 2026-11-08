@@ -41,7 +41,7 @@ import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-11-07-r
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
 import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-11-07-scourge-fusion';
-import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-11-07-scourge-fusion';
+import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-11-08-lounge-routes';
 import { slotDistanceSquared, slotPosition } from './slot-geometry.js?v=2026-11-07-v138';
 import { createOptimiseBackground } from './optimise-background.js?v=2026-11-07-search-until-plan';
 import { createAssignmentScorer } from './optimise-layout-score.js?v=2026-11-08-shared';
@@ -672,10 +672,11 @@ const loungeDivider=index=>index===5?'<div class="upper-level-divider"><span>Reb
 // does not tell you which one to walk to. Everything that names a Battle slot
 // says the floor as well.
 const BATTLE_UPSTAIRS_FROM=5;
+const LOUNGE_UPSTAIRS_FROM=16;
 // The eleven Worker slots stand in two places: eight on the round worker
 // platform and, from the ninth unlocked onwards, three outside the main one.
 const WORKER_MAIN_PLATFORM_FROM=8;
-const slotFloor=(station,index)=>station==='BATTLE'?(index>=BATTLE_UPSTAIRS_FROM?'upstairs':'downstairs'):station==='LOUNGE'?(index>=16?'upstairs':'downstairs'):'';
+const slotFloor=(station,index)=>station==='BATTLE'?(index>=BATTLE_UPSTAIRS_FROM?'upstairs':'downstairs'):station==='LOUNGE'?(index>=LOUNGE_UPSTAIRS_FROM?'upstairs':'downstairs'):'';
 const floorNote=(station,index)=>{const floor=slotFloor(station,index);return floor?` (${floor})`:''};
 const stationSlotLabel=(station,index)=>`${stationName(station)} ${index+1}${floorNote(station,index)}`;
 const slotDivider=(type,index)=>type==='LOUNGE'?loungeDivider(index):type==='BATTLE'&&index===BATTLE_UPSTAIRS_FROM?'<div class="upper-level-divider"><span>Second Floor</span></div>':type==='WORKER'&&index===WORKER_MAIN_PLATFORM_FROM?'<div class="upper-level-divider"><span>Outside Main Platform</span></div>':'';
@@ -4089,14 +4090,14 @@ function withFusionSteps(steps,projected,baseP){
 // ─── Walking the base ──────────────────────────────────────────────────────
 // The rooms a player walks between. Build slots and Protocol consoles stand in
 // the region they serve, the Upgrade Chip pad is behind the Worker Build slot,
-// and the Battle upstairs floor is a stop of its own.
-const OPTIMISE_REGION_NAMES={ICONIC_SHOP:'Cantina',WORKER:'Worker room',ASTROMECH:'Astromech room',BATTLE:'Battle (downstairs)',BATTLE_UP:'Battle (upstairs)',LOUNGE:'Lounge',FUSION:'Fusion room',ANY:'Anywhere',ROSTER:'Roster'};
-const optimiseRegion=(station,slot)=>station==='BATTLE'?(slot>=BATTLE_UPSTAIRS_FROM?'BATTLE_UP':'BATTLE'):station==='FUSION'||station==='FUSION_BUILD'?'FUSION':station==='UPGRADE_CHIP'?'WORKER':station==='BUILD'?PROTOCOL_REGIONS[slot]||'WORKER':station==='COMPANION'?null:PROTOCOL_SLOTS[station]?PROTOCOL_SLOTS[station].region:station;
+// and upstairs Battle and Lounge floors are stops of their own.
+const OPTIMISE_REGION_NAMES={ICONIC_SHOP:'Cantina',WORKER:'Worker room',ASTROMECH:'Astromech room',BATTLE:'Battle (downstairs)',BATTLE_UP:'Battle (upstairs)',LOUNGE:'Lounge (downstairs)',LOUNGE_UP:'Lounge (upstairs)',FUSION:'Fusion room',ANY:'Anywhere',ROSTER:'Roster'};
+const optimiseRegion=(station,slot)=>station==='LOUNGE'?(slot>=LOUNGE_UPSTAIRS_FROM?'LOUNGE_UP':'LOUNGE'):station==='BATTLE'?(slot>=BATTLE_UPSTAIRS_FROM?'BATTLE_UP':'BATTLE'):station==='FUSION'||station==='FUSION_BUILD'?'FUSION':station==='UPGRADE_CHIP'?'WORKER':station==='BUILD'?PROTOCOL_REGIONS[slot]||'WORKER':station==='COMPANION'?null:PROTOCOL_SLOTS[station]?PROTOCOL_SLOTS[station].region:station;
 const optimiseRegionName=region=>OPTIMISE_REGION_NAMES[region]||placeName(region);
 // Horizontal centres of the captured slot groups estimate the player's travel
 // between stops. These are not navigable paths or walking times. Droid landings
 // use the separate full 3D slot distance, never this room-level estimate.
-const OPTIMISE_REGION_XY=Object.fromEntries(Object.entries({WORKER:['WORKER',0,11],ASTROMECH:['ASTROMECH',0,9],BATTLE:['BATTLE',0,5],BATTLE_UP:['BATTLE',5,11],LOUNGE:['LOUNGE',0,13],FUSION:['FUSION',0,3]}).map(([region,[station,start,end]])=>{
+const OPTIMISE_REGION_XY=Object.fromEntries(Object.entries({WORKER:['WORKER',0,11],ASTROMECH:['ASTROMECH',0,9],BATTLE:['BATTLE',0,5],BATTLE_UP:['BATTLE',5,11],LOUNGE:['LOUNGE',0,LOUNGE_UPSTAIRS_FROM],LOUNGE_UP:['LOUNGE',LOUNGE_UPSTAIRS_FROM,21],FUSION:['FUSION',0,3]}).map(([region,[station,start,end]])=>{
   const points=Array.from({length:end-start},(_,i)=>slotPosition({station,slot:start+i}));
   return [region,[0,1].map(axis=>points.reduce((sum,p)=>sum+p[axis],0)/points.length)];
 }));
@@ -4265,7 +4266,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();refreshScourgeReminder();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-08-shared',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-08-lounge-routes',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},
