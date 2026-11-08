@@ -14,6 +14,7 @@ Read this before adding game data or repeating a droid description. Prefer a sha
 | Droid portrait selection, fallback and image markup | droid-display.js | imageFor and droidPicture; existing feature contexts receive the shared picture callback. |
 | Trade costs and payer difference | trade-values.js | tradeValue and tradeDifference use the catalogue and shared chip table. |
 | Rarity average and blueprint targets | blueprint-calc.js | Uses BLUEPRINT_RARITY_POINTS from droid-rules.js. |
+| Companion comparison goals and eligible trait choices | companion-trait-comparison.js | Reads traits.js; app.js supplies existing Base credit, scrap and critical-hit calculations. |
 | Traits, eligibility and bonuses | traits.js and trait-badges.js | Use trait helpers and badges; do not repeat trait calculations in cards. |
 | Production, scrap, crafting and mission calculations | economy.js, crafting.js, mission-economy.js | Pass the current profile and catalogue into the existing pure calculators. |
 | Fusion recipes | data/fusion.json and the existing fusion resolver in app.js | Fusion Target calls the resolver supplied by the app; never invent a second recipe evaluator. |

@@ -1338,3 +1338,20 @@ a.trading-nav-link:not(.active):not([aria-current="page"])::after{content:"";pos
 .group-trade-offer img{width:48px;height:56px;object-fit:contain}
 .group-trade-offer>span{display:grid;gap:5px;min-width:0}
 @media(max-width:600px){.modal.group-trade-options{padding:16px}.group-trade-option{grid-template-columns:minmax(0,1fr)}}
+
+.needed-search{width:100%;max-width:none;display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.needed-search input{min-width:0;flex:1 1 220px}
+.companion-trait-comparison{margin:24px 0;padding:24px;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+.companion-trait-comparison>h3{margin-top:0}
+.companion-trait-comparison>p{margin:16px 0;line-height:1.5}
+.companion-trait-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px}
+.companion-trait-controls label{display:grid;gap:8px;min-width:0}
+.companion-trait-controls select,.companion-trait-controls input:not([type=checkbox]){width:100%;min-width:0;min-height:40px}
+.companion-trait-controls .companion-fusion-toggle{display:flex;gap:8px;align-items:center}
+.companion-trait-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.companion-trait-result{padding:16px;border:1px solid var(--line);border-radius:4px;min-width:0;overflow-wrap:anywhere}
+.companion-trait-result.is-best{border-color:var(--accent,#45d483)}
+.companion-trait-result h4{margin:0 0 12px}
+.companion-trait-result dl{margin:0;display:grid;gap:12px}
+.companion-trait-result dd{margin:4px 0 0;font-weight:700}
+@media(max-width:600px){.companion-trait-comparison{padding:16px}.companion-trait-controls,.companion-trait-results{grid-template-columns:minmax(0,1fr)}}
