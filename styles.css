@@ -1315,3 +1315,11 @@ a.trading-nav-link:not(.active):not([aria-current="page"])::after{content:"";pos
 .optimise-visit>h3 .step-tick{align-self:center;margin-right:0}
 .step-tick input:indeterminate+span{background:#7fd1a0;border-color:#4f9d73}
 .step-tick input:indeterminate+span::after{content:"";display:block;width:9px;height:2px;margin:6px auto;background:#0f1a12}
+
+/* Shared group ownership on Base and Rebirth requirement cards. */
+.needed-card .needed-group-info{grid-column:1/-1;min-width:0}
+.needed-card .needed-group-info:empty{display:none}
+.needed-card .needed-group-owners{display:grid;gap:10px;border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
+.needed-card .needed-group-owner{display:grid;gap:4px;font-size:11px;line-height:1.5;overflow-wrap:anywhere;white-space:normal}
+.needed-card .needed-group-owner>b{color:var(--text)}
+.needed-card .needed-group-owner>span{color:var(--muted,#9aa6b9)}
