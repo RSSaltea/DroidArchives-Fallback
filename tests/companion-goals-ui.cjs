@@ -50,6 +50,11 @@ const server=http.createServer((req,res)=>{
  });
  await page.locator('[data-trait-compare-goal]').selectOption('pickaxe');
  assert((await page.locator('#comparison').innerText()).includes('Overclocked'));
+ assert.equal(await page.locator('[data-companion-tier]').count(),0,'tiers are compared together');
+ const ranking=await page.locator('.companion-trait-result').evaluateAll(cards=>cards.map(c=>({name:c.querySelector('h4').textContent,value:Number(c.querySelector('dd').textContent.replaceAll(',',''))})));
+ assert(ranking.some(r=>r.name==='Diamond Critical Amount'));assert(ranking.some(r=>r.name==='Rainbow Pickaxe Level'));
+ assert(ranking.every((r,i)=>!i||ranking[i-1].value>=r.value),'all tiers ordered by calculated gain');
+
  assert(!(await page.locator('.companion-trait-results').innerText()).includes('Fusion Expert'));
  const before=await page.locator('.companion-trait-results').innerText();
  await page.locator('[data-companion-fusion]').check();assert((await page.locator('.companion-trait-results').innerText()).includes('Fusion Expert'));
@@ -59,16 +64,41 @@ const server=http.createServer((req,res)=>{
  for(const width of [1440,390,320]){await page.setViewportSize({width,height:900});assert(await page.locator('#comparison').evaluate(e=>e.scrollWidth<=e.clientWidth+1));await page.screenshot({path:'research/companion-goals-'+width+'.png',fullPage:true})}
  await page.locator('[data-companion-fusion]').uncheck();assert.equal(await page.locator('.companion-trait-results').innerText(),before);
  await page.evaluate(()=>t.mountBaseProtocolTraits(document.querySelector('#comparison'),t.state.droids.find(d=>d.name==='CHOPPER'),'DEFAULT'));
- await page.locator('[data-trait-compare-goal]').selectOption('pickaxe');assert(!(await page.locator('.companion-trait-results').innerText()).includes('Overclocked'));
+ assert.equal(await page.locator('[data-trait-compare-goal]').inputValue(),'pickaxe','goal persists across droids');assert(!(await page.locator('.companion-trait-results').innerText()).includes('Overclocked'));
  assert((await page.locator('.companion-trait-results').innerText()).includes('Critical Chance'));
  await page.evaluate(()=>t.mountBaseProtocolTraits(document.querySelector('#comparison'),t.state.droids.find(d=>d.name==='GONK'),'GOLD'));
- await page.locator('[data-trait-compare-goal]').selectOption('pickaxe');assert(!(await page.locator('.companion-trait-results').innerText()).includes('Overclocked'));
+ assert.equal(await page.locator('[data-trait-compare-goal]').inputValue(),'pickaxe','goal persists across droids');assert(!(await page.locator('.companion-trait-results').innerText()).includes('Overclocked'));
  for(const goal of ['credits','scrap','crafting','health','chips']){await page.locator('[data-trait-compare-goal]').selectOption(goal);assert(!(await page.locator('.companion-trait-results').innerText()).includes('Fusion Expert'))}
  await page.evaluate(()=>{t.state.multiplier=100;t.setScrapStation()});
  await page.locator('[data-trait-compare-goal]').selectOption('scrap');
  assert((await page.locator('.companion-trait-result.is-best').innerText()).includes('Scrap Specialist'));
  assert(!(await page.locator('.companion-trait-results').innerText()).includes('Progress / swing'));
  assert(!(await page.locator('.companion-trait-results').innerText()).includes('Pickaxe Level'));
+
+ await page.evaluate(()=>{
+  localStorage.setItem('droid-archive-map-hidden','0');
+  t.state.owned=[{name:'R7',variant:'STELLAR',qty:1,built:true,preferred:'COMPANION',preferredSlot:0}];t.basePageV2();
+ });
+ await page.locator('.tm-slot[data-slot="COMPANION:0"]').dispatchEvent('click');
+ assert.equal(await page.locator('.tm-inspector .companion-trait-comparison').count(),0);
+ assert(await page.locator('.tm-trait-panel .companion-trait-comparison').isVisible());
+ await page.locator('.tm-trait-panel [data-trait-compare-goal]').selectOption('pickaxe');
+ for(const width of [1440,390,320]){
+  await page.setViewportSize({width,height:900});
+  const panel=page.locator('.tm-trait-panel');await panel.scrollIntoViewIfNeeded();
+  assert(await panel.evaluate(e=>e.scrollWidth<=e.clientWidth+1));
+  assert(await panel.evaluate(e=>e.getBoundingClientRect().top>=e.parentElement.querySelector('.tm-layout').getBoundingClientRect().bottom-1));
+  assert(await panel.locator('dt').evaluateAll(es=>es.every(e=>e.getBoundingClientRect().width>=100)),'metric text has room to wrap normally');
+  await page.screenshot({path:'research/map-trait-ranking-'+width+'.png'});
+ }
+ await page.locator('#tmFloor').selectOption('ground');assert(await page.locator('.tm-trait-panel').isHidden());
+ await page.goto(url+'/index.html#/droid/r7');await page.reload();
+ await page.waitForSelector('[data-trait-compare-goal]');
+ assert.equal(await page.locator('[data-trait-compare-goal]').inputValue(),'pickaxe');
+ await page.locator('[data-companion-fusion]').check();
+ await page.reload();await page.waitForSelector('[data-trait-compare-goal]');
+ assert.equal(await page.locator('[data-trait-compare-goal]').inputValue(),'pickaxe','goal persists after reload');
+ assert(await page.locator('[data-companion-fusion]').isChecked(),'fusion setting persists after reload');
  assert.deepEqual(errors,[]);console.log('PASS: search names/clear/Escape in all layouts, Scourge rule, all-droid companion goals and fusion gating');
  }finally{await browser.close();server.closeAllConnections();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1});
