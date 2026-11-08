@@ -12,7 +12,7 @@ const server=http.createServer((req,res)=>{
  try{
  const context=await browser.newContext(),page=await context.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));await page.route('https://**/*',r=>r.abort());
- await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.t={state,groupRequirementOwners,groupRequirementHtml,refreshGroupRequirementCards,neededCardHtml};'}));
+ await page.route('**/app.js*',r=>r.fulfill({contentType:'text/javascript',body:source+'\nwindow.t={groupRequirementTradeModel,tradeValue,tradeDifference,tradeMoney,state,groupRequirementOwners,groupRequirementHtml,refreshGroupRequirementCards,neededCardHtml};'}));
  await page.addInitScript(notes=>localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(notes)),JSON.parse(fs.readFileSync(path.join(root,'data/patch-notes.json'))).notes.map(n=>n.id));
  const url=`http://127.0.0.1:${server.address().port}`;
  await page.goto(url);await page.waitForFunction(()=>window.t?.state.droids.length);
@@ -40,6 +40,55 @@ const server=http.createServer((req,res)=>{
   assert(await page.locator('.needed-card').evaluate(e=>e.scrollWidth<=e.clientWidth+1));
   await page.screenshot({path:'research/group-requirement-'+width+'.png',fullPage:true});
  }
+
+ await page.evaluate(()=>{
+  t.state.rebirth=26;t.state.cycle=0;
+  t.state.owned=[
+   {name:'TRI-TEK',variant:'STELLAR',qty:1,built:true,preferred:'LOUNGE',preferredSlot:0},
+   {name:'TRI-TEK',variant:'RAINBOW',qty:2,built:true,preferred:'LOUNGE',preferredSlot:1},
+   {name:'GONK',variant:'GOLD',qty:1,built:true,preferred:'LOUNGE',preferredSlot:3},
+   {name:'PIT',variant:'GOLD',qty:1,built:true,tradedOnce:true},
+   {name:'R7',variant:'GOLD',qty:1,built:true,lockedSlot:true},
+   {name:'CHOPPER',variant:'DEFAULT',qty:1,built:true}
+  ];
+ });
+ const options=await page.evaluate(()=>{
+  const m=t.groupRequirementTradeModel(req,'one:base');
+  return {offers:m.offers,targets:m.targets};
+ });
+ assert.equal(options.offers.filter(u=>u.name==='TRI-TEK').length,2,'spare duplicates retained');
+ assert(!options.offers.some(u=>u.variant==='STELLAR'),'highest future rebirth copy protected');
+ assert(!options.offers.some(u=>['PIT','R7','CHOPPER'].includes(u.name)));
+ assert(options.targets[0].rebirthReserved,'member reservation retained');
+ await page.locator('[data-group-trade-options]').first().click();
+ assert.equal(await page.locator('.group-trade-option').count(),3);
+ assert((await page.locator('[data-group-trade-warning]').innerText()).includes('needs to keep this copy'));
+ assert((await page.locator('.group-trade-option-list').innerText()).includes('You pay'));
+ assert((await page.locator('.group-trade-option-list').innerText()).includes('They pay'));
+
+ const expected=await page.evaluate(()=>{
+  const m=t.groupRequirementTradeModel(req,'one:base'),target=m.targets[0];
+  return m.offers.map(u=>{const c=t.tradeDifference(t.tradeValue(m.catalogue.get(u.name),u.variant),t.tradeValue(m.catalogue.get(target.name),target.variant));return [t.tradeMoney(c.you),t.tradeMoney(c.other)]});
+ });
+ const text=await page.locator('[data-group-trade-results]').innerText();
+ for(const costs of expected)for(const cost of costs)assert(text.includes(cost),'both sides use canonical trade costs');
+ await page.locator('[data-group-trade-sort]').selectOption('chips');
+ for(const width of [1440,390,320]){
+  await page.setViewportSize({width,height:900});
+  assert(await page.locator('.group-trade-options').evaluate(e=>e.scrollWidth<=e.clientWidth+1));
+  await page.screenshot({path:'research/group-trade-options-'+width+'.png',fullPage:true});
+ }
+ await page.keyboard.press('Escape');
+ assert.equal(await page.locator('.group-trade-options').count(),0);
+ await page.evaluate(()=>{t.state.owned=t.state.owned.slice(0,1)});
+ await page.locator('[data-group-trade-options]').first().click();
+ assert((await page.locator('[data-group-trade-results]').innerText()).includes('No eligible spare copies'));
+ await page.keyboard.press('Escape');
+ await page.evaluate(()=>{t.state.groups.workspace[0].profiles[0].data.owned[0].tradedOnce=true});
+ await page.locator('[data-group-trade-options]').first().click();
+ assert((await page.locator('.group-trade-options').innerText()).includes('No tradeable copies'));
+ await page.keyboard.press('Escape');
+
  await page.evaluate(()=>{t.state.groups.workspace[0].profiles[0].data.rebirth=29;t.refreshGroupRequirementCards()});
  assert((await page.locator('.needed-group-owner').first().innerText()).includes('Rebirth 29'));
  assert((await page.locator('.needed-group-owner').first().innerText()).includes('Not needed for remaining rebirths'));

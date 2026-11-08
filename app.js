@@ -4,7 +4,7 @@ import {DROID_TYPES,ALL_VARIANTS,OWNED_VARIANTS,baseVariant,variantRank,isActive
 import {mountBlueprintCalc} from './blueprint-calc-ui.js?v=2026-11-08-shared';
 import {startTradeNotices,wireTradeNoticeSettings} from './trade-notices.js?v=2026-11-08-shared';
 import {mountTradeComparison} from './trade-comparison.js?v=2026-11-08-shared';
-import {tradeValue,tradeMoney} from './trade-values.js?v=2026-11-08-shared';
+import {tradeValue,tradeMoney,tradeDifference} from './trade-values.js?v=2026-11-08-shared';
 let tradeNoticeService=null;
 import {tradeBlockReason} from './trade-droid-picker.js?v=2026-11-08-shared';
 import {findGroupTrades,groupTradeSettings,groupCopyKey} from './group-trading.js?v=2026-11-07-group-trading';
@@ -2742,8 +2742,48 @@ function groupRequirementOwners(req){
 }
 function groupRequirementHtml(req){
  const owners=groupRequirementOwners(req);
- return owners.length?'<span class="needed-group-owners">'+owners.map(p=>`<span class="needed-group-owner"><b>${escapeAttr(p.ownerName||'Group member')} &middot; ${escapeAttr(p.profileName||'Base')}</b><span>Has ${variantText(p.have)} &middot; Rebirth ${p.current} &middot; Cycle ${p.cycle+1}</span><span>${p.needed.length?'Needs it for rebirth '+p.needed.join(', '):'Not needed for remaining rebirths this cycle'}${p.ready?'':' &middot; Does not meet your required variant'}</span></span>`).join('')+'</span>':'';
+ return owners.length?'<span class="needed-group-owners">'+owners.map(p=>`<span class="needed-group-owner"><b>${escapeAttr(p.ownerName||'Group member')} &middot; ${escapeAttr(p.profileName||'Base')}</b><span>Has ${variantText(p.have)} &middot; Rebirth ${p.current} &middot; Cycle ${p.cycle+1}</span><span>${p.needed.length?'Needs it for rebirth '+p.needed.join(', '):'Not needed for remaining rebirths this cycle'}${p.ready?'':' &middot; Does not meet your required variant'}</span><button type="button" class="btn secondary" data-group-trade-options="${escapeAttr(JSON.stringify({req,key:p.key}))}">Trade options</button></span>`).join('')+'</span>':'';
 }
+
+function groupRequirementTradeModel(req,key){
+ const owner=groupRequirementOwners(req).find(p=>p.key===key);
+ if(!owner)return null;
+ const catalogue=new Map(state.droids.map(d=>[d.name,d]));
+ const eligible=u=>!u.lockedSlot&&!rowIsBuilding(u)&&!tradeBlockReason(u,catalogue.get(u.name))&&tradeValue(catalogue.get(u.name),u.variant);
+ const reserved=tradeReservedCopies(),base=placements();
+ const offers=[...base.placed,...base.overflow].filter(u=>!reserved.has(groupCopyKey(u))&&eligible(u));
+ const targets=withGroupTradeProfile(owner.data,()=>{
+  const p=placements(),keep=tradeReservedCopies();
+  return [...p.placed,...p.overflow].filter(u=>rebirthNames(u.name).includes(req.droidName)&&eligible(u))
+   .map(u=>({...u,rebirthReserved:keep.has(groupCopyKey(u))}));
+ });
+ return {owner,offers,targets,catalogue};
+}
+function showGroupRequirementTrades(req,key){
+ const model=groupRequirementTradeModel(req,key),root=document.querySelector('#modalRoot');
+ if(!model){toast('This shared profile is no longer available. Refresh your groups.');return}
+ const {owner,offers,targets,catalogue}=model,focus=document.activeElement;
+ const label=u=>`${u.name} - ${variantLabel(u.variant)} - ${u.station?stationSlotLabel(u.station,u.slot):'Unallocated'}`;
+ root.innerHTML=`<div class="modal-backdrop"><section class="modal group-trade-options" role="dialog" aria-modal="true" aria-labelledby="groupTradeOptionsTitle"><header><h2 id="groupTradeOptionsTitle">Trade options</h2><button type="button" class="btn secondary" data-close-group-trades>Close</button></header><p>Receive from <strong>${escapeAttr(owner.ownerName)} &middot; ${escapeAttr(owner.profileName)}</strong>. Rebirth ${owner.current}, cycle ${owner.cycle+1}.</p><p>Your future rebirth copies are protected, keeping your highest variant. Spare duplicates remain listed. Each row is a separate one-for-one trade.</p>${targets.length?`<label class="group-trade-field">Their copy<select data-group-trade-target>${targets.map((u,i)=>`<option value="${i}">${escapeAttr(label(u))}</option>`).join('')}</select></label><p data-group-trade-warning></p><label class="group-trade-field">Sort by<select data-group-trade-sort><option value="credits">Lowest credits you pay</option><option value="chips">Lowest upgrade chips you pay</option><option value="kyber">Lowest Kyber crystals you pay</option></select></label><div class="group-trade-option-list" data-group-trade-results></div>`:'<p class="empty">No tradeable copies are recorded in this shared profile. Locked, unfinished, Iconic and previously traded copies cannot be offered here.</p>'}</section></div>`;
+ const controller=new AbortController(),close=()=>{controller.abort();root.innerHTML='';focus?.focus()};
+ root.querySelector('[data-close-group-trades]').onclick=close;
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')close()},{signal:controller.signal});
+ const draw=()=>{
+  const target=targets[Number(root.querySelector('[data-group-trade-target]').value)],sort=root.querySelector('[data-group-trade-sort]').value;
+  const warning=root.querySelector('[data-group-trade-warning]');
+  warning.textContent=[target.rebirthReserved?`${owner.ownerName} needs to keep this copy for rebirth ${owner.needed.join(', ')}.`:owner.needed.length?'They have another copy reserved for their future rebirths.':'They do not need this droid for remaining rebirths this cycle.',rebirthVariantReady(target.variant,req.variant)?'':'This copy does not meet your required variant.'].filter(Boolean).join(' ');
+  const value=tradeValue(catalogue.get(target.name),target.variant);
+  const rows=offers.map(unit=>({unit,cost:tradeDifference(tradeValue(catalogue.get(unit.name),unit.variant),value)}))
+   .sort((a,b)=>a.cost.you[sort]-b.cost.you[sort]||a.cost.you.credits-b.cost.you.credits||a.cost.you.chips-b.cost.you.chips||a.cost.you.kyber-b.cost.you.kyber||a.unit.name.localeCompare(b.unit.name));
+  root.querySelector('[data-group-trade-results]').innerHTML=`<p>${rows.length} eligible copies. Charges are calculated separately for each currency.</p>`+(rows.map(({unit,cost})=>`<article class="group-trade-option"><div class="group-trade-offer">${picture(catalogue.get(unit.name),unit.variant)}<span><strong>${escapeAttr(unit.name)}</strong><span>${variantText(unit.variant)}</span><small>${escapeAttr(unit.station?stationSlotLabel(unit.station,unit.slot):'Unallocated')} &middot; Copy ${unit.source+1}.${unit.unit+1}</small></span></div><div><b>You pay</b><span>${escapeAttr(tradeMoney(cost.you))}</span></div><div><b>They pay</b><span>${escapeAttr(tradeMoney(cost.other))}</span></div></article>`).join('')||'<p class="empty">No eligible spare copies. Your reserved rebirth copies and locked, unfinished, Iconic or previously traded droids are excluded.</p>');
+ };
+ if(targets.length){root.querySelector('[data-group-trade-target]').onchange=draw;root.querySelector('[data-group-trade-sort]').onchange=draw;draw()}
+ root.querySelector('[data-close-group-trades]').focus();
+}
+document.addEventListener('click',event=>{
+ const button=event.target.closest?.('[data-group-trade-options]');
+ if(button){const {req,key}=JSON.parse(button.dataset.groupTradeOptions);showGroupRequirementTrades(req,key)}
+});
 function refreshGroupRequirementCards(){
  document.querySelectorAll('[data-group-requirement]').forEach(node=>{
   try{node.innerHTML=groupRequirementHtml(JSON.parse(node.dataset.groupRequirement))}catch{}
