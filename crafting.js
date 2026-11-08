@@ -1,8 +1,6 @@
+import {RARITY_POWER,ALL_VARIANTS as QUALITIES,PRODUCTIVE_STATIONS as REGIONS} from './droid-rules.js?v=2026-11-08-shared';
 import { companionPerkActive, overclockFactor, traitSum } from './traits.js?v=2026-11-02-scourgedex-crit';
 // Passive crafting rules. Pickaxe hits, critical hits and rushes are additional.
-const RARITY_POWER={COMMON:1,RARE:2,EPIC:3,LEGENDARY:4,MYTHIC:5};
-const QUALITIES=['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR','KYBER'];
-const REGIONS=['WORKER','ASTROMECH','BATTLE'];
 const level=value=>Math.max(0,Math.floor(Number(value)||0));
 export function companionAttributeValue(d,variant='DEFAULT'){
   const rarity=RARITY_POWER[d?.rarity];

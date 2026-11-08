@@ -1,3 +1,4 @@
+import {escapeHtml as escape} from './ui-text.js?v=2026-11-08-shared';
 import {scrapRewards} from './economy.js?v=2026-10-18-mission-tools';
 
 // The entered total already includes equipped Protocols. Remove only the
@@ -28,7 +29,6 @@ export function compareProtocolTraits({multiplier,creditBoost=1,removedCreditBon
   return {overclocked,specialist,winner,gain:Number.isFinite(gain)?gain:0};
 }
 
-const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const names={overclocked:'Overclocked',specialist:'Rainbow Scrap Specialist'};
 export function mountProtocolTraits(host,{droid,variantLabel,copies,slots,locationLabel,scenario,fmt,creditBoost=1,onBoostChange=()=>{}}){
   if(droid.type!=='PROTOCOL')return;

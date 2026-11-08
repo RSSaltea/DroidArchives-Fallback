@@ -1,7 +1,7 @@
+import {escapeHtml as esc} from './ui-text.js?v=2026-11-08-shared';
 import { GUIDE_CHAPTERS } from './guide-content.js?v=2026-11-07-v138';
 import { novaTotalCost } from './nova-levels.js?v=2026-10-07-unlimited';
 
-const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number = value => Number(value).toLocaleString('en-GB');
 const novaBalance = value => Math.min(Number.MAX_SAFE_INTEGER,Math.max(0,Math.floor(Number(value)||0)));
 export const GUIDE_MILESTONES = [

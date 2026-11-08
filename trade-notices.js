@@ -1,7 +1,7 @@
-import {traitIcon} from './trait-picker.js?v=2026-11-03-trait-picker';
+import {escapeHtml as esc} from './ui-text.js?v=2026-11-08-shared';
+import {traitIcon} from './trait-picker.js?v=2026-11-08-shared';
 import {TRAITS} from './traits.js?v=2026-11-02-scourgedex-crit';
 const preference='droid-archive-trade-notices';
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const items=v=>Array.isArray(v)?v:v?[v]:[];
 export const tradeNoticesEnabled=()=>localStorage.getItem(preference)!=='0';
 export function setTradeNoticesEnabled(enabled){localStorage.setItem(preference,enabled?'1':'0');window.dispatchEvent(new Event('trade-notice-preference'));}

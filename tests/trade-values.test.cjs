@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
 (async()=>{
- const {tradeValue,tradeDifference}=await import('data:text/javascript;base64,'+Buffer.from(fs.readFileSync('trade-values.js','utf8')).toString('base64'));
+ const {tradeValue,tradeDifference}=await import('../trade-values.js');
  const droids=JSON.parse(fs.readFileSync('data/droids.json')),mouse=droids.find(d=>d.name==='MOUSE'),r7=droids.find(d=>d.name==='R7');
  assert.deepEqual(tradeValue(mouse,'DEFAULT'),{credits:950,chips:0,kyber:0});
  assert.equal(tradeValue(mouse,'GOLD').chips,10);

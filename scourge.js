@@ -1,9 +1,9 @@
+import {PRODUCTIVE_STATIONS as productive} from './droid-rules.js?v=2026-11-08-shared';
 import { traitAmount } from './traits.js?v=2026-11-02-scourgedex-crit';
 export const SCOURGE_EVENT_START='2026-10-31T14:00:00Z';
 export const SCOURGE_EVENT_END='2026-11-01T21:00:00Z';
 export const primeAvailable=(now=Date.now())=>Number(now)>=Date.parse(SCOURGE_EVENT_START);
 export const hiveMindBonus=count=>Math.max(0,count-1)*.1045;
-const productive=['WORKER','ASTROMECH','BATTLE'];
 export const scourgeCount=placed=>placed.filter(u=>u.variant==='SCOURGE'&&(productive.includes(u.station)||u.station?.startsWith('PROTOCOL_'))).length;
 // Shared by the live Base and numeric Optimise scorer. Regional links exclude
 // Iconics and existing Scourge members, so no droid is counted twice.

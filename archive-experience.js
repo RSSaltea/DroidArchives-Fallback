@@ -1,6 +1,6 @@
+import {escapeHtml as escape} from './ui-text.js?v=2026-11-08-shared';
 import { renderProgressCard } from './progress-card.js?v=2026-09-28-gonkoween';
 // Profile tools share the existing planner's calculations and save path.
-const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clone = value => JSON.parse(JSON.stringify(value));
 const count = rows => (rows || []).reduce((n, row) => n + (Number(row.qty) || 1), 0);
 const integer = (value, max = 100000) => Number.isInteger(value) && value >= 0 && value <= max;

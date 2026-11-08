@@ -1,10 +1,10 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const source=fs.readFileSync(require('node:path').join(__dirname,'../app.js'),'utf8');
+const source=require('./app-rule-source.cjs')();
 function declaration(prefix){const start=source.indexOf(prefix);assert(start>=0,prefix);return source.slice(start,source.indexOf('\n',start));}
 test('Kyber requirements need activation; lower requirements accept dormant Kyber',()=>{
   const state={owned:[]};
   const ctx=vm.createContext({state,rowIsBuilding:row=>row.building===true});
-  for(const prefix of ['const fusionRecipes=','function rebirthNames(','const ALL_VARIANTS=','const OWNED_VARIANTS=','const baseVariant=','const variantRank=','const isActiveKyber=','const rebirthVariantReady=','function normalizeRebirthTracker(','function bestOwnedVariant(','function hasRequirement(','function profileBestOwnedVariant(','function profileRequirementReady('])vm.runInContext(declaration(prefix),ctx);
+  for(const prefix of ['const fusionRecipes=','function rebirthNames(','const ACTIVE_KYBER=','const ALL_VARIANTS=','const OWNED_VARIANTS=','const baseVariant=','const variantRank=','const isActiveKyber=','const rebirthVariantReady=','function normalizeRebirthTracker(','function bestOwnedVariant(','function hasRequirement(','function profileBestOwnedVariant(','function profileRequirementReady('])vm.runInContext(declaration(prefix),ctx);
   for(const variant of ['KYBER','KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE']){
     for(const required of ['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR','KYBER']){
       state.owned=[{name:'MOUSE',variant,qty:1}];ctx.req={droidName:'MOUSE',variant:required};

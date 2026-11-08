@@ -1,6 +1,6 @@
+import {escapeHtml as escape} from './ui-text.js?v=2026-11-08-shared';
 import {TRAITS,normaliseTrait} from './traits.js?v=2026-11-02-scourgedex-crit';
-import {traitBonusText,traitIcon} from './trait-picker.js?v=2026-11-03-trait-picker';
-const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+import {traitBonusText,traitIcon} from './trait-picker.js?v=2026-11-08-shared';
 export function recordedTrait(unit){
   if(unit?.blueprint)return null;
   const value=normaliseTrait(unit?.trait),trait=value&&TRAITS.find(t=>t.id===value.id);

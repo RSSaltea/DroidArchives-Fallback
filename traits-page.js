@@ -1,8 +1,8 @@
-import {traitDroidLink} from './droid-traits.js?v=2026-11-02-scourgedex-crit';
-import {mountMissionTools} from './mission-tools-ui.js?v=2026-11-02-scourgedex-crit';
+import {escapeHtml as escape} from './ui-text.js?v=2026-11-08-shared';
+import {traitDroidLink} from './droid-traits.js?v=2026-11-08-shared';
+import {mountMissionTools} from './mission-tools-ui.js?v=2026-11-08-shared';
 import { mountTraitTools } from './trait-tools-ui.js?v=2026-11-02-scourgedex-crit';
 import { TRAIT_DATA } from './data/traits.js?v=2026-11-02-scourgedex-crit';
-const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tiers=['Default','Gold','Diamond','Rainbow'];
 const roleLabel=role=>role==='Worker'?'Working (including Protocol bays)':role==='Astromech'?'Astromech mission':role;
 export function traitValue(trait,value){

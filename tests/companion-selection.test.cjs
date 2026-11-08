@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const src=fs.readFileSync(path.join(__dirname,'../app.js'),'utf8');
+const src=require('./app-rule-source.cjs')();
 const droids=JSON.parse(fs.readFileSync(path.join(__dirname,'../data/droids.json'),'utf8'));
 function fn(name){const at=src.indexOf(`function ${name}(`);assert(at>=0,name);const tail=src.slice(at),end=tail.slice(1).search(/\n(?:function |const |let |async function |\/\/)/);return end<0?tail:tail.slice(0,end+1);}
 function optimise({units,preferred=['CHOPPER'],goals=['pickaxe'],assignments=[],slots=2}){
@@ -20,7 +20,7 @@ function optimise({units,preferred=['CHOPPER'],goals=['pickaxe'],assignments=[],
   droidexGapsAbove:()=>[],droidAttribute:()=> 'boost',
   optimisedRows:placed=>placed
  });
- for(const prefix of ['const unitCompanionGoal=','const ALL_VARIANTS=','const baseVariant=','const variantRank=','const COMPANION_GOALS=','const companionGoals=','const companionSlotCount=','const preferredCompanions=']){
+ for(const prefix of ['const unitCompanionGoal=','const ACTIVE_KYBER=','const ALL_VARIANTS=','const baseVariant=','const variantRank=','const COMPANION_GOALS=','const companionGoals=','const companionSlotCount=','const preferredCompanions=']){
   const line=src.split(/\r?\n/).find(x=>x.startsWith(prefix));assert(line,prefix);vm.runInContext(line,ctx);
  }
  for(const name of ['droidAttributeValue','stabiliseProjectedPlacements','optimisedPlacements','fusionFreesSlots','fusionConsumesAll','optimisedPlacementsPass','planHonoured'])vm.runInContext(fn(name),ctx);

@@ -1,11 +1,12 @@
-import {tradeVariantLabel} from './trade-rules.js?v=2026-11-07-trade-receipts';
+import {isIconic} from './droid-rules.js?v=2026-11-08-shared';
+import {escapeHtml as esc} from './ui-text.js?v=2026-11-08-shared';
+import {tradeVariantLabel} from './trade-rules.js?v=2026-11-08-shared';
 import {TRAITS,normaliseTrait,traitEligible,traitLabel,traitOptionLabel} from './traits.js?v=2026-11-02-scourgedex-crit';
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const words=v=>String(v??'').replaceAll('_',' ');
 
 export function tradeBlockReason(unit,droid){
   if(!droid)return 'Droid not in the catalogue';
-  if(droid.rarity==='ICONIC'||droid.special?.onlyDefaultVariant)return 'Iconics cannot be traded';
+  if(isIconic(droid))return 'Iconics cannot be traded';
   if(unit.hasBeenTraded||unit.traded||unit.tradedOnce)return 'Traded Once - cannot trade again';
   if(unit.blueprint)return 'Build this blueprint first';
   if(['BUILD','FUSION_BUILD'].includes(unit.station||unit.preferred)&&!unit.built)return 'Finish building first';

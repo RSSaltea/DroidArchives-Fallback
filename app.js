@@ -1,39 +1,42 @@
-import {mountBlueprintCalc} from './blueprint-calc-ui.js?v=2026-11-08-blueprints';
-import {startTradeNotices,wireTradeNoticeSettings} from './trade-notices.js?v=2026-11-07-trade-notices';
-import {mountTradeComparison} from './trade-comparison.js?v=2026-11-07-trade-notices';
-import {tradeValue,tradeMoney} from './trade-values.js?v=2026-11-07-trade-notices';
+import {PRODUCTIVE_STATIONS} from './droid-rules.js?v=2026-11-08-shared';
+import {imageFor as resolveDroidImage,droidPicture} from './droid-display.js?v=2026-11-08-shared';
+import {DROID_TYPES,ALL_VARIANTS,OWNED_VARIANTS,baseVariant,variantRank,isActiveKyber,rebirthVariantReady,LEGACY_DROID_NAMES,canonicalDroidName,isIconic,isFusion,ICONIC_EFFECTS,iconicIncome,CHIP_COSTS,UPGRADE_CHIP_RATES,upgradeChipRate,CHIP_SELL_VALUES,baseChipSellValue,LUCKY_UPGRADE_CHANCES,luckyChance,variantLabel,RARITY_LADDER} from './droid-rules.js?v=2026-11-08-shared';
+import {mountBlueprintCalc} from './blueprint-calc-ui.js?v=2026-11-08-shared';
+import {startTradeNotices,wireTradeNoticeSettings} from './trade-notices.js?v=2026-11-08-shared';
+import {mountTradeComparison} from './trade-comparison.js?v=2026-11-08-shared';
+import {tradeValue,tradeMoney} from './trade-values.js?v=2026-11-08-shared';
 let tradeNoticeService=null;
-import {tradeBlockReason} from './trade-droid-picker.js?v=2026-11-07-trade-quality';
+import {tradeBlockReason} from './trade-droid-picker.js?v=2026-11-08-shared';
 import {findGroupTrades,groupTradeSettings,groupCopyKey} from './group-trading.js?v=2026-11-07-group-trading';
-import {importTradeReceipts} from './trade-rules.js?v=2026-11-07-trade-receipts';
+import {importTradeReceipts} from './trade-rules.js?v=2026-11-08-shared';
 import {installViewState} from './view-state.js?v=2026-11-07-stable-views';
-import {mountFusionTarget} from './fusion-target.js?v=2026-11-07-nova-order-search';
-import {tradingPage,clearTradingSession} from './trading-page.js?v=2026-11-07-trade-notices';
-import {mountTraitPicker,traitBonusText} from './trait-picker.js?v=2026-11-03-trait-picker';
-import {compareProtocolTraits,mountProtocolTraits} from './protocol-traits.js?v=2026-11-04-protocol-traits';
-import {traitBadgeHtml,recordedTrait} from './trait-badges.js?v=2026-11-04-protocol-traits';
+import {mountFusionTarget} from './fusion-target.js?v=2026-11-08-shared';
+import {tradingPage,clearTradingSession} from './trading-page.js?v=2026-11-08-shared';
+import {mountTraitPicker,traitBonusText} from './trait-picker.js?v=2026-11-08-shared';
+import {compareProtocolTraits,mountProtocolTraits} from './protocol-traits.js?v=2026-11-08-shared';
+import {traitBadgeHtml,recordedTrait} from './trait-badges.js?v=2026-11-08-shared';
 import {planScourgeSubmissions} from './scourge-submit-plan.js?v=2026-11-07-scourge-fusion';
 import { normaliseScourgedex, scourgedexCatalogue, recordScourgeSubmissions, scourgeSubmissionCandidates, scourgedexPage, scourgeWipe } from './scourgedex.js?v=2026-11-07-nova-order-search';
 import { siteHelpPage, siteHelpAfterRoute } from './site-help.js?v=2026-11-07-trading-navigation';
-import { guidePage } from './guide-page.js?v=2026-11-07-nova-order-search';
+import { guidePage } from './guide-page.js?v=2026-11-08-shared';
 import {setSnowStatsClient} from './snow-build-stats.js?v=2026-11-01-snow-counts';
 import { setSnowOwner } from './seasonal-snow.js?v=2026-11-01-snow-v22';
-import {droidTraitsHtml} from './droid-traits.js?v=2026-11-02-scourgedex-crit';
-import { scourgeCount, hiveMindBonus, placedHive } from './scourge.js?v=2026-11-02-scourgedex-crit';
+import {droidTraitsHtml} from './droid-traits.js?v=2026-11-08-shared';
+import { scourgeCount, hiveMindBonus, placedHive } from './scourge.js?v=2026-11-08-shared';
 import {ensureProfileCatalogue} from './profile-catalogue.js?v=2026-10-18-signin-fix';
 import {normaliseMissionSettings,missionEstimate,missionProgress,offlineEstimate} from './mission-economy.js?v=2026-11-02-scourgedex-crit';
-import {mountMissionTools} from './mission-tools-ui.js?v=2026-11-02-scourgedex-crit';
+import {mountMissionTools} from './mission-tools-ui.js?v=2026-11-08-shared';
 import { cb23RewardsHtml } from './update-135.js?v=2026-10-31-trait-guide';
 import { TRAITS, normaliseTrait, traitEligible, traitAmount, traitSum, traitLabel, companionPerkActive, overclockFactor, companionGoalValue, normaliseIconicTraits, rememberIconicTraits } from './traits.js?v=2026-11-02-scourgedex-crit';
-import { traitsPage } from './traits-page.js?v=2026-11-07-nova-order-search';
-import { COMING_SOON_DROIDS, isComingSoonDroid, comingSoonCard, comingSoonDetail } from './coming-soon-droids.js?v=2026-11-02-scourgedex-crit';
+import { traitsPage } from './traits-page.js?v=2026-11-08-shared';
+import { COMING_SOON_DROIDS, isComingSoonDroid, comingSoonCard, comingSoonDetail } from './coming-soon-droids.js?v=2026-11-08-shared';
 import { novaVisibleLevels, novaTotalCost, novaLevelRow } from './nova-levels.js?v=2026-10-07-unlimited';
 import {normaliseEventProgress} from './event-data.js?v=2026-10-31-r2-crates';
-import {eventPage,startEventReminders} from './event-page.js?v=2026-11-07-nova-order-search';
+import {eventPage,startEventReminders} from './event-page.js?v=2026-11-08-shared';
 import { companionPage } from './companion-page.js?v=2026-10-08-beta37';
 import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES, normaliseParty, partyBonuses } from './economy.js?v=2026-10-18-mission-tools';
-import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-11-02-scourgedex-crit';
-import { testMapPage } from './test-map.js?v=2026-11-07-trade-controls-spares';
+import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-11-08-shared';
+import { testMapPage } from './test-map.js?v=2026-11-08-shared';
 import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-11-07-retire-legacy';
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
@@ -41,19 +44,12 @@ import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-11-07
 import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-11-07-scourge-fusion';
 import { slotDistanceSquared, slotPosition } from './slot-geometry.js?v=2026-11-07-v138';
 import { createOptimiseBackground } from './optimise-background.js?v=2026-11-07-search-until-plan';
-import { createAssignmentScorer } from './optimise-layout-score.js?v=2026-11-02-scourgedex-crit';
-import { createArchiveExperience } from './archive-experience.js?v=2026-09-28-gonkoween';
-import { kyberGuide, kyberDroidDetails, kyberActivationCost } from './kyber-guide.js?v=2026-09-27-active-rebirth';
+import { createAssignmentScorer } from './optimise-layout-score.js?v=2026-11-08-shared';
+import { createArchiveExperience } from './archive-experience.js?v=2026-11-08-shared';
+import { kyberGuide, kyberDroidDetails, kyberActivationCost } from './kyber-guide.js?v=2026-11-08-shared';
 let archiveExperience=null;
-const DROID_TYPES=['WORKER','ASTROMECH','BATTLE','PROTOCOL'];
-const ALL_VARIANTS=['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR','KYBER'];
 let VARIANTS=ALL_VARIANTS.slice(0,kyberIsReleased()?8:7);
 // Activation colours are forms of Kyber, never additional upgrade tiers.
-const OWNED_VARIANTS=[...ALL_VARIANTS,'KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE','SCOURGE'];
-const baseVariant=v=>String(v||'').startsWith('KYBER_')?'KYBER':v;
-const variantRank=v=>v==='SCOURGE'?8:ALL_VARIANTS.indexOf(baseVariant(v));
-const isActiveKyber=v=>['KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE'].includes(v);
-const rebirthVariantReady=(have,required,active=false)=>Boolean(have&&variantRank(have)>=variantRank(required)&&(have==='SCOURGE'||baseVariant(required)!=='KYBER'||isActiveKyber(have)||(have==='KYBER'&&active)));
 const requirementVariantText=v=>variantText(v)+(baseVariant(v)==='KYBER'?' (active)':'');
 const activationNeeded=(have,required)=>have==='KYBER'&&baseVariant(required)==='KYBER';
 const activationCostText=d=>kyberActivationCost(d)===null?'Activation cost unavailable':`${fmt(kyberActivationCost(d))} Kyber Crystal${kyberActivationCost(d)===1?'':'s'}`;
@@ -101,8 +97,6 @@ if(!localStorage.getItem('droid-archive-super-rebirth-goal'))state.superRebirthG
 if(!Array.isArray(state.purchasedSlots))state.purchasedSlots=[];
 function normalizeRebirthTracker(value){const entries={};for(const [key,row] of Object.entries(value?.entries||{})){if(!row||typeof row!=='object')continue;const variant=OWNED_VARIANTS.includes(row.variant)?row.variant:null;entries[key]={...(variant?{variant}:{}),complete:Boolean(row.complete),kyberActive:Boolean(row.kyberActive)}}return{notUsingBase:Boolean(value?.notUsingBase),currentByCycle:Object.fromEntries(Object.entries(value?.currentByCycle||{}).map(([key,n])=>[key,Math.max(0,Math.floor(Number(n)||0))])),entries}}
 state.rebirthTracker=normalizeRebirthTracker(state.rebirthTracker);
-const LEGACY_DROID_NAMES={'C3-PO':'C-3PO','BU-4D':'B-U4D'};
-const canonicalDroidName=name=>LEGACY_DROID_NAMES[name]||name;
 const normalizeDroidRows=rows=>Array.isArray(rows)?rows.map(row=>row?.name?{...row,name:canonicalDroidName(row.name)}:row):rows;
 function normalizeLoadedDroidNames(){let changed=false;for(const rows of [state.owned,state.blueprints,state.droidex])for(const row of rows){const next=canonicalDroidName(row?.name);if(row&&next!==row.name){row.name=next;changed=true}if(row?.lockedCompanion&&!row.lockedSlot){row.lockedSlot=true;delete row.lockedCompanion;changed=true}}if(changed)saveLocal()}
 const app=document.querySelector('#app');
@@ -252,47 +246,23 @@ const rebirthMultiplierAt=(current,from,to)=>Math.max(1,Math.round(((usesDefault
 const superRebirthMultiplier=()=>Math.max(1,Math.round((effectiveMultiplier()-regularRebirthMultiplier()+Number(rebirthReward(state.rebirth)?.creditMultPercent||0)/100)*1000000)/1000000);
 function multiplierHelp(){return `Enter your current in-game total after setting your Rebirth. Regular Rebirths adjust it automatically. If you leave it at 1, the planner still works and the multiplier still increases with Rebirths. Reducing Rebirths or Super Rebirthing never takes it below 1. This is your final total: Nova, companion and event credit boosts are already included; we do not add them again. Regional Protocol and matching-station bonuses are applied separately. Recheck this total when your boosts change. Current Rebirth bonus: +${regularRebirthMultiplier().toFixed(2)}x; retained total: ${Math.max(1,state.multiplier-regularRebirthMultiplier()).toFixed(2)}x.`;}
 const effectiveMultiplier=()=>usesDefaultMultiplier()?1:Number(state.multiplier);
-const isIconic=d=>d?.rarity==='ICONIC'||d?.special?.onlyDefaultVariant;
-const isFusion=d=>Boolean(d?.fusion);
 // Which droids have a DEFAULT square and nothing else. Fusion droids are NOT
 // among them: they come in every quality like anything else, you just cannot
 // upgrade one quality into the next. Only having a default square is a
 // different thing from only having a default *route in*.
 const onlyDefaultVariant=d=>isIconic(d);
 const droidexCapacity=()=>state.droids.reduce((total,d)=>total+(onlyDefaultVariant(d)?1:DISPLAY_VARIANTS.length),0);
-const ICONIC_EFFECTS={'SCOURGE PRIME':'Work: Apply Hive Mind Bonus; credit Protocol links this region','WG-22':'2x Flawless Chance (Companion)','BB-8':'×2 Upgrade Chips on claim','MISTER BONES':'×2 Damage','IG-11 MARSHAL':'Blueprint Shield','DJ R-3X':'×2 World Quest Rewards','CB-23':'Secret Astromech Mission','R2-D2':'15% Astromech Mission Speed','C-3PO':'2× Droid Sell Value'};
-const iconicIncome=d=>isIconic(d)?(d.special?.incomePercent??0.15):0;
 // An Iconic droid earns its own percentage of the Base's total base income. That
 // share is all it produces: it never increases what any other droid earns, so a
 // droid's own rate is only its base income, the multiplier and its station match.
 const placedBaseIncome=placed=>placed.reduce((sum,x)=>{const d=state.droids.find(y=>y.name===x.name);return sum+(isIconic(d)?0:(d?.variants[x.variant]?.income||0));},0);
 const droidRate=(d,variant,station,baseIncome=0,unit=null)=>workingIncome({traitBonus:traitAmount(unit,0,station),base:d?.variants?.[variant]?.income||0,dynamicPercent:iconicIncome(d),staticIncome:baseIncome,matching:station===d?.type,multiplier:effectiveMultiplier()}).total;
-const CHIP_COSTS={COMMON:{GOLD:10,DIAMOND:25,RAINBOW:40,BESKAR:80,GALACTIC:120,STELLAR:180,KYBER:240},RARE:{GOLD:30,DIAMOND:60,RAINBOW:100,BESKAR:250,GALACTIC:400,STELLAR:750,KYBER:1000},EPIC:{GOLD:120,DIAMOND:180,RAINBOW:240,BESKAR:2000,GALACTIC:5000,STELLAR:8000,KYBER:12000},LEGENDARY:{GOLD:400,DIAMOND:1200,RAINBOW:2500,BESKAR:6000,GALACTIC:16000,STELLAR:24000,KYBER:30000},MYTHIC:{GOLD:4000,DIAMOND:8000,RAINBOW:14000,BESKAR:30000,GALACTIC:60000,STELLAR:90000,KYBER:110000}};
-const UPGRADE_CHIP_RATES={
-  COMMON:{DEFAULT:2,GOLD:4,DIAMOND:6,RAINBOW:8,BESKAR:10,GALACTIC:12,STELLAR:14,KYBER:16},
-  RARE:{DEFAULT:4,GOLD:8,DIAMOND:12,RAINBOW:16,BESKAR:20,GALACTIC:24,STELLAR:28,KYBER:32},
-  EPIC:{DEFAULT:6,GOLD:12,DIAMOND:18,RAINBOW:24,BESKAR:30,GALACTIC:36,STELLAR:42,KYBER:48},
-  LEGENDARY:{DEFAULT:8,GOLD:16,DIAMOND:24,RAINBOW:32,BESKAR:40,GALACTIC:48,STELLAR:56,KYBER:64},
-  MYTHIC:{DEFAULT:10,GOLD:20,DIAMOND:30,RAINBOW:40,BESKAR:50,GALACTIC:60,STELLAR:70,KYBER:80}
-};
-const upgradeChipRate=(d,variant)=>UPGRADE_CHIP_RATES[d?.rarity]?.[variant==='SCOURGE'?'KYBER':baseVariant(variant)]||0;
 // Upgrade Chips returned for selling a droid. Standard quality cannot be sold
 // for chips, and Iconics have no quality tiers, so both fall through to 0.
-const CHIP_SELL_VALUES={
-  COMMON:{GOLD:4,DIAMOND:7,RAINBOW:10,BESKAR:13,GALACTIC:16,STELLAR:19,KYBER:22},
-  RARE:{GOLD:6,DIAMOND:9,RAINBOW:12,BESKAR:15,GALACTIC:18,STELLAR:21,KYBER:24},
-  EPIC:{GOLD:30,DIAMOND:33,RAINBOW:36,BESKAR:39,GALACTIC:42,STELLAR:45,KYBER:48},
-  LEGENDARY:{GOLD:84,DIAMOND:87,RAINBOW:90,BESKAR:93,GALACTIC:96,STELLAR:99,KYBER:102},
-  MYTHIC:{GOLD:192,DIAMOND:195,RAINBOW:198,BESKAR:201,GALACTIC:204,STELLAR:207,KYBER:210}
-};
-const baseChipSellValue=(d,variant)=>CHIP_SELL_VALUES[d?.rarity]?.[baseVariant(variant)]||0;
 const chipSellBonusMultiplier=()=>1+Math.min(4,novaLevelFor('chip-sell-bonus'))*.5;
 const chipSellValue=(d,variant)=>baseChipSellValue(d,variant)*chipSellBonusMultiplier()*partyBonuses(state.party).chips;
 const bb8CompanionActive=placed=>placed.some(x=>companionPerkActive(x,'BB-8'));
-const LUCKY_UPGRADE_CHANCES={COMMON:0.32,RARE:0.16,EPIC:0.08,LEGENDARY:0.04,MYTHIC:0.02};
-const luckyChance=d=>LUCKY_UPGRADE_CHANCES[d?.rarity]||0;
 const luckyChanceLabel=d=>`${Math.round(luckyChance(d)*100)}%`;
-const variantLabel=v=>v==='KYBER'?'Kyber':String(v).toLowerCase().replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
 const nextVariant=v=>v==='SCOURGE'?null:VARIANTS[variantRank(v)+1]||null;
 const variantText=v=>`<span class="variant-text variant-${v.toLowerCase()}">${variantLabel(v)}</span>`;
 const knownNumber=value=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value));
@@ -867,18 +837,8 @@ function attachSlotDragAndDrop(p,rerender){if(!DRAG_AND_DROP_ENABLED)return;let 
     // pointer captured — the page stops responding with nothing in the console.
     setTimeout(rerender,0)}})}
 const norm=s=>s.toUpperCase().replace(/[^A-Z0-9]/g,'');
-function imageFor(droid,variant='DEFAULT'){
-  if(droid.portraits?.[variant])return droid.portraits[variant];
-  if(baseVariant(variant)==='KYBER'&&!isIconic(droid))return `assets/droids/kyber/${droid.name.replace(/[^A-Za-z0-9-]/g,'_')}_Kyber.png`;
-  if(droid.name==='D-O')return 'assets/droids/D-O.png';
-  if(variant==='STELLAR'&&droid.stellarImage)return droid.stellarImage;
-  const aliases={'BU-4D':'B-U4D','LO':'L0','MONO-WALKER':'MONO-WLKR','OPTI-STRIKE':'OPTI-STRK','SENATE HOVERCAM':'SENATE HOVERCAM'}; const target=norm(aliases[droid.name]||droid.name);
-  const imageVariant=variant,qualityPattern='Gold|Diamond|Rainbow|Beskar|Galactic|Stellar';
-  const entries=Object.entries(state.images).filter(([k])=>norm(k.split(' - Droid')[0].replace(new RegExp(`\\(${qualityPattern}\\)`,'i'),''))===target);
-  let match=entries.find(([k])=>imageVariant==='DEFAULT'?!new RegExp(`\\(${qualityPattern}\\)`,'i').test(k):new RegExp(`\\(${imageVariant}\\)`,'i').test(k));
-  match ||= entries.find(([k])=>!new RegExp(`\\(${qualityPattern}\\)`,'i').test(k)) || entries[0]; return match?.[1]||'';
-}
-function picture(droid,variant='DEFAULT'){const src=imageFor(droid,variant),fallback=imageFor(droid,'DEFAULT');return src?`<img src="${escapeAttr(src)}" alt="${escapeAttr(droid.name)} ${variant.toLowerCase()} variant" data-portrait-fallback="${escapeAttr(fallback)}" loading="lazy">`:`<span class="fallback">${droid.name.slice(0,3)}</span>`}
+function imageFor(droid,variant='DEFAULT'){return resolveDroidImage(droid,variant,state.images)}
+function picture(droid,variant='DEFAULT'){return droidPicture(droid,variant,state.images)}
 // Retry a failed portrait once without the cached response, then use its default
 // portrait. A failed fallback ends in a readable label, never a retry loop.
 document.addEventListener('error',event=>{
@@ -1275,7 +1235,6 @@ function showFusionResultPrompt(names,onPick,outcome){
 // Quality is decided by the worst droid in the room: two Stellar and a Rainbow
 // come out Rainbow. That is the whole reason a Fusion droid has to be fused at
 // the quality you want - unlike every other droid it cannot be upgraded after.
-const RARITY_LADDER=['COMMON','RARE','EPIC','LEGENDARY','MYTHIC'];
 function normaliseFusionKeepRules(value){return Array.isArray(value)?value.filter(x=>x&&OWNED_VARIANTS.includes(x.variant)&&(typeof x.name==='string'&&x.name.trim()||RARITY_LADDER.includes(x.rarity))).map(x=>x.name?{name:x.name,variant:x.variant,...(x.upgradeOnly===true?{upgradeOnly:true}:{})}:{rarity:x.rarity,variant:x.variant}):[];}
 function fusionReservedForUpgrade(unit){
   return normaliseFusionKeepRules(state.fusionKeepRules).some(rule=>rule.upgradeOnly&&rule.name===unit.name&&rule.variant===unit.variant);
@@ -2495,7 +2454,6 @@ function critUpgradeOptions(current){
   return out.filter(x=>x.cost).map(x=>({...x,value:x.gain/x.cost*1000}))
     .sort((a,b)=>(a.locked?1:0)-(b.locked?1:0)||b.value-a.value);
 }
-const PRODUCTIVE_STATIONS=['WORKER','ASTROMECH','BATTLE'];
 // Where the optimiser may park a droid that earns nothing. A Fusion slot holds
 // one without producing, exactly as the Lounge does, so it can be storage too -
 // but only on request, because anything parked there is what a Fuse consumes.
@@ -4307,7 +4265,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();refreshScourgeReminder();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-08-blueprints',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-08-shared',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},

@@ -1,5 +1,5 @@
-import {BLUEPRINT_RARITIES,BLUEPRINT_POINTS,blueprintSummary,blueprintGoal,blueprintSearch,blueprintCounts} from './blueprint-calc.js?v=2026-11-08-blueprints';
-const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+import {escapeHtml as esc} from './ui-text.js?v=2026-11-08-shared';
+import {BLUEPRINT_RARITIES,BLUEPRINT_POINTS,blueprintSummary,blueprintGoal,blueprintSearch,blueprintCounts} from './blueprint-calc.js?v=2026-11-08-shared';
 const label=value=>value[0]+value.slice(1).toLowerCase();
 const num=value=>Number(value).toLocaleString(undefined,{maximumFractionDigits:3});
 const bandText=goal=>goal.error?'Unavailable':`${goal.min} ${goal.max===Infinity?'or higher':`to below ${goal.max}`}`;

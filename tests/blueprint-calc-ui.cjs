@@ -41,8 +41,20 @@ const server=http.createServer((req,res)=>{
    assert.match(await page.locator('[data-blueprint-count-result]').innerText(),/average 1.5 → Epic.*Scrap target: met.*Mission target: met/);
    await page.locator('[data-blueprint-plan="both"]').click();
    await page.waitForSelector('.blueprint-plan');
+   for(const width of [1440,390,320]){
+    await page.setViewportSize({width,height:900});
+    const spacing=await page.locator('.blueprint-calculator').evaluate(el=>{
+     const outer=el.getBoundingClientRect(),first=el.querySelector('.breadcrumbs').getBoundingClientRect();
+     return {left:first.left-outer.left,top:first.top-outer.top,overflow:el.scrollWidth>el.clientWidth+1};
+    });
+    assert(spacing.left>=16&&spacing.top>=16,`page text has padding at ${width}px`);
+    assert(!spacing.overflow,`calculator fits ${width}px`);
+    await page.evaluate(()=>scrollTo(0,0));
+    if(process.env.BLUEPRINT_SCREENSHOT&&width===1440)await page.screenshot({path:process.env.BLUEPRINT_SCREENSHOT.replace('.png',`-desktop-${shell}.png`),fullPage:true});
+   }
    await page.setViewportSize({width:390,height:844});
    assert(await page.locator('.blueprint-calculator').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'calculator fits mobile');
+   await page.evaluate(()=>scrollTo(0,0));
    if(process.env.BLUEPRINT_SCREENSHOT)await page.screenshot({path:process.env.BLUEPRINT_SCREENSHOT.replace('.png',`-${shell}.png`),fullPage:true});
    assert.deepEqual(errors,[]);await page.close();
   }

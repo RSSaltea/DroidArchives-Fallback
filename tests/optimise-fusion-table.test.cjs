@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const source=fs.readFileSync(path.join(__dirname,'../app.js'),'utf8');
+const source=require('./app-rule-source.cjs')();
 function fn(name){const start=source.indexOf(`function ${name}(`),tail=source.slice(start),end=tail.slice(1).search(/\n(?:function |const |let |async function |\/\/)/);assert(start>=0,name);return tail.slice(0,end+1);}
 const key=unit=>`${unit.source}:${unit.unit}`;
 const input=(name,source,station='LOUNGE',keep=false)=>({name,variant:'DIAMOND',source,unit:0,station,slot:station==='FUSION'?0:source,built:true,...(keep?{keepReason:'fusion'}:{})});

@@ -1,6 +1,5 @@
-export const tradeVariantLabel=v=>({KYBER:'Kyber (inactive)',KYBER_ACTIVE:'Kyber (active ? any colour)',KYBER_GREEN:'Kyber (Green)',KYBER_BLUE:'Kyber (Blue)',KYBER_PURPLE:'Kyber (Purple)'}[v]||String(v||'').replaceAll('_',' '));
-const active=['KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE'];
-const rank=v=>['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR','KYBER','KYBER_ACTIVE','SCOURGE'].indexOf(active.includes(v)?'KYBER_ACTIVE':v);
+import {ACTIVE_KYBER as active,tradeVariantRank as rank} from './droid-rules.js?v=2026-11-08-shared';
+export {tradeVariantLabel} from './droid-rules.js?v=2026-11-08-shared';
 export function tradeVariantMatches(wanted,offered,minimum=false){
  if(!wanted)return true;
  const same=wanted==='KYBER_ACTIVE'?active.includes(offered):wanted===offered;

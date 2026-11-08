@@ -1,10 +1,10 @@
-import { scourgePanel, scourgeBossGuide } from './scourge.js?v=2026-11-03-event-archive';
+import {escapeHtml as escape} from './ui-text.js?v=2026-11-08-shared';
+import { scourgePanel, scourgeBossGuide } from './scourge.js?v=2026-11-08-shared';
 import {eventWindow,scheduledEventStatus,eventSections,eventCountdown} from './event-schedule.js?v=2026-11-03-event-archive';
 import { update135Panel } from './update-135.js?v=2026-10-31-prime';
 import {gonkArmyPanel,wireGonkArmyPanel} from './gonk-army.js?v=2026-10-18-mission-tools';
 import {EVENT_ID,EVENT_ITEMS,TREAT_ICON,treatDay,nextTreatReset,normaliseEventProgress,eventRoundStatus,eventWishlistTotals} from './event-data.js?v=2026-10-31-r2-crates';
 
-const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clock=ms=>{const s=Math.ceil(ms/1000);return [Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(n=>String(n).padStart(2,'0')).join(':');};
 function notificationStatus(){
   if(!('Notification' in window))return 'Browser notifications are unavailable here. Ready messages still appear on the site.';

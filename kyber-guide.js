@@ -1,6 +1,6 @@
-const rarities=['Common','Rare','Epic','Legendary','Mythic'];
-const activation=[[1,200,50],[2,400,100],[4,600,150],[7,800,200],[10,1000,250]];
-export const kyberActivationCost=d=>d?.variants?.KYBER?activation[rarities.findIndex(r=>r.toUpperCase()===String(d.rarity).toUpperCase())]?.[0]??null:null;
+import {RARITY_LADDER,KYBER_ACTIVATION as activation} from './droid-rules.js?v=2026-11-08-shared';
+export {kyberActivationCost} from './droid-rules.js?v=2026-11-08-shared';
+const rarities=RARITY_LADDER.map(r=>r[0]+r.slice(1).toLowerCase());
 const table=(head,rows)=>`<div class="kyber-table"><table><thead><tr>${head.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 
 export function kyberDroidDetails(d,fmt){

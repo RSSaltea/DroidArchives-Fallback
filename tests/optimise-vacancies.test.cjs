@@ -1,7 +1,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 
 test('new work occupants use displaced earners before weak idle droids, without reshuffling existing workers',()=>{
- const source=fs.readFileSync(path.join(__dirname,'../app.js'),'utf8');
+ const source=require('./app-rule-source.cjs')();
  const start=source.indexOf('function repairReachableLayout('),end=source.indexOf('\nconst SLOT_RULES=',start);
  const owned=[['strong-a',1000],['strong-b',900],['existing-worker',1],['displaced-a',200],['displaced-b',100],['idle-a',2],['idle-b',3],['locked',10000],['building',20000]].map(([name,income],source)=>({name,income,source,unit:0,variant:'DEFAULT',qty:1}));
  const droids=owned.map(u=>({name:u.name,type:'WORKER',variants:{DEFAULT:{income:u.income}}}));

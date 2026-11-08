@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
-const src=fs.readFileSync(path.join(__dirname,'../app.js'),'utf8');
+const src=require('./app-rule-source.cjs')();
 const droids=JSON.parse(fs.readFileSync(path.join(__dirname,'../data/droids.json'),'utf8'));
 function fn(name){
   const start=src.indexOf(`function ${name}(`);assert(start>=0,name);

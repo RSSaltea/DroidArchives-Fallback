@@ -60,8 +60,8 @@ html[data-ui-style="next"] .drawer-head{display:flex;align-items:center;justify-
 html[data-ui-style="next"] .drawer-head .side-title{margin:0;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
 html[data-ui-style="next"] .drawer-close{width:28px;height:28px;border-radius:var(--radius);background:var(--panel-2);border:1px solid var(--line);color:var(--text);font-size:16px;line-height:1;cursor:pointer}
 
-/* Flat slate surfaces everywhere */
-html[data-ui-style="next"] .quick-card,html[data-ui-style="next"] .stat,html[data-ui-style="next"] .panel,html[data-ui-style="next"] section.station,html[data-ui-style="next"] .infobox,html[data-ui-style="next"] .notice,html[data-ui-style="next"] .modal,html[data-ui-style="next"] .base-map,html[data-ui-style="next"] article{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:none}
+/* Named surfaces only. Semantic article wrappers are not automatically cards. See style.md. */
+html[data-ui-style="next"] .quick-card,html[data-ui-style="next"] .stat,html[data-ui-style="next"] .panel,html[data-ui-style="next"] section.station,html[data-ui-style="next"] .infobox,html[data-ui-style="next"] .notice,html[data-ui-style="next"] .modal,html[data-ui-style="next"] .base-map{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:none}
 html[data-ui-style="next"] .btn{border-radius:var(--radius);background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent-strong);font-weight:700;box-shadow:none;text-shadow:none}
 html[data-ui-style="next"] .btn:hover{background:#5fe39a;border-color:#5fe39a}
 html[data-ui-style="next"] .btn.secondary,html[data-ui-style="next"] .btn.ghost{background:var(--panel-2);color:var(--text);border-color:var(--line)}

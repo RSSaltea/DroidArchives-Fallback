@@ -2,7 +2,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 test('compiled candidate scores match the full income and crafting calculations',async()=>{
  const {createAssignmentScorer}=await import('../optimise-layout-score.js');
  const {workingIncome}=await import('../economy.js');
- const source=fs.readFileSync(require('node:path').join(__dirname,'../app.js'),'utf8');
+ const source=require('./app-rule-source.cjs')();
  const regions=['WORKER','ASTROMECH','BATTLE'];
  const droids=[
   {name:'worker',type:'WORKER',income:11400},{name:'battle',type:'BATTLE',income:450000},

@@ -1,4 +1,4 @@
-import {recordedTrait,traitBadgeHtml,traitBadgeSvg} from './trait-badges.js?v=2026-11-04-protocol-traits';
+import {recordedTrait,traitBadgeHtml,traitBadgeSvg} from './trait-badges.js?v=2026-11-08-shared';
 import {architecture} from './test-map-architecture.js?v=preview-6';
 import {measuredArtwork} from './test-map-measured-art.js?v=preview-11';
 import {slotPosition,slotDistanceSquared} from './slot-geometry.js?v=2026-11-07-v138';

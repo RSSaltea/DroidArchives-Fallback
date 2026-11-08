@@ -1,6 +1,6 @@
-import {tradeValue,tradeDifference,tradeMoney} from './trade-values.js?v=2026-11-07-trade-notices';
-import {tradeVariantLabel} from './trade-rules.js?v=2026-11-07-trade-receipts';
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+import {escapeHtml as esc} from './ui-text.js?v=2026-11-08-shared';
+import {tradeValue,tradeDifference,tradeMoney} from './trade-values.js?v=2026-11-08-shared';
+import {tradeVariantLabel} from './trade-rules.js?v=2026-11-08-shared';
 export function mountTradeComparison(host,{droids,giving,receiving,picture=()=>'',leftLabel='You',rightLabel='Other player'}){
  if(!host)return;
  const catalogue=droids.filter(d=>tradeValue(d,'DEFAULT'));

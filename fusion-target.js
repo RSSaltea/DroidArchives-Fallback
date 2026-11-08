@@ -1,6 +1,5 @@
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const ladder=['COMMON','RARE','EPIC','LEGENDARY','MYTHIC'];
-const variants=['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR','KYBER','KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE','SCOURGE'];
+import {RARITY_LADDER as ladder,OWNED_VARIANTS as variants} from './droid-rules.js?v=2026-11-08-shared';
+import {escapeHtml as esc} from './ui-text.js?v=2026-11-08-shared';
 const label=v=>v.replaceAll('_',' ');
 export function fusionTargetPlan({target,variant,droids,recipes,units=[],blueprints=[],scrapLevel=0,combineClasses=false,outcome}){
  const byName=new Map(droids.map(d=>[d.name,d])),recipe=recipes.find(r=>r.name===target.name),fusionNames=new Set(recipes.map(r=>r.name));

@@ -1,7 +1,8 @@
+import {RARITY_LADDER,BLUEPRINT_RARITY_POINTS} from './droid-rules.js?v=2026-11-08-shared';
 // Blueprint rarity is rounded from equipped non-Iconic rarity IDs.
 // Lounge and Protocol stations are excluded; Mythic's ID is 5, not 4.
-export const BLUEPRINT_RARITIES = ['COMMON','RARE','EPIC','LEGENDARY','MYTHIC'];
-export const BLUEPRINT_POINTS = {COMMON:0,RARE:1,EPIC:2,LEGENDARY:3,MYTHIC:5};
+export const BLUEPRINT_RARITIES = RARITY_LADDER;
+export const BLUEPRINT_POINTS = BLUEPRINT_RARITY_POINTS;
 const work = ['WORKER','ASTROMECH','BATTLE','UPGRADE_CHIP'];
 export const blueprintCounted = unit => Object.hasOwn(BLUEPRINT_POINTS,unit.rarity) && Boolean(unit.station) && unit.station!=='LOUNGE' && !unit.station.startsWith('PROTOCOL');
 export function blueprintSummary(units){

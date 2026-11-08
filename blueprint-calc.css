@@ -1,4 +1,12 @@
-.blueprint-calculator{max-width:1200px;margin:auto}
+.blueprint-calculator{max-width:1200px;margin:auto;padding:24px;box-sizing:border-box;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius,4px)}
+.blueprint-calculator>.breadcrumbs{margin:0 0 18px}
+.blueprint-calculator>.eyebrow{margin:0 0 10px}
+.blueprint-calculator>.lead{margin:12px 0 24px}
+.blueprint-calculator .panel>h2{margin:0 0 16px}
+.blueprint-source>.eyebrow{margin:0 0 12px}
+.blueprint-source>p{margin:0 0 16px}
+.blueprint-source>label{margin:0 0 16px}
+.blueprint-calculator>.panel:last-child{margin-bottom:0}
 .blueprint-calculator .panel{padding:22px;margin:18px 0}
 .blueprint-current{display:flex;gap:36px;flex-wrap:wrap}
 .blueprint-current>div{display:grid;gap:6px}
@@ -18,4 +26,4 @@
 .blueprint-moves img{width:48px;height:56px;object-fit:contain;float:left;margin-right:14px}
 .blueprint-moves li>div{min-height:56px;align-content:center}
 .blueprint-rules summary{font-weight:700;cursor:pointer}
-@media(max-width:700px){.blueprint-sources{grid-template-columns:1fr}.blueprint-counts{grid-template-columns:repeat(2,minmax(0,1fr))}.blueprint-combined{align-items:flex-start;flex-direction:column}.blueprint-current{gap:20px}.blueprint-calculator .panel{padding:16px}}
+@media(max-width:700px){.blueprint-calculator{padding:16px}.blueprint-sources{grid-template-columns:1fr}.blueprint-counts{grid-template-columns:repeat(2,minmax(0,1fr))}.blueprint-combined{align-items:flex-start;flex-direction:column}.blueprint-current{gap:20px}.blueprint-calculator .panel{padding:16px}}

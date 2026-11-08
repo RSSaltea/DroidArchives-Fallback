@@ -1,5 +1,5 @@
 import { workingIncome } from './economy.js?v=2026-10-18-mission-tools';
-import { hiveMembership } from './scourge.js?v=2026-11-02-scourgedex-crit';
+import { hiveMembership } from './scourge.js?v=2026-11-08-shared';
 
 // Compile the fixed inputs once per layout search. Candidate scoring needs
 // numbers only; building UI income breakdowns here made Iconic comparisons

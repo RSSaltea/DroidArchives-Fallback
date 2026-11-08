@@ -1,5 +1,5 @@
+import {escapeHtml as escape} from './ui-text.js?v=2026-11-08-shared';
 import {traitOptionLabel} from './traits.js?v=2026-11-02-scourgedex-crit';
-const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const traitIcon=trait=>`assets/traits/${trait?trait.id:'unknown'}.png`;
 export function traitBonusText(trait,tier){
   const value=trait?.values[tier];

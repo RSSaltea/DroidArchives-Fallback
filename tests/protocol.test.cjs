@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
-const src=fs.readFileSync(path.join(__dirname,'../app.js'),'utf8');
+const src=require('./app-rule-source.cjs')();
 const validation=fs.readFileSync(path.join(__dirname,'../optimise-plan-validation.js'),'utf8').replace(/^import .*$/gm,'').replace(/^export /gm,'');
 const data=JSON.parse(fs.readFileSync(path.join(__dirname,'../data/droids.json'),'utf8'));
 // Select complete top-level functions by the next top-level declaration.
