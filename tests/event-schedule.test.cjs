@@ -4,7 +4,7 @@ test('Boosted Weekend switches countdown and archives exactly at the scheduled b
  const {eventWindow,scheduledEventStatus,eventSections,eventCountdown}=await import('../event-schedule.js');
  const {start,end}=eventWindow(event);
  assert.equal(end-start,86400000);
- assert.equal(new Date(start).toISOString(),'2026-11-07T21:00:00.000Z');
+ assert.equal(new Date(start).toISOString(),'2026-11-14T21:00:00.000Z');
  assert.deepEqual(scheduledEventStatus(event,start-1000),{state:'upcoming',label:'Starts in',remainingMs:1000});
  assert.deepEqual(scheduledEventStatus(event,start),{state:'active',label:'Ends in',remainingMs:86400000});
  assert.equal(eventSections([event],end-1).featured.length,1);

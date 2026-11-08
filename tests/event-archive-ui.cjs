@@ -5,7 +5,7 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+new 
 (async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});
 try{for(const shell of ['index.html','classic.html']){
  const context=await browser.newContext({viewport:{width:1280,height:950}}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.route('https://**/*',r=>r.abort());
- await context.addInitScript(ids=>{localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(ids));Date.now=()=>Date.parse('2026-11-03T12:00:00Z');},JSON.parse(fs.readFileSync(path.join(root,'data/patch-notes.json'))).notes.map(n=>n.id));
+ await context.addInitScript(ids=>{localStorage.setItem('droid-archive-seen-patch-notes',JSON.stringify(ids));Date.now=()=>Date.parse('2026-11-10T12:00:00Z');},JSON.parse(fs.readFileSync(path.join(root,'data/patch-notes.json'))).notes.map(n=>n.id));
  await context.addInitScript(()=>localStorage.setItem('droid-archives-site-help-v1',JSON.stringify({invited:true})));
  const url=`http://127.0.0.1:${server.address().port}/${shell}`;
  await page.goto(url+'#/event');await page.locator('.event-page').waitFor();
@@ -21,9 +21,9 @@ try{for(const shell of ['index.html','classic.html']){
  await page.locator('[data-event-archive="gonk-o-ween"]>summary').click();assert.equal(await page.locator('#eventTreatBalance').inputValue(),'30');assert.equal(await page.locator('[data-event-wish="bat-hat"]').getAttribute('aria-pressed'),'true');
  await page.locator('[data-event-archive="gonk-o-ween"]>summary').click();
  for(const width of [1280,390,320]){await page.setViewportSize({width,height:950});assert(await page.locator('.event-page').evaluate(e=>e.scrollWidth<=e.clientWidth+1),`${shell} event overflow ${width}`);await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(root,`research/event-archive-${shell}-${width}.png`)});}
- await page.evaluate(()=>{Date.now=()=>Date.parse('2026-11-07T21:00:00Z');document.querySelector('.event-page').refreshTreatDay();});assert.equal(await page.locator('[data-scheduled-label]').innerText(),'Ends in');
- await page.evaluate(()=>{Date.now=()=>Date.parse('2026-11-08T21:00:00Z');document.querySelector('.event-page').refreshTreatDay();});assert.equal(await page.locator('[data-scheduled-event]').count(),0);assert.equal(await page.locator('[data-event-archive="boosted-weekend-2026-11-07"]').evaluate(e=>e.open),false);
- await page.goto(url+'#/');await page.locator('[data-event-card="boosted-weekend-2026-11-07"]').waitFor();assert.match(await page.locator('[data-event-status]').innerText(),/Starts in/i);
+ await page.evaluate(()=>{Date.now=()=>Date.parse('2026-11-14T21:00:00Z');document.querySelector('.event-page').refreshTreatDay();});assert.equal(await page.locator('[data-scheduled-label]').innerText(),'Ends in');
+ await page.evaluate(()=>{Date.now=()=>Date.parse('2026-11-15T21:00:00Z');document.querySelector('.event-page').refreshTreatDay();});assert.equal(await page.locator('[data-scheduled-event]').count(),0);assert.equal(await page.locator('[data-event-archive="boosted-weekend-2026-11-14"]').evaluate(e=>e.open),false);
+ await page.goto(url+'#/');await page.locator('[data-event-card="boosted-weekend-2026-11-14"]').waitFor();assert.match(await page.locator('[data-event-status]').innerText(),/Starts in/i);
  assert.deepEqual(errors,[]);await context.close();console.log('PASS countdown, archive visibility, saved progress, mobile and Home:',shell);
 }}finally{await browser.close();server.close();}})().catch(e=>{console.error(e);process.exitCode=1;server.close();});
 

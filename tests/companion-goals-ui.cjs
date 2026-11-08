@@ -34,6 +34,14 @@ const server=http.createServer((req,res)=>{
   await page.locator('#neededSearch').press('Escape');assert.equal(await page.locator('#neededSearch').inputValue(),'');assert(await page.locator('#neededSearch').evaluate(e=>e===document.activeElement));
   await page.locator('#neededSearch').fill('upgrade');assert.equal(await page.locator('#neededGroups .needed-card:visible').count(),0);
   await page.locator('#clearNeededSearch').click();assert.equal(await page.locator('#neededGroups .needed-card:visible').count(),3);
+  await page.evaluate(()=>{t.state.rebirth=20;t.basePageV2()});await page.waitForTimeout(100);
+  assert.equal(await page.locator('#neededSearch').inputValue(),'','cleared search stays cleared after rebirth redraw');
+  await page.locator('#neededSearch').fill('ln');
+  await page.evaluate(()=>{location.hash='#/base'});await page.waitForTimeout(200);
+  assert.equal(await page.locator('#neededSearch').inputValue(),'','removing URL filter clears saved search');
+  await page.evaluate(()=>{t.state.rebirth=21;t.basePageV2()});await page.waitForTimeout(100);
+  assert.equal(await page.locator('#neededSearch').inputValue(),'');
+
   for(const width of [1440,390]){await page.setViewportSize({width,height:900});await page.locator('#neededSearch').scrollIntoViewIfNeeded();await page.screenshot({path:'research/needed-search-'+style+'-'+width+'.png'})}
   await page.evaluate(()=>t.showFusionKeepSettings());
   await page.locator('#fusionKeepVariant').selectOption({label:'SCOURGE'});
