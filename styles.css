@@ -1352,3 +1352,5 @@ a.trading-nav-link:not(.active):not([aria-current="page"])::after{content:"";pos
 @media(max-width:600px){.companion-trait-controls label{flex:1 1 130px}.companion-trait-controls select,.companion-trait-controls input:not([type=checkbox]){min-height:42px}.companion-trait-controls .companion-fusion-toggle{flex:0 0 auto;min-height:42px}.companion-trait-name small{display:block;margin:2px 0 0}}
 
 .companion-trait-toggle{display:flex;justify-content:flex-end;margin:12px 0}.companion-trait-comparison[hidden]{display:none}
+
+.companion-trait-comparison .companion-trait-results tbody tr:is(:hover,.is-best)>th,.companion-trait-comparison .companion-trait-results tbody tr:is(:hover,.is-best)>td{background:color-mix(in srgb,var(--accent,#45d483) 6%,transparent)}
