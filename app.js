@@ -1,4 +1,4 @@
-import {mountCompanionTraitComparison} from './companion-trait-comparison.js?v=2026-11-08-trait-ranking';
+import {mountCompanionTraitComparison} from './companion-trait-comparison.js?v=2026-11-08-map-destinations';
 import {PRODUCTIVE_STATIONS} from './droid-rules.js?v=2026-11-08-shared';
 import {imageFor as resolveDroidImage,droidPicture} from './droid-display.js?v=2026-11-08-shared';
 import {DROID_TYPES,ALL_VARIANTS,OWNED_VARIANTS,baseVariant,variantRank,isActiveKyber,rebirthVariantReady,LEGACY_DROID_NAMES,canonicalDroidName,isIconic,isFusion,ICONIC_EFFECTS,iconicIncome,CHIP_COSTS,UPGRADE_CHIP_RATES,upgradeChipRate,CHIP_SELL_VALUES,baseChipSellValue,LUCKY_UPGRADE_CHANCES,luckyChance,variantLabel,RARITY_LADDER} from './droid-rules.js?v=2026-11-08-shared';
@@ -36,7 +36,7 @@ import {eventPage,startEventReminders} from './event-page.js?v=2026-11-08-shared
 import { companionPage } from './companion-page.js?v=2026-10-08-beta37';
 import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES, normaliseParty, partyBonuses } from './economy.js?v=2026-10-18-mission-tools';
 import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-11-08-shared';
-import { testMapPage } from './test-map.js?v=2026-11-08-trait-ranking';
+import { testMapPage } from './test-map.js?v=2026-11-08-map-destinations';
 import { startSiteActivity, showSiteStats } from './site-stats.js?v=2026-11-07-retire-legacy';
 let siteActivity=null,kyberPreviewVerified=false;
 import { kyberIsReleased, isKyberPreviewUser, visiblePatchNotes } from './release-gate.js?v=2026-09-26-stats';
@@ -3557,6 +3557,7 @@ function basePageV2(){
       noSell:x=>{toggleSaleProtection(x.source,x.unit);render();},
       complete:x=>{completeBuild(x.source,x.unit);render();},
       iconic:x=>isIconic(state.droids.find(d=>d.name===x.name)),
+      canSend:(unit,action)=>{const rules=optimiseRouteRules(),station={companion:'COMPANION',lounge:'LOUNGE',fusion:'FUSION'}[action];return !isBuilding(unit)&&Boolean(action==='work'?predictWorkLanding(unit,p.placed,rules):station&&unit.station!==station&&predictStationLanding(unit,p.placed,station,rules));},
       ...Object.fromEntries(['work','companion','lounge','fusion','sell','return','submit'].map(action=>[action,x=>mapDroidAction(x,action,render)])),
       lockedLabel:s=>s.station==='BLUEPRINT_STORAGE'?'Unlock Blueprint Storage in Nova Shop':lockedSlotLabel(s.station,s.slot),price:s=>slotPriceLabel(s.station,s.slot),
       purchase:s=>{if(isSlotEligible(s.station,s.slot))purchaseRebirthSlot(s.station,s.slot,render);},
