@@ -19,8 +19,10 @@ Read this before adding game data or repeating a droid description. Prefer a sha
 | Production, scrap, crafting and mission calculations | economy.js, crafting.js, mission-economy.js | Pass the current profile and catalogue into the existing pure calculators. |
 | Fusion recipes | data/fusion.json and the existing fusion resolver in app.js | Fusion Target calls the resolver supplied by the app; never invent a second recipe evaluator. |
 | Nova levels/cost totals | nova-levels.js and loaded shop data | Use the shared level and cost helpers. |
+| Crit and Echo expected hit, upgrade value and budget suggestions | app.js: critProfile, echoRollBreakdown, critUpgradeOptions, critBudgetPlan | Crit Calc and companion comparisons share the hit model; Echoes use one independent crit, never Multi Crit. Prices come from the loaded Nova catalogue. |
 | Event timing and rewards | event-schedule.js, event-data.js and event data files | Reuse event helpers across countdowns and pages. |
 | HTML text/attribute escaping | ui-text.js | escapeHtml; this is not a URL sanitizer. |
+| Black-backed UI icon appearance | ui-icons.css | Nova and trait asset paths receive the shared screen treatment automatically, including SVG map badges. Use game-icon-screen for other black-backed glyphs; do not apply it to portraits or event artwork. |
 | Spacing and appearance | style.md and shared CSS | Use established tokens and component rules. |
 
 ## Rules for future changes

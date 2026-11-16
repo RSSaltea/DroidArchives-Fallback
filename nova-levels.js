@@ -6,6 +6,7 @@ export function novaLevelRow(upgrade, level) {
   if (upgrade.repeatable) return {...upgrade.levels[0], level};
   const value = Number(upgrade.rewardPerLevel) * level;
   const rewards = {
+    echoAmount: `${10 + value}% of pre-crit hit amount`,
     critChance: `+${value}% Critical Chance`, critAmount: `+${value}% Critical Amount`,
     creditPercent: `+${value}% Credits`, craftPercent: `+${value}% Droid Crafting Speed`,
     scrapSeconds: `${value} seconds of base Credit generation`

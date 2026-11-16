@@ -1,0 +1,15 @@
+﻿/* Shared treatment for UI glyphs drawn on black. Screen preserves the glyph
+   while blending its black canvas into the surrounding dark surface.
+   Match shared asset families so every use (including dynamic/SVG badges)
+   gets the same treatment without a page-specific helper or DOM observer.
+   Other black-backed glyphs can opt in with game-icon-screen. Never apply
+   this class to portraits, banners or full-colour illustrations. */
+.game-icon-screen,
+.nova-shop-icon,
+img[src*="assets/nova-shop/"],
+img[src*="assets/traits/"],
+image[href*="assets/traits/"]{mix-blend-mode:screen}
+
+/* Preserve the Nova Shop's existing local blend boundaries. */
+.nova-upgrade-row,.nova-category-rail button,.nova-detail-panel,.nova-catalogue{isolation:isolate}
+.nova-detail-summary,.nova-catalogue>header{isolation:auto}

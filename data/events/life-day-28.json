@@ -1,0 +1,18 @@
+{
+  "id": "life-day-2026-11-28",
+  "name": "Life Day: Second Weekend",
+  "category": "Weekend event",
+  "description": "Help restore the Tree of Life with Life Orbs. Complete the tree to start a 60-second loot phase.",
+  "startsAt": "2026-11-28T21:00:00Z",
+  "endsAt": "2026-11-29T21:00:00Z",
+  "durationHours": 24,
+  "endedRetentionHours": 0,
+  "homepage": true,
+  "image": "assets/events/life-day/banner.png",
+  "titleImage": "assets/events/life-day/title.png",
+  "details": [
+    "Work together to fill the Tree of Life.",
+    "Once the tree is complete, make the most of the 60-second loot phase.",
+    "Times are shown in your local timezone. Upcoming event details may change."
+  ]
+}

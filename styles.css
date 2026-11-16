@@ -1291,8 +1291,7 @@ html[data-ui-style] .site-header .brand-mark.christmas-logo img{width:100%;heigh
 .needed-card .needed-card-link .needed-later-upgrade{color:#e0a75c;margin-top:5px}
 .needed-card .needed-card-link>b{white-space:normal;line-height:1.45;padding-right:22px;font-size:11px}
 
-/* Extracted Nova icons use black backgrounds; screen blends black into the card. */
-.nova-shop-icon{mix-blend-mode:screen}.nova-upgrade-row,.nova-category-rail button,.nova-detail-panel,.nova-catalogue{isolation:isolate}.nova-detail-summary,.nova-catalogue>header{isolation:auto}
+/* Shared icon compositing lives in ui-icons.css. */
 
 /* A brief sparkle draws attention without imitating the selected tab. */
 a.trading-nav-link{position:relative}

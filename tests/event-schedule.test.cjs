@@ -1,5 +1,17 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const event=require('../data/events/boosted-weekend.json');
+test('both Life Day weekends have artwork and move from upcoming to active to history',async()=>{
+ const fs=require('node:fs'),{eventWindow,eventSections,scheduledEventStatus}=await import('../event-schedule.js');
+ const events=[21,28].map(day=>require(`../data/events/life-day-${day}.json`));
+ for(const [index,event] of events.entries()){
+  const {start,end}=eventWindow(event);
+  assert.equal(new Date(start).toISOString(),`2026-11-${index?28:21}T21:00:00.000Z`);
+  assert.equal(end-start,86400000);assert(fs.existsSync(event.image));assert(fs.existsSync(event.titleImage));
+  assert.equal(scheduledEventStatus(event,start-1).state,'upcoming');assert.equal(scheduledEventStatus(event,start).state,'active');
+  assert(eventSections(events,end).past.includes(event));
+ }
+ assert.equal(eventSections(events,Date.parse('2026-11-16T00:00:00Z')).featured.length,2);
+});
 test('Boosted Weekend switches countdown and archives exactly at the scheduled boundaries',async()=>{
  const {eventWindow,scheduledEventStatus,eventSections,eventCountdown}=await import('../event-schedule.js');
  const {start,end}=eventWindow(event);

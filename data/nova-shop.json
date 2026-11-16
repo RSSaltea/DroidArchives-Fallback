@@ -2882,6 +2882,338 @@
           "reward": "Keep the input class for generic same-class fusions"
         }
       ]
+    },
+    {
+      "id": "echo-strike-chance",
+      "sourceId": "CR_EC",
+      "name": "Echo Strike Chance",
+      "category": "featured",
+      "icon": "assets/nova-shop/echo-strike-chance.png",
+      "levels": [
+        {
+          "level": 1,
+          "cost": 250,
+          "reward": "10% Echo Strike chance"
+        },
+        {
+          "level": 2,
+          "cost": 500,
+          "reward": "20% Echo Strike chance"
+        },
+        {
+          "level": 3,
+          "cost": 900,
+          "reward": "30% Echo Strike chance"
+        },
+        {
+          "level": 4,
+          "cost": 1450,
+          "reward": "40% Echo Strike chance"
+        },
+        {
+          "level": 5,
+          "cost": 2200,
+          "reward": "50% Echo Strike chance"
+        }
+      ],
+      "description": "Adds a chance for a delayed Echo hit on a Droid Depot or Fusion Tank. Each successive Echo has half the previous trigger chance. Maximum 50%."
+    },
+    {
+      "id": "echo-strike-amount",
+      "sourceId": "CR_EA",
+      "name": "Echo Strike Amount",
+      "category": "featured",
+      "icon": "assets/nova-shop/echo-strike-amount.png",
+      "levels": [
+        {
+          "level": 1,
+          "cost": 150,
+          "reward": "20% of pre-crit hit amount"
+        },
+        {
+          "level": 2,
+          "cost": 350,
+          "reward": "30% of pre-crit hit amount"
+        },
+        {
+          "level": 3,
+          "cost": 550,
+          "reward": "40% of pre-crit hit amount"
+        },
+        {
+          "level": 4,
+          "cost": 750,
+          "reward": "50% of pre-crit hit amount"
+        },
+        {
+          "level": 5,
+          "cost": 950,
+          "reward": "60% of pre-crit hit amount"
+        },
+        {
+          "level": 6,
+          "cost": 1150,
+          "reward": "70% of pre-crit hit amount"
+        },
+        {
+          "level": 7,
+          "cost": 1350,
+          "reward": "80% of pre-crit hit amount"
+        },
+        {
+          "level": 8,
+          "cost": 1550,
+          "reward": "90% of pre-crit hit amount"
+        },
+        {
+          "level": 9,
+          "cost": 1750,
+          "reward": "100% of pre-crit hit amount"
+        },
+        {
+          "level": 10,
+          "cost": 1950,
+          "reward": "110% of pre-crit hit amount"
+        },
+        {
+          "level": 11,
+          "cost": 2150,
+          "reward": "120% of pre-crit hit amount"
+        },
+        {
+          "level": 12,
+          "cost": 2350,
+          "reward": "130% of pre-crit hit amount"
+        },
+        {
+          "level": 13,
+          "cost": 2550,
+          "reward": "140% of pre-crit hit amount"
+        },
+        {
+          "level": 14,
+          "cost": 2750,
+          "reward": "150% of pre-crit hit amount"
+        },
+        {
+          "level": 15,
+          "cost": 2950,
+          "reward": "160% of pre-crit hit amount"
+        },
+        {
+          "level": 16,
+          "cost": 3150,
+          "reward": "170% of pre-crit hit amount"
+        },
+        {
+          "level": 17,
+          "cost": 3350,
+          "reward": "180% of pre-crit hit amount"
+        },
+        {
+          "level": 18,
+          "cost": 3550,
+          "reward": "190% of pre-crit hit amount"
+        },
+        {
+          "level": 19,
+          "cost": 3750,
+          "reward": "200% of pre-crit hit amount"
+        },
+        {
+          "level": 20,
+          "cost": 3950,
+          "reward": "210% of pre-crit hit amount"
+        },
+        {
+          "level": 21,
+          "cost": 4150,
+          "reward": "220% of pre-crit hit amount"
+        },
+        {
+          "level": 22,
+          "cost": 4350,
+          "reward": "230% of pre-crit hit amount"
+        },
+        {
+          "level": 23,
+          "cost": 4550,
+          "reward": "240% of pre-crit hit amount"
+        },
+        {
+          "level": 24,
+          "cost": 4750,
+          "reward": "250% of pre-crit hit amount"
+        },
+        {
+          "level": 25,
+          "cost": 4950,
+          "reward": "260% of pre-crit hit amount"
+        },
+        {
+          "level": 26,
+          "cost": 5150,
+          "reward": "270% of pre-crit hit amount"
+        },
+        {
+          "level": 27,
+          "cost": 5350,
+          "reward": "280% of pre-crit hit amount"
+        },
+        {
+          "level": 28,
+          "cost": 5550,
+          "reward": "290% of pre-crit hit amount"
+        },
+        {
+          "level": 29,
+          "cost": 5750,
+          "reward": "300% of pre-crit hit amount"
+        },
+        {
+          "level": 30,
+          "cost": 5950,
+          "reward": "310% of pre-crit hit amount"
+        },
+        {
+          "level": 31,
+          "cost": 6150,
+          "reward": "320% of pre-crit hit amount"
+        },
+        {
+          "level": 32,
+          "cost": 6350,
+          "reward": "330% of pre-crit hit amount"
+        },
+        {
+          "level": 33,
+          "cost": 6550,
+          "reward": "340% of pre-crit hit amount"
+        },
+        {
+          "level": 34,
+          "cost": 6750,
+          "reward": "350% of pre-crit hit amount"
+        },
+        {
+          "level": 35,
+          "cost": 6950,
+          "reward": "360% of pre-crit hit amount"
+        },
+        {
+          "level": 36,
+          "cost": 7150,
+          "reward": "370% of pre-crit hit amount"
+        },
+        {
+          "level": 37,
+          "cost": 7350,
+          "reward": "380% of pre-crit hit amount"
+        },
+        {
+          "level": 38,
+          "cost": 7550,
+          "reward": "390% of pre-crit hit amount"
+        },
+        {
+          "level": 39,
+          "cost": 7750,
+          "reward": "400% of pre-crit hit amount"
+        },
+        {
+          "level": 40,
+          "cost": 7950,
+          "reward": "410% of pre-crit hit amount"
+        },
+        {
+          "level": 41,
+          "cost": 8150,
+          "reward": "420% of pre-crit hit amount"
+        },
+        {
+          "level": 42,
+          "cost": 8350,
+          "reward": "430% of pre-crit hit amount"
+        },
+        {
+          "level": 43,
+          "cost": 8550,
+          "reward": "440% of pre-crit hit amount"
+        },
+        {
+          "level": 44,
+          "cost": 8750,
+          "reward": "450% of pre-crit hit amount"
+        },
+        {
+          "level": 45,
+          "cost": 8950,
+          "reward": "460% of pre-crit hit amount"
+        },
+        {
+          "level": 46,
+          "cost": 9150,
+          "reward": "470% of pre-crit hit amount"
+        },
+        {
+          "level": 47,
+          "cost": 9350,
+          "reward": "480% of pre-crit hit amount"
+        },
+        {
+          "level": 48,
+          "cost": 9550,
+          "reward": "490% of pre-crit hit amount"
+        },
+        {
+          "level": 49,
+          "cost": 9750,
+          "reward": "500% of pre-crit hit amount"
+        },
+        {
+          "level": 50,
+          "cost": 9950,
+          "reward": "510% of pre-crit hit amount"
+        }
+      ],
+      "description": "Echoes start at 10% of your pre-crit pickaxe hit. Each level adds 10 percentage points. Echoes can crit once, but cannot Multi Crit.",
+      "prerequisite": "Echo Strike Chance level 1",
+      "uncapped": true,
+      "costBase": 150,
+      "costScale": 200,
+      "rewardPerLevel": 10,
+      "rewardType": "echoAmount"
+    },
+    {
+      "id": "echo-strike-cap",
+      "sourceId": "CR_ECAP",
+      "name": "Echo Strike Cap",
+      "category": "featured",
+      "icon": "assets/nova-shop/echo-strike-cap.png",
+      "levels": [
+        {
+          "level": 1,
+          "cost": 500,
+          "reward": "Up to 2 Echoes per swing"
+        },
+        {
+          "level": 2,
+          "cost": 1000,
+          "reward": "Up to 3 Echoes per swing"
+        },
+        {
+          "level": 3,
+          "cost": 1500,
+          "reward": "Up to 4 Echoes per swing"
+        },
+        {
+          "level": 4,
+          "cost": 2000,
+          "reward": "Up to 5 Echoes per swing"
+        }
+      ],
+      "description": "Allows another Echo in each chain per level, up to five Echoes in addition to your original hit.",
+      "prerequisite": "Echo Strike Chance level 1"
     }
   ],
   "rebirthRewards": [

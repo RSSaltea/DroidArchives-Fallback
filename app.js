@@ -30,9 +30,9 @@ import { cb23RewardsHtml } from './update-135.js?v=2026-10-31-trait-guide';
 import { TRAITS, normaliseTrait, traitEligible, traitAmount, traitSum, traitLabel, companionPerkActive, overclockFactor, companionGoalValue, normaliseIconicTraits, rememberIconicTraits } from './traits.js?v=2026-11-02-scourgedex-crit';
 import { traitsPage } from './traits-page.js?v=2026-11-08-shared';
 import { COMING_SOON_DROIDS, isComingSoonDroid, comingSoonCard, comingSoonDetail } from './coming-soon-droids.js?v=2026-11-08-shared';
-import { novaVisibleLevels, novaTotalCost, novaLevelRow } from './nova-levels.js?v=2026-10-07-unlimited';
+import { novaVisibleLevels, novaTotalCost, novaLevelRow } from './nova-levels.js?v=2026-11-16-echo-life-day';
 import {normaliseEventProgress} from './event-data.js?v=2026-10-31-r2-crates';
-import {eventPage,startEventReminders} from './event-page.js?v=2026-11-08-shared';
+import {eventPage,startEventReminders} from './event-page.js?v=2026-11-16-echo-life-day';
 import { companionPage } from './companion-page.js?v=2026-10-08-beta37';
 import { workingIncome, scrapRewards, scrapProgress, scrapActiveEstimate, SCRAP_QUALITIES, normaliseParty, partyBonuses } from './economy.js?v=2026-10-18-mission-tools';
 import { craftingEstimate, companionAttributeValue } from './crafting.js?v=2026-11-08-shared';
@@ -2354,7 +2354,8 @@ const PICKAXE_SECONDS_PER_LEVEL=1.2;
 const CRIT_CHANCE_BASE=0.01,CRIT_CHANCE_PER_LEVEL=0.05;
 const CRIT_AMOUNT_BASE=0.50,CRIT_AMOUNT_PER_LEVEL=0.10;
 const CHOPPER_CRIT_BONUS=0.50;
-const CRIT_UPGRADE_IDS={chance:'critical-chance',amount:'critical-amount',multi:'multi-crit'};
+const CRIT_UPGRADE_IDS={chance:'critical-chance',amount:'critical-amount',multi:'multi-crit',echoChance:'echo-strike-chance',echoAmount:'echo-strike-amount',echoCap:'echo-strike-cap'};
+const critLevelField=id=>Object.keys(CRIT_UPGRADE_IDS).find(key=>CRIT_UPGRADE_IDS[key]===id)+'Level';
 // Some rebirths hand out a permanent crit buff on top of the Nova Shop levels:
 // crit chance at 23, 26 and 29; crit amount at 24, 27, 30, 38 and 40. Each is listed
 // against its rebirth in nova-shop.json and they stack, so the bonus is the
@@ -2399,10 +2400,16 @@ function critRollBreakdown(chance,rolls,guaranteedMulti=false){
   }
   return rows;
 }
-const critProfile=({chanceLevel=0,amountLevel=0,multiLevel=0,chopper=false,pickaxe=0,astromech=0,boost=1,partyMultiplier=1,traitChance=0,traitAmountBonus=0,traitMulti=0}={})=>{
+function echoRollBreakdown(chanceLevel=0,capLevel=0){
+  const chance=Math.max(0,Math.min(5,chanceLevel))*.1;let reach=1;
+  return Array.from({length:1+Math.max(0,Math.min(4,capLevel))},(_,i)=>{const rollChance=chance/2**i;reach*=rollChance;return {count:i+1,rollChance,reach};});
+}
+const critProfile=({chanceLevel=0,amountLevel=0,multiLevel=0,echoChanceLevel=0,echoAmountLevel=0,echoCapLevel=0,chopper=false,pickaxe=0,astromech=0,boost=1,partyMultiplier=1,traitChance=0,traitAmountBonus=0,traitMulti=0}={})=>{
   const chance=critChanceFor(chanceLevel,chopper)+traitChance,amount=critAmountFor(amountLevel,chopper)+traitAmountBonus,rolls=multiCritRolls(multiLevel+traitMulti);
-  const base=pickaxeHitSeconds(pickaxe+astromech)*Math.max(1,Number(boost)||1)*Math.max(1,Math.min(2,Number(partyMultiplier)||1)),multiplier=critMultiplier(chance,amount,rolls,traitMulti>0);
-  return{chance,amount,rolls,guaranteedMulti:traitMulti>0,base,multiplier,perHit:base*multiplier};
+  const base=pickaxeHitSeconds(pickaxe+astromech)*Math.max(1,Number(boost)||1)*Math.max(1,Math.min(2,Number(partyMultiplier)||1)),primaryMultiplier=critMultiplier(chance,amount,rolls,traitMulti>0);
+  const echoes=echoRollBreakdown(echoChanceLevel,echoCapLevel),echoCount=echoes.reduce((sum,row)=>sum+row.reach,0),echoRatio=.1*(1+Math.max(0,echoAmountLevel));
+  const echoMultiplier=echoCount*echoRatio*(1+amount*Math.max(0,Math.min(1,chance))),multiplier=primaryMultiplier+echoMultiplier;
+  return{chance,amount,rolls,guaranteedMulti:traitMulti>0,base,multiplier,primaryMultiplier,echoMultiplier,echoCount,echoRatio,echoes,perHit:base*multiplier};
 };
 // Pickaxe Mastery only decides how many levels survive a Super Rebirth. That is
 // the floor the calculator starts you at until you say otherwise. It is read from
@@ -2435,7 +2442,7 @@ function critUpgradeOptions(current){
   }
   if(amountLevel<novaMaxLevel(CRIT_UPGRADE_IDS.amount)){
     const cost=novaLevelCost(CRIT_UPGRADE_IDS.amount,amountLevel+1);
-    out.push({id:CRIT_UPGRADE_IDS.amount,name:'Critical Amount',to:amountLevel+1,cost,gain:gain({amountLevel:amountLevel+1}),note:''});
+    out.push({id:CRIT_UPGRADE_IDS.amount,name:'Critical Amount',to:amountLevel+1,cost,gain:gain({amountLevel:amountLevel+1}),locked:chanceLevel<1,note:chanceLevel<1?'Needs Critical Chance 1':''});
   }
   if(multiLevel<novaMaxLevel(CRIT_UPGRADE_IDS.multi)){
     // Its own price, not a bundle. If Critical Chance is not high enough yet the
@@ -2449,10 +2456,37 @@ function critUpgradeOptions(current){
     }
     out.push({id:CRIT_UPGRADE_IDS.multi,name:'Multi Crit',to:multiLevel+1,cost,gain:gain({multiLevel:multiLevel+1}),note,locked});
   }
+  for(const [key,name] of [['echoChance','Echo Strike Chance'],['echoAmount','Echo Strike Amount'],['echoCap','Echo Strike Cap']]){
+    const id=CRIT_UPGRADE_IDS[key],field=key+'Level',level=current[field]||0;
+    if(level>=novaMaxLevel(id))continue;
+    const locked=key!=='echoChance'&&!(current.echoChanceLevel>0);
+    out.push({id,name,to:level+1,cost:novaLevelCost(id,level+1),gain:gain({[field]:level+1}),locked,note:locked?'Needs Echo Strike Chance 1':''});
+  }
   // Ranked by damage bought per crystal. Anything still locked sorts last, since
   // it is not actually a purchase you can make yet.
-  return out.filter(x=>x.cost).map(x=>({...x,value:x.gain/x.cost*1000}))
+  return out.filter(x=>x.cost).map(x=>({...x,next:{[critLevelField(x.id)]:x.to},value:x.gain/x.cost*1000}))
     .sort((a,b)=>(a.locked?1:0)-(b.locked?1:0)||b.value-a.value);
+}
+// Compare one- and two-purchase paths so prerequisite unlocks and Echo's
+// Chance/Amount interaction are considered. This is a bounded suggestion,
+// not an exhaustive global optimum for every possible budget.
+function critBudgetPlan(current,budget){
+  budget=Math.max(0,Math.min(1000000,Math.floor(Number(budget)||0)));
+  let next={...current},spent=0;const steps=[];
+  for(let iteration=0;iteration<2000;iteration++){
+    const remaining=budget-spent,base=critProfile(next).multiplier;
+    const first=critUpgradeOptions(next).filter(o=>!o.locked&&o.cost<=remaining),paths=[];
+    for(const a of first){
+      paths.push({steps:[a],cost:a.cost,gain:a.gain});
+      for(const b of critUpgradeOptions({...next,...a.next}).filter(o=>!o.locked&&o.cost+a.cost<=remaining)){
+        paths.push({steps:[a,b],cost:a.cost+b.cost,gain:critProfile({...next,...a.next,...b.next}).multiplier/base-1});
+      }
+    }
+    paths.sort((a,b)=>b.gain/b.cost-a.gain/a.cost||b.gain-a.gain||a.cost-b.cost);
+    const best=paths[0];if(!best||best.gain<=1e-12)break;
+    for(const step of best.steps){next={...next,...step.next};steps.push(step);spent+=step.cost;}
+  }
+  return {levels:next,steps,spent,remaining:budget-spent,gain:critProfile(next).multiplier/critProfile(current).multiplier-1};
 }
 // Where the optimiser may park a droid that earns nothing. A Fusion slot holds
 // one without producing, exactly as the Lounge does, so it can be storage too -
@@ -2605,7 +2639,7 @@ function mountBaseProtocolTraits(host,d,variant,selectedUnit=null){
    return {score:rewards.break,metrics:[['Scrap credits / hit',rewards.hit],['Scrap credits / break',rewards.break],['Passive credits / second',income]],note:note+' Scrap quality: '+scrapActivity.quality+'.'};
   }
   if(goal==='pickaxe'){
-   const result=critProfile({chanceLevel:novaLevelFor(CRIT_UPGRADE_IDS.chance),amountLevel:novaLevelFor(CRIT_UPGRADE_IDS.amount),multiLevel:novaLevelFor(CRIT_UPGRADE_IDS.multi),chopper:projected.some(u=>u.station==='COMPANION'&&u.name==='CHOPPER'),pickaxe:critSetting('pickaxe',pickaxeMasteryLevels()),astromech:companionAstromechBonus(projected),partyMultiplier:partyBonuses({...state.party,target:fusion?'fusion':'depot'}).pickaxe,traitChance:traitSum(projected,4),traitAmountBonus:traitSum(projected,5),traitMulti:traitSum(projected,18)});
+   const result=critProfile({echoChanceLevel:novaLevelFor('echo-strike-chance'),echoAmountLevel:novaLevelFor('echo-strike-amount'),echoCapLevel:novaLevelFor('echo-strike-cap'),chanceLevel:novaLevelFor(CRIT_UPGRADE_IDS.chance),amountLevel:novaLevelFor(CRIT_UPGRADE_IDS.amount),multiLevel:novaLevelFor(CRIT_UPGRADE_IDS.multi),chopper:projected.some(u=>u.station==='COMPANION'&&u.name==='CHOPPER'),pickaxe:critSetting('pickaxe',pickaxeMasteryLevels()),astromech:companionAstromechBonus(projected),partyMultiplier:partyBonuses({...state.party,target:fusion?'fusion':'depot'}).pickaxe,traitChance:traitSum(projected,4),traitAmountBonus:traitSum(projected,5),traitMulti:traitSum(projected,18)});
    const score=result.perHit*(fusion?1+traitSum(projected,8):1);
    return {score,metrics:[['Average seconds / swing',score],['Companion pickaxe levels',companionAstromechBonus(projected)],['Critical chance',Math.round(result.chance*100)+'%'],['Critical amount',Math.round(result.amount*100)+'%']],note:note+' Temporary pickaxe boosts excluded; Crit Complete is not a flat multiplier.'};
   }
@@ -4464,18 +4498,29 @@ function optimiseTickedProjection(preview,through){
     tickedCount:prefix.count,tickedTotal:prefix.total,income,
     partialMessage:`Apply the first ${prefix.count} of ${prefix.total} steps? Your Base will then earn ${fmt(income*3600)}/hr${income<preview.currentIncome*0.999?` — ${fmt((preview.currentIncome-income)*3600)}/hr less than now until you finish the walk`:''}.`};
 }
+const plannerStorageKey = () => `droid-archive-nova-planner:${state.cloud?.activeProfileId || 'local'}`;
+const plannerMaxRebirthKey = () => `${plannerStorageKey()}:max-rebirth`;
+const plannerMaxRebirth = shop => Math.max(12,Math.min(Number(localStorage.getItem(plannerMaxRebirthKey()))||40,Math.max(...shop.rebirthRewards.map(reward=>reward.rebirth))));
+const plannerTargets = () => {
+  try { return JSON.parse(localStorage.getItem(plannerStorageKey()) || '{}') || {}; }
+  catch { return {}; }
+};
+const savePlannerTargets = targets => localStorage.setItem(plannerStorageKey(), JSON.stringify(targets));
 function critCalcPage(){
   const render=()=>{
+    const sessionKey='droid-archive-crit-session-visible',sessionVisible=localStorage.getItem(sessionKey)==='1';
     const placed=placements().placed;
     const autoAstro=companionAstromechBonus(placed),autoChopper=placed.some(x=>x.station==='COMPANION'&&x.name==='CHOPPER');
     const masteryFloor=pickaxeMasteryLevels();
-    // The three perk levels are the real Nova Shop values, edited in place, so
-    // this and the Nova Shop page never disagree. Pickaxe level is saved with
-    // the profile; temporary bonus overrides remain local to the calculator.
-    const current={
+    // Start from recorded ownership, then layer the shared Nova Planner targets.
+    // Pickaxe level is profile-specific; temporary bonus overrides stay local.
+    const owned={
       chanceLevel:novaLevelFor(CRIT_UPGRADE_IDS.chance),
       amountLevel:novaLevelFor(CRIT_UPGRADE_IDS.amount),
       multiLevel:novaLevelFor(CRIT_UPGRADE_IDS.multi),
+      echoChanceLevel:novaLevelFor(CRIT_UPGRADE_IDS.echoChance),
+      echoAmountLevel:novaLevelFor(CRIT_UPGRADE_IDS.echoAmount),
+      echoCapLevel:novaLevelFor(CRIT_UPGRADE_IDS.echoCap),
       chopper:Boolean(critSetting('chopper',autoChopper?1:0)),
       pickaxe:critSetting('pickaxe',masteryFloor),
       // Read straight off the Base rather than typed in — whatever Astromech is
@@ -4484,10 +4529,16 @@ function critCalcPage(){
       boost:Math.max(1,critSetting('boost',1)),
       partyMultiplier:partyBonuses(state.party).pickaxe,traitChance:traitSum(placed,4),traitAmountBonus:traitSum(placed,5),traitMulti:traitSum(placed,18),
     };
-    // What each perk has cost you so far, and what the next rank adds.
+    const targets=plannerTargets(),ids=[...Object.values(CRIT_UPGRADE_IDS),'crit-complete'];
+    const targetLevel=id=>Math.max(novaLevelFor(id),Math.min(novaMaxLevel(id),Math.floor(Number(targets[id])||0)));
+    const current={...owned,...Object.fromEntries(Object.values(CRIT_UPGRADE_IDS).map(id=>[critLevelField(id),targetLevel(id)]))};
+    const planCost=ids.reduce((sum,id)=>sum+novaTotalCost(novaUpgrade(id),targetLevel(id))-novaTotalCost(novaUpgrade(id),novaLevelFor(id)),0);
+    const ownedProfile=critProfile(owned),budgetKey=plannerStorageKey()+':crit-budget',budget=Math.max(0,Math.min(1000000,Number(localStorage.getItem(budgetKey))||0));
+    const budgetPlan=budget>0?critBudgetPlan(owned,budget):null;
+    // Targets share Nova Planner storage; owned levels change only on confirmation.
     const spent=id=>{const u=novaUpgrade(id);return u?novaTotalCost(u,novaLevelFor(id)):0};
     const totalSpent=Object.values(CRIT_UPGRADE_IDS).reduce((s,id)=>s+spent(id),0);
-    const p=critProfile(current),options=critUpgradeOptions(current),best=options.find(o=>!o.locked);
+    const p=critProfile(current),options=critUpgradeOptions(current),best=options.find(o=>!o.locked&&o.gain>0),bestEcho=options.find(o=>!o.locked&&o.gain>0&&o.id.startsWith('echo-')),bestCrit=options.find(o=>!o.locked&&o.gain>0&&!o.id.startsWith('echo-'));
     // Rebirth crit perks are not bought, so they are shown as a read-out beside
     // the Nova levels rather than as another thing to step up and down.
     const rebirthBonus=rebirthCritBonus(),nextCritPerk=rebirthCritPerks({after:state.rebirth})[0];
@@ -4495,51 +4546,82 @@ function critCalcPage(){
     // Nova perks get plus and minus buttons so levels can be pushed from here
     // rather than switching to the Nova Shop and back.
     const perk=(id,key,label,level,detail)=>{
-      const max=novaMaxLevel(id),next=level<max?novaLevelCost(id,level+1):null;
-      return `<div class="crit-field crit-perk"><span>${label}</span><div class="crit-step"><button class="btn secondary" data-perk-down="${id}" ${level<=0?'disabled':''}>−</button><input type="number" id="${key}" value="${level}" min="0" ${Number.isFinite(max)?`max="${max}"`:String()} step="1"><button class="btn secondary" data-perk-up="${id}" ${level>=max?'disabled':''}>+</button></div><small>${detail} · level ${level}${Number.isFinite(max)?`/${max}`:" · unlimited"}</small><small class="crit-cost">Spent ${fmt(spent(id))} Nova${next?` · next rank ${fmt(next)}`:' · maxed'}</small></div>`;
+      const max=novaMaxLevel(id),next=level<max?novaLevelCost(id,level+1):null,minimum=novaLevelFor(id),icon=novaUpgrade(id)?.icon;
+      const cost=novaTotalCost(novaUpgrade(id),level)-spent(id);
+      return `<div class="crit-field crit-perk"><span>${icon?`<img class="crit-upgrade-icon" src="${icon}" alt="">`:String()}${label} &middot; Target</span><div class="crit-step"><button class="btn secondary" aria-label="Decrease ${label} target" data-perk-down="${id}" ${level<=minimum?'disabled':''}>&minus;</button><input type="number" id="${key}" value="${level}" min="${minimum}" aria-label="${label} target level" ${Number.isFinite(max)?`max="${max}"`:String()} step="1"><button class="btn secondary" aria-label="Increase ${label} target" data-perk-up="${id}" ${level>=max?'disabled':''}>+</button></div><small>${detail} &middot; level ${level}${Number.isFinite(max)?`/${max}`:' &middot; unlimited'}</small><small class="crit-cost">Owned ${minimum} &middot; Plan ${cost?fmt(cost):'0'} Nova${next?` &middot; next rank ${fmt(next)}`:' &middot; maxed'}</small></div>`;
     };
     app.innerHTML=`<div class="breadcrumbs"><a href="#/">Homepage</a> / Critical Calculator</div>
-      <div class="base-heading"><div><p class="eyebrow">Pickaxe planner</p><h1>Critical Calculator</h1><p class="lead">What your pickaxe removes per swing, and which Nova crit upgrade is the best next buy.</p></div><button class="btn secondary" id="critReset">Reset to my Nova levels</button></div>
-      <div class="party-toggle-bar">${partyToggleButtonHtml()}</div>${partyControlsHtml()}<section class="crit-inputs">
+      <div class="base-heading"><div><p class="eyebrow">Pickaxe planner</p><h1>Critical Calculator</h1><p class="lead">Compare Crit and Echo upgrades for Droid Depots and Fusion Tanks. Owned levels change only when marked purchased.</p></div><button class="btn secondary" id="critReset">Reset pickaxe and bonuses</button></div>
+      <div class="party-toggle-bar crit-panel-toggles"><button class="btn secondary" id="critSessionToggle" aria-controls="critSession" aria-expanded="${sessionVisible}">${sessionVisible?'Hide':'Show'} session planner</button>${partyToggleButtonHtml()}</div>${partyControlsHtml()}<section class="crit-inputs">
         ${perk(CRIT_UPGRADE_IDS.chance,'critChance','Critical Chance',current.chanceLevel,`now ${(p.chance*100).toFixed(0)}% chance`)}
         ${perk(CRIT_UPGRADE_IDS.amount,'critAmount','Critical Amount',current.amountLevel,`crits do ×${(1+p.amount).toFixed(2)}`)}
-        ${perk('crit-complete','critComplete','Crit Complete',novaLevelFor('crit-complete'),`finishes a build on a critical hit at ${Math.min(5,novaLevelFor('crit-complete'))*2}% remaining or less`)}
-        ${perk(CRIT_UPGRADE_IDS.multi,'critMulti','Multi Crit',current.multiLevel,`${p.rolls} possible crit${p.rolls===1?'':'s'}${p.guaranteedMulti?' ? first extra crit guaranteed':''}`)}
+        ${perk('crit-complete','critComplete','Crit Complete',targetLevel('crit-complete'),`finishes a build on a critical hit at ${Math.min(5,targetLevel('crit-complete'))*2}% remaining or less`)}
+        ${perk(CRIT_UPGRADE_IDS.multi,'critMulti','Multi Crit',current.multiLevel,`${p.rolls} possible crit${p.rolls===1?'':'s'}${p.guaranteedMulti?' &middot; first extra crit guaranteed':''}`)}
+        ${perk(CRIT_UPGRADE_IDS.echoChance,'echoChance','Echo Strike Chance',current.echoChanceLevel,`${(current.echoChanceLevel*10).toFixed(0)}% initial Echo chance`)}
+        ${perk(CRIT_UPGRADE_IDS.echoAmount,'echoAmount','Echo Strike Amount',current.echoAmountLevel,`${(p.echoRatio*100).toFixed(0)}% of pre-crit hit; no Multi Crit`)}
+        ${perk(CRIT_UPGRADE_IDS.echoCap,'echoCap','Echo Strike Cap',current.echoCapLevel,`up to ${current.echoCapLevel+1} Echoes per swing`)}
         ${num('critPickaxe','Pickaxe level',current.pickaxe,0,`Saved to this profile. Super Rebirth resets to ${masteryFloor} from Pickaxe Mastery.`,masteryFloor)}
         <div class="crit-field"><span>Astromech companion</span><div class="crit-readout">${autoAstro?`+${autoAstro}`:'—'}</div><small>${autoAstro?`From your Base · effective level ${current.pickaxe+autoAstro}`:'No Astromech in a Companion slot'}</small></div>
         <label class="crit-field crit-toggle"><span>Chopper</span><div class="crit-switch"><input type="checkbox" id="critChopper" ${current.chopper?'checked':''}><b>${current.chopper?'Equipped':'Not equipped'}</b></div><small>+${Math.round(CHOPPER_CRIT_BONUS*100)}% chance and amount${autoChopper?' · found in your Base':''}</small></label>
         <label class="crit-field crit-toggle"><span>Rebirth perks</span><div class="crit-switch"><input type="checkbox" id="critPerks" ${critPerksOn()?'checked':''} ${rebirthBonus.chance||rebirthBonus.amount?'':'disabled'}><b>${rebirthBonus.chance||rebirthBonus.amount?`${critPerksOn()?'':'Off · '}+${Math.round(rebirthBonus.chance*100)}% / +${Math.round(rebirthBonus.amount*100)}%`:'—'}</b></div><small>${rebirthBonus.chance||rebirthBonus.amount?(critPerksOn()?`Chance and amount, banked through R: ${state.rebirth}`:'Left out, as on a fresh Super Rebirth'):'None yet · the first lands at R: 23'}</small><small class="crit-cost">${nextCritPerk?`Next at R: ${nextCritPerk.at} · +${nextCritPerk.chance||nextCritPerk.amount}% crit ${nextCritPerk.chance?'chance':'amount'}`:'Every rebirth crit perk is banked'}</small></label>
       </section>
+      <section class="crit-plan-panel crit-session" id="critSession" aria-label="Upgrade plan" ${sessionVisible?'':'hidden'}>
+        <div class="crit-session-summary"><strong>This session: ${planCost?fmt(planCost):'0'} Nova</strong><span>Average per swing: <b>${ownedProfile.perHit.toFixed(1)}s &rarr; ${p.perHit.toFixed(1)}s</b> &middot; ${((p.multiplier/ownedProfile.multiplier-1)*100).toFixed(2)}% improvement</span></div>
+        <label class="crit-session-budget"><span>Nova budget</span><input id="critBudget" type="number" min="0" max="1000000" step="1" value="${budget}" aria-describedby="critBudgetHint"><small id="critBudgetHint">0 = manual planning</small></label>
+        <div class="crit-plan-actions"><button class="btn" id="critPurchase" ${planCost?'':'disabled'}>Mark as purchased</button><button class="btn secondary" id="critResetTargets" ${planCost?'':'disabled'}>Reset targets to owned</button><a id="critNovaPlanner" href="#/nova-shop">Open Nova Planner</a><small>Mark purchased after buying in-game.</small></div>
+        ${budgetPlan?`<div id="critBudgetResult"><p><strong>Suggested spend: ${fmt(budgetPlan.spent)} Nova</strong> &middot; ${fmt(budgetPlan.remaining)} left &middot; ${(budgetPlan.gain*100).toFixed(2)}% more average damage.</p>${budgetPlan.steps.length?`<ul>${Object.entries(CRIT_UPGRADE_IDS).filter(([key])=>budgetPlan.levels[key+'Level']>owned[key+'Level']).map(([key,id])=>`<li>${novaUpgrade(id).name}: ${owned[key+'Level']} &rarr; ${budgetPlan.levels[key+'Level']}</li>`).join('')}</ul><button class="btn secondary" id="critApplyBudget">Use suggested targets</button>`:'<p>No damage upgrade fits this budget.</p>'}<details class="crit-budget-method"><summary>How suggestions work</summary><small>Starts from owned levels, rechecks value after each purchase and compares two-step combinations. This is a suggested path, not an exhaustive search. Crit Complete is excluded because its benefit depends on remaining build time.</small></details></div>`:''}
+      </section>
       <div class="base-top crit-stats">
         <div class="stat"><small>Base hit</small><strong>${p.base.toFixed(1)}s</strong><em>level ${current.pickaxe}${current.astromech?` + ${current.astromech}`:''} = ${current.pickaxe+current.astromech} &middot; &times;${current.partyMultiplier.toFixed(1)} party</em></div>
-        <div class="stat"><small>Average per swing</small><strong>${p.perHit.toFixed(1)}s</strong><em>×${p.multiplier.toFixed(3)} from crits</em></div>
+        <div class="stat"><small>Average per swing</small><strong>${p.perHit.toFixed(1)}s</strong><em>×${p.multiplier.toFixed(3)} from crits and Echoes</em></div>
         <div class="stat"><small>Critical Chance</small><strong>${(p.chance*100).toFixed(0)}%</strong><em>${p.chance>=1?'100% first roll; overflow helps later rolls':'chance of the first crit'}</em></div>
         <div class="stat"><small>Crit amount</small><strong>${(p.amount*100).toFixed(0)}%</strong><em>a crit does ×${(1+p.amount).toFixed(2)}</em></div>
       </div>
       ${best?`<div class="notice crit-best"><strong>Best next buy: ${best.name} ${best.to}</strong> — ${fmt(best.cost)} Nova for ${(best.gain*100).toFixed(2)}% more damage, working out at ${fmt(Math.round(best.cost/(best.gain*100)))} Nova for each 1%.</div>`:''}
-      <section class="scrap-calculator crit-table"><div><p class="eyebrow">Next rank</p><h2>Which upgrade to buy</h2><p>The cheapest damage first: the last column is what one percent of extra damage costs you, so smaller is better. You have spent ${fmt(totalSpent)} Nova on crit perks so far.</p></div>
-      <table><thead><tr><th>Upgrade</th><th>To</th><th>Cost</th><th>Seconds/hit</th><th>Extra damage</th><th>Nova per 1% damage</th></tr></thead><tbody>
-      ${options.map((o,i)=>{const after=critProfile({...current,...(o.id===CRIT_UPGRADE_IDS.chance?{chanceLevel:o.to}:o.id===CRIT_UPGRADE_IDS.amount?{amountLevel:o.to}:{multiLevel:o.to})});
-        return `<tr class="${o===best?String.fromCharCode(99,114,105,116,45,112,105,99,107):o.locked?String.fromCharCode(99,114,105,116,45,108,111,99,107,101,100):String()}"><th>${o.name}${o.note?`<small class="crit-note">${o.note}</small>`:''}</th><td>${o.to}</td><td>${fmt(o.cost)}</td><td>${after.perHit.toFixed(1)}s<small class="crit-note">from ${p.perHit.toFixed(1)}s</small></td><td>+${(o.gain*100).toFixed(2)}%</td><td>${fmt(Math.round(o.cost/(o.gain*100)))}</td></tr>`}).join('')||'<tr><td colspan="6">Everything is maxed.</td></tr>'}
-      </tbody></table></section>
-      <section class="scrap-calculator crit-table" id="critBreakdown">
-        <h2>How your crits work</h2>
+      <section class="scrap-calculator crit-table"><div><p class="eyebrow">Next rank</p><h2>Which upgrade to buy</h2><p>Ranked by damage per Nova, starting from your targets. Lower cost per 1% is better. Total spent: ${totalSpent?fmt(totalSpent):'0'} Nova.</p></div>
+      <div class="crit-table-scroll"><table><thead><tr><th>Upgrade</th><th>To</th><th>Cost</th><th>Seconds/hit</th><th>Extra damage</th><th>Nova per 1% damage</th></tr></thead><tbody>
+      ${options.map((o,i)=>{const after=critProfile({...current,...o.next});
+        return `<tr class="${o===best?String.fromCharCode(99,114,105,116,45,112,105,99,107):o.locked?String.fromCharCode(99,114,105,116,45,108,111,99,107,101,100):String()}"><th><img class="crit-upgrade-icon" src="${novaUpgrade(o.id).icon}" alt="">${o.name}${o.note?`<small class="crit-note">${o.note}</small>`:''}</th><td>${o.to}</td><td>${fmt(o.cost)}</td><td>${after.perHit.toFixed(1)}s<small class="crit-note">from ${p.perHit.toFixed(1)}s</small></td><td>+${(o.gain*100).toFixed(2)}%</td><td>${o.gain>0?fmt(Math.round(o.cost/(o.gain*100))):'No gain'}</td></tr>`}).join('')||'<tr><td colspan="6">Everything is maxed.</td></tr>'}
+      </tbody></table></div></section>
+      <section class="crit-plan-panel" id="echoBreakdown"><h2>Is Echo worth it?</h2>
+        ${bestEcho&&bestCrit?`<p><strong>${bestEcho.value>bestCrit.value?`${bestEcho.name} ${bestEcho.to} is better value right now`:`${bestCrit.name} ${bestCrit.to} is better value right now`}.</strong> It buys ${(Math.max(bestEcho.value,bestCrit.value)/Math.min(bestEcho.value,bestCrit.value)).toFixed(2)} times as much average damage per Nova as ${bestEcho.value>bestCrit.value?`${bestCrit.name} ${bestCrit.to}`:`${bestEcho.name} ${bestEcho.to}`}.</p>`:''}
+        <p>Echo adds <strong>${(p.base*p.echoMultiplier).toFixed(2)}s per swing on average</strong>, or <strong>${(p.echoMultiplier/p.primaryMultiplier*100).toFixed(2)}%</strong> on top of your primary hit. The comparison above measures each upgrade against the full Crit + Echo total.</p>
+        <p>Echoes start 0.2 seconds apart. Their chance halves along the chain, while their strength stays the same. Each Echo can crit once; it cannot Multi Crit or use Chopper's guaranteed extra crit.</p>
+        <p>Echo Cap often has a small return because later Echoes are rare. Chance and Amount work together, so their value depends on your other Echo levels. Strong Multi Crit makes Echo's relative contribution smaller.</p>
+        <div class="crit-table-scroll"><table><thead><tr><th>Echo</th><th>Chance if reached</th><th>Chance per swing</th></tr></thead><tbody>${p.echoes.map(row=>`<tr><th>${row.count}</th><td>${(row.rollChance*100).toFixed(3)}%</td><td>${(row.reach*100).toFixed(3)}%</td></tr>`).join('')}</tbody></table></div>
+        <p>These are long-run averages before a build finishes. Pending Echoes stop when crafting completes. Critical Echoes can trigger Crit Complete, but that finish-time benefit is not counted as a flat damage boost.</p>
+      </section>
+      <section class="scrap-calculator crit-table" id="critBreakdown"><h2>How your crits work</h2>
         <p>Each successful crit adds ${(p.amount*100).toFixed(0)}% of your base hit. The next roll has half the previous chance, and the chain ends on the first failed roll or after ${p.rolls} ${p.rolls===1?'crit':'crits'}.</p>
         ${p.guaranteedMulti?'<p><strong>Crit Expert:</strong> once the first crit lands, the first extra crit is guaranteed. Further rolls start at half your original crit chance. The trait also adds one Multi Crit level.</p>':''}<p>${p.chance>=1?'Your first crit is already guaranteed. More Critical Chance only improves later rolls that are not yet guaranteed; Multi Crit adds another possible roll.':'Below 100%, Critical Chance improves both the first roll and the later rolls.'} Upgrade rankings compare the average gain per Nova, not just the biggest hit.</p>
-        <table><thead><tr><th>Crit</th><th>Chance if reached</th><th>Chance per swing of at least this many</th></tr></thead><tbody>${critRollBreakdown(p.chance,p.rolls,p.guaranteedMulti).map(row=>`<tr><th>${row.count}</th><td>${fmt(row.rollChance*100)}%${row.guaranteed?' (Crit Expert)':''}</td><td>${fmt(row.reach*100)}%</td></tr>`).join('')}</tbody></table>
+        <div class="crit-table-scroll"><table><thead><tr><th>Crit</th><th>Chance if reached</th><th>Chance per swing of at least this many</th></tr></thead><tbody>${critRollBreakdown(p.chance,p.rolls,p.guaranteedMulti).map(row=>`<tr><th>${row.count}</th><td>${fmt(row.rollChance*100)}%${row.guaranteed?' (Crit Expert)':''}</td><td>${fmt(row.reach*100)}%</td></tr>`).join('')}</tbody></table></div>
         <label class="crit-field"><span>Temporary pickaxe multiplier</span><input type="number" id="critBoost" value="${current.boost}" min="1" step="0.1"><small>Normally 1. Enter the combined crafting/event pickaxe multiplier if active; this is not detected from your Base.</small></label>
-        <p>Average per swing is a long-run average of crafting time removed, before capping at the time remaining on a droid. Temporary pickaxe multipliers change seconds per hit, but not the upgrade ranking. Crit Complete finishes depot and fusion builds on a critical hit once remaining time is at or below its 2?10% threshold. It is not a flat damage multiplier and is excluded from the average-per-swing ranking.</p>
+        <p>Average per swing is a long-run average of crafting time removed, before capping at the time remaining on a droid. Temporary pickaxe multipliers change seconds per hit, but not the upgrade ranking. Crit Complete finishes depot and fusion builds on a critical hit once remaining time is at or below its 2&ndash;10% threshold. It is not a flat damage multiplier and is excluded from the average-per-swing ranking.</p>
       </section>
       `;
+    document.querySelector('#critSessionToggle').onclick=e=>{const panel=document.querySelector('#critSession'),visible=panel.hidden;panel.hidden=!visible;localStorage.setItem(sessionKey,visible?'1':'0');e.currentTarget.setAttribute('aria-expanded',String(visible));e.currentTarget.textContent=(visible?'Hide':'Show')+' session planner'};
     const bind=(id,key)=>{const el=document.querySelector('#'+id);if(el)el.onchange=()=>{setCritSetting(key,Number(el.type==='checkbox'?(el.checked?1:0):el.value)||0);render()}};
     bind('critBoost','boost');bind('critPickaxe','pickaxe');bind('critChopper','chopper');bind('critPerks','perks');
-    // Perk levels write through to the Nova Shop itself.
-    const setPerk=(id,level)=>{setNovaLevel(id,Math.max(0,level),false);save();render()};
-    [['critChance',CRIT_UPGRADE_IDS.chance],['critAmount',CRIT_UPGRADE_IDS.amount],['critMulti',CRIT_UPGRADE_IDS.multi]]
-      .forEach(([field,id])=>{const el=document.querySelector('#'+field);if(el)el.onchange=()=>setPerk(id,Number(el.value)||0)});
-    document.querySelectorAll('[data-perk-up]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkUp,novaLevelFor(b.dataset.perkUp)+1));
-    document.querySelectorAll('[data-perk-down]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkDown,novaLevelFor(b.dataset.perkDown)-1));
-    document.querySelector('#critComplete')?.addEventListener('change',e=>{state.novaUpgrades['crit-complete']=Math.max(0,Math.min(5,Math.floor(Number(e.target.value)||0)));save();render()});document.querySelector('#critReset').onclick=()=>{state.pickaxeLevel=null;save();['chopper','pickaxe','perks','boost'].forEach(k=>localStorage.removeItem('droid-archive-crit-'+k));render();toast('Pickaxe and companion reset to your Base')};
+    const setPerk=(id,level)=>{
+      targets[id]=Math.max(novaLevelFor(id),Math.min(novaMaxLevel(id),Math.floor(Number(level)||0)));
+      if(id==='critical-amount'&&targets[id]>0)targets['critical-chance']=Math.max(1,targetLevel('critical-chance'));
+      if(id==='crit-complete'&&targets[id]>0)targets['critical-chance']=Math.max(10,targetLevel('critical-chance'));
+      if(id==='critical-chance')targets[id]=Math.max(targets[id],targetLevel('crit-complete')>0?10:targetLevel('multi-crit')>0?4:targetLevel('critical-amount')>0?1:0);
+      if(id==='multi-crit'&&targets[id]>0)targets['critical-chance']=Math.max(4,targetLevel('critical-chance'));
+      if(['echo-strike-amount','echo-strike-cap'].includes(id)&&targets[id]>0)targets['echo-strike-chance']=Math.max(1,targetLevel('echo-strike-chance'));
+      if(id==='echo-strike-chance'&&targets[id]===0){for(const key of ['echo-strike-amount','echo-strike-cap'])targets[key]=novaLevelFor(key);}
+      savePlannerTargets(targets);render();
+    };
+    [['critChance',CRIT_UPGRADE_IDS.chance],['critAmount',CRIT_UPGRADE_IDS.amount],['critMulti',CRIT_UPGRADE_IDS.multi],['echoChance',CRIT_UPGRADE_IDS.echoChance],['echoAmount',CRIT_UPGRADE_IDS.echoAmount],['echoCap',CRIT_UPGRADE_IDS.echoCap],['critComplete','crit-complete']]
+      .forEach(([field,id])=>{const el=document.querySelector('#'+field);if(el)el.onchange=()=>setPerk(id,el.value)});
+    document.querySelectorAll('[data-perk-up]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkUp,targetLevel(b.dataset.perkUp)+1));
+    document.querySelectorAll('[data-perk-down]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkDown,targetLevel(b.dataset.perkDown)-1));
+    document.querySelector('#critNovaPlanner').onclick=()=>localStorage.setItem('droid-archive-nova-category','planner');
+    document.querySelector('#critBudget').onchange=e=>{localStorage.setItem(budgetKey,String(Math.max(0,Math.min(1000000,Math.floor(Number(e.target.value)||0)))));render()};
+    document.querySelector('#critApplyBudget')?.addEventListener('click',()=>{for(const id of Object.values(CRIT_UPGRADE_IDS))targets[id]=budgetPlan.levels[critLevelField(id)];targets['crit-complete']=novaLevelFor('crit-complete');savePlannerTargets(targets);render()});
+    document.querySelector('#critResetTargets').onclick=()=>{for(const id of ids)targets[id]=novaLevelFor(id);savePlannerTargets(targets);render()};
+    document.querySelector('#critPurchase').onclick=()=>{for(const id of ids)setNovaLevel(id,targetLevel(id),false);save();render();toast('Purchased upgrade levels recorded')};
+    document.querySelector('#critReset').onclick=()=>{state.pickaxeLevel=null;save();['chopper','pickaxe','perks','boost'].forEach(k=>localStorage.removeItem('droid-archive-crit-'+k));render();toast('Pickaxe and companion reset to your Base')};
   };
   render();
 }
@@ -5280,14 +5362,6 @@ let novaShopPage,novaDetailPage;
       novaCrystalCost: droid.novaCrystalCost,
     }));
 
-  const plannerStorageKey = () => `droid-archive-nova-planner:${state.cloud?.activeProfileId || 'local'}`;
-  const plannerMaxRebirthKey = () => `${plannerStorageKey()}:max-rebirth`;
-  const plannerMaxRebirth = shop => Math.max(12,Math.min(Number(localStorage.getItem(plannerMaxRebirthKey()))||40,Math.max(...shop.rebirthRewards.map(reward=>reward.rebirth))));
-  const plannerTargets = () => {
-    try { return JSON.parse(localStorage.getItem(plannerStorageKey()) || '{}') || {}; }
-    catch { return {}; }
-  };
-  const savePlannerTargets = targets => localStorage.setItem(plannerStorageKey(), JSON.stringify(targets));
   const plannerUpgrades = shop => shop.upgrades.filter(upgrade => !upgrade.repeatable && !upgrade.comingSoon && !upgrade.unavailable && upgrade.levels?.length);
   const plannerLevelCap = upgrade => upgrade.uncapped ? 10000 : upgrade.levels.length;
   const plannedLevel = (upgrade, targets) => Math.max(novaLevelFor(upgrade.id), Math.min(plannerLevelCap(upgrade), Number(targets[upgrade.id] ?? novaLevelFor(upgrade.id)) || 0));
@@ -6105,7 +6179,7 @@ setInterval(()=>refreshKyberRelease(),10000);
 setInterval(()=>{if(!document.hidden)refreshTradeReceipts().catch(()=>{})},30000);
 setSnowStatsClient(()=>supabaseClient);
 siteActivity=startSiteActivity({client:()=>supabaseClient});
-const DATA_VERSION='2026-11-07-cantina-packs';
+const DATA_VERSION='2026-11-16-echo-life-day';
 const loadJson=async path=>{const response=await fetch(`${path}${path.includes('?')?'&':'?'}v=${DATA_VERSION}`,{cache:'no-cache'});if(!response.ok)throw Error(`Unable to load ${path}`);return response.json()};
 function applyStellarData(droids,stellarStats={}){const rules=stellarStats._rules||{},images=stellarStats._images||{},round=value=>Math.round(value*1e6)/1e6;for(const droid of droids){if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;if(droid.rarity==='ICONIC'||droid.variants.STELLAR)continue;const base=droid.variants.DEFAULT,known=stellarStats[droid.name]||{},costMultiplier=rules.costMultiplier?.[droid.rarity],incomeMultiplier=rules.incomeMultiplier?.[droid.rarity],craftingMultiplier=rules.craftingMultiplier;droid.variants.STELLAR={cost:known.cost??(knownNumber(base?.cost)&&knownNumber(costMultiplier)?round(base.cost*costMultiplier):null),income:known.income??(knownNumber(base?.income)&&knownNumber(incomeMultiplier)?round(base.income*incomeMultiplier):null),craftingSeconds:known.craftingSeconds??(knownNumber(base?.craftingSeconds)&&knownNumber(craftingMultiplier)?round(base.craftingSeconds*craftingMultiplier):null)};if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;}return droids}
 async function loadEvents(){try{const index=await loadJson('data/events/index.json');if(!Array.isArray(index.events))return[];return Promise.all(index.events.map(file=>loadJson(`data/events/${file}`)))}catch{return[]}}

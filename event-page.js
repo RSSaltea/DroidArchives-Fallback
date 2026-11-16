@@ -15,11 +15,11 @@ function notificationStatus(){
 const eventDates=event=>{const {start,end}=eventWindow(event),options={day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'};return `${new Date(start).toLocaleString(undefined,options)} to ${new Date(end).toLocaleString(undefined,options)}`;};
 function eventDetails(event){
   const guide=event.id==='scourge-boss'?scourgeBossGuide():event.id.startsWith('wg-22')?gonkArmyPanel():'';
-  return `<p>${escape(event.description||'')}</p>${guide}`;
+  return `<p>${escape(event.description||'')}</p>${event.details?.length?`<ul class="event-detail-list">${event.details.map(detail=>`<li>${escape(detail)}</li>`).join('')}</ul>`:''}${guide}`;
 }
 function featuredEvent(event){
   const status=scheduledEventStatus(event);
-  return `<section class="event-panel event-featured" data-scheduled-event="${escape(event.id)}"><div class="event-section-heading"><div class="event-featured-title">${event.image?`<img src="${escape(event.image)}" alt="">`:''}<div><p class="eyebrow" data-scheduled-state>${status.state==='active'?'Current event':'Upcoming event'}</p><h2>${escape(event.name)}</h2></div></div><div class="event-clock"><small data-scheduled-label>${status.label}</small><strong data-scheduled-countdown>${eventCountdown(status.remainingMs)}</strong></div></div><p class="event-dates">${escape(eventDates(event))}</p>${eventDetails(event)}</section>`;
+  return `<section class="event-panel event-featured" data-scheduled-event="${escape(event.id)}"><div class="event-section-heading"><div class="event-featured-title">${event.titleImage?`<div class="event-life-day-art"><img src="${escape(event.image)}" alt=""><img class="event-life-day-title" src="${escape(event.titleImage)}" alt="Life Day"></div>`:event.image?`<img src="${escape(event.image)}" alt="">`:''}<div><p class="eyebrow" data-scheduled-state>${status.state==='active'?'Current event':'Upcoming event'}</p><h2>${escape(event.name)}</h2></div></div><div class="event-clock"><small data-scheduled-label>${status.label}</small><strong data-scheduled-countdown>${eventCountdown(status.remainingMs)}</strong></div></div><p class="event-dates">${escape(eventDates(event))}</p>${eventDetails(event)}</section>`;
 }
 export function eventPage({host,getProgress,setProgress,events=[]}){
   let search='',category='All',onlyWishlist=false;

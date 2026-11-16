@@ -297,6 +297,26 @@
       "vbucksCost": 500,
       "novaCost": 450,
       "novaUpgradeId": "scourge-surge-token"
+    },
+    {
+      "id": "echo-strike-pack",
+      "name": "Echo Strike Bundle",
+      "category": "packs",
+      "vbucksCost": 3500,
+      "icon": "assets/cantina-shop/echo-strike-bundle.png",
+      "description": "Bring Echo Strike Chance to level 3, Amount to level 5 and Cap to level 1.",
+      "details": [
+        "30% initial Echo chance; a second Echo has a 15% conditional chance.",
+        "Each Echo starts at 60% of your pre-crit hit and can crit once.",
+        "Up to two Echoes per swing.",
+        "Equivalent to 4,900 Nova from zero. The game refunds Nova spent on covered levels you already own.",
+        "Marking this bundle owned fills in missing levels. Higher levels are kept; rechecking never adds extra levels."
+      ],
+      "novaLevels": {
+        "echo-strike-chance": 3,
+        "echo-strike-amount": 5,
+        "echo-strike-cap": 1
+      }
     }
   ]
 }
