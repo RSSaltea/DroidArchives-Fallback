@@ -11,8 +11,9 @@
   "image": "assets/events/life-day/banner.png",
   "titleImage": "assets/events/life-day/title.png",
   "details": [
-    "Work together to fill the Tree of Life.",
-    "Once the tree is complete, make the most of the 60-second loot phase.",
+    "Collect Life Orbs together to restore the Tree of Life. The tree needs 100 Life; each orb contributes 1 to 6 Life depending on its tier.",
+    "Completing the tree starts a 60-second Sandcrawler loot phase with special droid rarity and variant rolls.",
+    "After the loot phase, the tree resets so you can restore it again while the event is active.",
     "Times are shown in your local timezone. Upcoming event details may change."
   ]
 }

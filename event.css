@@ -51,7 +51,11 @@ a[data-event-ready-link]::before{content:'';display:inline-block;width:7px;heigh
 @media(max-width:650px){.event-panel{padding:16px}.event-checklists{grid-template-columns:1fr;gap:14px}.event-hero{gap:12px}.event-hero>img{width:64px;height:64px}.event-hero h1{font-size:27px}.event-wishlist-summary{grid-template-columns:1fr 1fr}.event-section-heading{gap:12px}.event-clock{text-align:left}.event-round-footer .btn{width:100%}.event-shop-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}}
 .event-detail-list{padding-left:24px;margin:16px 0;line-height:1.6}
 .event-detail-list li+li{margin-top:8px}
-.event-featured-title .event-life-day-art{position:relative;flex:0 0 160px;width:160px;max-width:100%;aspect-ratio:1}
-.event-featured-title .event-life-day-art img{width:100%;height:100%;object-fit:contain}
-.event-featured-title .event-life-day-art .event-life-day-title{position:absolute;left:15%;top:64%;width:70%;height:18%;object-fit:contain}
-@media(max-width:600px){.event-featured-title .event-life-day-art{width:100px;flex-basis:100px}}
+/* The game banner and its separate title share one renderer on Home and Events. */
+.event-artwork-layered{position:relative;aspect-ratio:1;max-width:100%}
+.event-artwork-layered>img{display:block;width:100%;height:100%;max-height:none;object-fit:contain}
+.event-artwork-layered>.event-artwork-title{position:absolute;left:21%;top:63.2%;width:58%;height:18.4%;color:#00ffe0}
+.event-art>.event-artwork-layered{width:220px}
+.event-featured-title>.event-artwork-layered{flex:0 0 160px;width:160px}
+.event-card .event-details-link{padding-top:12px}
+@media(max-width:600px){.event-featured-title>.event-artwork-layered{width:100px;flex-basis:100px}.event-art>.event-artwork-layered{width:190px}}

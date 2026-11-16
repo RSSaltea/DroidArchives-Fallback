@@ -1,3 +1,4 @@
+import {eventArtwork} from './event-artwork.js?v=2026-11-16-life-day-title';
 import {escapeHtml as escape} from './ui-text.js?v=2026-11-08-shared';
 import { scourgePanel, scourgeBossGuide } from './scourge.js?v=2026-11-08-shared';
 import {eventWindow,scheduledEventStatus,eventSections,eventCountdown} from './event-schedule.js?v=2026-11-03-event-archive';
@@ -19,7 +20,7 @@ function eventDetails(event){
 }
 function featuredEvent(event){
   const status=scheduledEventStatus(event);
-  return `<section class="event-panel event-featured" data-scheduled-event="${escape(event.id)}"><div class="event-section-heading"><div class="event-featured-title">${event.titleImage?`<div class="event-life-day-art"><img src="${escape(event.image)}" alt=""><img class="event-life-day-title" src="${escape(event.titleImage)}" alt="Life Day"></div>`:event.image?`<img src="${escape(event.image)}" alt="">`:''}<div><p class="eyebrow" data-scheduled-state>${status.state==='active'?'Current event':'Upcoming event'}</p><h2>${escape(event.name)}</h2></div></div><div class="event-clock"><small data-scheduled-label>${status.label}</small><strong data-scheduled-countdown>${eventCountdown(status.remainingMs)}</strong></div></div><p class="event-dates">${escape(eventDates(event))}</p>${eventDetails(event)}</section>`;
+  return `<section class="event-panel event-featured" data-scheduled-event="${escape(event.id)}"><div class="event-section-heading"><div class="event-featured-title">${eventArtwork(event)}<div><p class="eyebrow" data-scheduled-state>${status.state==='active'?'Current event':'Upcoming event'}</p><h2>${escape(event.name)}</h2></div></div><div class="event-clock"><small data-scheduled-label>${status.label}</small><strong data-scheduled-countdown>${eventCountdown(status.remainingMs)}</strong></div></div><p class="event-dates">${escape(eventDates(event))}</p>${eventDetails(event)}</section>`;
 }
 export function eventPage({host,getProgress,setProgress,events=[]}){
   let search='',category='All',onlyWishlist=false;

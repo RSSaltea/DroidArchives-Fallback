@@ -2,6 +2,18 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-11-16-echo-life-day",
+      "date": "2026-11-16",
+      "title": "Echo Strike and Life Day",
+      "summary": "Plan your Echo upgrades and get ready for Life Day.",
+      "changes": [
+        "Added Echo Strike Chance, Amount and Cap to Nova Shop and Crit Calc. Compare Crit and Echo upgrades and get suggestions for your Nova budget.",
+        "Added the Echo Strike Bundle to Cantina Shop. Marking it owned updates the included upgrade levels while keeping any higher levels you already own.",
+        "Crit Calc's compact session planner now opens from a button beside Party Bonuses and remembers whether you left it open.",
+        "Added Life Day weekend countdowns, labelled artwork and event details. Collect Life Orbs to restore the Tree of Life, start a 60-second Sandcrawler loot phase, then restore it again."
+      ]
+    },
+    {
       "id": "2026-11-08-blueprint-calc",
       "date": "2026-11-08",
       "title": "Blueprint Calc",

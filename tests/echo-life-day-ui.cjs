@@ -62,7 +62,7 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+new 
    if(route==='nova-shop'){await page.locator('[data-nova-category="featured"]').first().click();assert((await page.locator('#app').innerText()).includes('Echo Strike'));}
    if(route==='event'){
     assert.equal(await page.locator('[data-event-featured] [data-scheduled-event^="life-day-"]').count(),2);
-    assert.equal(await page.locator('.event-life-day-art').count(),2);
+    assert.equal(await page.locator('.event-artwork-layered').count(),2);
     assert((await page.locator('[data-event-featured]').innerText()).includes('Upcoming event'));
    }
    for(const width of [1440,390,320]){
