@@ -2,6 +2,13 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-11-17-optimiser-credits",
+      "date": "2026-11-17",
+      "title": "Optimiser credit gain calculation fixed.",
+      "summary": "",
+      "changes": []
+    },
+    {
       "id": "2026-11-16-echo-life-day",
       "date": "2026-11-16",
       "title": "Echo Strike and Life Day",

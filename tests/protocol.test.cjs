@@ -13,7 +13,7 @@ function setup(){
  const state={droids:structuredClone(data),owned:[],protocolPriority:'credits'};
  const caps={WORKER:1,ASTROMECH:1,BATTLE:1,BUILD:3,FUSION_BUILD:3,LOUNGE:1};
  // No companion activity is on in these layouts, so nothing is reserved for a seat.
- const ctx=vm.createContext({...require('../optimise-layout-score.js'),...require('../crafting.js'),...require('../traits.js'),...require('../mission-economy.js'),state,console,companionActivityPicks:()=>({id:null,picks:[],missing:[],locked:[]}),ASTROMECH_MISSION_SLOTS:[0,2,4,6,8],optimiseMoveLambda:()=>0,PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
+ const ctx=vm.createContext({...require('../scourge.js'),...require('../optimise-layout-score.js'),...require('../crafting.js'),...require('../traits.js'),...require('../mission-economy.js'),state,console,companionActivityPicks:()=>({id:null,picks:[],missing:[],locked:[]}),ASTROMECH_MISSION_SLOTS:[0,2,4,6,8],optimiseMoveLambda:()=>0,PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
   effectiveMultiplier:()=>1,isIconic:d=>d?.rarity==='ICONIC',iconicIncome:d=>d?.rarity==='ICONIC'?(d.special?.incomePercent??.15):0,
   placedBaseIncome:placed=>placed.reduce((n,x)=>n+(state.droids.find(d=>d.name===x.name)?.variants[x.variant]?.income||0),0),
   expandedOwned:()=>state.owned.flatMap((x,source)=>Array.from({length:x.qty||1},(_,unit)=>({...x,source,unit}))),
@@ -39,7 +39,7 @@ function setup(){
 test('new source stats, eight qualities and three activated Kyber forms, portraits and C-3PO type',()=>{
  assert.equal(data.find(d=>d.name==='C-3PO').type,'PROTOCOL');
  assert.equal(new Set(data.map(d=>d.name)).size,data.length);
- for(const name of ['SA-5','LOM','PZ','TDA']){const d=data.find(x=>x.name===name);assert.equal(d.type,'PROTOCOL');assert.equal(Object.keys(d.variants).length,11);for(const p of Object.values(d.portraits))assert(fs.existsSync(path.join(__dirname,'..',p)));}
+ for(const name of ['SA-5','LOM','PZ','TDA']){const d=data.find(x=>x.name===name);assert.equal(d.type,'PROTOCOL');assert.equal(Object.keys(d.variants).length,12);for(const p of Object.values(d.portraits))assert(fs.existsSync(path.join(__dirname,'..',p)));}
  assert.equal(data.find(d=>d.name==='SA-5').variants.STELLAR.protocolCpsBonusPercent,56);
  assert.equal(data.find(d=>d.name==='LOM').variants.DIAMOND.protocolCraftingBonusPercent,540);
 });
@@ -211,4 +211,32 @@ test('mission selection compares actual quality and Mission Efficiency progress'
  state.owned=[{name:'TEST-FAST',variant:'DIAMOND',trait:{id:9,tier:'Rainbow'},built:true},{name:'TEST-SLOW',variant:'DEFAULT',built:true}];
  const result=run(`optimiseBase({placed:state.owned.map((u,source)=>({...u,source,unit:0,station:'LOUNGE',slot:source}))},0)`);
  assert.equal(result.assignments.find(u=>u.station==='ASTROMECH'&&u.slot===0).name,'TEST-FAST');
+});
+
+
+test('Prime regrouping beats class matching when amplified Hive income is higher',()=>{
+ const {state,caps,ctx,run}=setup();
+ caps.WORKER=2;caps.BATTLE=2;caps.ASTROMECH=0;
+ ctx.effectiveMultiplier=()=>100;
+ state.scourgedex={completed:20};
+ state.droids.push(
+  {name:'Test Iconic',rarity:'ICONIC',type:'WORKER',special:{incomePercent:0},variants:{DEFAULT:{income:100}}},
+  {name:'Test Mythic',rarity:'MYTHIC',type:'BATTLE',variants:{KYBER:{income:100}}}
+ );
+ state.owned=[{name:'Test Iconic',variant:'DEFAULT',qty:2},{name:'Test Mythic',variant:'KYBER',qty:2}];
+ const placed=[
+  {name:'SCOURGE PRIME',variant:'DEFAULT',station:'PROTOCOL_WORKER_CREDITS',slot:0,source:90,unit:0,lockedSlot:true},
+  {name:'C-3PO',variant:'DEFAULT',station:'PROTOCOL_BATTLE_CREDITS',slot:0,source:91,unit:0,lockedSlot:true},
+  ...state.owned.flatMap((u,source)=>[0,1].map(slot=>({...u,source,unit:slot,slot,station:source?'BATTLE':'WORKER'})))
+ ];
+ state.owned.push({name:'SCOURGE PRIME',variant:'DEFAULT'},{name:'C-3PO',variant:'DEFAULT'});
+ placed[0].source=2;placed[1].source=3;
+ ctx.reportPlaced=placed;
+ const result=run('optimiseUnreservedBase({placed:reportPlaced},incomeForPlaced(reportPlaced))');
+ for(const u of result.assignments)assert.equal(u.station,u.name==='Test Mythic'?'WORKER':'BATTLE');
+ assert.equal(result.assignments.length,4);
+ // Two linked Mythics + Prime + 20 permanent members: 22 extra members.
+ const expected=200*(1+22*.1045)*100*3+200*100*3;
+ ctx.reportResult=[...placed.filter(u=>u.lockedSlot),...result.assignments];
+ assert(Math.abs(run('incomeForPlaced(reportResult)')-expected)<1e-7);
 });

@@ -32,8 +32,8 @@ test('assignment scorer follows Prime when moved between credit regions and acco
  const locked=[{base:100,scourge:true,type:'WORKER',station:'WORKER',region:0,creditRegion:-1,craftRegion:-1},{base:50,type:'WORKER',station:'WORKER',region:0,creditRegion:-1,craftRegion:-1},{base:10,type:'BATTLE',station:'BATTLE',region:1,creditRegion:-1,craftRegion:-1}];
  const score=createAssignmentScorer({units,slots,locked,regions:['WORKER','BATTLE'],multiplier:2,lambda:0,craftSeconds:[0,0],craftBaseSpeed:1});
  // 1 Scourge + 1 linked ordinary droid + Prime + 5 trait = 8.
- near(score([0,-1])[0],(100+50)*1.1*2*3+10*1.1*2+(100*2+50)*7*.1045);
- near(score([-1,0])[0],(100+50)*1.1*2+10*1.1*2*3+(100+10)*7*.1045);
+ near(score([0,-1])[0],(100+50)*1.1*2*3+10*1.1*2+(100*2+50)*7*.1045*1.1*2*3);
+ near(score([-1,0])[0],(100+50)*1.1*2+10*1.1*2*3+100*7*.1045*1.1*2+10*7*.1045*1.1*2*3);
  assert(score([0,-1])[0]>score([-1,0])[0]);
 });
 

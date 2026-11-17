@@ -41,3 +41,5 @@ Read this before adding game data or repeating a droid description. Prefer a sha
 ## Current boundaries
 
 This consolidation covers shared droid rules and rendering plus common formatting across the existing features. It does not replace every page's layout or rewrite the whole application. Catalogue loading, fusion resolution and some profile-specific orchestration remain in app.js; extend their existing interfaces rather than creating a parallel implementation.
+
+- Hive Mind credit bonus applies before matching-station, player and Protocol multipliers. Iconics receive the ordinary Protocol boost but no Hive Mind bonus. Keep Base totals, individual droid estimates and optimiser scoring consistent with `workingIncome` in `economy.js`.
