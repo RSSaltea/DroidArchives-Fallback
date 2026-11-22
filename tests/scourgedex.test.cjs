@@ -20,7 +20,8 @@ test('submissions count uniquely, duplicates reward without progress; completion
 test('permanent Hive members affect working Scourge and the layout scorer identically',()=>{
  const u=unit('A','WORKER'),hive=placedHive([u],droids,3);assert.equal(hive.count,4);assert.equal(hive.bonusFor(u),3*.1045);
  const score=createAssignmentScorer({permanentMembers:3,units:[{base:100,type:'WORKER',scourge:true}],slots:[{station:'WORKER',region:0,creditRegion:-1,craftRegion:-1}],locked:[],regions:['WORKER'],multiplier:1,lambda:0,craftSeconds:[0],craftBaseSpeed:1});
- assert(Math.abs(score([0])[0]-(110+100*3*.1045))<1e-7);
+ // The existing Hive income fix applies the station bonus to Hive credits too.
+ assert(Math.abs(score([0])[0]-(100*(1+3*.1045)*1.1))<1e-7);
 });
 test('protect future rebirths, income and companions before the goal; goal includes locked copies but not unfinished builds',()=>{
  const a=unit('A','LOUNGE'),b=unit('B','WORKER'),c=unit('C','COMPANION'),d=unit('D','LOUNGE',1,{lockedSlot:true}),e=unit('E','BUILD',0,{built:false});

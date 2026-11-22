@@ -23,7 +23,7 @@ test('cloud restore blocks writes until catalogue recovery and profile applicati
   supabaseClient:{from:()=>({select(){return this},eq(){return this},async maybeSingle(){return {data:{}}}})},supabaseTable:()=>'',
   rowToCloudDoc:()=>({profiles:[profile],activeProfileId:'test'}),activeCloudProfile:()=>profile,
   refreshProfileCatalogue:async()=>{if(fail)throw Error('catalogue unavailable')},applyProfileData:()=>applied++,
-  renderCloudHeader:()=>{},cacheCloudDocLocally:()=>cached++,saveLocal:()=>{},subscribeCloudChanges:()=>{},loadGroupWorkspace:async()=>{},route:()=>{}});
+  renderCloudHeader:()=>{},cacheCloudDocLocally:()=>cached++,saveLocal:()=>{},subscribeCloudChanges:()=>{},loadGroupWorkspace:async()=>{},refreshTradeReceipts:async()=>{},route:()=>{}});
  for(const name of ['loadSupabaseProfiles','writeSupabaseDoc','cloudConnected']){
   const line=source.split('\n').find(line=>line.startsWith(`async function ${name}(`)||line.startsWith(`function ${name}(`));vm.runInContext(line,context);
  }
