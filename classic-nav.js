@@ -1,5 +1,6 @@
-﻿const STORAGE_KEY='droid-archive-classic-shortcuts';
-const DEFAULTS=['#/base','#/optimise','#/trading','#/droidex','#/crit-calc'];
+import {TRADING_VISIBLE} from './feature-visibility.js?v=2026-11-22';
+const STORAGE_KEY='droid-archive-classic-shortcuts';
+const DEFAULTS=['#/base','#/optimise',...(TRADING_VISIBLE?['#/trading']:[]),'#/droidex','#/crit-calc'];
 
 export function initClassicNavigation(){
   if(!document.documentElement.hasAttribute('data-classic-shell'))return;
@@ -21,9 +22,9 @@ export function initClassicNavigation(){
   let selected;
   try{selected=JSON.parse(localStorage.getItem(STORAGE_KEY));}catch{}
   if(!Array.isArray(selected))selected=[...DEFAULTS];
-  else if(selected.length<5&&!selected.includes('#/trading'))selected.push('#/trading');
+  else if(TRADING_VISIBLE&&selected.length<5&&!selected.includes('#/trading'))selected.push('#/trading');
   selected=Array.from({length:5},(_,i)=>typeof selected[i]==='string'?selected[i]:'');
-  const links=()=>[...menu.querySelectorAll(':scope > a[href^="#/"]')].map(a=>({href:a.getAttribute('href'),label:a.textContent.trim()}));
+  const links=()=>[...menu.querySelectorAll(':scope > a[href^="#/"]')].filter(a=>TRADING_VISIBLE||a.getAttribute('href')!=='#/trading').map(a=>({href:a.getAttribute('href'),label:a.textContent.trim()}));
   const updateActive=()=>{const route=(location.hash||'#/').split('?')[0];nav.querySelectorAll('a').forEach(a=>{const href=a.getAttribute('href'),active=route===href||(href!=='#/'&&route.startsWith(href+'/'));a.classList.toggle('active',active);if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});};
   function render(){
     const options=links(),allowed=new Set(options.map(x=>x.href)),seen=new Set();

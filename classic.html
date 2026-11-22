@@ -28,10 +28,10 @@
   <link rel="stylesheet" href="floating-panels.css?v=2026-11-01-rebirth-drag">
   <link rel="stylesheet" href="guide.css?v=2026-11-01-guide-spacing">
   <link rel="stylesheet" href="site-help.css?v=2026-11-02-tour-targets">
-  <link rel="stylesheet" href="trading.css?v=2026-11-07-fusion-help-modes">
+  <link rel="stylesheet" href="trading.css?v=2026-11-22-hidden-trading">
   <link rel="stylesheet" href="blueprint-calc.css?v=2026-11-08-spacing">
   <link rel="stylesheet" href="ui-icons.css?v=2026-11-16-shared-icons">
-  <link rel="stylesheet" href="crit-planner.css?v=2026-11-16-session-toggle">
+  <link rel="stylesheet" href="crit-planner.css?v=2026-11-22-echo-charge">
   <link rel="stylesheet" href="fusion-lab.css?v=2026-11-22-fusion-lab">
 </head>
 <body>
@@ -57,7 +57,7 @@
       <span><strong>Droid Archives</strong><small>Tycoon wiki & planner</small></span>
     </a>
     <button class="menu-button" id="menuButton" aria-label="Toggle navigation">☰</button>
-    <nav id="nav" aria-label="Main navigation"><a href="#/base">Base</a><a href="#/optimise">Optimise</a><a href="#/droidex">Droidex</a><a href="#/traits">Traits</a><a href="#/trading" class="trading-nav-link">Trading</a><a href="#/crit-calc">Crit Calc</a></nav>
+    <nav id="nav" aria-label="Main navigation"><a href="#/base">Base</a><a href="#/optimise">Optimise</a><a href="#/droidex">Droidex</a><a href="#/traits">Traits</a><a href="#/trading" class="trading-nav-link" hidden>Trading</a><a href="#/crit-calc">Crit Calc</a></nav>
 
     <div class="header-cloud" id="headerCloud"></div>
     <a class="patch-icon-button" href="#/todo" aria-label="View Patch Notes" title="Patch Notes">
@@ -83,7 +83,7 @@
       <a href="#/droids"><img class="side-icon" src="assets/nav/Droids.png" alt=""> <span>Droids</span></a>
       <a href="#/droidex"><img class="side-icon" src="assets/nav/Droidex.png" alt=""> <span>Droidex</span></a>
       <a href="#/traits"><span>Traits</span></a>
-      <a href="#/trading" class="trading-nav-link"><span>Trading</span></a>
+      <a href="#/trading" class="trading-nav-link" hidden><span>Trading</span></a>
       <a href="#/fusion-lab"><img class="side-icon" src="assets/nav/FusionLab.png" alt=""> <span>Fusion Lab</span></a>
       <a href="#/nova-shop"><img class="side-icon" src="assets/nav/NovaShop.png" alt=""> <span>Nova Shop</span></a>
       <a href="#/cantina-shop"><img class="side-icon" src="assets/nav/CantinaShop.png" alt=""> <span>Cantina Shop</span></a>
@@ -105,8 +105,8 @@
   <footer><span>Unofficial community tool for Fortnite: Droid Tycoon · Protocol data checked 13 September 2026</span><span>Issues, feedback or corrections? Add <strong>.saltea</strong> on Discord. <button id="copyDiscord" type="button">Copy username</button></span></footer>
   <div id="toast" role="status"></div>
   <div id="modalRoot"></div>
-  <script type="module" src="app.js?v=2026-11-22-fusion-lab"></script>
-  <script type="module" src="classic-nav.js?v=2026-11-07-trading-navigation"></script>
+  <script type="module" src="app.js?v=2026-11-22-hidden-trading"></script>
+  <script type="module" src="classic-nav.js?v=2026-11-22-hidden-trading"></script>
   <script type="module" src="seasonal-snow.js?v=2026-11-01-snow-v22"></script>
   <script type="module" src="floating-panels.js?v=2026-11-01-rebirth-drag"></script>
 </body>

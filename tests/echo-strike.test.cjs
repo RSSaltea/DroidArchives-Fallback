@@ -60,3 +60,46 @@ test('budget suggestions are affordable, respect unlocks, preserve owned levels 
  assert.equal(run(`critBudgetPlan(${JSON.stringify(owned)},0).steps.length`),0);
  assert.equal(run('critBudgetPlan({chanceLevel:0,amountLevel:0,multiLevel:0},30).steps.length'),0);
 });
+
+test('Charge is unavailable with canonical thresholds, prices and icon',()=>{
+ const charge=shop.upgrades.find(u=>u.id==='echo-strike-charge');
+ assert.equal(charge.comingSoon,true);
+ assert.deepEqual(charge.levels.map(x=>x.chargeHits),[10,5,3]);
+ assert.deepEqual(charge.levels.map(x=>x.cost),[200,1000,2000]);
+ assert.equal(run(`novaTotalCost(${JSON.stringify(charge)},3)`),3200);
+ assert(fs.existsSync(charge.icon));
+});
+
+test('Charge averages follow accumulated Echo counts and only multiply the charged hit across depots',()=>{
+ const input={chanceLevel:10,amountLevel:8,multiLevel:4,traitMulti:1,chopper:true,pickaxe:29,echoChanceLevel:5,echoCapLevel:4};
+ for(const echoChargeLevel of [1,2,3]){
+  const one=run(`critProfile(${JSON.stringify({...input,echoChargeLevel})})`);
+  const three=run(`critProfile(${JSON.stringify({...input,echoChargeLevel,activeDepots:3})})`);
+  const threshold=[10,5,3][echoChargeLevel-1];
+  // Independent long-run counter: max-rank Echo has 0.641632... successful
+  // Echoes per swing. After many swings only the unfinished charge is lost.
+  const echoesPerSwing=.5+.5*.25+.5*.25*.125+.5*.25*.125*.0625+.5*.25*.125*.0625*.03125;
+  const swings=10000000,charges=Math.floor(swings*echoesPerSwing/threshold);
+  const expected=charges/swings*(1+one.amount*6);
+  assert(Math.abs(one.chargeMultiplier-expected)<.000002);
+  near(three.chargeMultiplier,one.chargeMultiplier*3);
+  near(three.primaryMultiplier,one.primaryMultiplier);near(three.echoMultiplier,one.echoMultiplier);
+  near(three.perHit-one.perHit,2*one.chargeMultiplier*one.base);
+  near(run(`critProfile(${JSON.stringify({...input,echoChargeLevel,echoAmountLevel:50})}).chargeMultiplier`),one.chargeMultiplier);
+  near(run(`critProfile(${JSON.stringify({...input,echoChargeLevel,partyMultiplier:2})}).perHit`),one.perHit*2);
+ }
+ near(run('critProfile({echoChargeLevel:3}).chargeMultiplier'),0);
+ near(run('critProfile({echoChanceLevel:5,echoChargeLevel:3,target:"fusion",activeDepots:3}).chargeMultiplier'),0);
+ near(run('critProfile({echoChanceLevel:5,echoChargeLevel:0}).chargeMultiplier'),0);
+});
+
+test('Charge previews affect comparisons without being recommended for purchase',()=>{
+ const input={chanceLevel:20,amountLevel:20,multiLevel:4,echoChanceLevel:5,echoAmountLevel:5,echoCapLevel:4,echoChargeLevel:1,activeDepots:3};
+ const options=run(`critUpgradeOptions(${JSON.stringify(input)})`),charge=options.find(o=>o.id==='echo-strike-charge');
+ assert(charge.gain>0);assert(charge.locked);assert(charge.unavailable);
+ const plan=run(`critBudgetPlan(${JSON.stringify(input)},100000)`);
+ assert(plan.steps.length>0);assert(!plan.steps.some(x=>x.id==='echo-strike-charge'));
+ assert.equal(plan.levels.echoChargeLevel,1);assert(plan.spent<=100000);
+ const amount=options.find(o=>o.id==='critical-amount');
+ near(amount.gain,run(`critProfile(${JSON.stringify({...input,amountLevel:21})}).multiplier/critProfile(${JSON.stringify(input)}).multiplier-1`));
+});

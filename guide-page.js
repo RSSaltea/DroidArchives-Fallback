@@ -1,5 +1,5 @@
 import {escapeHtml as esc} from './ui-text.js?v=2026-11-08-shared';
-import { GUIDE_CHAPTERS } from './guide-content.js?v=2026-11-07-v138';
+import { GUIDE_CHAPTERS } from './guide-content.js?v=2026-11-22-hidden-trading';
 import { novaTotalCost } from './nova-levels.js?v=2026-10-07-unlimited';
 
 const number = value => Number(value).toLocaleString('en-GB');

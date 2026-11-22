@@ -1,10 +1,11 @@
+import {TRADING_VISIBLE} from './feature-visibility.js?v=2026-11-22';
 import {eventArtwork} from './event-artwork.js?v=2026-11-16-life-day-title';
 import {mountCompanionTraitComparison} from './companion-trait-comparison.js?v=2026-11-08-map-destinations';
 import {PRODUCTIVE_STATIONS} from './droid-rules.js?v=2026-11-08-shared';
 import {imageFor as resolveDroidImage,droidPicture} from './droid-display.js?v=2026-11-08-shared';
 import {DROID_TYPES,ALL_VARIANTS,OWNED_VARIANTS,baseVariant,variantRank,isActiveKyber,rebirthVariantReady,LEGACY_DROID_NAMES,canonicalDroidName,isIconic,isFusion,ICONIC_EFFECTS,iconicIncome,CHIP_COSTS,UPGRADE_CHIP_RATES,upgradeChipRate,CHIP_SELL_VALUES,baseChipSellValue,LUCKY_UPGRADE_CHANCES,luckyChance,variantLabel,RARITY_LADDER} from './droid-rules.js?v=2026-11-08-shared';
 import {mountBlueprintCalc} from './blueprint-calc-ui.js?v=2026-11-08-shared';
-import {startTradeNotices,wireTradeNoticeSettings} from './trade-notices.js?v=2026-11-08-shared';
+import {startTradeNotices,wireTradeNoticeSettings} from './trade-notices.js?v=2026-11-22-hidden-trading';
 import {mountTradeComparison} from './trade-comparison.js?v=2026-11-08-shared';
 import {tradeValue,tradeMoney,tradeDifference} from './trade-values.js?v=2026-11-08-shared';
 let tradeNoticeService=null;
@@ -19,8 +20,8 @@ import {mountTraitPicker,traitBonusText} from './trait-picker.js?v=2026-11-08-sh
 import {traitBadgeHtml,recordedTrait} from './trait-badges.js?v=2026-11-08-shared';
 import {planScourgeSubmissions} from './scourge-submit-plan.js?v=2026-11-07-scourge-fusion';
 import { normaliseScourgedex, scourgedexCatalogue, recordScourgeSubmissions, scourgeSubmissionCandidates, scourgedexPage, scourgeWipe } from './scourgedex.js?v=2026-11-07-nova-order-search';
-import { siteHelpPage, siteHelpAfterRoute } from './site-help.js?v=2026-11-07-trading-navigation';
-import { guidePage } from './guide-page.js?v=2026-11-08-shared';
+import { siteHelpPage, siteHelpAfterRoute } from './site-help.js?v=2026-11-22-hidden-trading';
+import { guidePage } from './guide-page.js?v=2026-11-22-hidden-trading';
 import {setSnowStatsClient} from './snow-build-stats.js?v=2026-11-01-snow-counts';
 import { setSnowOwner } from './seasonal-snow.js?v=2026-11-01-snow-v22';
 import {droidTraitsHtml} from './droid-traits.js?v=2026-11-08-shared';
@@ -2367,7 +2368,7 @@ const PICKAXE_SECONDS_PER_LEVEL=1.2;
 const CRIT_CHANCE_BASE=0.01,CRIT_CHANCE_PER_LEVEL=0.05;
 const CRIT_AMOUNT_BASE=0.50,CRIT_AMOUNT_PER_LEVEL=0.10;
 const CHOPPER_CRIT_BONUS=0.50;
-const CRIT_UPGRADE_IDS={chance:'critical-chance',amount:'critical-amount',multi:'multi-crit',echoChance:'echo-strike-chance',echoAmount:'echo-strike-amount',echoCap:'echo-strike-cap'};
+const CRIT_UPGRADE_IDS={chance:'critical-chance',amount:'critical-amount',multi:'multi-crit',echoChance:'echo-strike-chance',echoAmount:'echo-strike-amount',echoCap:'echo-strike-cap',echoCharge:'echo-strike-charge'};
 const critLevelField=id=>Object.keys(CRIT_UPGRADE_IDS).find(key=>CRIT_UPGRADE_IDS[key]===id)+'Level';
 // Some rebirths hand out a permanent crit buff on top of the Nova Shop levels:
 // crit chance at 23, 26 and 29; crit amount at 24, 27, 30, 38 and 40. Each is listed
@@ -2417,12 +2418,19 @@ function echoRollBreakdown(chanceLevel=0,capLevel=0){
   const chance=Math.max(0,Math.min(5,chanceLevel))*.1;let reach=1;
   return Array.from({length:1+Math.max(0,Math.min(4,capLevel))},(_,i)=>{const rollChance=chance/2**i;reach*=rollChance;return {count:i+1,rollChance,reach};});
 }
-const critProfile=({chanceLevel=0,amountLevel=0,multiLevel=0,echoChanceLevel=0,echoAmountLevel=0,echoCapLevel=0,chopper=false,pickaxe=0,astromech=0,boost=1,partyMultiplier=1,traitChance=0,traitAmountBonus=0,traitMulti=0}={})=>{
+const critProfile=({chanceLevel=0,amountLevel=0,multiLevel=0,echoChanceLevel=0,echoAmountLevel=0,echoCapLevel=0,echoChargeLevel=0,activeDepots=1,target='depot',chopper=false,pickaxe=0,astromech=0,boost=1,partyMultiplier=1,traitChance=0,traitAmountBonus=0,traitMulti=0}={})=>{
   const chance=critChanceFor(chanceLevel,chopper)+traitChance,amount=critAmountFor(amountLevel,chopper)+traitAmountBonus,rolls=multiCritRolls(multiLevel+traitMulti);
   const base=pickaxeHitSeconds(pickaxe+astromech)*Math.max(1,Number(boost)||1)*Math.max(1,Math.min(2,Number(partyMultiplier)||1)),primaryMultiplier=critMultiplier(chance,amount,rolls,traitMulti>0);
   const echoes=echoRollBreakdown(echoChanceLevel,echoCapLevel),echoCount=echoes.reduce((sum,row)=>sum+row.reach,0),echoRatio=.1*(1+Math.max(0,echoAmountLevel));
-  const echoMultiplier=echoCount*echoRatio*(1+amount*Math.max(0,Math.min(1,chance))),multiplier=primaryMultiplier+echoMultiplier;
-  return{chance,amount,rolls,guaranteedMulti:traitMulti>0,base,multiplier,primaryMultiplier,echoMultiplier,echoCount,echoRatio,echoes,perHit:base*multiplier};
+  const echoMultiplier=echoCount*echoRatio*(1+amount*Math.max(0,Math.min(1,chance)));
+  // Charge counts successful Echoes, not swings. In the long run every N
+  // Echoes add one maximum-crit hit to each active depot. Ordinary hits and
+  // Echoes still affect only the depot being hit; Fusion Tanks do not charge.
+  const chargeHits=target==='depot'&&echoChargeLevel>0?Number(novaUpgrade(CRIT_UPGRADE_IDS.echoCharge)?.levels?.find(row=>row.level===echoChargeLevel)?.chargeHits)||0:0;
+  const depots=activeDepots===3?3:1,chargeRate=chargeHits>0?echoCount/chargeHits:0;
+  const chargeHitMultiplier=1+amount*rolls,chargeMultiplier=chargeRate*chargeHitMultiplier*depots;
+  const multiplier=primaryMultiplier+echoMultiplier+chargeMultiplier;
+  return{chance,amount,rolls,guaranteedMulti:traitMulti>0,base,multiplier,primaryMultiplier,echoMultiplier,echoCount,echoRatio,echoes,chargeHits,chargeRate,chargeHitMultiplier,chargeMultiplier,activeDepots:depots,perHit:base*multiplier};
 };
 // Pickaxe Mastery only decides how many levels survive a Super Rebirth. That is
 // the floor the calculator starts you at until you say otherwise. It is read from
@@ -2469,11 +2477,12 @@ function critUpgradeOptions(current){
     }
     out.push({id:CRIT_UPGRADE_IDS.multi,name:'Multi Crit',to:multiLevel+1,cost,gain:gain({multiLevel:multiLevel+1}),note,locked});
   }
-  for(const [key,name] of [['echoChance','Echo Strike Chance'],['echoAmount','Echo Strike Amount'],['echoCap','Echo Strike Cap']]){
+  for(const [key,name] of [['echoChance','Echo Strike Chance'],['echoAmount','Echo Strike Amount'],['echoCap','Echo Strike Cap'],['echoCharge','Echo Strike Charge']]){
     const id=CRIT_UPGRADE_IDS[key],field=key+'Level',level=current[field]||0;
     if(level>=novaMaxLevel(id))continue;
-    const locked=key!=='echoChance'&&!(current.echoChanceLevel>0);
-    out.push({id,name,to:level+1,cost:novaLevelCost(id,level+1),gain:gain({[field]:level+1}),locked,note:locked?'Needs Echo Strike Chance 1':''});
+    const unavailable=Boolean(novaUpgrade(id)?.comingSoon||novaUpgrade(id)?.unavailable),needsChance=key!=='echoChance'&&!(current.echoChanceLevel>0),wrongTarget=key==='echoCharge'&&current.target==='fusion';
+    const locked=unavailable||needsChance||wrongTarget;
+    out.push({id,name,to:level+1,cost:novaLevelCost(id,level+1),gain:gain({[field]:level+1}),locked,unavailable,note:unavailable?'Unavailable — preview only':wrongTarget?'Droid Depots only':needsChance?'Needs Echo Strike Chance 1':''});
   }
   // Ranked by damage bought per crystal. Anything still locked sorts last, since
   // it is not actually a purchase you can make yet.
@@ -4525,6 +4534,10 @@ function critCalcPage(){
     const placed=placements().placed;
     const autoAstro=companionAstromechBonus(placed),autoChopper=placed.some(x=>x.station==='COMPANION'&&x.name==='CHOPPER');
     const masteryFloor=pickaxeMasteryLevels();
+    const chargeUpgrade=novaUpgrade(CRIT_UPGRADE_IDS.echoCharge),chargeUnavailable=Boolean(chargeUpgrade?.comingSoon||chargeUpgrade?.unavailable);
+    const chargePreviewKey=plannerStorageKey()+':echo-charge-preview',depotKey=plannerStorageKey()+':three-depots';
+    const chargePreview=chargeUnavailable?Math.max(0,Math.min(novaMaxLevel(CRIT_UPGRADE_IDS.echoCharge),Math.floor(Number(localStorage.getItem(chargePreviewKey))||0))):novaLevelFor(CRIT_UPGRADE_IDS.echoCharge);
+    const threeDepots=localStorage.getItem(depotKey)==='1',chargeTarget=state.party.target==='fusion'?'fusion':'depot';
     // Start from recorded ownership, then layer the shared Nova Planner targets.
     // Pickaxe level is profile-specific; temporary bonus overrides stay local.
     const owned={
@@ -4534,6 +4547,9 @@ function critCalcPage(){
       echoChanceLevel:novaLevelFor(CRIT_UPGRADE_IDS.echoChance),
       echoAmountLevel:novaLevelFor(CRIT_UPGRADE_IDS.echoAmount),
       echoCapLevel:novaLevelFor(CRIT_UPGRADE_IDS.echoCap),
+      // The same hypothetical Charge level is used on both sides of a session
+      // comparison; it is never written to ownership or a purchase plan.
+      echoChargeLevel:chargePreview,activeDepots:threeDepots?3:1,target:chargeTarget,
       chopper:Boolean(critSetting('chopper',autoChopper?1:0)),
       pickaxe:critSetting('pickaxe',masteryFloor),
       // Read straight off the Base rather than typed in — whatever Astromech is
@@ -4542,15 +4558,15 @@ function critCalcPage(){
       boost:Math.max(1,critSetting('boost',1)),
       partyMultiplier:partyBonuses(state.party).pickaxe,traitChance:traitSum(placed,4),traitAmountBonus:traitSum(placed,5),traitMulti:traitSum(placed,18),
     };
-    const targets=plannerTargets(),ids=[...Object.values(CRIT_UPGRADE_IDS),'crit-complete'];
+    const targets=plannerTargets(),ids=[...Object.values(CRIT_UPGRADE_IDS),'crit-complete'].filter(id=>!novaUpgrade(id)?.comingSoon&&!novaUpgrade(id)?.unavailable);
     const targetLevel=id=>Math.max(novaLevelFor(id),Math.min(novaMaxLevel(id),Math.floor(Number(targets[id])||0)));
-    const current={...owned,...Object.fromEntries(Object.values(CRIT_UPGRADE_IDS).map(id=>[critLevelField(id),targetLevel(id)]))};
+    const current={...owned,...Object.fromEntries(Object.values(CRIT_UPGRADE_IDS).filter(id=>ids.includes(id)).map(id=>[critLevelField(id),targetLevel(id)]))};
     const planCost=ids.reduce((sum,id)=>sum+novaTotalCost(novaUpgrade(id),targetLevel(id))-novaTotalCost(novaUpgrade(id),novaLevelFor(id)),0);
     const ownedProfile=critProfile(owned),budgetKey=plannerStorageKey()+':crit-budget',budget=Math.max(0,Math.min(1000000,Number(localStorage.getItem(budgetKey))||0));
     const budgetPlan=budget>0?critBudgetPlan(owned,budget):null;
     // Targets share Nova Planner storage; owned levels change only on confirmation.
     const spent=id=>{const u=novaUpgrade(id);return u?novaTotalCost(u,novaLevelFor(id)):0};
-    const totalSpent=Object.values(CRIT_UPGRADE_IDS).reduce((s,id)=>s+spent(id),0);
+    const totalSpent=Object.values(CRIT_UPGRADE_IDS).filter(id=>ids.includes(id)).reduce((s,id)=>s+spent(id),0);
     const p=critProfile(current),options=critUpgradeOptions(current),best=options.find(o=>!o.locked&&o.gain>0),bestEcho=options.find(o=>!o.locked&&o.gain>0&&o.id.startsWith('echo-')),bestCrit=options.find(o=>!o.locked&&o.gain>0&&!o.id.startsWith('echo-'));
     // Rebirth crit perks are not bought, so they are shown as a read-out beside
     // the Nova levels rather than as another thing to step up and down.
@@ -4573,11 +4589,14 @@ function critCalcPage(){
         ${perk(CRIT_UPGRADE_IDS.echoChance,'echoChance','Echo Strike Chance',current.echoChanceLevel,`${(current.echoChanceLevel*10).toFixed(0)}% initial Echo chance`)}
         ${perk(CRIT_UPGRADE_IDS.echoAmount,'echoAmount','Echo Strike Amount',current.echoAmountLevel,`${(p.echoRatio*100).toFixed(0)}% of pre-crit hit; no Multi Crit`)}
         ${perk(CRIT_UPGRADE_IDS.echoCap,'echoCap','Echo Strike Cap',current.echoCapLevel,`up to ${current.echoCapLevel+1} Echoes per swing`)}
+        ${chargeUnavailable?`<label class="crit-field crit-perk crit-charge-preview"><span><img class="crit-upgrade-icon" src="${chargeUpgrade.icon}" alt="">Echo Strike Charge</span><select id="critChargePreview" aria-describedby="critChargeHint"><option value="0" ${chargePreview===0?'selected':''}>Unavailable &middot; preview off</option>${chargeUpgrade.levels.map(row=>`<option value="${row.level}" ${chargePreview===row.level?'selected':''}>Preview level ${row.level} &middot; ${row.chargeHits} Echoes</option>`).join('')}</select><small id="critChargeHint">Unavailable &middot; preview only${chargePreview?` &middot; ${fmt(novaTotalCost(chargeUpgrade,chargePreview))} Nova total when released`:''}. Not included in purchases.</small></label>`:perk(CRIT_UPGRADE_IDS.echoCharge,'echoCharge','Echo Strike Charge',current.echoChargeLevel,`${p.chargeHits||'No'} Echoes per charge`)}
+        <label class="crit-field crit-toggle"><span>Crafting three droids at once</span><div class="crit-switch"><input type="checkbox" id="critThreeDepots" ${threeDepots?'checked':''} ${chargeTarget==='fusion'?'disabled':''}><b>${threeDepots?'Three active depots':'One active depot'}</b></div><small>${chargeTarget==='fusion'?'Fusion selected: Charge does not apply.':'Counts Charge across '+(threeDepots?'3 active builds':'1 active build')+'. Ordinary hits stay on one depot.'}</small></label>
         ${num('critPickaxe','Pickaxe level',current.pickaxe,0,`Saved to this profile. Super Rebirth resets to ${masteryFloor} from Pickaxe Mastery.`,masteryFloor)}
         <div class="crit-field"><span>Astromech companion</span><div class="crit-readout">${autoAstro?`+${autoAstro}`:'—'}</div><small>${autoAstro?`From your Base · effective level ${current.pickaxe+autoAstro}`:'No Astromech in a Companion slot'}</small></div>
         <label class="crit-field crit-toggle"><span>Chopper</span><div class="crit-switch"><input type="checkbox" id="critChopper" ${current.chopper?'checked':''}><b>${current.chopper?'Equipped':'Not equipped'}</b></div><small>+${Math.round(CHOPPER_CRIT_BONUS*100)}% chance and amount${autoChopper?' · found in your Base':''}</small></label>
         <label class="crit-field crit-toggle"><span>Rebirth perks</span><div class="crit-switch"><input type="checkbox" id="critPerks" ${critPerksOn()?'checked':''} ${rebirthBonus.chance||rebirthBonus.amount?'':'disabled'}><b>${rebirthBonus.chance||rebirthBonus.amount?`${critPerksOn()?'':'Off · '}+${Math.round(rebirthBonus.chance*100)}% / +${Math.round(rebirthBonus.amount*100)}%`:'—'}</b></div><small>${rebirthBonus.chance||rebirthBonus.amount?(critPerksOn()?`Chance and amount, banked through R: ${state.rebirth}`:'Left out, as on a fresh Super Rebirth'):'None yet · the first lands at R: 23'}</small><small class="crit-cost">${nextCritPerk?`Next at R: ${nextCritPerk.at} · +${nextCritPerk.chance||nextCritPerk.amount}% crit ${nextCritPerk.chance?'chance':'amount'}`:'Every rebirth crit perk is banked'}</small></label>
       </section>
+      ${chargeUnavailable&&chargePreview?`<p class="notice crit-charge-notice" role="status">Previewing unavailable Echo Strike Charge level ${chargePreview}${chargeTarget==='fusion'?' &mdash; no effect on Fusion Tanks':` across ${threeDepots?3:1} active depot${threeDepots?'s':''}`}. ${chargeTarget==='depot'&&threeDepots?'Average per swing is total crafting time removed across all three builds. ':''}Upgrade comparisons include this preview; purchase costs and budgets exclude Charge. Values may change before release.</p>`:''}
       <section class="crit-plan-panel crit-session" id="critSession" aria-label="Upgrade plan" ${sessionVisible?'':'hidden'}>
         <div class="crit-session-summary"><strong>This session: ${planCost?fmt(planCost):'0'} Nova</strong><span>Average per swing: <b>${ownedProfile.perHit.toFixed(1)}s &rarr; ${p.perHit.toFixed(1)}s</b> &middot; ${((p.multiplier/ownedProfile.multiplier-1)*100).toFixed(2)}% improvement</span></div>
         <label class="crit-session-budget"><span>Nova budget</span><input id="critBudget" type="number" min="0" max="1000000" step="1" value="${budget}" aria-describedby="critBudgetHint"><small id="critBudgetHint">0 = manual planning</small></label>
@@ -4598,7 +4617,8 @@ function critCalcPage(){
       </tbody></table></div></section>
       <section class="crit-plan-panel" id="echoBreakdown"><h2>Is Echo worth it?</h2>
         ${bestEcho&&bestCrit?`<p><strong>${bestEcho.value>bestCrit.value?`${bestEcho.name} ${bestEcho.to} is better value right now`:`${bestCrit.name} ${bestCrit.to} is better value right now`}.</strong> It buys ${(Math.max(bestEcho.value,bestCrit.value)/Math.min(bestEcho.value,bestCrit.value)).toFixed(2)} times as much average damage per Nova as ${bestEcho.value>bestCrit.value?`${bestCrit.name} ${bestCrit.to}`:`${bestEcho.name} ${bestEcho.to}`}.</p>`:''}
-        <p>Echo adds <strong>${(p.base*p.echoMultiplier).toFixed(2)}s per swing on average</strong>, or <strong>${(p.echoMultiplier/p.primaryMultiplier*100).toFixed(2)}%</strong> on top of your primary hit. The comparison above measures each upgrade against the full Crit + Echo total.</p>
+        <p>Ordinary Echoes add <strong>${(p.base*p.echoMultiplier).toFixed(2)}s per swing on average</strong>, or <strong>${(p.echoMultiplier/p.primaryMultiplier*100).toFixed(2)}%</strong> on top of your primary hit. The comparison above measures each upgrade against the full calculated total.</p>
+        <p><strong>Echo Strike Charge${chargeUnavailable?' &middot; unavailable':''}:</strong> ${p.chargeHits?`one charged hit per ${p.chargeHits} successful Echoes, adding <strong>${(p.base*p.chargeMultiplier).toFixed(2)}s per swing</strong> across ${p.activeDepots} active depot${p.activeDepots===1?'':'s'}. Each depot receives a full hit with all ${p.rolls} possible crits.`:chargeTarget==='fusion'?'Charge does not affect Fusion Tanks.':'Choose a preview level above to compare its benefit.'} Charge counts Echoes, not ordinary swings. Its strength uses your pickaxe, crit amount and maximum Multi Crit count, not Echo Amount. The estimate assumes continuous unfinished builds; unused charge and overkill at the end of a build can reduce the benefit. Crit Complete is not included as a flat bonus.</p>
         <p>Echoes start 0.2 seconds apart. Their chance halves along the chain, while their strength stays the same. Each Echo can crit once; it cannot Multi Crit or use Chopper's guaranteed extra crit.</p>
         <p>Echo Cap often has a small return because later Echoes are rare. Chance and Amount work together, so their value depends on your other Echo levels. Strong Multi Crit makes Echo's relative contribution smaller.</p>
         <div class="crit-table-scroll"><table><thead><tr><th>Echo</th><th>Chance if reached</th><th>Chance per swing</th></tr></thead><tbody>${p.echoes.map(row=>`<tr><th>${row.count}</th><td>${(row.rollChance*100).toFixed(3)}%</td><td>${(row.reach*100).toFixed(3)}%</td></tr>`).join('')}</tbody></table></div>
@@ -4612,10 +4632,13 @@ function critCalcPage(){
         <p>Average per swing is a long-run average of crafting time removed, before capping at the time remaining on a droid. Temporary pickaxe multipliers change seconds per hit, but not the upgrade ranking. Crit Complete finishes depot and fusion builds on a critical hit once remaining time is at or below its 2&ndash;10% threshold. It is not a flat damage multiplier and is excluded from the average-per-swing ranking.</p>
       </section>
       `;
+    document.querySelector('#critChargePreview')?.addEventListener('change',e=>{localStorage.setItem(chargePreviewKey,e.target.value);render()});
+    document.querySelector('#critThreeDepots').onchange=e=>{localStorage.setItem(depotKey,e.target.checked?'1':'0');render()};
     document.querySelector('#critSessionToggle').onclick=e=>{const panel=document.querySelector('#critSession'),visible=panel.hidden;panel.hidden=!visible;localStorage.setItem(sessionKey,visible?'1':'0');e.currentTarget.setAttribute('aria-expanded',String(visible));e.currentTarget.textContent=(visible?'Hide':'Show')+' session planner'};
     const bind=(id,key)=>{const el=document.querySelector('#'+id);if(el)el.onchange=()=>{setCritSetting(key,Number(el.type==='checkbox'?(el.checked?1:0):el.value)||0);render()}};
     bind('critBoost','boost');bind('critPickaxe','pickaxe');bind('critChopper','chopper');bind('critPerks','perks');
     const setPerk=(id,level)=>{
+      if(!ids.includes(id))return;
       targets[id]=Math.max(novaLevelFor(id),Math.min(novaMaxLevel(id),Math.floor(Number(level)||0)));
       if(id==='critical-amount'&&targets[id]>0)targets['critical-chance']=Math.max(1,targetLevel('critical-chance'));
       if(id==='crit-complete'&&targets[id]>0)targets['critical-chance']=Math.max(10,targetLevel('critical-chance'));
@@ -4625,13 +4648,13 @@ function critCalcPage(){
       if(id==='echo-strike-chance'&&targets[id]===0){for(const key of ['echo-strike-amount','echo-strike-cap'])targets[key]=novaLevelFor(key);}
       savePlannerTargets(targets);render();
     };
-    [['critChance',CRIT_UPGRADE_IDS.chance],['critAmount',CRIT_UPGRADE_IDS.amount],['critMulti',CRIT_UPGRADE_IDS.multi],['echoChance',CRIT_UPGRADE_IDS.echoChance],['echoAmount',CRIT_UPGRADE_IDS.echoAmount],['echoCap',CRIT_UPGRADE_IDS.echoCap],['critComplete','crit-complete']]
+    [['critChance',CRIT_UPGRADE_IDS.chance],['critAmount',CRIT_UPGRADE_IDS.amount],['critMulti',CRIT_UPGRADE_IDS.multi],['echoChance',CRIT_UPGRADE_IDS.echoChance],['echoAmount',CRIT_UPGRADE_IDS.echoAmount],['echoCap',CRIT_UPGRADE_IDS.echoCap],['echoCharge',CRIT_UPGRADE_IDS.echoCharge],['critComplete','crit-complete']]
       .forEach(([field,id])=>{const el=document.querySelector('#'+field);if(el)el.onchange=()=>setPerk(id,el.value)});
     document.querySelectorAll('[data-perk-up]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkUp,targetLevel(b.dataset.perkUp)+1));
     document.querySelectorAll('[data-perk-down]').forEach(b=>b.onclick=()=>setPerk(b.dataset.perkDown,targetLevel(b.dataset.perkDown)-1));
     document.querySelector('#critNovaPlanner').onclick=()=>localStorage.setItem('droid-archive-nova-category','planner');
     document.querySelector('#critBudget').onchange=e=>{localStorage.setItem(budgetKey,String(Math.max(0,Math.min(1000000,Math.floor(Number(e.target.value)||0)))));render()};
-    document.querySelector('#critApplyBudget')?.addEventListener('click',()=>{for(const id of Object.values(CRIT_UPGRADE_IDS))targets[id]=budgetPlan.levels[critLevelField(id)];targets['crit-complete']=novaLevelFor('crit-complete');savePlannerTargets(targets);render()});
+    document.querySelector('#critApplyBudget')?.addEventListener('click',()=>{for(const id of Object.values(CRIT_UPGRADE_IDS).filter(id=>ids.includes(id)))targets[id]=budgetPlan.levels[critLevelField(id)];targets['crit-complete']=novaLevelFor('crit-complete');savePlannerTargets(targets);render()});
     document.querySelector('#critResetTargets').onclick=()=>{for(const id of ids)targets[id]=novaLevelFor(id);savePlannerTargets(targets);render()};
     document.querySelector('#critPurchase').onclick=()=>{for(const id of ids)setNovaLevel(id,targetLevel(id),false);save();render();toast('Purchased upgrade levels recorded')};
     document.querySelector('#critReset').onclick=()=>{state.pickaxeLevel=null;save();['chopper','pickaxe','perks','boost'].forEach(k=>localStorage.removeItem('droid-archive-crit-'+k));render();toast('Pickaxe and companion reset to your Base')};
@@ -5264,7 +5287,7 @@ function groupTradeCards(matches,optimise=false){
 }
 function groupTradingPanel(group){
  const settings=groupTradeSettings(state.groupTradeSettings),matches=groupTradeMatches().filter(m=>m.donor.groups.includes(group.id)&&m.recipient.groups.includes(group.id));
- return `<section class="group-trading-panel"><h2>Group trading</h2><p>Spare copies that can help another member with a future rebirth in their current cycle. Your highest variant is kept for your own future requirements. Suggestions use shared Base records; refresh after recording a trade.</p><fieldset class="group-trade-settings"><legend>My active profile: ${escapeAttr(activeProfile()?.name||'Base')}</legend><label><input type="checkbox" data-group-trade-setting="enabled" ${settings.enabled?'checked':''}> Suggest my spare droids and keep them in Optimise</label><label><input type="checkbox" data-group-trade-setting="allowWorking" ${settings.allowWorking?'checked':''}> Allow droids from working, mission, chip and Companion slots</label><label>Maximum total credit income loss <span><input type="number" min="0" max="100" step="0.5" data-group-trade-setting="maxLossPercent" value="${settings.maxLossPercent}" ${settings.allowWorking?'':'disabled'}> %</span></label><small>Default: spare storage copies only. Allowing working copies can also reduce mission, chip or Companion benefits. Settings are shared with this profile.</small></fieldset>${matches.length?groupTradeCards(matches):'<p class="empty">No matching spare copies in the shared profiles under their current settings.</p>'}<a class="btn secondary" href="#/trading">Open Trading</a></section>`;
+ return `<section class="group-trading-panel"><h2>Group trading</h2><p>Spare copies that can help another member with a future rebirth in their current cycle. Your highest variant is kept for your own future requirements. Suggestions use shared Base records; refresh after recording a trade.</p><fieldset class="group-trade-settings"><legend>My active profile: ${escapeAttr(activeProfile()?.name||'Base')}</legend><label><input type="checkbox" data-group-trade-setting="enabled" ${settings.enabled?'checked':''}> Suggest my spare droids and keep them in Optimise</label><label><input type="checkbox" data-group-trade-setting="allowWorking" ${settings.allowWorking?'checked':''}> Allow droids from working, mission, chip and Companion slots</label><label>Maximum total credit income loss <span><input type="number" min="0" max="100" step="0.5" data-group-trade-setting="maxLossPercent" value="${settings.maxLossPercent}" ${settings.allowWorking?'':'disabled'}> %</span></label><small>Default: spare storage copies only. Allowing working copies can also reduce mission, chip or Companion benefits. Settings are shared with this profile.</small></fieldset>${matches.length?groupTradeCards(matches):'<p class="empty">No matching spare copies in the shared profiles under their current settings.</p>'}${TRADING_VISIBLE?'<a class="btn secondary" href="#/trading">Open Trading</a>':''}</section>`;
 }
 function wireGroupTradeSettings(){
  document.querySelectorAll('[data-group-trade-setting]').forEach(input=>input.onchange=()=>{
@@ -5464,7 +5487,7 @@ let novaShopPage,novaDetailPage;
               <header><div>${categoryIcon(selectedCategory)}</div><h2>${selectedCategory?.name || category}</h2><span>${list.length} entries</span></header>
               <div class="nova-upgrade-list">${list.map(item => {
                 const level = item.iconic ? 0 : novaLevelFor(item.id);
-                 const progress = item.iconic ? (novaIconicUnlocked(item.name) ? 'Unlocked' : item.novaCrystalCost != null ? `${fmt(item.novaCrystalCost)} Nova to unlock` : 'Limited') : item.comingSoon ? 'Coming soon' : item.repeatable ? `${level} owned` : `${level}/${item.uncapped ? '∞' : item.levels.length}`;
+                 const progress = item.iconic ? (novaIconicUnlocked(item.name) ? 'Unlocked' : item.novaCrystalCost != null ? `${fmt(item.novaCrystalCost)} Nova to unlock` : 'Limited') : item.comingSoon ? (item.availabilityLabel||'Coming soon') : item.repeatable ? `${level} owned` : `${level}/${item.uncapped ? '∞' : item.levels.length}`;
                 return `<button data-nova-select="${item.id}" class="nova-upgrade-row ${item.id === selectedId ? 'active' : ''}">${item.iconic ? picture(item.droid, 'DEFAULT') : iconHtml(item)}<span><strong>${item.name}</strong><small>${progress}</small></span></button>`;
               }).join('')}</div>
             </section>
@@ -5475,7 +5498,7 @@ let novaShopPage,novaDetailPage;
               <p class="nova-iconic-unlock-note">Tick this after unlocking ${escapeAttr(selected.name)}. Optimise will check when buying a copy would increase your base's credit income. Track copies you currently have in Base.</p>
               <a class="btn" href="#/droid/${slug(selected.name)}">Open droid page</a><a class="btn secondary" href="#/optimise">Check Optimise</a>` : `
                <div class="nova-detail-summary">${iconHtml(selected)}<div><small>${selected.repeatable?'Consumable token':`${maxLabel} level${maxLabel === 1 ? '' : 's'}`}</small><h2>${selected.name}</h2><p>${selected.description}</p>${selected.prerequisite ? `<em>Requires ${selected.prerequisite}</em>` : ''}</div></div>
-               <div class="nova-level-control"><button class="btn secondary" id="novaLevelDown" ${selectedLevel <= minimumNovaLevel(selected.id) || selected.comingSoon ? 'disabled' : ''}>−</button><span><small>${selected.repeatable?'Owned':'Tracked level'}</small><strong>${selected.comingSoon ? 'Soon' : selected.repeatable?selectedLevel:`${selectedLevel}/${maxLabel}`}</strong></span><button class="btn" id="novaLevelUp" ${selected.comingSoon || (!selected.uncapped && selectedLevel >= selected.levels.length) ? 'disabled' : ''}>+</button></div>
+               <div class="nova-level-control"><button class="btn secondary" id="novaLevelDown" ${selectedLevel <= minimumNovaLevel(selected.id) || selected.comingSoon ? 'disabled' : ''}>−</button><span><small>${selected.repeatable?'Owned':'Tracked level'}</small><strong>${selected.comingSoon ? (selected.availabilityLabel||'Soon') : selected.repeatable?selectedLevel:`${selectedLevel}/${maxLabel}`}</strong></span><button class="btn" id="novaLevelUp" ${selected.comingSoon || (!selected.uncapped && selectedLevel >= selected.levels.length) ? 'disabled' : ''}>+</button></div>
               <div class="nova-level-table"><table><thead><tr><th>Level</th><th>Cost</th><th>Reward at this level</th><th>Total spent</th></tr></thead><tbody>${detailRows}</tbody></table></div>` : '<p>No entries in this category.</p>'}</aside>
           </div>
         </section>
@@ -6192,7 +6215,7 @@ setInterval(()=>refreshKyberRelease(),10000);
 setInterval(()=>{if(!document.hidden)refreshTradeReceipts().catch(()=>{})},30000);
 setSnowStatsClient(()=>supabaseClient);
 siteActivity=startSiteActivity({client:()=>supabaseClient});
-const DATA_VERSION='2026-11-22-fusion-droids';
+const DATA_VERSION='2026-11-22-echo-charge';
 const loadJson=async path=>{const response=await fetch(`${path}${path.includes('?')?'&':'?'}v=${DATA_VERSION}`,{cache:'no-cache'});if(!response.ok)throw Error(`Unable to load ${path}`);return response.json()};
 function applyStellarData(droids,stellarStats={}){const rules=stellarStats._rules||{},images=stellarStats._images||{},round=value=>Math.round(value*1e6)/1e6;for(const droid of droids){if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;if(droid.rarity==='ICONIC'||droid.variants.STELLAR)continue;const base=droid.variants.DEFAULT,known=stellarStats[droid.name]||{},costMultiplier=rules.costMultiplier?.[droid.rarity],incomeMultiplier=rules.incomeMultiplier?.[droid.rarity],craftingMultiplier=rules.craftingMultiplier;droid.variants.STELLAR={cost:known.cost??(knownNumber(base?.cost)&&knownNumber(costMultiplier)?round(base.cost*costMultiplier):null),income:known.income??(knownNumber(base?.income)&&knownNumber(incomeMultiplier)?round(base.income*incomeMultiplier):null),craftingSeconds:known.craftingSeconds??(knownNumber(base?.craftingSeconds)&&knownNumber(craftingMultiplier)?round(base.craftingSeconds*craftingMultiplier):null)};if(images[droid.name])droid.stellarImage=`assets/droids/stellar/${images[droid.name]}`;}return droids}
 async function loadEvents(){try{const index=await loadJson('data/events/index.json');if(!Array.isArray(index.events))return[];return Promise.all(index.events.map(file=>loadJson(`data/events/${file}`)))}catch{return[]}}
@@ -6409,3 +6432,5 @@ function prepareScourgeSubmissions(baseP,target){
  target.overflow=(target.overflow||[]).filter(u=>!consumed.has(key(u)));
  target.fusing=(target.fusing||[]).filter(u=>!consumed.has(key(u)));
 }
+
+for(const link of document.querySelectorAll('.trading-nav-link'))link.hidden=!TRADING_VISIBLE;

@@ -1,3 +1,4 @@
+import {TRADING_VISIBLE} from './feature-visibility.js?v=2026-11-22';
 import {escapeHtml as esc} from './ui-text.js?v=2026-11-08-shared';
 import {traitIcon} from './trait-picker.js?v=2026-11-08-shared';
 import {TRAITS} from './traits.js?v=2026-11-02-scourgedex-crit';
@@ -6,11 +7,13 @@ const items=v=>Array.isArray(v)?v:v?[v]:[];
 export const tradeNoticesEnabled=()=>localStorage.getItem(preference)!=='0';
 export function setTradeNoticesEnabled(enabled){localStorage.setItem(preference,enabled?'1':'0');window.dispatchEvent(new Event('trade-notice-preference'));}
 export function wireTradeNoticeSettings(host){
+ if(!TRADING_VISIBLE)return;
  const section=document.createElement('div');section.className='side-field';
  section.innerHTML=`<p class="side-title">Trading notifications</p><label class="side-check"><input type="checkbox" data-trade-notices ${tradeNoticesEnabled()?'checked':''}> Show new trade listings</label><small>Show a 10-second popup on this device.</small>`;
  host.prepend(section);section.querySelector('input').onchange=e=>setTradeNoticesEnabled(e.target.checked);
 }
 export function startTradeNotices({client,ready=async()=>{},droids,picture,account=()=>'',interval=15000,duration=10000}){
+ if(!TRADING_VISIBLE)return {poll(){},dispose(){}};
  let seen=new Set(),initialised=false,busy=false,disposed=false,queue=[],active=null,hideTimer=null,identity=account(),since=Date.now();
  const close=()=>{clearTimeout(hideTimer);active?.remove();active=null;showNext();};
  const reset=()=>{queue=[];clearTimeout(hideTimer);active?.remove();active=null;seen.clear();initialised=false;since=Date.now();};

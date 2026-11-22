@@ -46,3 +46,6 @@ html[data-ui-style="modern"] .base-top.crit-stats .stat em{grid-column:2;line-he
 
 .crit-session[hidden]{display:none}
 .crit-panel-toggles{gap:8px;flex-wrap:wrap}
+.crit-charge-preview select{width:100%;min-width:0;min-height:38px;padding:8px;border:1px solid var(--line);border-radius:4px;background:var(--bg-deep);color:var(--text);font:600 12px Inter,system-ui,sans-serif}
+.crit-charge-notice{padding:16px;margin:16px 0;line-height:1.6;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+@media(max-width:600px){.crit-charge-preview select{min-height:42px}}

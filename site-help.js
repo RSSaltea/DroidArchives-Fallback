@@ -1,3 +1,4 @@
+import {TRADING_VISIBLE} from './feature-visibility.js?v=2026-11-22';
 // Read-only orientation: touring a page never applies a plan or edits a profile.
 const KEY='droid-archives-site-help-v1';
 const steps=[
@@ -10,7 +11,7 @@ const steps=[
   {id:'traits',title:'Record traits and compare bonuses',route:'/traits',target:'.trait-filters',task:'Review traits and record any I have revealed',text:'Traits lists effects, restrictions and reroll costs. Record a revealed trait on the matching droid in Base using its Trait button. A trait belongs to that copy; it is separate from the droid variant. Iconic traits persist through Super Rebirth.'},
   {id:'upgrades',title:'Keep your upgrades current',route:'/nova-shop',target:'.nova-level-control, .nova-plan-controls, .nova-iconic-unlock, .nova-category-rail',task:'Record my purchased Nova Shop levels',text:'Select an upgrade, then use its tracked-level controls to record what you actually own. In Planner, use Owned now for purchases already made and Target level for plans. For Iconic Droids, tick Unlocked permanently only after unlocking them. Planned purchases are not owned upgrades. These levels feed crafting and other calculations. Droid Calc compares droids; Crit Calc helps compare pickaxe and critical upgrades.'},
   {id:'backup',title:'Save and check your profile',route:'/base',target:'#transferBase',task:'Check my profile and export a backup',text:'Use the account control to manage sign-in and profiles. Use Base’s Import / Export controls to save a backup before large changes. Imported files replace recorded information, so check the selected profile first. Local-only data belongs to this browser.'}
-];
+].filter(step=>TRADING_VISIBLE||step.id!=='trading');
 const read=()=>{try{const value=JSON.parse(localStorage.getItem(KEY)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{}}catch{return {}}};
 let saved=read(),active=-1,panel=null,highlight=null,initialized=false,inviteTimer=null,spotlight=null,spotlightFrame=0,spotlightWidth=0,spotlightLayout='';
 const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(saved))}catch{}};

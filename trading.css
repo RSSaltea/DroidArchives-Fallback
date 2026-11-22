@@ -73,3 +73,6 @@
 .rebirth-fusion-modes button[aria-pressed="true"]{background:#234336;border-color:#5ad5a0;color:#b9ffdd}
 .rebirth-fusion-modes button[data-fusion-mode="scourge"][aria-pressed="true"]{background:#362545;border-color:#bc78ea;color:#ebcaff}
 .rebirth-fusion-modes button:disabled{opacity:.45;cursor:default}
+
+/* Retained links must stay hidden when shell link styles use flex. */
+.trading-nav-link[hidden]{display:none!important}
