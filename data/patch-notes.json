@@ -2,6 +2,18 @@
   "version": 1,
   "notes": [
     {
+      "id": "2026-11-22-fusion-lab",
+      "date": "2026-11-22",
+      "title": "New fusion droids and Fusion Lab improvements",
+      "summary": "New droids and a simpler way to plan fusions for rebirths.",
+      "changes": [
+        "Added 11 fusion droids with recipes, stats and variant portraits. Finished fusions count towards their ingredients' rebirth requirements.",
+        "Tidied Fusion Lab into planning, rebirth coverage and recipe views.",
+        "See which fusions cover multiple required droids, with cycle and starting-rebirth filters, required variants and a Plan this fusion button.",
+        "Fixed locked and unfinished ingredients appearing ready to fuse."
+      ]
+    },
+    {
       "id": "2026-11-17-optimiser-credits",
       "date": "2026-11-17",
       "title": "Optimiser credit gain calculation fixed.",

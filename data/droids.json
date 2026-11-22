@@ -10209,5 +10209,1217 @@
       "maxQuantity": 1,
       "passive": "Credit Protocol: +200% regional credits and Hive Mind links. Crafting Protocol: +40/s regional build speed."
     }
+  },
+  {
+    "name": "AX-L",
+    "rarity": "MYTHIC",
+    "type": "BATTLE",
+    "fusion": true,
+    "variants": {
+      "DEFAULT": {
+        "cost": 360000000.0,
+        "income": 12000.0,
+        "craftingSeconds": 10540.0,
+        "sellCredits": 252000000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 1440000000.0,
+        "income": 24000.0,
+        "craftingSeconds": 42160.0,
+        "sellCredits": 1008000000.0,
+        "sellUpgradeChips": 192.0
+      },
+      "DIAMOND": {
+        "cost": 2880000000.0,
+        "income": 48000.0,
+        "craftingSeconds": 63240.0,
+        "sellCredits": 2016000000.0,
+        "sellUpgradeChips": 195.0
+      },
+      "RAINBOW": {
+        "cost": 8640000000.0,
+        "income": 96000.0,
+        "craftingSeconds": 84320.0,
+        "sellCredits": 6048000000.0,
+        "sellUpgradeChips": 198.0
+      },
+      "BESKAR": {
+        "cost": 288000000000.0,
+        "income": 192000.0,
+        "craftingSeconds": 105400.0,
+        "sellCredits": 201600000000.0,
+        "sellUpgradeChips": 201.0
+      },
+      "GALACTIC": {
+        "cost": 1692000000000.0,
+        "income": 528000.0,
+        "craftingSeconds": 147560.0,
+        "sellCredits": 1184400000000.0,
+        "sellUpgradeChips": 204.0
+      },
+      "STELLAR": {
+        "cost": 10080000000000.0,
+        "income": 1500000.0,
+        "craftingSeconds": 189720.0,
+        "sellCredits": 7056000000000.0,
+        "sellUpgradeChips": 207.0
+      },
+      "KYBER": {
+        "cost": 60480000000000.0,
+        "income": 1650000.0,
+        "craftingSeconds": 379440.0,
+        "sellCredits": 42336000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "KYBER_GREEN": {
+        "cost": 60480000000000.0,
+        "income": 4950000.0,
+        "craftingSeconds": 379440.0,
+        "sellCredits": 42336000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "KYBER_BLUE": {
+        "cost": 60480000000000.0,
+        "income": 5362500.0,
+        "craftingSeconds": 379440.0,
+        "sellCredits": 42336000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 60480000000000.0,
+        "income": 5940000.0,
+        "craftingSeconds": 379440.0,
+        "sellCredits": 42336000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 13104000000000.0,
+        "income": 1344000.0,
+        "craftingSeconds": 147560.0,
+        "sellCredits": 9172800000000.0,
+        "sellUpgradeChips": 207.0
+      }
+    },
+    "additionalPowerScale": 1.0,
+    "craftingXp": 9000000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/fusion-2026-11/AX-L_DEFAULT.png",
+      "GOLD": "assets/droids/fusion-2026-11/AX-L_GOLD.png",
+      "DIAMOND": "assets/droids/fusion-2026-11/AX-L_DIAMOND.png",
+      "RAINBOW": "assets/droids/fusion-2026-11/AX-L_RAINBOW.png",
+      "BESKAR": "assets/droids/fusion-2026-11/AX-L_BESKAR.png",
+      "GALACTIC": "assets/droids/fusion-2026-11/AX-L_GALACTIC.png",
+      "STELLAR": "assets/droids/fusion-2026-11/AX-L_STELLAR.png",
+      "KYBER": "assets/droids/fusion-2026-11/AX-L_KYBER.png",
+      "KYBER_GREEN": "assets/droids/fusion-2026-11/AX-L_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/fusion-2026-11/AX-L_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/fusion-2026-11/AX-L_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/fusion-2026-11/AX-L_SCOURGE.png"
+    }
+  },
+  {
+    "name": "BI-BIT",
+    "rarity": "EPIC",
+    "type": "ASTROMECH",
+    "fusion": true,
+    "variants": {
+      "DEFAULT": {
+        "cost": 12000000.0,
+        "income": 960.0,
+        "craftingSeconds": 1714.8,
+        "sellCredits": 8400000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 48000000.0,
+        "income": 1920.0,
+        "craftingSeconds": 6859.2,
+        "sellCredits": 33600000.0,
+        "sellUpgradeChips": 30.0
+      },
+      "DIAMOND": {
+        "cost": 96000000.0,
+        "income": 3840.0,
+        "craftingSeconds": 10288.8,
+        "sellCredits": 67200000.0,
+        "sellUpgradeChips": 33.0
+      },
+      "RAINBOW": {
+        "cost": 144000000.0,
+        "income": 7680.0,
+        "craftingSeconds": 13718.4,
+        "sellCredits": 100800000.0,
+        "sellUpgradeChips": 36.0
+      },
+      "BESKAR": {
+        "cost": 1500000000.0,
+        "income": 32640.0,
+        "craftingSeconds": 17148.0,
+        "sellCredits": 1050000000.0,
+        "sellUpgradeChips": 39.0
+      },
+      "GALACTIC": {
+        "cost": 3600000000.0,
+        "income": 49920.0,
+        "craftingSeconds": 24007.2,
+        "sellCredits": 2520000000.0,
+        "sellUpgradeChips": 42.0
+      },
+      "STELLAR": {
+        "cost": 9000000000.0,
+        "income": 76800.0,
+        "craftingSeconds": 30866.4,
+        "sellCredits": 6300000000.0,
+        "sellUpgradeChips": 45.0
+      },
+      "KYBER": {
+        "cost": 54000000000.0,
+        "income": 84480.0,
+        "craftingSeconds": 61732.8,
+        "sellCredits": 37800000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_GREEN": {
+        "cost": 54000000000.0,
+        "income": 253440.0,
+        "craftingSeconds": 61732.8,
+        "sellCredits": 37800000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_BLUE": {
+        "cost": 54000000000.0,
+        "income": 274560.0,
+        "craftingSeconds": 61732.8,
+        "sellCredits": 37800000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 54000000000.0,
+        "income": 304128.0,
+        "craftingSeconds": 61732.8,
+        "sellCredits": 37800000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 11700000000.0,
+        "income": 69120.0,
+        "craftingSeconds": 24007.2,
+        "sellCredits": 8189999999.999999,
+        "sellUpgradeChips": 45.0
+      }
+    },
+    "additionalPowerScale": 1.0,
+    "craftingXp": 600000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/fusion-2026-11/BI-BIT_DEFAULT.png",
+      "GOLD": "assets/droids/fusion-2026-11/BI-BIT_GOLD.png",
+      "DIAMOND": "assets/droids/fusion-2026-11/BI-BIT_DIAMOND.png",
+      "RAINBOW": "assets/droids/fusion-2026-11/BI-BIT_RAINBOW.png",
+      "BESKAR": "assets/droids/fusion-2026-11/BI-BIT_BESKAR.png",
+      "GALACTIC": "assets/droids/fusion-2026-11/BI-BIT_GALACTIC.png",
+      "STELLAR": "assets/droids/fusion-2026-11/BI-BIT_STELLAR.png",
+      "KYBER": "assets/droids/fusion-2026-11/BI-BIT_KYBER.png",
+      "KYBER_GREEN": "assets/droids/fusion-2026-11/BI-BIT_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/fusion-2026-11/BI-BIT_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/fusion-2026-11/BI-BIT_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/fusion-2026-11/BI-BIT_SCOURGE.png"
+    }
+  },
+  {
+    "name": "HV-EE",
+    "rarity": "LEGENDARY",
+    "type": "ASTROMECH",
+    "fusion": true,
+    "variants": {
+      "DEFAULT": {
+        "cost": 72000000.0,
+        "income": 2250.0,
+        "craftingSeconds": 3715.0,
+        "sellCredits": 50400000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 288000000.0,
+        "income": 4500.0,
+        "craftingSeconds": 14860.0,
+        "sellCredits": 201600000.0,
+        "sellUpgradeChips": 84.0
+      },
+      "DIAMOND": {
+        "cost": 576000000.0,
+        "income": 9000.0,
+        "craftingSeconds": 22290.0,
+        "sellCredits": 403200000.0,
+        "sellUpgradeChips": 87.0
+      },
+      "RAINBOW": {
+        "cost": 864000000.0,
+        "income": 18000.0,
+        "craftingSeconds": 29720.0,
+        "sellCredits": 604800000.0,
+        "sellUpgradeChips": 90.0
+      },
+      "BESKAR": {
+        "cost": 28800000000.0,
+        "income": 54000.0,
+        "craftingSeconds": 37150.0,
+        "sellCredits": 20160000000.0,
+        "sellUpgradeChips": 93.0
+      },
+      "GALACTIC": {
+        "cost": 172800000000.0,
+        "income": 135000.0,
+        "craftingSeconds": 52010.0,
+        "sellCredits": 120959999999.99998,
+        "sellUpgradeChips": 96.0
+      },
+      "STELLAR": {
+        "cost": 1044000000000.0,
+        "income": 337500.0,
+        "craftingSeconds": 66870.0,
+        "sellCredits": 730800000000.0,
+        "sellUpgradeChips": 99.0
+      },
+      "KYBER": {
+        "cost": 6264000000000.0,
+        "income": 371250.0,
+        "craftingSeconds": 133740.0,
+        "sellCredits": 4384799999999.9995,
+        "sellUpgradeChips": 102.0
+      },
+      "KYBER_GREEN": {
+        "cost": 6264000000000.0,
+        "income": 1113750.0,
+        "craftingSeconds": 133740.0,
+        "sellCredits": 4384799999999.9995,
+        "sellUpgradeChips": 102.0
+      },
+      "KYBER_BLUE": {
+        "cost": 6264000000000.0,
+        "income": 1206562.5,
+        "craftingSeconds": 133740.0,
+        "sellCredits": 4384799999999.9995,
+        "sellUpgradeChips": 102.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 6264000000000.0,
+        "income": 1336500.0,
+        "craftingSeconds": 133740.0,
+        "sellCredits": 4384799999999.9995,
+        "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 1357200000000.0,
+        "income": 303750.0,
+        "craftingSeconds": 52010.0,
+        "sellCredits": 950040000000.0,
+        "sellUpgradeChips": 99.0
+      }
+    },
+    "additionalPowerScale": 1.0,
+    "craftingXp": 3600000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/fusion-2026-11/HV-EE_DEFAULT.png",
+      "GOLD": "assets/droids/fusion-2026-11/HV-EE_GOLD.png",
+      "DIAMOND": "assets/droids/fusion-2026-11/HV-EE_DIAMOND.png",
+      "RAINBOW": "assets/droids/fusion-2026-11/HV-EE_RAINBOW.png",
+      "BESKAR": "assets/droids/fusion-2026-11/HV-EE_BESKAR.png",
+      "GALACTIC": "assets/droids/fusion-2026-11/HV-EE_GALACTIC.png",
+      "STELLAR": "assets/droids/fusion-2026-11/HV-EE_STELLAR.png",
+      "KYBER": "assets/droids/fusion-2026-11/HV-EE_KYBER.png",
+      "KYBER_GREEN": "assets/droids/fusion-2026-11/HV-EE_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/fusion-2026-11/HV-EE_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/fusion-2026-11/HV-EE_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/fusion-2026-11/HV-EE_SCOURGE.png"
+    }
+  },
+  {
+    "name": "MO-TRO",
+    "rarity": "MYTHIC",
+    "type": "ASTROMECH",
+    "fusion": true,
+    "variants": {
+      "DEFAULT": {
+        "cost": 340000000.0,
+        "income": 11700.0,
+        "craftingSeconds": 10330.0,
+        "sellCredits": 238000000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 1360000000.0,
+        "income": 23400.0,
+        "craftingSeconds": 41320.0,
+        "sellCredits": 952000000.0,
+        "sellUpgradeChips": 192.0
+      },
+      "DIAMOND": {
+        "cost": 2720000000.0,
+        "income": 46800.0,
+        "craftingSeconds": 61980.0,
+        "sellCredits": 1904000000.0,
+        "sellUpgradeChips": 195.0
+      },
+      "RAINBOW": {
+        "cost": 8160000000.0,
+        "income": 93600.0,
+        "craftingSeconds": 82640.0,
+        "sellCredits": 5712000000.0,
+        "sellUpgradeChips": 198.0
+      },
+      "BESKAR": {
+        "cost": 272000000000.0,
+        "income": 187200.0,
+        "craftingSeconds": 103300.0,
+        "sellCredits": 190400000000.0,
+        "sellUpgradeChips": 201.0
+      },
+      "GALACTIC": {
+        "cost": 1598000000000.0,
+        "income": 514800.0,
+        "craftingSeconds": 144620.0,
+        "sellCredits": 1118600000000.0,
+        "sellUpgradeChips": 204.0
+      },
+      "STELLAR": {
+        "cost": 9520000000000.0,
+        "income": 1462500.0,
+        "craftingSeconds": 185940.0,
+        "sellCredits": 6664000000000.0,
+        "sellUpgradeChips": 207.0
+      },
+      "KYBER": {
+        "cost": 57120000000000.0,
+        "income": 1608750.0,
+        "craftingSeconds": 371880.0,
+        "sellCredits": 39984000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "KYBER_GREEN": {
+        "cost": 57120000000000.0,
+        "income": 4826250.0,
+        "craftingSeconds": 371880.0,
+        "sellCredits": 39984000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "KYBER_BLUE": {
+        "cost": 57120000000000.0,
+        "income": 5228437.5,
+        "craftingSeconds": 371880.0,
+        "sellCredits": 39984000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 57120000000000.0,
+        "income": 5791500.0,
+        "craftingSeconds": 371880.0,
+        "sellCredits": 39984000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 12376000000000.0,
+        "income": 1310400.0,
+        "craftingSeconds": 144620.0,
+        "sellCredits": 8663199999999.999,
+        "sellUpgradeChips": 207.0
+      }
+    },
+    "additionalPowerScale": 1.0,
+    "craftingXp": 8500000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/fusion-2026-11/MO-TRO_DEFAULT.png",
+      "GOLD": "assets/droids/fusion-2026-11/MO-TRO_GOLD.png",
+      "DIAMOND": "assets/droids/fusion-2026-11/MO-TRO_DIAMOND.png",
+      "RAINBOW": "assets/droids/fusion-2026-11/MO-TRO_RAINBOW.png",
+      "BESKAR": "assets/droids/fusion-2026-11/MO-TRO_BESKAR.png",
+      "GALACTIC": "assets/droids/fusion-2026-11/MO-TRO_GALACTIC.png",
+      "STELLAR": "assets/droids/fusion-2026-11/MO-TRO_STELLAR.png",
+      "KYBER": "assets/droids/fusion-2026-11/MO-TRO_KYBER.png",
+      "KYBER_GREEN": "assets/droids/fusion-2026-11/MO-TRO_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/fusion-2026-11/MO-TRO_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/fusion-2026-11/MO-TRO_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/fusion-2026-11/MO-TRO_SCOURGE.png"
+    }
+  },
+  {
+    "name": "KL-NK",
+    "rarity": "MYTHIC",
+    "type": "PROTOCOL",
+    "fusion": true,
+    "variants": {
+      "DEFAULT": {
+        "cost": 320000000.0,
+        "income": 7000.0,
+        "craftingSeconds": 7040.0,
+        "sellCredits": 224000000.0,
+        "sellUpgradeChips": 0,
+        "protocolCpsBonusPercent": 25.0,
+        "protocolCraftingBonusPercent": 375.0
+      },
+      "GOLD": {
+        "cost": 1280000000.0,
+        "income": 14000.0,
+        "craftingSeconds": 28160.0,
+        "sellCredits": 896000000.0,
+        "sellUpgradeChips": 192.0,
+        "protocolCpsBonusPercent": 50.0,
+        "protocolCraftingBonusPercent": 750.0
+      },
+      "DIAMOND": {
+        "cost": 2560000000.0,
+        "income": 28000.0,
+        "craftingSeconds": 42240.0,
+        "sellCredits": 1792000000.0,
+        "sellUpgradeChips": 195.0,
+        "protocolCpsBonusPercent": 75.0,
+        "protocolCraftingBonusPercent": 1125.0
+      },
+      "RAINBOW": {
+        "cost": 7680000000.0,
+        "income": 56000.0,
+        "craftingSeconds": 56320.0,
+        "sellCredits": 5376000000.0,
+        "sellUpgradeChips": 198.0,
+        "protocolCpsBonusPercent": 100.0,
+        "protocolCraftingBonusPercent": 1500.0
+      },
+      "BESKAR": {
+        "cost": 256000000000.0,
+        "income": 112000.0,
+        "craftingSeconds": 70400.0,
+        "sellCredits": 179200000000.0,
+        "sellUpgradeChips": 201.0,
+        "protocolCpsBonusPercent": 125.0,
+        "protocolCraftingBonusPercent": 1875.0
+      },
+      "GALACTIC": {
+        "cost": 1504000000000.0,
+        "income": 308000.0,
+        "craftingSeconds": 98560.0,
+        "sellCredits": 1052799999999.9999,
+        "sellUpgradeChips": 204.0,
+        "protocolCpsBonusPercent": 150.0,
+        "protocolCraftingBonusPercent": 2250.0
+      },
+      "STELLAR": {
+        "cost": 8960000000000.0,
+        "income": 875000.0,
+        "craftingSeconds": 126720.0,
+        "sellCredits": 6272000000000.0,
+        "sellUpgradeChips": 207.0,
+        "protocolCpsBonusPercent": 175.0,
+        "protocolCraftingBonusPercent": 2625.0
+      },
+      "KYBER": {
+        "cost": 53760000000000.0,
+        "income": 962500.0,
+        "craftingSeconds": 253440.0,
+        "sellCredits": 37632000000000.0,
+        "sellUpgradeChips": 210.0,
+        "protocolCpsBonusPercent": 200.0,
+        "protocolCraftingBonusPercent": 3000.0
+      },
+      "KYBER_GREEN": {
+        "cost": 53760000000000.0,
+        "income": 2887500.0,
+        "craftingSeconds": 253440.0,
+        "sellCredits": 37632000000000.0,
+        "sellUpgradeChips": 210.0,
+        "protocolCpsBonusPercent": 200.0,
+        "protocolCraftingBonusPercent": 3000.0
+      },
+      "KYBER_BLUE": {
+        "cost": 53760000000000.0,
+        "income": 3128125.0,
+        "craftingSeconds": 253440.0,
+        "sellCredits": 37632000000000.0,
+        "sellUpgradeChips": 210.0,
+        "protocolCpsBonusPercent": 200.0,
+        "protocolCraftingBonusPercent": 3000.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 53760000000000.0,
+        "income": 3465000.0,
+        "craftingSeconds": 253440.0,
+        "sellCredits": 37632000000000.0,
+        "sellUpgradeChips": 210.0,
+        "protocolCpsBonusPercent": 200.0,
+        "protocolCraftingBonusPercent": 3000.0
+      },
+      "SCOURGE": {
+        "cost": 11648000000000.0,
+        "income": 784000.0,
+        "craftingSeconds": 98560.0,
+        "sellCredits": 8153599999999.999,
+        "sellUpgradeChips": 207.0,
+        "protocolCpsBonusPercent": 175.0,
+        "protocolCraftingBonusPercent": 2625.0
+      }
+    },
+    "additionalPowerScale": 1.0,
+    "craftingXp": 8000000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/fusion-2026-11/KL-NK_DEFAULT.png",
+      "GOLD": "assets/droids/fusion-2026-11/KL-NK_GOLD.png",
+      "DIAMOND": "assets/droids/fusion-2026-11/KL-NK_DIAMOND.png",
+      "RAINBOW": "assets/droids/fusion-2026-11/KL-NK_RAINBOW.png",
+      "BESKAR": "assets/droids/fusion-2026-11/KL-NK_BESKAR.png",
+      "GALACTIC": "assets/droids/fusion-2026-11/KL-NK_GALACTIC.png",
+      "STELLAR": "assets/droids/fusion-2026-11/KL-NK_STELLAR.png",
+      "KYBER": "assets/droids/fusion-2026-11/KL-NK_KYBER.png",
+      "KYBER_GREEN": "assets/droids/fusion-2026-11/KL-NK_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/fusion-2026-11/KL-NK_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/fusion-2026-11/KL-NK_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/fusion-2026-11/KL-NK_SCOURGE.png"
+    }
+  },
+  {
+    "name": "SKM-MR",
+    "rarity": "MYTHIC",
+    "type": "ASTROMECH",
+    "fusion": true,
+    "variants": {
+      "DEFAULT": {
+        "cost": 305000000.0,
+        "income": 11100.0,
+        "craftingSeconds": 9910.0,
+        "sellCredits": 213500000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 1220000000.0,
+        "income": 22200.0,
+        "craftingSeconds": 39640.0,
+        "sellCredits": 854000000.0,
+        "sellUpgradeChips": 192.0
+      },
+      "DIAMOND": {
+        "cost": 2440000000.0,
+        "income": 44400.0,
+        "craftingSeconds": 59460.0,
+        "sellCredits": 1708000000.0,
+        "sellUpgradeChips": 195.0
+      },
+      "RAINBOW": {
+        "cost": 7320000000.0,
+        "income": 88800.0,
+        "craftingSeconds": 79280.0,
+        "sellCredits": 5124000000.0,
+        "sellUpgradeChips": 198.0
+      },
+      "BESKAR": {
+        "cost": 244000000000.0,
+        "income": 177600.0,
+        "craftingSeconds": 99100.0,
+        "sellCredits": 170800000000.0,
+        "sellUpgradeChips": 201.0
+      },
+      "GALACTIC": {
+        "cost": 1433500000000.0,
+        "income": 488400.0,
+        "craftingSeconds": 138740.0,
+        "sellCredits": 1003449999999.9999,
+        "sellUpgradeChips": 204.0
+      },
+      "STELLAR": {
+        "cost": 8540000000000.0,
+        "income": 1387500.0,
+        "craftingSeconds": 178380.0,
+        "sellCredits": 5978000000000.0,
+        "sellUpgradeChips": 207.0
+      },
+      "KYBER": {
+        "cost": 51240000000000.0,
+        "income": 1526250.0,
+        "craftingSeconds": 356760.0,
+        "sellCredits": 35868000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "KYBER_GREEN": {
+        "cost": 51240000000000.0,
+        "income": 4578750.0,
+        "craftingSeconds": 356760.0,
+        "sellCredits": 35868000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "KYBER_BLUE": {
+        "cost": 51240000000000.0,
+        "income": 4960312.5,
+        "craftingSeconds": 356760.0,
+        "sellCredits": 35868000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 51240000000000.0,
+        "income": 5494500.0,
+        "craftingSeconds": 356760.0,
+        "sellCredits": 35868000000000.0,
+        "sellUpgradeChips": 210.0
+      },
+      "SCOURGE": {
+        "cost": 11102000000000.0,
+        "income": 1243200.0,
+        "craftingSeconds": 138740.0,
+        "sellCredits": 7771399999999.999,
+        "sellUpgradeChips": 207.0
+      }
+    },
+    "additionalPowerScale": 1.0,
+    "craftingXp": 7600000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/fusion-2026-11/SKM-MR_DEFAULT.png",
+      "GOLD": "assets/droids/fusion-2026-11/SKM-MR_GOLD.png",
+      "DIAMOND": "assets/droids/fusion-2026-11/SKM-MR_DIAMOND.png",
+      "RAINBOW": "assets/droids/fusion-2026-11/SKM-MR_RAINBOW.png",
+      "BESKAR": "assets/droids/fusion-2026-11/SKM-MR_BESKAR.png",
+      "GALACTIC": "assets/droids/fusion-2026-11/SKM-MR_GALACTIC.png",
+      "STELLAR": "assets/droids/fusion-2026-11/SKM-MR_STELLAR.png",
+      "KYBER": "assets/droids/fusion-2026-11/SKM-MR_KYBER.png",
+      "KYBER_GREEN": "assets/droids/fusion-2026-11/SKM-MR_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/fusion-2026-11/SKM-MR_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/fusion-2026-11/SKM-MR_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/fusion-2026-11/SKM-MR_SCOURGE.png"
+    }
+  },
+  {
+    "name": "TOR-Q",
+    "rarity": "LEGENDARY",
+    "type": "BATTLE",
+    "fusion": true,
+    "variants": {
+      "DEFAULT": {
+        "cost": 69000000.0,
+        "income": 2160.0,
+        "craftingSeconds": 3652.0,
+        "sellCredits": 48300000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 276000000.0,
+        "income": 4320.0,
+        "craftingSeconds": 14608.0,
+        "sellCredits": 193200000.0,
+        "sellUpgradeChips": 84.0
+      },
+      "DIAMOND": {
+        "cost": 552000000.0,
+        "income": 8640.0,
+        "craftingSeconds": 21912.0,
+        "sellCredits": 386400000.0,
+        "sellUpgradeChips": 87.0
+      },
+      "RAINBOW": {
+        "cost": 828000000.0,
+        "income": 17280.0,
+        "craftingSeconds": 29216.0,
+        "sellCredits": 579600000.0,
+        "sellUpgradeChips": 90.0
+      },
+      "BESKAR": {
+        "cost": 27600000000.0,
+        "income": 51840.0,
+        "craftingSeconds": 36520.0,
+        "sellCredits": 19320000000.0,
+        "sellUpgradeChips": 93.0
+      },
+      "GALACTIC": {
+        "cost": 165600000000.0,
+        "income": 129600.0,
+        "craftingSeconds": 51128.0,
+        "sellCredits": 115920000000.0,
+        "sellUpgradeChips": 96.0
+      },
+      "STELLAR": {
+        "cost": 1000500000000.0,
+        "income": 324000.0,
+        "craftingSeconds": 65736.0,
+        "sellCredits": 700350000000.0,
+        "sellUpgradeChips": 99.0
+      },
+      "KYBER": {
+        "cost": 6003000000000.0,
+        "income": 356400.0,
+        "craftingSeconds": 131472.0,
+        "sellCredits": 4202099999999.9995,
+        "sellUpgradeChips": 102.0
+      },
+      "KYBER_GREEN": {
+        "cost": 6003000000000.0,
+        "income": 1069200.0,
+        "craftingSeconds": 131472.0,
+        "sellCredits": 4202099999999.9995,
+        "sellUpgradeChips": 102.0
+      },
+      "KYBER_BLUE": {
+        "cost": 6003000000000.0,
+        "income": 1158300.0,
+        "craftingSeconds": 131472.0,
+        "sellCredits": 4202099999999.9995,
+        "sellUpgradeChips": 102.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 6003000000000.0,
+        "income": 1283040.0,
+        "craftingSeconds": 131472.0,
+        "sellCredits": 4202099999999.9995,
+        "sellUpgradeChips": 102.0
+      },
+      "SCOURGE": {
+        "cost": 1300650000000.0,
+        "income": 291600.0,
+        "craftingSeconds": 51128.0,
+        "sellCredits": 910455000000.0,
+        "sellUpgradeChips": 99.0
+      }
+    },
+    "additionalPowerScale": 1.0,
+    "craftingXp": 3450000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/fusion-2026-11/TOR-Q_DEFAULT.png",
+      "GOLD": "assets/droids/fusion-2026-11/TOR-Q_GOLD.png",
+      "DIAMOND": "assets/droids/fusion-2026-11/TOR-Q_DIAMOND.png",
+      "RAINBOW": "assets/droids/fusion-2026-11/TOR-Q_RAINBOW.png",
+      "BESKAR": "assets/droids/fusion-2026-11/TOR-Q_BESKAR.png",
+      "GALACTIC": "assets/droids/fusion-2026-11/TOR-Q_GALACTIC.png",
+      "STELLAR": "assets/droids/fusion-2026-11/TOR-Q_STELLAR.png",
+      "KYBER": "assets/droids/fusion-2026-11/TOR-Q_KYBER.png",
+      "KYBER_GREEN": "assets/droids/fusion-2026-11/TOR-Q_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/fusion-2026-11/TOR-Q_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/fusion-2026-11/TOR-Q_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/fusion-2026-11/TOR-Q_SCOURGE.png"
+    }
+  },
+  {
+    "name": "STRD-3",
+    "rarity": "EPIC",
+    "type": "WORKER",
+    "fusion": true,
+    "variants": {
+      "DEFAULT": {
+        "cost": 12500000.0,
+        "income": 1000.0,
+        "craftingSeconds": 1785.0,
+        "sellCredits": 8750000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 50000000.0,
+        "income": 2000.0,
+        "craftingSeconds": 7140.0,
+        "sellCredits": 35000000.0,
+        "sellUpgradeChips": 30.0
+      },
+      "DIAMOND": {
+        "cost": 100000000.0,
+        "income": 4000.0,
+        "craftingSeconds": 10710.0,
+        "sellCredits": 70000000.0,
+        "sellUpgradeChips": 33.0
+      },
+      "RAINBOW": {
+        "cost": 150000000.0,
+        "income": 8000.0,
+        "craftingSeconds": 14280.0,
+        "sellCredits": 105000000.0,
+        "sellUpgradeChips": 36.0
+      },
+      "BESKAR": {
+        "cost": 1562500000.0,
+        "income": 34000.0,
+        "craftingSeconds": 17850.0,
+        "sellCredits": 1093750000.0,
+        "sellUpgradeChips": 39.0
+      },
+      "GALACTIC": {
+        "cost": 3750000000.0,
+        "income": 52000.0,
+        "craftingSeconds": 24990.0,
+        "sellCredits": 2625000000.0,
+        "sellUpgradeChips": 42.0
+      },
+      "STELLAR": {
+        "cost": 9375000000.0,
+        "income": 80000.0,
+        "craftingSeconds": 32130.0,
+        "sellCredits": 6562500000.0,
+        "sellUpgradeChips": 45.0
+      },
+      "KYBER": {
+        "cost": 56250000000.0,
+        "income": 88000.0,
+        "craftingSeconds": 64260.0,
+        "sellCredits": 39375000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_GREEN": {
+        "cost": 56250000000.0,
+        "income": 264000.0,
+        "craftingSeconds": 64260.0,
+        "sellCredits": 39375000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_BLUE": {
+        "cost": 56250000000.0,
+        "income": 286000.0,
+        "craftingSeconds": 64260.0,
+        "sellCredits": 39375000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 56250000000.0,
+        "income": 316800.0,
+        "craftingSeconds": 64260.0,
+        "sellCredits": 39375000000.0,
+        "sellUpgradeChips": 48.0
+      },
+      "SCOURGE": {
+        "cost": 12187500000.0,
+        "income": 72000.0,
+        "craftingSeconds": 24990.0,
+        "sellCredits": 8531249999.999999,
+        "sellUpgradeChips": 45.0
+      }
+    },
+    "additionalPowerScale": 1.0,
+    "craftingXp": 625000.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/fusion-2026-11/STRD-3_DEFAULT.png",
+      "GOLD": "assets/droids/fusion-2026-11/STRD-3_GOLD.png",
+      "DIAMOND": "assets/droids/fusion-2026-11/STRD-3_DIAMOND.png",
+      "RAINBOW": "assets/droids/fusion-2026-11/STRD-3_RAINBOW.png",
+      "BESKAR": "assets/droids/fusion-2026-11/STRD-3_BESKAR.png",
+      "GALACTIC": "assets/droids/fusion-2026-11/STRD-3_GALACTIC.png",
+      "STELLAR": "assets/droids/fusion-2026-11/STRD-3_STELLAR.png",
+      "KYBER": "assets/droids/fusion-2026-11/STRD-3_KYBER.png",
+      "KYBER_GREEN": "assets/droids/fusion-2026-11/STRD-3_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/fusion-2026-11/STRD-3_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/fusion-2026-11/STRD-3_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/fusion-2026-11/STRD-3_SCOURGE.png"
+    }
+  },
+  {
+    "name": "LFT-3R",
+    "rarity": "COMMON",
+    "type": "BATTLE",
+    "fusion": true,
+    "variants": {
+      "DEFAULT": {
+        "cost": 30000.0,
+        "income": 18.0,
+        "craftingSeconds": 61.59,
+        "sellCredits": 21000.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 120000.0,
+        "income": 36.0,
+        "craftingSeconds": 246.36,
+        "sellCredits": 84000.0,
+        "sellUpgradeChips": 4.0
+      },
+      "DIAMOND": {
+        "cost": 240000.0,
+        "income": 72.0,
+        "craftingSeconds": 369.54,
+        "sellCredits": 168000.0,
+        "sellUpgradeChips": 7.0
+      },
+      "RAINBOW": {
+        "cost": 360000.0,
+        "income": 144.0,
+        "craftingSeconds": 492.72,
+        "sellCredits": 252000.0,
+        "sellUpgradeChips": 10.0
+      },
+      "BESKAR": {
+        "cost": 480000.0,
+        "income": 216.0,
+        "craftingSeconds": 615.9,
+        "sellCredits": 336000.0,
+        "sellUpgradeChips": 13.0
+      },
+      "GALACTIC": {
+        "cost": 600000.0,
+        "income": 432.0,
+        "craftingSeconds": 862.26,
+        "sellCredits": 420000.0,
+        "sellUpgradeChips": 16.0
+      },
+      "STELLAR": {
+        "cost": 720000.0,
+        "income": 576.0,
+        "craftingSeconds": 1108.62,
+        "sellCredits": 504000.0,
+        "sellUpgradeChips": 19.0
+      },
+      "KYBER": {
+        "cost": 1080000.0,
+        "income": 633.6,
+        "craftingSeconds": 2217.24,
+        "sellCredits": 756000.0,
+        "sellUpgradeChips": 22.0
+      },
+      "KYBER_GREEN": {
+        "cost": 1080000.0,
+        "income": 1900.8,
+        "craftingSeconds": 2217.24,
+        "sellCredits": 756000.0,
+        "sellUpgradeChips": 22.0
+      },
+      "KYBER_BLUE": {
+        "cost": 1080000.0,
+        "income": 2059.2,
+        "craftingSeconds": 2217.24,
+        "sellCredits": 756000.0,
+        "sellUpgradeChips": 22.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 1080000.0,
+        "income": 2280.96,
+        "craftingSeconds": 2217.24,
+        "sellCredits": 756000.0,
+        "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 960000.0,
+        "income": 518.4,
+        "craftingSeconds": 862.26,
+        "sellCredits": 672000.0,
+        "sellUpgradeChips": 19.0
+      }
+    },
+    "additionalPowerScale": 1.0,
+    "craftingXp": 1500.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/fusion-2026-11/LFT-3R_DEFAULT.png",
+      "GOLD": "assets/droids/fusion-2026-11/LFT-3R_GOLD.png",
+      "DIAMOND": "assets/droids/fusion-2026-11/LFT-3R_DIAMOND.png",
+      "RAINBOW": "assets/droids/fusion-2026-11/LFT-3R_RAINBOW.png",
+      "BESKAR": "assets/droids/fusion-2026-11/LFT-3R_BESKAR.png",
+      "GALACTIC": "assets/droids/fusion-2026-11/LFT-3R_GALACTIC.png",
+      "STELLAR": "assets/droids/fusion-2026-11/LFT-3R_STELLAR.png",
+      "KYBER": "assets/droids/fusion-2026-11/LFT-3R_KYBER.png",
+      "KYBER_GREEN": "assets/droids/fusion-2026-11/LFT-3R_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/fusion-2026-11/LFT-3R_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/fusion-2026-11/LFT-3R_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/fusion-2026-11/LFT-3R_SCOURGE.png"
+    }
+  },
+  {
+    "name": "ION PROBE",
+    "rarity": "COMMON",
+    "type": "WORKER",
+    "fusion": true,
+    "variants": {
+      "DEFAULT": {
+        "cost": 26000.0,
+        "income": 16.0,
+        "craftingSeconds": 58.08,
+        "sellCredits": 18200.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 104000.0,
+        "income": 32.0,
+        "craftingSeconds": 232.32,
+        "sellCredits": 72800.0,
+        "sellUpgradeChips": 4.0
+      },
+      "DIAMOND": {
+        "cost": 208000.0,
+        "income": 64.0,
+        "craftingSeconds": 348.48,
+        "sellCredits": 145600.0,
+        "sellUpgradeChips": 7.0
+      },
+      "RAINBOW": {
+        "cost": 312000.0,
+        "income": 128.0,
+        "craftingSeconds": 464.64,
+        "sellCredits": 218400.0,
+        "sellUpgradeChips": 10.0
+      },
+      "BESKAR": {
+        "cost": 416000.0,
+        "income": 192.0,
+        "craftingSeconds": 580.8,
+        "sellCredits": 291200.0,
+        "sellUpgradeChips": 13.0
+      },
+      "GALACTIC": {
+        "cost": 520000.0,
+        "income": 384.0,
+        "craftingSeconds": 813.12,
+        "sellCredits": 364000.0,
+        "sellUpgradeChips": 16.0
+      },
+      "STELLAR": {
+        "cost": 624000.0,
+        "income": 512.0,
+        "craftingSeconds": 1045.44,
+        "sellCredits": 436800.0,
+        "sellUpgradeChips": 19.0
+      },
+      "KYBER": {
+        "cost": 936000.0,
+        "income": 563.2,
+        "craftingSeconds": 2090.88,
+        "sellCredits": 655200.0,
+        "sellUpgradeChips": 22.0
+      },
+      "KYBER_GREEN": {
+        "cost": 936000.0,
+        "income": 1689.6,
+        "craftingSeconds": 2090.88,
+        "sellCredits": 655200.0,
+        "sellUpgradeChips": 22.0
+      },
+      "KYBER_BLUE": {
+        "cost": 936000.0,
+        "income": 1830.4,
+        "craftingSeconds": 2090.88,
+        "sellCredits": 655200.0,
+        "sellUpgradeChips": 22.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 936000.0,
+        "income": 2027.52,
+        "craftingSeconds": 2090.88,
+        "sellCredits": 655200.0,
+        "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 832000.0,
+        "income": 460.8,
+        "craftingSeconds": 813.12,
+        "sellCredits": 582400.0,
+        "sellUpgradeChips": 19.0
+      }
+    },
+    "additionalPowerScale": 1.0,
+    "craftingXp": 1300.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/fusion-2026-11/ION_PROBE_DEFAULT.png",
+      "GOLD": "assets/droids/fusion-2026-11/ION_PROBE_GOLD.png",
+      "DIAMOND": "assets/droids/fusion-2026-11/ION_PROBE_DIAMOND.png",
+      "RAINBOW": "assets/droids/fusion-2026-11/ION_PROBE_RAINBOW.png",
+      "BESKAR": "assets/droids/fusion-2026-11/ION_PROBE_BESKAR.png",
+      "GALACTIC": "assets/droids/fusion-2026-11/ION_PROBE_GALACTIC.png",
+      "STELLAR": "assets/droids/fusion-2026-11/ION_PROBE_STELLAR.png",
+      "KYBER": "assets/droids/fusion-2026-11/ION_PROBE_KYBER.png",
+      "KYBER_GREEN": "assets/droids/fusion-2026-11/ION_PROBE_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/fusion-2026-11/ION_PROBE_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/fusion-2026-11/ION_PROBE_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/fusion-2026-11/ION_PROBE_SCOURGE.png"
+    }
+  },
+  {
+    "name": "QUAD SENTRY",
+    "rarity": "COMMON",
+    "type": "ASTROMECH",
+    "fusion": true,
+    "variants": {
+      "DEFAULT": {
+        "cost": 28000.0,
+        "income": 17.0,
+        "craftingSeconds": 59.835,
+        "sellCredits": 19600.0,
+        "sellUpgradeChips": 0
+      },
+      "GOLD": {
+        "cost": 112000.0,
+        "income": 34.0,
+        "craftingSeconds": 239.34,
+        "sellCredits": 78400.0,
+        "sellUpgradeChips": 4.0
+      },
+      "DIAMOND": {
+        "cost": 224000.0,
+        "income": 68.0,
+        "craftingSeconds": 359.01,
+        "sellCredits": 156800.0,
+        "sellUpgradeChips": 7.0
+      },
+      "RAINBOW": {
+        "cost": 336000.0,
+        "income": 136.0,
+        "craftingSeconds": 478.68,
+        "sellCredits": 235200.0,
+        "sellUpgradeChips": 10.0
+      },
+      "BESKAR": {
+        "cost": 448000.0,
+        "income": 204.0,
+        "craftingSeconds": 598.35,
+        "sellCredits": 313600.0,
+        "sellUpgradeChips": 13.0
+      },
+      "GALACTIC": {
+        "cost": 560000.0,
+        "income": 408.0,
+        "craftingSeconds": 837.69,
+        "sellCredits": 392000.0,
+        "sellUpgradeChips": 16.0
+      },
+      "STELLAR": {
+        "cost": 672000.0,
+        "income": 544.0,
+        "craftingSeconds": 1077.03,
+        "sellCredits": 470400.0,
+        "sellUpgradeChips": 19.0
+      },
+      "KYBER": {
+        "cost": 1008000.0,
+        "income": 598.4,
+        "craftingSeconds": 2154.06,
+        "sellCredits": 705600.0,
+        "sellUpgradeChips": 22.0
+      },
+      "KYBER_GREEN": {
+        "cost": 1008000.0,
+        "income": 1795.2,
+        "craftingSeconds": 2154.06,
+        "sellCredits": 705600.0,
+        "sellUpgradeChips": 22.0
+      },
+      "KYBER_BLUE": {
+        "cost": 1008000.0,
+        "income": 1944.8,
+        "craftingSeconds": 2154.06,
+        "sellCredits": 705600.0,
+        "sellUpgradeChips": 22.0
+      },
+      "KYBER_PURPLE": {
+        "cost": 1008000.0,
+        "income": 2154.24,
+        "craftingSeconds": 2154.06,
+        "sellCredits": 705600.0,
+        "sellUpgradeChips": 22.0
+      },
+      "SCOURGE": {
+        "cost": 896000.0,
+        "income": 489.6,
+        "craftingSeconds": 837.69,
+        "sellCredits": 627200.0,
+        "sellUpgradeChips": 19.0
+      }
+    },
+    "additionalPowerScale": 1.0,
+    "craftingXp": 1400.0,
+    "portraits": {
+      "DEFAULT": "assets/droids/fusion-2026-11/QUAD_SENTRY_DEFAULT.png",
+      "GOLD": "assets/droids/fusion-2026-11/QUAD_SENTRY_GOLD.png",
+      "DIAMOND": "assets/droids/fusion-2026-11/QUAD_SENTRY_DIAMOND.png",
+      "RAINBOW": "assets/droids/fusion-2026-11/QUAD_SENTRY_RAINBOW.png",
+      "BESKAR": "assets/droids/fusion-2026-11/QUAD_SENTRY_BESKAR.png",
+      "GALACTIC": "assets/droids/fusion-2026-11/QUAD_SENTRY_GALACTIC.png",
+      "STELLAR": "assets/droids/fusion-2026-11/QUAD_SENTRY_STELLAR.png",
+      "KYBER": "assets/droids/fusion-2026-11/QUAD_SENTRY_KYBER.png",
+      "KYBER_GREEN": "assets/droids/fusion-2026-11/QUAD_SENTRY_KYBER_GREEN.png",
+      "KYBER_BLUE": "assets/droids/fusion-2026-11/QUAD_SENTRY_KYBER_BLUE.png",
+      "KYBER_PURPLE": "assets/droids/fusion-2026-11/QUAD_SENTRY_KYBER_PURPLE.png",
+      "SCOURGE": "assets/droids/fusion-2026-11/QUAD_SENTRY_SCOURGE.png"
+    }
   }
 ]
