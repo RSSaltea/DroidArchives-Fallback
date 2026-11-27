@@ -22,7 +22,7 @@ export function fusionRebirthCoverage({recipes,cycles,cycle=null,from=1,multiple
  }).sort((a,b)=>a.recipe.name.localeCompare(b.recipe.name));
 }
 
-export function mountFusionRebirth(host,{recipes,cycles,droids,picture,currentCycle=0,plan}){
+export function mountFusionRebirth(host,{recipes,cycles,droids,picture,currentCycle=0,currentRebirth=0,plan}){
  const params=new URLSearchParams(location.hash.split('?')[1]||'');
  const entries=Object.keys(cycles).sort((a,b)=>Number(a)-Number(b));
  const max=Math.max(1,...Object.values(cycles).flatMap(rows=>rows.map(row=>Number(row.to))));
@@ -31,11 +31,11 @@ export function mountFusionRebirth(host,{recipes,cycles,droids,picture,currentCy
   <p>A finished fusion counts as each of its recipe ingredients. Find combinations that cover different required droids in the same cycle.</p>
   <div class="fusion-coverage-filters">
    <label>Cycle<select data-coverage-cycle><option value="all">All cycles</option>${entries.map(key=>`<option value="${key}">Cycle ${Number(key)+1}${Number(key)===currentCycle?' (current)':''}</option>`).join('')}</select></label>
-   <label>From rebirth (inclusive)<input data-coverage-from type="number" min="1" max="${max}" step="1" value="${Math.min(max,Math.max(1,Number(params.get('coverageFrom'))||1))}"></label>
+   <label>From rebirth (inclusive)<input data-coverage-from type="number" min="1" max="${max}" step="1" value="${Math.min(max,Math.max(1,Number(params.get('coverageFrom'))||(Number(currentRebirth)+1)))}"></label>
    <label>Find a fusion or ingredient<input data-coverage-search type="search" placeholder="e.g. X-ONK or KX" autocomplete="off" value="${esc(params.get('coverageSearch')||'')}"></label>
   </div>
   <label class="fusion-coverage-check"><input data-coverage-multiple type="checkbox" ${params.get('coverageMultiple')==='0'?'':'checked'}>Only fusions covering two or more different required droids</label>
-  <p class="muted fusion-coverage-note">Requirements before your starting rebirth are excluded. Variants shown are the minimum needed for the remaining uses; active Kyber is required for Kyber requirements. Finish the fusion build before it counts.</p>
+  <p class="muted fusion-coverage-note">Requirements before your starting rebirth are excluded. The final target covers all listed uses. You can make the fusion at a lower variant and upgrade it before each requirement. Active Kyber is required for Kyber requirements; unfinished builds do not count.</p>
   <p data-coverage-count role="status"></p><div class="fusion-coverage-grid" data-coverage-results></div></section>`;
  const select=host.querySelector('[data-coverage-cycle]'),from=host.querySelector('[data-coverage-from]'),search=host.querySelector('[data-coverage-search]'),multiple=host.querySelector('[data-coverage-multiple]');
  select.value=initial==='all'||entries.includes(initial)?initial:entries[0];
@@ -54,7 +54,7 @@ export function mountFusionRebirth(host,{recipes,cycles,droids,picture,currentCy
     <header>${picture(droid,'DEFAULT')}<div><h3>${esc(recipe.name)}</h3><p>${esc([...counts].map(([name,count])=>`${count} × ${name}`).join(' + '))}</p></div></header>
     ${uses.map(use=>`<section class="fusion-coverage-cycle"><div class="fusion-coverage-cycle-title"><h4>Cycle ${use.cycle+1}</h4><span>${use.names.length} different droids · ${new Set(use.uses.map(x=>x.rebirth)).size} rebirths</span></div>
      <ul>${use.uses.map(req=>`<li><strong>R${req.rebirth}</strong><span>${esc(req.name)}</span><span class="fusion-required-variant">${esc(variantText(req.variant))}</span></li>`).join('')}</ul>
-     <footer><p>Minimum fusion: <strong>${esc(variantText(use.minimumVariant))}</strong></p><button class="btn secondary" type="button" data-coverage-plan="${esc(recipe.name)}" data-coverage-variant="${esc(use.minimumVariant||'DEFAULT')}">Plan this fusion</button></footer>
+     <footer><p>Final target: <strong>${esc(variantText(use.minimumVariant))}</strong><br>Keep through R${use.uses[use.uses.length-1].rebirth}</p><button class="btn secondary" type="button" data-coverage-plan="${esc(recipe.name)}" data-coverage-variant="${esc(use.minimumVariant||'DEFAULT')}">Plan this target</button></footer>
     </section>`).join('')}</article>`;
   }).join(''):'<div class="fusion-coverage-empty"><h3>No matching fusions</h3><p>Try an earlier rebirth, another cycle or a different search. Uncheck the multiple-droid filter to include fusions with just one required ingredient remaining.</p></div>';
  };

@@ -7,7 +7,9 @@
 .fusion-lab-page .fusion-target>p,.fusion-coverage>p{margin:0 0 20px;line-height:1.6}
 .fusion-lab-page .fusion-target h3{margin:24px 0 16px}
 .fusion-lab-page .fusion-target h4{margin:24px 0 12px}
-.fusion-lab-page .fusion-target .trade-fields{margin-bottom:20px}
+.fusion-lab-page .fusion-target .trade-fields{display:grid;grid-template-columns:minmax(0,2fr) minmax(180px,1fr);gap:16px;align-items:end;margin-bottom:20px}
+.fusion-target .trade-fields label{display:flex;flex-direction:column;gap:8px;min-width:0}
+.fusion-target .trade-fields input,.fusion-target .trade-fields select{width:100%;box-sizing:border-box;min-height:42px;margin:0}
 .fusion-target-farming{padding:16px 0;margin:20px 0;border-top:1px solid var(--line,#39465b);border-bottom:1px solid var(--line,#39465b)}
 .fusion-target-farming>summary{cursor:pointer;font-weight:600}
 .fusion-lab-page .fusion-advanced{padding:0;margin:0}
@@ -44,3 +46,49 @@
 .fusion-coverage-empty h3{margin:0 0 12px}.fusion-coverage-empty p{margin:0;line-height:1.6}
 @media(max-width:800px){.fusion-coverage-grid{grid-template-columns:1fr}.fusion-coverage-filters{grid-template-columns:1fr 1fr}.fusion-coverage-filters label:last-child{grid-column:1/-1}}
 @media(max-width:500px){.fusion-lab-page .fusion-target,.fusion-coverage,.fusion-coverage-card,.fusion-coverage-empty,.fusion-lab-page .fusion-rules{padding:16px}.fusion-coverage-filters{grid-template-columns:1fr}.fusion-coverage-card>header{gap:12px}.fusion-coverage-card>header img{width:48px;height:48px}.fusion-coverage-cycle li{grid-template-columns:32px minmax(0,1fr);gap:4px 8px}.fusion-required-variant{grid-column:2;text-align:left}.fusion-lab-nav{gap:8px}.fusion-lab-nav .btn{flex:1 1 auto}}
+
+/* Target plans keep the next action visible; alternative routes and recipe counts expand on demand. */
+.fusion-target-heading{display:flex;align-items:center;gap:16px;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:20px}
+.fusion-target-heading>div{min-width:0}
+.fusion-lab-page .fusion-target-heading h3{margin:0 0 8px}
+.fusion-target-heading p{margin:0;line-height:1.5;color:var(--muted)}
+.fusion-lab-page .fusion-target-route{padding:20px;border-radius:4px;background:var(--bg-deep);border-color:var(--line)}
+.fusion-lab-page .fusion-target-route h4{margin:0 0 16px}
+.fusion-lab-page .fusion-target-route p{margin:12px 0 0;line-height:1.6}
+.fusion-target-route .fusion-target-inputs{align-items:flex-start;gap:12px}
+.fusion-target-route .fusion-target-part{flex:1;min-width:90px;max-width:200px;gap:6px;overflow-wrap:anywhere}
+.fusion-target-route .fusion-target-inputs>b{align-self:center}
+.fusion-input-location{color:var(--accent)}
+.fusion-input-route{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px 24px}
+.fusion-input-route>h4,.fusion-input-route>.fusion-route-caution{grid-column:1/-1}
+.fusion-lab-page .fusion-input-route>h4{margin-bottom:0}
+.fusion-route-steps{padding-left:24px;margin:0;line-height:1.6}
+.fusion-route-steps li+li{margin-top:10px}
+.fusion-upgrade-copy{display:flex;align-items:center;gap:20px}
+.fusion-upgrade-copy>p{flex:1;min-width:0}
+.fusion-extra-routes,.fusion-recipe-checklist{margin:20px 0}
+.fusion-extra-routes>summary,.fusion-recipe-checklist>summary,.fusion-target-rebirth summary{cursor:pointer;font-weight:600;min-height:28px;line-height:1.6}
+.fusion-recipe-checklist>p{margin:12px 0 16px;line-height:1.6}
+.fusion-lab-page .fusion-recipe-checklist article{padding:16px;border-radius:4px;border-color:var(--line);flex:1 1 180px;max-width:260px}
+.fusion-recipe-checklist article p{line-height:1.6;margin:12px 0}
+.fusion-target-rebirth{margin:24px 0;padding-top:20px;border-top:1px solid var(--line)}
+.fusion-lab-page .fusion-target-rebirth h4{margin:0 0 12px}
+.fusion-target-rebirth p{line-height:1.6;margin:0 0 12px}
+.fusion-target-rebirth ul{padding-left:24px;line-height:1.8;margin:12px 0}
+.fusion-target-rebirth>a{display:inline-block;margin-top:12px}
+.fusion-route-caution{padding-top:12px;border-top:1px solid var(--line);color:var(--muted)}
+.fusion-plan-note{font-size:12px;line-height:1.6;margin-bottom:0}
+@media(max-width:800px){.fusion-input-route{grid-template-columns:1fr}.fusion-route-steps{margin-top:8px}}
+@media(max-width:500px){
+ .fusion-lab-page .fusion-target .trade-fields{grid-template-columns:1fr}
+ .fusion-lab-page .fusion-target-route{padding:16px}
+ .fusion-upgrade-copy{align-items:flex-start;flex-direction:column;gap:8px}
+ .fusion-target-heading{gap:12px}
+ .fusion-target-heading img{width:56px;height:56px;flex-shrink:0}
+ .fusion-target-route .fusion-target-inputs{display:grid;grid-template-columns:1fr;justify-items:start}
+ .fusion-target-route .fusion-target-part{display:grid;grid-template-columns:48px minmax(0,1fr);max-width:none;min-width:0;text-align:left;column-gap:12px;width:100%}
+ .fusion-target-route .fusion-target-part img{grid-column:1;grid-row:1/6;width:48px;height:48px}
+ .fusion-target-route .fusion-target-part strong,.fusion-target-route .fusion-target-part small{grid-column:2}
+ .fusion-target-route .fusion-target-inputs>b{display:none}
+ .fusion-target-route .fusion-target-inputs>.fusion-target-part~.fusion-target-part{padding-top:12px;border-top:1px solid var(--line)}
+}

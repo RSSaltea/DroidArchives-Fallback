@@ -13,8 +13,8 @@ import {tradeBlockReason} from './trade-droid-picker.js?v=2026-11-08-shared';
 import {findGroupTrades,groupTradeSettings,groupCopyKey} from './group-trading.js?v=2026-11-07-group-trading';
 import {importTradeReceipts} from './trade-rules.js?v=2026-11-08-shared';
 import {installViewState} from './view-state.js?v=2026-11-08-clear-filters';
-import {mountFusionTarget} from './fusion-target.js?v=2026-11-26-yellow-charge';
-import {mountFusionRebirth} from './fusion-rebirth.js?v=2026-11-22-fusion-lab';
+import {mountFusionTarget} from './fusion-target.js?v=2026-11-27-fusion-guidance';
+import {mountFusionRebirth} from './fusion-rebirth.js?v=2026-11-27-fusion-guidance';
 import {tradingPage,clearTradingSession} from './trading-page.js?v=2026-11-08-shared';
 import {mountTraitPicker,traitBonusText} from './trait-picker.js?v=2026-11-08-shared';
 import {traitBadgeHtml,recordedTrait} from './trait-badges.js?v=2026-11-08-shared';
@@ -1822,7 +1822,7 @@ function fusionLabPage(){
   const rows=recipes.map(recipe=>{
     const need=fusionNeed(recipe,availableCount);
     // Holding the three is only half of it: which quality they are decides
-    // which quality the result is stuck at for good.
+    // which quality the result starts at before any later upgrades.
     const at=fusionBestVariant(recipe,held);
     const stock=new Map(need.parts.map(part=>[part.name,part]));
     const seen=new Map();
@@ -1838,7 +1838,7 @@ function fusionLabPage(){
       <span class="fusion-equals" aria-hidden="true">=</span>
       <div class="fusion-result">${fusionCardHtml(recipe.name,'result')}
         <div class="fusion-state">${at?`<em class="fusion-have">Ready to fuse &middot; best at ${variantText(at)}</em>`:`<em class="fusion-short">Need ${short}</em>`}
-        <button class="btn secondary fusion-track" type="button" data-fusion-want="${escapeAttr(recipe.name)}">${isWanted?'Tracking':'Track'}</button></div>
+        <button class="btn secondary fusion-track" type="button" data-fusion-want="${escapeAttr(recipe.name)}">${isWanted?'Tracking':'Track'}</button><a class="btn secondary" href="#/fusion-lab?target=${encodeURIComponent(recipe.name)}">Plan recipe</a></div>
       </div>
     </article>`;
   }).join('');
@@ -1846,15 +1846,9 @@ function fusionLabPage(){
   const log=fusionLogSummary();
   const logHtml=log.length?`<section class="fusion-log"><header><div><p class="eyebrow">Recorded</p><h2>What came out</h2><p>Every fusion you have run, and what it produced. Combinations with no known recipe are the ones worth adding to.</p></div><span class="fusion-outlook-count">${log.reduce((total,row)=>total+row.total,0)} fused</span></header><ul>${log.map(row=>`<li><span class="fusion-log-inputs">${row.inputs.map(input=>escapeAttr(input.name)).join(' + ')}</span><span class="fusion-log-results">${row.results.map(([label,count])=>`<em>${escapeAttr(label)}${count>1?` x${count}`:''}</em>`).join(' ')}</span></li>`).join('')}</ul></section>`:'';
   app.innerHTML=`<div class="fusion-lab-page"><div class="breadcrumbs"><a href="#/">Homepage</a> / Fusion Lab</div>
-    <section class="dex-hero"><div><p class="eyebrow">Droid Fusion</p><h1>Fusion Lab</h1><p>Plan a fusion, check its rebirth uses, or browse all recipes.</p></div>
+    <section class="dex-hero"><div><p class="eyebrow">Droid Fusion</p><h1>Fusion Lab</h1><p>Find a recipe, use the copies in your Base and plan upgrades for future rebirths.</p></div>
       <div class="dex-totals"><strong>${ready}/${recipes.length}</strong><span>ready to fuse</span></div></section>
-    <nav class="fusion-lab-nav" aria-label="Fusion Lab views"><button class="btn secondary" type="button" data-fusion-view="plan" aria-pressed="true">Plan a fusion</button><button class="btn secondary" type="button" data-fusion-view="rebirth" aria-pressed="false">Rebirth coverage</button><button class="btn secondary" type="button" data-fusion-view="recipes" aria-pressed="false">All recipes (${recipes.length})</button></nav><div id="fusionTargetGuide" data-fusion-pane="plan"></div><div id="fusionRebirthGuide" data-fusion-pane="rebirth" hidden></div><details class="fusion-advanced" data-fusion-pane="recipes" hidden><summary>Browse all recipes and detailed fusion rules</summary><div class="dex-toolbar"><input id="fusionSearch" class="form-control" placeholder="Search a droid or a result…" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
-      <div class="dex-filters"><label class="dex-switch"><input id="fusionReadyOnly" type="checkbox"><span class="dex-switch-track" aria-hidden="true"></span><span>Ready only</span></label>
-      <label class="dex-switch"><input id="fusionTrackedOnly" type="checkbox"><span class="dex-switch-track" aria-hidden="true"></span><span>Tracked only</span></label>
-      <label class="dex-switch"><input id="fusionMineOnly" type="checkbox"><span class="dex-switch-track" aria-hidden="true"></span><span>My droids only</span></label>
-      <button class="btn secondary" type="button" id="fusionMineOpen">My fusions</button></div>
-      <span id="fusionCount">${recipes.length} shown</span></div>
-<details class="fusion-rules"><summary>How fusion works</summary>
+    <details class="fusion-rules"><summary>How fusion works</summary>
       <ol>
         <li><b>Build three droids, then fuse them.</b> Fusion consumes the inputs and creates a result to finish in a Fusion Build tank.</li>
         <li><b>Named recipes take priority.</b> Match all three ingredients, including repeated copies, to guarantee that fusion droid.</li>
@@ -1863,15 +1857,22 @@ function fusionLabPage(){
         <li><b>Keep finished fusions for rebirths.</b> Each counts as its recipe ingredients at its current variant. Kyber requirements need an active colour; unfinished fusion builds do not count.</li>
       </ol>
       <p class="fusion-rules-note">Check the predicted result before spending inputs. For an unresolved combination, record the result after fusing in-game.</p></details>
+    <nav class="fusion-lab-nav" aria-label="Fusion Lab views"><button class="btn secondary" type="button" data-fusion-view="plan" aria-pressed="true">Plan a fusion</button><button class="btn secondary" type="button" data-fusion-view="rebirth" aria-pressed="false">Rebirth coverage</button><button class="btn secondary" type="button" data-fusion-view="recipes" aria-pressed="false">All recipes (${recipes.length})</button></nav><div id="fusionTargetGuide" data-fusion-pane="plan"></div><div id="fusionRebirthGuide" data-fusion-pane="rebirth" hidden></div><details class="fusion-advanced" data-fusion-pane="recipes" hidden><summary>Browse all recipes and detailed fusion rules</summary><div class="dex-toolbar"><input id="fusionSearch" class="form-control" placeholder="Search a droid or a result…" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+      <div class="dex-filters"><label class="dex-switch"><input id="fusionReadyOnly" type="checkbox"><span class="dex-switch-track" aria-hidden="true"></span><span>Ready only</span></label>
+      <label class="dex-switch"><input id="fusionTrackedOnly" type="checkbox"><span class="dex-switch-track" aria-hidden="true"></span><span>Tracked only</span></label>
+      <label class="dex-switch"><input id="fusionMineOnly" type="checkbox"><span class="dex-switch-track" aria-hidden="true"></span><span>My droids only</span></label>
+      <button class="btn secondary" type="button" id="fusionMineOpen">My fusions</button></div>
+      <span id="fusionCount">${recipes.length} shown</span></div>
+
     <div class="fusion-list" id="fusionList">${rows||'<div class="empty">No fusion recipes are loaded.</div>'}</div>${logHtml}</details></div>`;
-  mountFusionTarget(document.querySelector('#fusionTargetGuide'),{droids:state.droids,recipes,picture,units:[...targetUnits.placed,...targetUnits.overflow],blueprints:state.blueprints,scrapLevel:novaLevelFor('blueprint-scrap'),combineClasses:novaLevelFor('fusion-combine-classes')>0,outcome:fusionOutcome});
+  mountFusionTarget(document.querySelector('#fusionTargetGuide'),{droids:state.droids,recipes,picture,units:[...targetUnits.placed,...targetUnits.overflow],blueprints:state.blueprints,scrapLevel:novaLevelFor('blueprint-scrap'),combineClasses:novaLevelFor('fusion-combine-classes')>0,outcome:fusionOutcome,upgradeCost:chipsToVariant,locationLabel:u=>u.station?stationSlotLabel(u.station,u.slot):u.source!==undefined?'Unplaced':'',rebirthUses:name=>futureRequirements({respectGoal:false}).filter(r=>rebirthNames(name).includes(r.droidName))});
   const changeView=view=>{
     if(!['plan','rebirth','recipes'].includes(view))view='plan';
     document.querySelectorAll('[data-fusion-pane]').forEach(panel=>{panel.hidden=panel.dataset.fusionPane!==view;if(panel.tagName==='DETAILS')panel.open=!panel.hidden;});
     document.querySelectorAll('[data-fusion-view]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.fusionView===view)));
     const params=new URLSearchParams(location.hash.split('?')[1]||'');params.set('view',view);history.replaceState(null,'',location.hash.split('?')[0]+'?'+params);
   };
-  mountFusionRebirth(document.querySelector('#fusionRebirthGuide'),{recipes,cycles:state.rebirths,droids:state.droids,picture,currentCycle:state.cycle,plan:(name,variant)=>{
+  mountFusionRebirth(document.querySelector('#fusionRebirthGuide'),{recipes,cycles:state.rebirths,droids:state.droids,picture,currentCycle:state.cycle,currentRebirth:state.rebirth,plan:(name,variant)=>{
     changeView('plan');const input=document.querySelector('[data-target]'),quality=document.querySelector('[data-quality]');
     input.value=name;input.dispatchEvent(new Event('change'));quality.value=variant;quality.dispatchEvent(new Event('change'));input.focus();
   }});
@@ -2632,9 +2633,9 @@ function detailFusionHtml(d){
   const need=fusionNeed(recipe);
   const parts=need.parts.map(part=>`<a class="detail-fusion-part ${part.short?'is-short':'is-held'}" href="#/droid/${slug(part.name)}">${escapeAttr(part.name)}${part.need>1?` &times;${part.need}`:''}<em>${part.have}/${part.need}</em></a>`).join('<b>+</b>');
   return `<h2>Fusion recipe</h2>
-    <p class="lead">${escapeAttr(d.name)} cannot be crafted. It is fused from three droids, and comes out at the worst quality that went in.</p>
+    <p class="lead">Make ${escapeAttr(d.name)} from these three completed droids, then finish the result in a Fusion Build tank. Mixed variants can lower the result; check the predicted variant in Fusion Lab. Once built, you can upgrade the fusion with chips or at the Lucky Pit Droid.</p>
     <div class="detail-fusion ${need.ready?'is-ready':''}">${parts}<span class="detail-fusion-arrow">&rarr;</span><span class="detail-fusion-out">${escapeAttr(d.name)}</span></div>
-    <p class="detail-fusion-note">${need.ready?'You hold all three.':`Still short ${need.missing.map(part=>`${part.short} &times; ${escapeAttr(part.name)}`).join(', ')}.`} <a href="#/fusion-lab">Fusion Lab</a></p>`;
+    <p class="detail-fusion-note">${need.ready?'You hold all three.':`Still short ${need.missing.map(part=>`${part.short} &times; ${escapeAttr(part.name)}`).join(', ')}.`} <a href="#/fusion-lab?target=${encodeURIComponent(d.name)}">Plan ${escapeAttr(d.name)}</a></p>`;
 }
 function mountBaseProtocolTraits(host,d,variant,selectedUnit=null){
  if(!host||!d)return;
