@@ -1,4 +1,4 @@
-import {RARITY_LADDER as ladder,OWNED_VARIANTS as variants,baseVariant,variantRank,isActiveKyber,variantLabel,kyberActivationCost} from './droid-rules.js?v=2026-11-26-yellow-charge';
+import {RARITY_LADDER as ladder,OWNED_VARIANTS as variants,baseVariant,variantRank,isActiveKyber,variantLabel,kyberActivationCost} from './droid-rules.js?v=2026-11-27-protocol';
 import {escapeHtml as esc} from './ui-text.js?v=2026-11-08-shared';
 const label=variantLabel;
 const number=n=>Number(n).toLocaleString('en-GB');

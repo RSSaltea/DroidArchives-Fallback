@@ -1,5 +1,5 @@
-import {KYBER_COLOURS,variantLabel,RARITY_LADDER,KYBER_ACTIVATION as activation} from './droid-rules.js?v=2026-11-26-yellow-charge';
-export {kyberActivationCost} from './droid-rules.js?v=2026-11-26-yellow-charge';
+import {KYBER_COLOURS,variantLabel,RARITY_LADDER,KYBER_ACTIVATION as activation} from './droid-rules.js?v=2026-11-27-protocol';
+export {kyberActivationCost} from './droid-rules.js?v=2026-11-27-protocol';
 const rarities=RARITY_LADDER.map(r=>r[0]+r.slice(1).toLowerCase());
 const table=(head,rows)=>`<div class="kyber-table"><table><thead><tr>${head.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 

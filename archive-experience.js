@@ -1,4 +1,4 @@
-import {OWNED_VARIANTS} from './droid-rules.js?v=2026-11-26-yellow-charge';
+import {OWNED_VARIANTS} from './droid-rules.js?v=2026-11-27-protocol';
 import {escapeHtml as escape} from './ui-text.js?v=2026-11-08-shared';
 import { renderProgressCard } from './progress-card.js?v=2026-09-28-gonkoween';
 // Profile tools share the existing planner's calculations and save path.

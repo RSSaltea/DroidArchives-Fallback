@@ -1056,6 +1056,14 @@ body.has-rebirth-quick-bar #app{padding-bottom:74px}
 .protocol-summary-grid strong{font-size:22px}
 .protocol-summary-grid small,.protocol-note{font-size:12px;line-height:1.5;color:var(--muted,#a6afc2)}
 .protocol-note{margin-bottom:0}
+.protocol-adaptation{padding:24px}
+.protocol-adaptation>h3{margin:0 0 12px}
+.protocol-adaptation p{margin:0 0 12px;line-height:1.55}
+.protocol-adaptation>p:last-child{margin-bottom:0}
+.protocol-adaptation .protocol-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin:16px 0}
+.protocol-adaptation h4{margin:0 0 8px}
+.protocol-adaptation .protocol-summary-grid p{margin:0}
+@media(max-width:650px){.protocol-adaptation{padding:16px}.protocol-adaptation .protocol-summary-grid{grid-template-columns:1fr}}
 @media(max-width:650px){.protocol-summary-grid{grid-template-columns:1fr}}
 
 /* Protocol slots sit inside the card for their region now. The divider carries

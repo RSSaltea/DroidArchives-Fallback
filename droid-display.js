@@ -1,4 +1,4 @@
-import {baseVariant,isIconic} from './droid-rules.js?v=2026-11-26-yellow-charge';
+import {baseVariant,isIconic} from './droid-rules.js?v=2026-11-27-protocol';
 import {escapeHtml as escapeAttr} from './ui-text.js?v=2026-11-08-shared';
 const norm=s=>s.toUpperCase().replace(/[^A-Z0-9]/g,'');
 export function imageFor(droid,variant='DEFAULT',images={}){

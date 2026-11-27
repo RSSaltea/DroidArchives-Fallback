@@ -1,5 +1,5 @@
 import { traitAmount, traitSum } from './traits.js?v=2026-11-02-scourgedex-crit';
-import {ALL_VARIANTS,baseVariant} from './droid-rules.js?v=2026-11-26-yellow-charge';
+import {ALL_VARIANTS,baseVariant} from './droid-rules.js?v=2026-11-27-protocol';
 // Curated from v1.35 AstromechMissions and depot completion code.
 // Credit rewards are seconds of generation, not fixed amounts.
 export const MISSION_SHIPS=[

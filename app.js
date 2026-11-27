@@ -1,9 +1,11 @@
 import {TRADING_VISIBLE} from './feature-visibility.js?v=2026-11-22';
+import {protocolAdaptationHtml,protocolAdaptationText} from './protocol-guidance.js?v=2026-11-27-protocol';
+import {bestProtocolCredits} from './protocol-credit-plan.js?v=2026-11-27-protocol';
 import {eventArtwork} from './event-artwork.js?v=2026-11-16-life-day-title';
 import {mountCompanionTraitComparison} from './companion-trait-comparison.js?v=2026-11-08-map-destinations';
-import {PRODUCTIVE_STATIONS} from './droid-rules.js?v=2026-11-26-yellow-charge';
+import {PRODUCTIVE_STATIONS} from './droid-rules.js?v=2026-11-27-protocol';
 import {imageFor as resolveDroidImage,droidPicture} from './droid-display.js?v=2026-11-08-shared';
-import {placedProtocolBonus,ACTIVE_KYBER,DROID_TYPES,ALL_VARIANTS,OWNED_VARIANTS,baseVariant,variantRank,isActiveKyber,rebirthVariantReady,LEGACY_DROID_NAMES,canonicalDroidName,isIconic,isFusion,ICONIC_EFFECTS,iconicIncome,CHIP_COSTS,UPGRADE_CHIP_RATES,upgradeChipRate,CHIP_SELL_VALUES,baseChipSellValue,LUCKY_UPGRADE_CHANCES,luckyChance,variantLabel,RARITY_LADDER} from './droid-rules.js?v=2026-11-26-yellow-charge';
+import {placedProtocolBonus,ACTIVE_KYBER,DROID_TYPES,ALL_VARIANTS,OWNED_VARIANTS,baseVariant,variantRank,isActiveKyber,rebirthVariantReady,LEGACY_DROID_NAMES,canonicalDroidName,isIconic,isFusion,ICONIC_EFFECTS,iconicIncome,CHIP_COSTS,UPGRADE_CHIP_RATES,upgradeChipRate,CHIP_SELL_VALUES,baseChipSellValue,LUCKY_UPGRADE_CHANCES,luckyChance,variantLabel,RARITY_LADDER} from './droid-rules.js?v=2026-11-27-protocol';
 import {mountBlueprintCalc} from './blueprint-calc-ui.js?v=2026-11-08-shared';
 import {startTradeNotices,wireTradeNoticeSettings} from './trade-notices.js?v=2026-11-22-hidden-trading';
 import {mountTradeComparison} from './trade-comparison.js?v=2026-11-08-shared';
@@ -47,7 +49,7 @@ import { validateOptimisePlan } from './optimise-plan-validation.js?v=2026-11-07
 import { planOptimiseRoute, predictWorkLanding, predictStationLanding, predictProtocolCompanionLanding, predictCompanionWorkLanding, shortenOptimiseWalk } from './optimise-route.js?v=2026-11-08-lounge-routes';
 import { slotDistanceSquared, slotPosition } from './slot-geometry.js?v=2026-11-07-v138';
 import { createOptimiseBackground } from './optimise-background.js?v=2026-11-07-search-until-plan';
-import { createAssignmentScorer } from './optimise-layout-score.js?v=2026-11-26-yellow-charge';
+import { createAssignmentScorer } from './optimise-layout-score.js?v=2026-11-27-protocol';
 import { createArchiveExperience } from './archive-experience.js?v=2026-11-26-yellow-charge';
 import { kyberGuide, kyberDroidDetails, kyberActivationCost } from './kyber-guide.js?v=2026-11-26-yellow-charge';
 let archiveExperience=null;
@@ -369,11 +371,11 @@ function protocolSummaryHtml(placed){
 }
 function protocolProductionHtml(d,variant,station,placed){
   const slot=PROTOCOL_SLOTS[station],bonus=placedProtocolBonus(d,variant,slot.role,placed,state.droids),region=regionalIncome(placed)[slot.region];
-  return `<span>${variantText(variant)} · Protocol</span><span class="adjusted-production">${protocolVariantText(d,variant,station,placed)}</span><span class="production-breakdown">${bonus?slot.role==='CREDITS'?`+${fmt(region.bonus)}/s across ${stationName(slot.region)}`:`Build ${slot.buildSlot+1} only · ${(1+bonus/100).toFixed(2)}× base craft speed`:'This droid’s regional bonus is not yet published'}</span>`;
+  return `<span>${variantText(variant)} · Protocol</span><span class="adjusted-production">${protocolVariantText(d,variant,station,placed)}</span><span class="production-breakdown">${bonus?slot.role==='CREDITS'?`+${fmt(region.bonus)}/s across ${stationName(slot.region)}`:`Build ${slot.buildSlot+1} only · ${(1+bonus/100).toFixed(2)}× base craft speed`:'This droid’s regional bonus is not yet published'}</span>${isIconic(d)?`<span class="production-breakdown">${escapeAttr(protocolAdaptationText(d,variant,slot.role,placed,state.droids,u=>stationSlotLabel(u.station,u.slot)))}</span>`:''}`;
 }
 function protocolDetailHtml(d){
   if(d.type!=='PROTOCOL')return '';
-  return `<h2>Protocol bonuses</h2><p>Assign to a regional Credits slot or the Crafting slot behind its Build station. Each slot activates its own bonus. An Iconic Protocol takes a 20% lead when a non-Iconic Protocol in an active slot of the same role exceeds its base bonus.</p><table><thead><tr><th>Quality</th><th>Region credits</th><th>Build crafting speed</th></tr></thead><tbody>${Object.entries(d.variants).map(([variant])=>`<tr><td>${variantText(variant)}</td><td>${protocolVariantText(d,variant,'PROTOCOL_WORKER_CREDITS')}</td><td>${protocolVariantText(d,variant,'PROTOCOL_WORKER_CRAFTING')}</td></tr>`).join('')}</tbody></table>`;
+  return `<h2>Protocol bonuses</h2><p>Assign to a regional Credits slot or the Crafting slot behind its Build station. Each slot activates its own bonus. The table shows base bonuses.</p>${protocolAdaptationHtml(d,'DEFAULT',placements().placed,state.droids,u=>stationSlotLabel(u.station,u.slot))}<table><thead><tr><th>Quality</th><th>Region credits</th><th>Build crafting speed</th></tr></thead><tbody>${Object.entries(d.variants).map(([variant])=>`<tr><td>${variantText(variant)}</td><td>${protocolVariantText(d,variant,'PROTOCOL_WORKER_CREDITS')}</td><td>${protocolVariantText(d,variant,'PROTOCOL_WORKER_CRAFTING')}</td></tr>`).join('')}</tbody></table>`;
 }
 // Credits and regional boosts are coupled: moving an earner changes the value
 // of its region's Protocol. Evaluate whole layouts, including opportunity cost.
@@ -516,21 +518,24 @@ function optimiseUnreservedBase(p,currentIncome){
       if(!pick)break;assignment=pick.candidate;
     }
   }
-  // With more Protocol droids than slots, the ones left over are the ones that
-  // get sold, so they must be the weakest. The move threshold alone would keep a
-  // weak droid in its slot and sell a stronger one standing elsewhere, because a
-  // better Crafting bonus earns no credits to pay for the walk. A leftover that
-  // is being saved on purpose (a fusion rule, or Keep pressed in the plan) stays out.
+  // Ignore walking cost when rescuing a stronger spare from the Sell list,
+  // but compare the whole layout: an Iconic's base value hides its adapted
+  // bonus, and replacing a supporting Protocol can weaken other regions.
+  // Explicit Keep and fusion reservations remain untouched.
   {
     const strength=index=>protocolBonus(units[index].droid,units[index].variant,'CREDITS')*1e6+protocolBonus(units[index].droid,units[index].variant,'CRAFTING');
     const saved=new Set(sparedFromSelling());
     for(let guard=0;guard<units.length;guard++){
       const used=new Set(assignment.filter(i=>i>=0));
-      const spare=units.map((_,u)=>u).filter(u=>!used.has(u)&&units[u].droid?.type==='PROTOCOL'&&!saved.has(units[u].key)&&!keepForFusion(units[u])).sort((a,b)=>strength(b)-strength(a))[0];
-      if(spare===undefined)break;
-      const weakest=slots.map((_,i)=>i).filter(i=>assignment[i]>=0&&isProtocolStation(slots[i].station)&&allowed(spare,slots[i])).sort((a,b)=>strength(assignment[a])-strength(assignment[b]))[0];
-      if(weakest===undefined||strength(assignment[weakest])>=strength(spare))break;
-      assignment=[...assignment];assignment[weakest]=spare;
+      const spares=units.map((_,u)=>u).filter(u=>!used.has(u)&&units[u].droid?.type==='PROTOCOL'&&!saved.has(units[u].key)&&!keepForFusion(units[u]));
+      const current=score(assignment,true);let pick=null;
+      for(const spare of spares)for(let i=0;i<slots.length;i++){
+        if(assignment[i]<0||!isProtocolStation(slots[i].station)||!allowed(spare,slots[i])||strength(assignment[i])>=strength(spare))continue;
+        const candidate=[...assignment];candidate[i]=spare;const value=score(candidate,true);
+        if(better(current,value))continue;
+        if(!pick||better(value,pick.value))pick={candidate,value};
+      }
+      if(!pick)break;assignment=pick.candidate;
     }
   }
   const assignments=assignment.flatMap((index,i)=>index<0?[]:[{key:units[index].key,name:units[index].name,variant:units[index].variant,...slots[i]}]);
@@ -2022,10 +2027,7 @@ function scrapCompanionChoice(p,units,seats){
     .map(x=>({...x,seat:unitCompanionGoal(x.unit,'credits'),slot:protocolBonus(x.droid,x.unit.variant,'CREDITS')}));
   const earns=seated=>{
     const taken=new Set(seated.map(x=>keyOf(x.unit))),rest=pool.filter(x=>!taken.has(keyOf(x.unit))&&x.slot>0).sort((a,b)=>b.slot-a.slot);
-    // The strongest bonus goes to the region that earns most.
-    const bonus=new Map(open.map((region,i)=>[region,rest[i]?.slot||0]));
-    const income=PROTOCOL_REGIONS.reduce((sum,region)=>{const held=fixedSlot(region),held_d=held&&state.droids.find(d=>d.name===held.name);
-      return sum+regions[region].beforeBonus*(1+(held?protocolBonus(held_d,held.variant,'CREDITS'):bonus.get(region)||0)/100)},0);
+    const {income}=bestProtocolCredits({pool:rest.map(x=>x.unit),open,fixed:PROTOCOL_REGIONS.map(fixedSlot).filter(Boolean),regions,droids:state.droids});
     return income*(multiplier+seated.reduce((sum,x)=>sum+x.seat,0)/100)/multiplier;
   };
   const candidates=pool.filter(x=>x.seat>0);let best={seated:[],value:earns([])};
@@ -4386,7 +4388,7 @@ function renderBackgroundOptimise(){
   optimiseBackgroundRender=false;optimisePage();refreshScourgeReminder();
 }
 const optimiseBackground=createOptimiseBackground({
-  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-17-hive-income',import.meta.url),{type:'module'}),
+  createWorker:()=>new Worker(new URL('./optimise-worker.js?v=2026-11-27-protocol',import.meta.url),{type:'module'}),
   onStatus:status=>{optimiseBackgroundStatus=status;setTimeout(renderBackgroundOptimise,0)},
   onProgress:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp){if(message.progress)optimiseBackgroundJob.progress=message.progress;if(message.issues)optimiseBackgroundJob.issues=message.issues;renderBackgroundOptimise();}},
   onPrepared:(message,stamp)=>{if(stamp===optimiseInputStamp()&&optimiseBackgroundJob?.stamp===stamp)Object.assign(optimiseBackgroundJob,message.prepared);},

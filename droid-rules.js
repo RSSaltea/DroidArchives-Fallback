@@ -23,14 +23,19 @@ export const iconicProtocolBonus=(base,best)=>best>base?best*1.2:base;
 export const rawProtocolBonus=(d,variant,role)=>Number(d?.variants?.[variant]?.[role==='CREDITS'?'protocolCpsBonusPercent':'protocolCraftingBonusPercent'])||0;
 // Only active Protocol slots of the same role contribute to the Iconic lead.
 export function placedProtocolBonus(d,variant,role,placed=[],droids=[]){
+  return protocolBonusDetails(d,variant,role,placed,droids).effective;
+}
+export function protocolBonusDetails(d,variant,role,placed=[],droids=[]){
   const base=rawProtocolBonus(d,variant,role);
-  if(d?.type!=='PROTOCOL'||!isIconic(d))return base;
-  const best=placed.reduce((best,u)=>{
-    if(!u.station?.startsWith('PROTOCOL_')||!u.station.endsWith('_'+role))return best;
+  let best=0,source=null;
+  if(d?.type!=='PROTOCOL'||!isIconic(d))return {base,best,effective:base,source};
+  for(const u of placed){
+    if(!u.station?.startsWith('PROTOCOL_')||!u.station.endsWith('_'+role))continue;
     const other=droids.find(x=>x.name===u.name);
-    return other?.type==='PROTOCOL'&&!isIconic(other)?Math.max(best,rawProtocolBonus(other,u.variant,role)):best;
-  },0);
-  return iconicProtocolBonus(base,best);
+    const value=other?.type==='PROTOCOL'&&!isIconic(other)?rawProtocolBonus(other,u.variant,role):0;
+    if(value>best){best=value;source=u;}
+  }
+  return {base,best,effective:iconicProtocolBonus(base,best),source:best>base?source:null};
 }
 export const CHIP_COSTS={COMMON:{GOLD:10,DIAMOND:25,RAINBOW:40,BESKAR:80,GALACTIC:120,STELLAR:180,KYBER:240},RARE:{GOLD:30,DIAMOND:60,RAINBOW:100,BESKAR:250,GALACTIC:400,STELLAR:750,KYBER:1000},EPIC:{GOLD:120,DIAMOND:180,RAINBOW:240,BESKAR:2000,GALACTIC:5000,STELLAR:8000,KYBER:12000},LEGENDARY:{GOLD:400,DIAMOND:1200,RAINBOW:2500,BESKAR:6000,GALACTIC:16000,STELLAR:24000,KYBER:30000},MYTHIC:{GOLD:4000,DIAMOND:8000,RAINBOW:14000,BESKAR:30000,GALACTIC:60000,STELLAR:90000,KYBER:110000}};
 export const UPGRADE_CHIP_RATES={

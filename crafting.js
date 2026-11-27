@@ -1,4 +1,4 @@
-import {placedProtocolBonus,variantPowerBonus,RARITY_POWER,ALL_VARIANTS as QUALITIES,PRODUCTIVE_STATIONS as REGIONS} from './droid-rules.js?v=2026-11-26-yellow-charge';
+import {placedProtocolBonus,variantPowerBonus,RARITY_POWER,ALL_VARIANTS as QUALITIES,PRODUCTIVE_STATIONS as REGIONS} from './droid-rules.js?v=2026-11-27-protocol';
 import { companionPerkActive, overclockFactor, traitSum } from './traits.js?v=2026-11-02-scourgedex-crit';
 // Passive crafting rules. Pickaxe hits, critical hits and rushes are additional.
 const level=value=>Math.max(0,Math.floor(Number(value)||0));

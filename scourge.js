@@ -1,4 +1,4 @@
-import {PRODUCTIVE_STATIONS as productive} from './droid-rules.js?v=2026-11-26-yellow-charge';
+import {PRODUCTIVE_STATIONS as productive} from './droid-rules.js?v=2026-11-27-protocol';
 import { traitAmount } from './traits.js?v=2026-11-02-scourgedex-crit';
 export const SCOURGE_EVENT_START='2026-10-31T14:00:00Z';
 export const SCOURGE_EVENT_END='2026-11-01T21:00:00Z';

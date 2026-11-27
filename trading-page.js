@@ -1,4 +1,4 @@
-import {DROID_TYPES,TRADE_VARIANTS as variants,RARITY_LADDER} from './droid-rules.js?v=2026-11-26-yellow-charge';
+import {DROID_TYPES,TRADE_VARIANTS as variants,RARITY_LADDER} from './droid-rules.js?v=2026-11-27-protocol';
 import {escapeHtml as esc} from './ui-text.js?v=2026-11-08-shared';
 import {tradeValue,tradeMoney} from './trade-values.js?v=2026-11-08-shared';
 import {mountTradeComparison} from './trade-comparison.js?v=2026-11-08-shared';

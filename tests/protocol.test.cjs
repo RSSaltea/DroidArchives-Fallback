@@ -189,6 +189,19 @@ test('Protocol search reports moves when no mission or activity reservations exi
  assert(plan.moves.some(move=>move.unit.name==='LOM'&&move.current==='LOUNGE'&&move.targetStation!=='LOUNGE'));
 });
 
+test('spare cleanup cannot replace an adapted Iconic with a higher raw but lower effective bonus',()=>{
+ const {state,caps,ctx,run}=setup();
+ for(const region of ['WORKER','ASTROMECH','BATTLE'])for(const role of ['CREDITS','CRAFTING'])caps[`PROTOCOL_${region}_${role}`]=0;
+ caps.PROTOCOL_WORKER_CREDITS=1;caps.PROTOCOL_BATTLE_CREDITS=1;
+ caps.WORKER=1;caps.ASTROMECH=0;caps.BATTLE=0;
+ state.owned=[{name:'MOUSE',variant:'DEFAULT',qty:1},{name:'C-3PO',variant:'DEFAULT',qty:1},...Array.from({length:2},()=>({name:'KL-NK',variant:'KYBER_YELLOW',qty:1}))];
+ ctx.reportPlaced=state.owned.map((u,source)=>({...u,source,unit:0,slot:0,station:['WORKER','PROTOCOL_WORKER_CREDITS','PROTOCOL_BATTLE_CREDITS','LOUNGE'][source],lockedSlot:source===0}));
+ const plan=run('optimiseUnreservedBase({placed:reportPlaced},incomeForPlaced(reportPlaced))');
+ assert(plan.assignments.some(u=>u.name==='C-3PO'&&u.station==='PROTOCOL_WORKER_CREDITS'),'keep the +270% Iconic in the earning region');
+ assert(plan.assignments.some(u=>u.name==='KL-NK'&&u.station==='PROTOCOL_BATTLE_CREDITS'),'retain the +225% supporting Protocol');
+ ctx.reportPlan=plan;assert.equal(plan.income,run('incomeForPlaced(reportPlaced)'));
+});
+
 test('a better layout never becomes Already optimal when move details are absent',()=>{
  const {ctx,run,state}=setup();
  Object.assign(ctx,{escapeAttr:String,variantLabel:String,stationName:String,fmt:String});
