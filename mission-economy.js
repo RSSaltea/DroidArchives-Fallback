@@ -1,4 +1,5 @@
 import { traitAmount, traitSum } from './traits.js?v=2026-11-02-scourgedex-crit';
+import {ALL_VARIANTS,baseVariant} from './droid-rules.js?v=2026-11-26-yellow-charge';
 // Curated from v1.35 AstromechMissions and depot completion code.
 // Credit rewards are seconds of generation, not fixed amounts.
 export const MISSION_SHIPS=[
@@ -44,7 +45,7 @@ export function chipFinderEstimate(placed,baseSaleChips,saleMultiplier,craftSeco
 
 export function missionProgress(unit,droid){
   const rarity={COMMON:1,RARE:2,EPIC:3,LEGENDARY:4,MYTHIC:5,ICONIC:10}[droid?.rarity]||1;
-  const quality=Math.max(0,['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR','KYBER'].indexOf(String(unit.variant||'DEFAULT').replace(/^KYBER_.*/, 'KYBER').replace('SCOURGE','KYBER')));
+  const quality=Math.max(0,ALL_VARIANTS.indexOf(unit.variant==='SCOURGE'?'KYBER':baseVariant(unit.variant||'DEFAULT')));
   const base=droid?.type==='ASTROMECH'?1+(rarity-1)*.2+quality*.1+number(droid.additionalPowerScale)*.1:1;
   const efficiency=traitAmount(unit,9);
   return {base,efficiency,progress:base*(1+efficiency)};

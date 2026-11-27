@@ -1,4 +1,4 @@
-import {isIconic} from './droid-rules.js?v=2026-11-08-shared';
+import {isIconic} from './droid-rules.js?v=2026-11-26-yellow-charge';
 import {escapeHtml as esc} from './ui-text.js?v=2026-11-08-shared';
 import {tradeVariantLabel} from './trade-rules.js?v=2026-11-08-shared';
 import {TRAITS,normaliseTrait,traitEligible,traitLabel,traitOptionLabel} from './traits.js?v=2026-11-02-scourgedex-crit';

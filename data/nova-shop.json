@@ -3221,28 +3221,32 @@
       "name": "Echo Strike Charge",
       "category": "featured",
       "icon": "assets/nova-shop/echo-strike-charge.png",
-      "comingSoon": true,
-      "availabilityLabel": "Unavailable",
-      "description": "Unavailable. Preview values may change before release. Echo Strikes charge the depot you hit. A full charge sends a maximum-crit pickaxe hit to all three Droid Depots with builds in progress. Does not apply to Fusion Tanks.",
+      "description": "Echo Strikes charge the depot you hit. A full charge sends a maximum-crit pickaxe hit to active Droid Depots. Does not apply to Fusion Tanks.",
       "prerequisite": "Echo Strike Chance level 1",
       "levels": [
         {
           "level": 1,
           "cost": 200,
           "chargeHits": 10,
-          "reward": "Charge after 10 Echo Strikes; hit all three active Droid Depots"
+          "reward": "Charge after 10 Echo Strikes; strike active Droid Depots"
         },
         {
           "level": 2,
           "cost": 1000,
-          "chargeHits": 5,
-          "reward": "Charge after 5 Echo Strikes; hit all three active Droid Depots"
+          "chargeHits": 7,
+          "reward": "Charge after 7 Echo Strikes; strike active Droid Depots"
         },
         {
           "level": 3,
           "cost": 2000,
+          "chargeHits": 5,
+          "reward": "Charge after 5 Echo Strikes; strike active Droid Depots"
+        },
+        {
+          "level": 4,
+          "cost": 4000,
           "chargeHits": 3,
-          "reward": "Charge after 3 Echo Strikes; hit all three active Droid Depots"
+          "reward": "Charge after 3 Echo Strikes; strike active Droid Depots"
         }
       ]
     }

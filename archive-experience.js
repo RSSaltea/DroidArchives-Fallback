@@ -1,3 +1,4 @@
+import {OWNED_VARIANTS} from './droid-rules.js?v=2026-11-26-yellow-charge';
 import {escapeHtml as escape} from './ui-text.js?v=2026-11-08-shared';
 import { renderProgressCard } from './progress-card.js?v=2026-09-28-gonkoween';
 // Profile tools share the existing planner's calculations and save path.
@@ -24,7 +25,7 @@ export function validateSharedSnapshot(value) {
   for (const key of ['missing','layout']) if (value[key] !== undefined) {
     if (!Array.isArray(value[key]) || value[key].length > 200) throw Error('This snapshot has too many droids.');
     result[key] = value[key].map(row => {
-      if (!row || typeof row.name !== 'string' || row.name.length > 80 || typeof row.variant !== 'string' || !['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR','KYBER','KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE'].includes(row.variant)) throw Error('Invalid droid in snapshot.');
+      if (!row || typeof row.name !== 'string' || row.name.length > 80 || typeof row.variant !== 'string' || !OWNED_VARIANTS.includes(row.variant)) throw Error('Invalid droid in snapshot.');
       if (key === 'missing') return {name:row.name, variant:row.variant};
       if (typeof row.station !== 'string' || row.station.length > 50 || !integer(row.slot, 1000)) throw Error('Invalid layout in snapshot.');
       return {name:row.name, variant:row.variant, station:row.station, slot:row.slot};

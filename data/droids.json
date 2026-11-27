@@ -81,6 +81,13 @@
         "sellCredits": 23940.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 34200.0,
+        "income": 295.68,
+        "craftingSeconds": 1206.36,
+        "sellCredits": 23940.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 30400,
         "income": 57.6,
@@ -103,6 +110,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/MOUSE_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/MOUSE_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/MOUSE_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/MOUSE_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/MOUSE_SCOURGE.png"
     }
   },
@@ -188,6 +196,13 @@
         "sellCredits": 27720.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 39600.0,
+        "income": 295.68,
+        "craftingSeconds": 1206.36,
+        "sellCredits": 27720.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 35200,
         "income": 57.6,
@@ -210,6 +225,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/PIT_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/PIT_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/PIT_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/PIT_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/PIT_SCOURGE.png"
     }
   },
@@ -295,6 +311,13 @@
         "sellCredits": 75600.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 108000.0,
+        "income": 591.36,
+        "craftingSeconds": 1332.72,
+        "sellCredits": 75600.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 96000,
         "income": 115.2,
@@ -317,6 +340,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/GONK_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/GONK_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/GONK_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/GONK_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/GONK_SCOURGE.png"
     }
   },
@@ -402,6 +426,13 @@
         "sellCredits": 50400.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 72000.0,
+        "income": 443.52,
+        "craftingSeconds": 1269.54,
+        "sellCredits": 50400.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 64000,
         "income": 86.4,
@@ -424,6 +455,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/CB_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/CB_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/CB_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/CB_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/CB_SCOURGE.png"
     }
   },
@@ -509,6 +541,13 @@
         "sellCredits": 50400.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 72000.0,
+        "income": 443.52,
+        "craftingSeconds": 1269.54,
+        "sellCredits": 50400.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 64000,
         "income": 86.4,
@@ -531,6 +570,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/R3_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/R3_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/R3_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/R3_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/R3_SCOURGE.png"
     }
   },
@@ -616,6 +656,13 @@
         "sellCredits": 50400.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 72000.0,
+        "income": 443.52,
+        "craftingSeconds": 1269.54,
+        "sellCredits": 50400.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 64000,
         "income": 86.4,
@@ -638,6 +685,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/R5_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/R5_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/R5_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/R5_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/R5_SCOURGE.png"
     }
   },
@@ -723,6 +771,13 @@
         "sellCredits": 75600.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 108000.0,
+        "income": 591.36,
+        "craftingSeconds": 1332.72,
+        "sellCredits": 75600.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 96000,
         "income": 115.2,
@@ -745,6 +800,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/R8_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/R8_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/R8_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/R8_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/R8_SCOURGE.png"
     }
   },
@@ -830,6 +886,13 @@
         "sellCredits": 126000.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 180000.0,
+        "income": 887.04,
+        "craftingSeconds": 1459.08,
+        "sellCredits": 126000.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 160000,
         "income": 172.8,
@@ -852,6 +915,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/IMPERIAL_PROBE_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/IMPERIAL_PROBE_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/IMPERIAL_PROBE_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/IMPERIAL_PROBE_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/IMPERIAL_PROBE_SCOURGE.png"
     }
   },
@@ -937,6 +1001,13 @@
         "sellCredits": 100800.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 144000.0,
+        "income": 739.2,
+        "craftingSeconds": 1395.9,
+        "sellCredits": 100800.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 128000,
         "income": 144,
@@ -959,6 +1030,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/B1_BATTLE_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/B1_BATTLE_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/B1_BATTLE_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/B1_BATTLE_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/B1_BATTLE_SCOURGE.png"
     }
   },
@@ -1044,6 +1116,13 @@
         "sellCredits": 75600.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 108000.0,
+        "income": 443.52,
+        "craftingSeconds": 1269.54,
+        "sellCredits": 75600.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 96000,
         "income": 86.4,
@@ -1066,6 +1145,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/DRK-1_PROBE_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/DRK-1_PROBE_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/DRK-1_PROBE_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/DRK-1_PROBE_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/DRK-1_PROBE_SCOURGE.png"
     }
   },
@@ -1151,6 +1231,13 @@
         "sellCredits": 100800.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 144000.0,
+        "income": 591.36,
+        "craftingSeconds": 1332.72,
+        "sellCredits": 100800.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 128000,
         "income": 115.2,
@@ -1173,6 +1260,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/ID10_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/ID10_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/ID10_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/ID10_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/ID10_SCOURGE.png"
     }
   },
@@ -1258,6 +1346,13 @@
         "sellCredits": 630000.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 900000.0,
+        "income": 2217.6,
+        "craftingSeconds": 2027.7,
+        "sellCredits": 630000.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 800000,
         "income": 432,
@@ -1280,6 +1375,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/BDX_EXPLORER_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/BDX_EXPLORER_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/BDX_EXPLORER_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/BDX_EXPLORER_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/BDX_EXPLORER_SCOURGE.png"
     }
   },
@@ -1365,6 +1461,13 @@
         "sellCredits": 2217600.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 3168000.0,
+        "income": 6209.28,
+        "craftingSeconds": 3733.56,
+        "sellCredits": 2217600.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 2816000,
         "income": 1209.6,
@@ -1387,6 +1490,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/ARG_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/ARG_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/ARG_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/ARG_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/ARG_SCOURGE.png"
     }
   },
@@ -1472,6 +1576,13 @@
         "sellCredits": 2520000.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 3600000.0,
+        "income": 6800.64,
+        "craftingSeconds": 3986.28,
+        "sellCredits": 2520000.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 3200000,
         "income": 1324.8,
@@ -1494,6 +1605,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/SENATE_HOVERCAM_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/SENATE_HOVERCAM_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/SENATE_HOVERCAM_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/SENATE_HOVERCAM_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/SENATE_HOVERCAM_SCOURGE.png"
     }
   },
@@ -1579,6 +1691,13 @@
         "sellCredits": 3276000.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 4680000.0,
+        "income": 8574.72,
+        "craftingSeconds": 4744.44,
+        "sellCredits": 3276000.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 4160000,
         "income": 1670.4,
@@ -1601,6 +1720,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/B-U4D_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/B-U4D_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/B-U4D_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/B-U4D_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/B-U4D_SCOURGE.png"
     }
   },
@@ -1686,6 +1806,13 @@
         "sellCredits": 1083600.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 1548000.0,
+        "income": 3400.32,
+        "craftingSeconds": 2533.14,
+        "sellCredits": 1083600.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 1376000,
         "income": 662.4,
@@ -1708,6 +1835,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/BAL-CORE_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/BAL-CORE_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/BAL-CORE_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/BAL-CORE_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/BAL-CORE_SCOURGE.png"
     }
   },
@@ -1793,6 +1921,13 @@
         "sellCredits": 1562400.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 2232000.0,
+        "income": 4583.04,
+        "craftingSeconds": 3038.58,
+        "sellCredits": 1562400.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 1984000,
         "income": 892.8,
@@ -1815,6 +1950,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/ROLL-R_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/ROLL-R_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/ROLL-R_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/ROLL-R_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/ROLL-R_SCOURGE.png"
     }
   },
@@ -1900,6 +2036,13 @@
         "sellCredits": 756000.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 1080000.0,
+        "income": 2513.28,
+        "craftingSeconds": 2154.06,
+        "sellCredits": 756000.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 960000,
         "income": 489.6,
@@ -1922,6 +2065,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/2BB_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/2BB_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/2BB_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/2BB_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/2BB_SCOURGE.png"
     }
   },
@@ -2007,6 +2151,13 @@
         "sellCredits": 1864800.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 2664000.0,
+        "income": 5322.24,
+        "craftingSeconds": 3354.48,
+        "sellCredits": 1864800.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 2368000,
         "income": 1036.8,
@@ -2029,6 +2180,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/A-LT_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/A-LT_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/A-LT_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/A-LT_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/A-LT_SCOURGE.png"
     }
   },
@@ -2114,6 +2266,13 @@
         "sellCredits": 2772000.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 3960000.0,
+        "income": 7392.0,
+        "craftingSeconds": 4239.0,
+        "sellCredits": 2772000.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 3520000,
         "income": 1440,
@@ -2136,6 +2295,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/R4_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/R4_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/R4_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/R4_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/R4_SCOURGE.png"
     }
   },
@@ -2221,6 +2381,13 @@
         "sellCredits": 3024000.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 4320000.0,
+        "income": 7983.36,
+        "craftingSeconds": 4491.72,
+        "sellCredits": 3024000.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 3840000,
         "income": 1555.2,
@@ -2243,6 +2410,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/R9_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/R9_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/R9_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/R9_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/R9_SCOURGE.png"
     }
   },
@@ -2328,6 +2496,13 @@
         "sellCredits": 3780000.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 5400000.0,
+        "income": 9757.44,
+        "craftingSeconds": 5249.88,
+        "sellCredits": 3780000.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 4800000,
         "income": 1900.8,
@@ -2350,6 +2525,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/B1_SECURITY_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/B1_SECURITY_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/B1_SECURITY_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/B1_SECURITY_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/B1_SECURITY_SCOURGE.png"
     }
   },
@@ -2435,6 +2611,13 @@
         "sellCredits": 907200.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 1296000.0,
+        "income": 2661.12,
+        "craftingSeconds": 2217.24,
+        "sellCredits": 907200.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 1152000,
         "income": 518.4,
@@ -2457,6 +2640,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/NAV-EX_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/NAV-EX_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/NAV-EX_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/NAV-EX_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/NAV-EX_SCOURGE.png"
     }
   },
@@ -2542,6 +2726,13 @@
         "sellCredits": 1310400.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 1872000.0,
+        "income": 3991.68,
+        "craftingSeconds": 2785.86,
+        "sellCredits": 1310400.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 1664000,
         "income": 777.6,
@@ -2564,6 +2755,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/VECT-ARM_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/VECT-ARM_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/VECT-ARM_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/VECT-ARM_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/VECT-ARM_SCOURGE.png"
     }
   },
@@ -2649,6 +2841,13 @@
         "sellCredits": 3528000.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 5040000.0,
+        "income": 9166.08,
+        "craftingSeconds": 4997.16,
+        "sellCredits": 3528000.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 4480000,
         "income": 1785.6,
@@ -2671,6 +2870,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/HOV-R_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/HOV-R_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/HOV-R_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/HOV-R_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/HOV-R_SCOURGE.png"
     }
   },
@@ -2756,6 +2956,13 @@
         "sellCredits": 2835000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 4050000000.0,
+        "income": 44352.0,
+        "craftingSeconds": 8661.6,
+        "sellCredits": 2835000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 877500000,
         "income": 8640,
@@ -2778,6 +2985,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/GROUNDMECH_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/GROUNDMECH_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/GROUNDMECH_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/GROUNDMECH_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/GROUNDMECH_SCOURGE.png"
     }
   },
@@ -2863,6 +3071,13 @@
         "sellCredits": 6615000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 9450000000.0,
+        "income": 88704.0,
+        "craftingSeconds": 16243.2,
+        "sellCredits": 6615000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 2047500000,
         "income": 17280,
@@ -2885,6 +3100,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/LO_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/LO_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/LO_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/LO_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/LO_SCOURGE.png"
     }
   },
@@ -2970,6 +3186,13 @@
         "sellCredits": 17009999999.999998,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 24300000000.0,
+        "income": 210672.0,
+        "craftingSeconds": 37092.6,
+        "sellCredits": 17009999999.999998,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 5265000000,
         "income": 41040,
@@ -2992,6 +3215,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/AMP_WALKER_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/AMP_WALKER_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/AMP_WALKER_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/AMP_WALKER_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/AMP_WALKER_SCOURGE.png"
     }
   },
@@ -3077,6 +3301,13 @@
         "sellCredits": 15119999999.999998,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 21600000000.0,
+        "income": 188496.0,
+        "craftingSeconds": 33301.8,
+        "sellCredits": 15119999999.999998,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 4680000000,
         "income": 36720,
@@ -3099,6 +3330,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/SEN-TRI_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/SEN-TRI_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/SEN-TRI_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/SEN-TRI_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/SEN-TRI_SCOURGE.png"
     }
   },
@@ -3184,6 +3416,13 @@
         "sellCredits": 11340000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 16200000000.0,
+        "income": 144144.0,
+        "craftingSeconds": 25720.2,
+        "sellCredits": 11340000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 3510000000,
         "income": 28080,
@@ -3206,6 +3445,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/OPTI-POD_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/OPTI-POD_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/OPTI-POD_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/OPTI-POD_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/OPTI-POD_SCOURGE.png"
     }
   },
@@ -3291,6 +3531,13 @@
         "sellCredits": 19845000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 28350000000.0,
+        "income": 243936.0,
+        "craftingSeconds": 42778.8,
+        "sellCredits": 19845000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 6142500000,
         "income": 47520,
@@ -3313,6 +3560,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/GUNRUNNER_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/GUNRUNNER_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/GUNRUNNER_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/GUNRUNNER_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/GUNRUNNER_SCOURGE.png"
     }
   },
@@ -3398,6 +3646,13 @@
         "sellCredits": 3780000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 5400000000.0,
+        "income": 55440.0,
+        "craftingSeconds": 10557.0,
+        "sellCredits": 3780000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 1170000000,
         "income": 10800,
@@ -3420,6 +3675,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/BB_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/BB_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/BB_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/BB_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/BB_SCOURGE.png"
     }
   },
@@ -3505,6 +3761,13 @@
         "sellCredits": 14175000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 20250000000.0,
+        "income": 177408.0,
+        "craftingSeconds": 31406.4,
+        "sellCredits": 14175000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 4387500000,
         "income": 34560,
@@ -3527,6 +3790,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/R2_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/R2_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/R2_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/R2_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/R2_SCOURGE.png"
     }
   },
@@ -3612,6 +3876,13 @@
         "sellCredits": 8504999999.999999,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 12150000000.0,
+        "income": 110880.0,
+        "craftingSeconds": 20034.0,
+        "sellCredits": 8504999999.999999,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 2632500000,
         "income": 21600,
@@ -3634,6 +3905,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/R6_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/R6_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/R6_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/R6_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/R6_SCOURGE.png"
     }
   },
@@ -3719,6 +3991,13 @@
         "sellCredits": 9450000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 13500000000.0,
+        "income": 121968.0,
+        "craftingSeconds": 21929.4,
+        "sellCredits": 9450000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 2925000000,
         "income": 23760,
@@ -3741,6 +4020,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/TRAK-R_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/TRAK-R_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/TRAK-R_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/TRAK-R_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/TRAK-R_SCOURGE.png"
     }
   },
@@ -3826,6 +4106,13 @@
         "sellCredits": 4725000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 6750000000.0,
+        "income": 66528.0,
+        "craftingSeconds": 12452.4,
+        "sellCredits": 4725000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 1462500000,
         "income": 12960,
@@ -3848,6 +4135,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/ORB-WALKER_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/ORB-WALKER_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/ORB-WALKER_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/ORB-WALKER_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/ORB-WALKER_SCOURGE.png"
     }
   },
@@ -3933,6 +4221,13 @@
         "sellCredits": 5670000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 8100000000.0,
+        "income": 77616.0,
+        "craftingSeconds": 14347.8,
+        "sellCredits": 5670000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 1755000000,
         "income": 15120,
@@ -3955,6 +4250,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/UTIL-TEC_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/UTIL-TEC_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/UTIL-TEC_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/UTIL-TEC_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/UTIL-TEC_SCOURGE.png"
     }
   },
@@ -4040,6 +4336,13 @@
         "sellCredits": 18900000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 27000000000.0,
+        "income": 221760.0,
+        "craftingSeconds": 38988.0,
+        "sellCredits": 18900000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 5850000000,
         "income": 43200,
@@ -4062,6 +4365,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/B1_HEAVY_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/B1_HEAVY_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/B1_HEAVY_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/B1_HEAVY_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/B1_HEAVY_SCOURGE.png"
     }
   },
@@ -4147,6 +4451,13 @@
         "sellCredits": 12285000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 17550000000.0,
+        "income": 155232.0,
+        "craftingSeconds": 27615.6,
+        "sellCredits": 12285000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 3802500000,
         "income": 30240,
@@ -4169,6 +4480,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/B2_SUPER_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/B2_SUPER_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/B2_SUPER_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/B2_SUPER_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/B2_SUPER_SCOURGE.png"
     }
   },
@@ -4254,6 +4566,13 @@
         "sellCredits": 10395000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 14850000000.0,
+        "income": 133056.0,
+        "craftingSeconds": 23824.8,
+        "sellCredits": 10395000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 3217500000,
         "income": 25920,
@@ -4276,6 +4595,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/B2_HEAVY_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/B2_HEAVY_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/B2_HEAVY_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/B2_HEAVY_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/B2_HEAVY_SCOURGE.png"
     }
   },
@@ -4361,6 +4681,13 @@
         "sellCredits": 16064999999.999998,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 22950000000.0,
+        "income": 199584.0,
+        "craftingSeconds": 35197.2,
+        "sellCredits": 16064999999.999998,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 4972500000,
         "income": 38880,
@@ -4383,6 +4710,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/STRIKE-ORB_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/STRIKE-ORB_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/STRIKE-ORB_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/STRIKE-ORB_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/STRIKE-ORB_SCOURGE.png"
     }
   },
@@ -4468,6 +4796,13 @@
         "sellCredits": 7559999999.999999,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 10800000000.0,
+        "income": 99792.0,
+        "craftingSeconds": 18138.6,
+        "sellCredits": 7559999999.999999,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 2340000000,
         "income": 19440,
@@ -4490,6 +4825,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/HAUL-R_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/HAUL-R_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/HAUL-R_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/HAUL-R_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/HAUL-R_SCOURGE.png"
     }
   },
@@ -4575,6 +4911,13 @@
         "sellCredits": 13230000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 18900000000.0,
+        "income": 166320.0,
+        "craftingSeconds": 29511.0,
+        "sellCredits": 13230000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 4095000000,
         "income": 32400,
@@ -4597,6 +4940,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/LNG-SHOT_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/LNG-SHOT_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/LNG-SHOT_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/LNG-SHOT_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/LNG-SHOT_SCOURGE.png"
     }
   },
@@ -4682,6 +5026,13 @@
         "sellCredits": 1339800000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 1914000000000.0,
+        "income": 673596.0,
+        "craftingSeconds": 62490.96,
+        "sellCredits": 1339800000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 414700000000,
         "income": 131220,
@@ -4704,6 +5055,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/PROTO-ROLLER_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/PROTO-ROLLER_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/PROTO-ROLLER_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/PROTO-ROLLER_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/PROTO-ROLLER_SCOURGE.png"
     }
   },
@@ -4789,6 +5141,13 @@
         "sellCredits": 1766100000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 2523000000000.0,
+        "income": 862092.0,
+        "craftingSeconds": 79675.92,
+        "sellCredits": 1766100000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 546650000000,
         "income": 167940,
@@ -4811,6 +5170,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/MECHA-DROID_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/MECHA-DROID_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/MECHA-DROID_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/MECHA-DROID_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/MECHA-DROID_SCOURGE.png"
     }
   },
@@ -4896,6 +5256,13 @@
         "sellCredits": 2253300000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 3219000000000.0,
+        "income": 1039500.0,
+        "craftingSeconds": 95850.0,
+        "sellCredits": 2253300000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 697450000000,
         "income": 202500,
@@ -4918,6 +5285,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/MONO-WALKER_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/MONO-WALKER_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/MONO-WALKER_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/MONO-WALKER_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/MONO-WALKER_SCOURGE.png"
     }
   },
@@ -5003,6 +5371,13 @@
         "sellCredits": 1705200000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 2436000000000.0,
+        "income": 900900.0,
+        "craftingSeconds": 83214.0,
+        "sellCredits": 1705200000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 527800000000,
         "income": 175500,
@@ -5025,6 +5400,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/BB9_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/BB9_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/BB9_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/BB9_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/BB9_SCOURGE.png"
     }
   },
@@ -5110,6 +5486,13 @@
         "sellCredits": 2253300000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 3219000000000.0,
+        "income": 1039500.0,
+        "craftingSeconds": 95850.0,
+        "sellCredits": 2253300000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 697450000000,
         "income": 202500,
@@ -5132,6 +5515,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/R7_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/R7_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/R7_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/R7_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/R7_SCOURGE.png"
     }
   },
@@ -5217,6 +5601,13 @@
         "sellCredits": 1887900000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 2697000000000.0,
+        "income": 903672.0,
+        "craftingSeconds": 83466.72,
+        "sellCredits": 1887900000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 584350000000,
         "income": 176040,
@@ -5239,6 +5630,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/B2-RP_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/B2-RP_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/B2-RP_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/B2-RP_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/B2-RP_SCOURGE.png"
     }
   },
@@ -5324,6 +5716,13 @@
         "sellCredits": 1827000000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 2610000000000.0,
+        "income": 873180.0,
+        "craftingSeconds": 80686.8,
+        "sellCredits": 1827000000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 565500000000,
         "income": 170100,
@@ -5346,6 +5745,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/CYCLO-GRAV_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/CYCLO-GRAV_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/CYCLO-GRAV_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/CYCLO-GRAV_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/CYCLO-GRAV_SCOURGE.png"
     }
   },
@@ -5431,6 +5831,13 @@
         "sellCredits": 2253300000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 3219000000000.0,
+        "income": 1039500.0,
+        "craftingSeconds": 95850.0,
+        "sellCredits": 2253300000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 697450000000,
         "income": 202500,
@@ -5453,6 +5860,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/OPTI-STRIKE_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/OPTI-STRIKE_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/OPTI-STRIKE_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/OPTI-STRIKE_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/OPTI-STRIKE_SCOURGE.png"
     }
   },
@@ -5538,6 +5946,13 @@
         "sellCredits": 21168000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 30240000000000.0,
+        "income": 2541000.0,
+        "craftingSeconds": 187920.0,
+        "sellCredits": 21168000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 6552000000000,
         "income": 492800,
@@ -5560,6 +5975,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/SNOW_MOUSE_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/SNOW_MOUSE_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/SNOW_MOUSE_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/SNOW_MOUSE_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/SNOW_MOUSE_SCOURGE.png"
     }
   },
@@ -5645,6 +6061,13 @@
         "sellCredits": 23990400000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 34272000000000.0,
+        "income": 2945250.0,
+        "craftingSeconds": 205560.0,
+        "sellCredits": 23990400000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 7425600000000,
         "income": 571200,
@@ -5667,6 +6090,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/RIC_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/RIC_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/RIC_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/RIC_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/RIC_SCOURGE.png"
     }
   },
@@ -5752,6 +6176,13 @@
         "sellCredits": 35280000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 50400000000000.0,
+        "income": 4158000.0,
+        "craftingSeconds": 258480.0,
+        "sellCredits": 35280000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 10920000000000,
         "income": 806400,
@@ -5774,6 +6205,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/LOADLIFTER_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/LOADLIFTER_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/LOADLIFTER_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/LOADLIFTER_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/LOADLIFTER_SCOURGE.png"
     }
   },
@@ -5859,6 +6291,13 @@
         "sellCredits": 29635200000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 42336000000000.0,
+        "income": 3753750.0,
+        "craftingSeconds": 240840.0,
+        "sellCredits": 29635200000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 9172800000000,
         "income": 728000,
@@ -5881,6 +6320,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/LEP_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/LEP_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/LEP_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/LEP_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/LEP_SCOURGE.png"
     }
   },
@@ -5966,6 +6406,13 @@
         "sellCredits": 26812800000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 38304000000000.0,
+        "income": 3349500.0,
+        "craftingSeconds": 223200.0,
+        "sellCredits": 26812800000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 8299200000000,
         "income": 649600,
@@ -5988,6 +6435,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/RIC-1200_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/RIC-1200_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/RIC-1200_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/RIC-1200_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/RIC-1200_SCOURGE.png"
     }
   },
@@ -6073,6 +6521,13 @@
         "sellCredits": 26812800000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 38304000000000.0,
+        "income": 3349500.0,
+        "craftingSeconds": 223200.0,
+        "sellCredits": 26812800000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 8299200000000,
         "income": 649600,
@@ -6095,6 +6550,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/DRFT-R_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/DRFT-R_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/DRFT-R_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/DRFT-R_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/DRFT-R_SCOURGE.png"
     }
   },
@@ -6180,6 +6636,13 @@
         "sellCredits": 21168000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 30240000000000.0,
+        "income": 2541000.0,
+        "craftingSeconds": 187920.0,
+        "sellCredits": 21168000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 6552000000000,
         "income": 492800,
@@ -6202,6 +6665,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/CYCLENS_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/CYCLENS_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/CYCLENS_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/CYCLENS_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/CYCLENS_SCOURGE.png"
     }
   },
@@ -6287,6 +6751,13 @@
         "sellCredits": 35280000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 50400000000000.0,
+        "income": 4158000.0,
+        "craftingSeconds": 258480.0,
+        "sellCredits": 35280000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 10920000000000,
         "income": 806400,
@@ -6309,6 +6780,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/MO-TRAK_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/MO-TRAK_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/MO-TRAK_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/MO-TRAK_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/MO-TRAK_SCOURGE.png"
     }
   },
@@ -6394,6 +6866,13 @@
         "sellCredits": 29635200000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 42336000000000.0,
+        "income": 3753750.0,
+        "craftingSeconds": 240840.0,
+        "sellCredits": 29635200000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 9172800000000,
         "income": 728000,
@@ -6416,6 +6895,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/TRI-TEK_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/TRI-TEK_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/TRI-TEK_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/TRI-TEK_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/TRI-TEK_SCOURGE.png"
     }
   },
@@ -6501,6 +6981,13 @@
         "sellCredits": 26812800000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 38304000000000.0,
+        "income": 3349500.0,
+        "craftingSeconds": 223200.0,
+        "sellCredits": 26812800000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 8299200000000,
         "income": 649600,
@@ -6523,6 +7010,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/IG_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/IG_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/IG_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/IG_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/IG_SCOURGE.png"
     }
   },
@@ -6608,6 +7096,13 @@
         "sellCredits": 35280000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 50400000000000.0,
+        "income": 4158000.0,
+        "craftingSeconds": 258480.0,
+        "sellCredits": 35280000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 10920000000000,
         "income": 806400,
@@ -6630,6 +7125,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/KX_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/KX_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/KX_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/KX_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/KX_SCOURGE.png"
     }
   },
@@ -7071,6 +7567,13 @@
         "sellCredits": 8190000.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 11700000.0,
+        "income": 10644.48,
+        "craftingSeconds": 5628.96,
+        "sellCredits": 8190000.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 10400000,
         "income": 2073.6,
@@ -7093,6 +7596,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/WHL-EX_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/WHL-EX_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/WHL-EX_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/WHL-EX_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/WHL-EX_SCOURGE.png"
     }
   },
@@ -7179,6 +7683,13 @@
         "sellCredits": 8190000.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 11700000.0,
+        "income": 10644.48,
+        "craftingSeconds": 5628.96,
+        "sellCredits": 8190000.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 10400000,
         "income": 2073.6,
@@ -7201,6 +7712,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/ZRO-TEC_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/ZRO-TEC_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/ZRO-TEC_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/ZRO-TEC_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/ZRO-TEC_SCOURGE.png"
     }
   },
@@ -7287,6 +7799,13 @@
         "sellCredits": 8190000.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 11700000.0,
+        "income": 10644.48,
+        "craftingSeconds": 5628.96,
+        "sellCredits": 8190000.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 10400000,
         "income": 2073.6,
@@ -7309,6 +7828,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/BTL-R_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/BTL-R_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/BTL-R_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/BTL-R_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/BTL-R_SCOURGE.png"
     }
   },
@@ -7395,6 +7915,13 @@
         "sellCredits": 42840000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 61200000000.0,
+        "income": 399168.0,
+        "craftingSeconds": 69314.4,
+        "sellCredits": 42840000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 13260000000,
         "income": 77760,
@@ -7417,6 +7944,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/N-UL_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/N-UL_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/N-UL_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/N-UL_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/N-UL_SCOURGE.png"
     }
   },
@@ -7503,6 +8031,13 @@
         "sellCredits": 42840000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 61200000000.0,
+        "income": 399168.0,
+        "craftingSeconds": 69314.4,
+        "sellCredits": 42840000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 13260000000,
         "income": 77760,
@@ -7525,6 +8060,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/SCRP-R_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/SCRP-R_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/SCRP-R_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/SCRP-R_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/SCRP-R_SCOURGE.png"
     }
   },
@@ -7611,6 +8147,13 @@
         "sellCredits": 41737500000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 59625000000.0,
+        "income": 382536.0,
+        "craftingSeconds": 66471.3,
+        "sellCredits": 41737500000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 12918750000,
         "income": 74520,
@@ -7633,6 +8176,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/ARM-CORE_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/ARM-CORE_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/ARM-CORE_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/ARM-CORE_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/ARM-CORE_SCOURGE.png"
     }
   },
@@ -7719,6 +8263,13 @@
         "sellCredits": 41580000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 59400000000.0,
+        "income": 399168.0,
+        "craftingSeconds": 69314.4,
+        "sellCredits": 41580000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 12870000000,
         "income": 77760,
@@ -7741,6 +8292,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/OPT-AR_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/OPT-AR_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/OPT-AR_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/OPT-AR_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/OPT-AR_SCOURGE.png"
     }
   },
@@ -7827,6 +8379,13 @@
         "sellCredits": 4384799999999.9995,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 6264000000000.0,
+        "income": 1559250.0,
+        "craftingSeconds": 133740.0,
+        "sellCredits": 4384799999999.9995,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 1357200000000,
         "income": 303750,
@@ -7849,6 +8408,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/RO-TOR_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/RO-TOR_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/RO-TOR_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/RO-TOR_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/RO-TOR_SCOURGE.png"
     }
   },
@@ -7935,6 +8495,13 @@
         "sellCredits": 4872000000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 6960000000000.0,
+        "income": 1663200.0,
+        "craftingSeconds": 137520.0,
+        "sellCredits": 4872000000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 1508000000000,
         "income": 324000,
@@ -7957,6 +8524,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/FUS-3_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/FUS-3_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/FUS-3_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/FUS-3_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/FUS-3_SCOURGE.png"
     }
   },
@@ -8043,6 +8611,13 @@
         "sellCredits": 4872000000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 6960000000000.0,
+        "income": 1663200.0,
+        "craftingSeconds": 137520.0,
+        "sellCredits": 4872000000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 1508000000000,
         "income": 324000,
@@ -8065,6 +8640,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/QIK-BIT_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/QIK-BIT_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/QIK-BIT_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/QIK-BIT_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/QIK-BIT_SCOURGE.png"
     }
   },
@@ -8151,6 +8727,13 @@
         "sellCredits": 4872000000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 6960000000000.0,
+        "income": 1663200.0,
+        "craftingSeconds": 137520.0,
+        "sellCredits": 4872000000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 1508000000000,
         "income": 324000,
@@ -8173,6 +8756,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/ORB-XL_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/ORB-XL_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/ORB-XL_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/ORB-XL_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/ORB-XL_SCOURGE.png"
     }
   },
@@ -8259,6 +8843,13 @@
         "sellCredits": 42336000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 60480000000000.0,
+        "income": 7276500.0,
+        "craftingSeconds": 394560.0,
+        "sellCredits": 42336000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 13104000000000,
         "income": 1411200,
@@ -8281,6 +8872,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/RIV-3T_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/RIV-3T_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/RIV-3T_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/RIV-3T_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/RIV-3T_SCOURGE.png"
     }
   },
@@ -8367,6 +8959,13 @@
         "sellCredits": 37632000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 53760000000000.0,
+        "income": 6583500.0,
+        "craftingSeconds": 364320.0,
+        "sellCredits": 37632000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 11648000000000,
         "income": 1276800,
@@ -8389,6 +8988,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/LUG-G_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/LUG-G_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/LUG-G_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/LUG-G_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/LUG-G_SCOURGE.png"
     }
   },
@@ -8475,6 +9075,13 @@
         "sellCredits": 39984000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 57120000000000.0,
+        "income": 6756750.0,
+        "craftingSeconds": 371880.0,
+        "sellCredits": 39984000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 12376000000000,
         "income": 1310400,
@@ -8497,6 +9104,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/LOW-MO_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/LOW-MO_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/LOW-MO_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/LOW-MO_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/LOW-MO_SCOURGE.png"
     }
   },
@@ -8583,6 +9191,13 @@
         "sellCredits": 42336000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 60480000000000.0,
+        "income": 6930000.0,
+        "craftingSeconds": 379440.0,
+        "sellCredits": 42336000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 13104000000000,
         "income": 1344000,
@@ -8605,6 +9220,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/AXI-POD_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/AXI-POD_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/AXI-POD_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/AXI-POD_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/AXI-POD_SCOURGE.png"
     }
   },
@@ -8691,6 +9307,13 @@
         "sellCredits": 37632000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 53760000000000.0,
+        "income": 6583500.0,
+        "craftingSeconds": 364320.0,
+        "sellCredits": 37632000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 11648000000000,
         "income": 1276800,
@@ -8713,6 +9336,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/SRV-O_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/SRV-O_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/SRV-O_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/SRV-O_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/SRV-O_SCOURGE.png"
     }
   },
@@ -8799,6 +9423,13 @@
         "sellCredits": 42336000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 60480000000000.0,
+        "income": 6930000.0,
+        "craftingSeconds": 379440.0,
+        "sellCredits": 42336000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 13104000000000,
         "income": 1344000,
@@ -8821,6 +9452,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/X-ONK_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/X-ONK_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/X-ONK_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/X-ONK_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/X-ONK_SCOURGE.png"
     }
   },
@@ -8928,6 +9560,15 @@
         "sellCredits": 4536000.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 6480000.0,
+        "income": 2069.76,
+        "craftingSeconds": 1964.52,
+        "protocolCpsBonusPercent": 72.0,
+        "protocolCraftingBonusPercent": 1080.0,
+        "sellCredits": 4536000.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 5760000,
         "income": 403.2,
@@ -8950,6 +9591,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/SA-5_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/SA-5_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/SA-5_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/SA-5_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/SA-5_SCOURGE.png"
     },
     "acquisition": "World Mission Protocol Crates",
@@ -9062,6 +9704,15 @@
         "sellCredits": 22050000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 31500000000.0,
+        "income": 38808.0,
+        "craftingSeconds": 7713.9,
+        "protocolCpsBonusPercent": 108.0,
+        "protocolCraftingBonusPercent": 1620.0,
+        "sellCredits": 22050000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 6825000000,
         "income": 7560,
@@ -9084,6 +9735,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/LOM_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/LOM_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/LOM_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/LOM_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/LOM_SCOURGE.png"
     },
     "acquisition": "World Mission Protocol Crates",
@@ -9196,6 +9848,15 @@
         "sellCredits": 2253300000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 3219000000000.0,
+        "income": 623700.0,
+        "craftingSeconds": 57942.0,
+        "protocolCpsBonusPercent": 144.0,
+        "protocolCraftingBonusPercent": 2160.0,
+        "sellCredits": 2253300000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 697450000000,
         "income": 121500,
@@ -9218,6 +9879,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/PZ_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/PZ_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/PZ_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/PZ_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/PZ_SCOURGE.png"
     },
     "acquisition": "World Mission Protocol Crates",
@@ -9330,6 +9992,15 @@
         "sellCredits": 47040000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 67200000000000.0,
+        "income": 2310000.0,
+        "craftingSeconds": 177840.0,
+        "protocolCpsBonusPercent": 180.0,
+        "protocolCraftingBonusPercent": 2700.0,
+        "sellCredits": 47040000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 14560000000000,
         "income": 448000,
@@ -9352,6 +10023,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/TDA_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/TDA_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/TDA_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/TDA_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/TDA_SCOURGE.png"
     },
     "acquisition": "World Mission Protocol Crates",
@@ -9442,6 +10114,13 @@
         "sellCredits": 4032000.0,
         "sellUpgradeChips": 24.0
       },
+      "KYBER_YELLOW": {
+        "cost": 5760000.0,
+        "income": 10348.8,
+        "craftingSeconds": 5502.6,
+        "sellCredits": 4032000.0,
+        "sellUpgradeChips": 24.0
+      },
       "SCOURGE": {
         "cost": 5120000,
         "income": 2016,
@@ -9464,6 +10143,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/EG-58_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/EG-58_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/EG-58_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/EG-58_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/EG-58_SCOURGE.png"
     },
     "acquisition": {
@@ -9555,6 +10235,13 @@
         "sellCredits": 8504999999.999999,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 12150000000.0,
+        "income": 110880.0,
+        "craftingSeconds": 20034.0,
+        "sellCredits": 8504999999.999999,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 2632500000,
         "income": 21600,
@@ -9577,6 +10264,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/EGL_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/EGL_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/EGL_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/EGL_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/EGL_SCOURGE.png"
     },
     "acquisition": {
@@ -9668,6 +10356,13 @@
         "sellCredits": 13230000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 18900000000.0,
+        "income": 166320.0,
+        "craftingSeconds": 29511.0,
+        "sellCredits": 13230000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 4095000000,
         "income": 32400,
@@ -9690,6 +10385,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/KT_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/KT_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/KT_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/KT_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/KT_SCOURGE.png"
     },
     "acquisition": {
@@ -9781,6 +10477,13 @@
         "sellCredits": 20790000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 29700000000.0,
+        "income": 255024.0,
+        "craftingSeconds": 44674.2,
+        "sellCredits": 20790000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 6435000000,
         "income": 49680,
@@ -9803,6 +10506,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/MPH_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/MPH_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/MPH_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/MPH_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/MPH_SCOURGE.png"
     },
     "acquisition": {
@@ -9894,6 +10598,13 @@
         "sellCredits": 1705200000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 2436000000000.0,
+        "income": 900900.0,
+        "craftingSeconds": 83214.0,
+        "sellCredits": 1705200000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 527800000000,
         "income": 175500,
@@ -9916,6 +10627,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/JO9-4MN_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/JO9-4MN_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/JO9-4MN_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/JO9-4MN_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/JO9-4MN_SCOURGE.png"
     },
     "acquisition": {
@@ -10007,6 +10719,13 @@
         "sellCredits": 1887900000000.0,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 2697000000000.0,
+        "income": 970200.0,
+        "craftingSeconds": 89532.0,
+        "sellCredits": 1887900000000.0,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 584350000000,
         "income": 189000,
@@ -10029,6 +10748,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/PLNK_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/PLNK_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/PLNK_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/PLNK_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/PLNK_SCOURGE.png"
     },
     "acquisition": {
@@ -10120,6 +10840,13 @@
         "sellCredits": 28224000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 40320000000000.0,
+        "income": 3580500.0,
+        "craftingSeconds": 233280.0,
+        "sellCredits": 28224000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 8736000000000,
         "income": 694400,
@@ -10142,6 +10869,7 @@
       "KYBER_GREEN": "assets/droids/rendered-v3/ECG_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/rendered-v3/ECG_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/rendered-v3/ECG_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/ECG_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/rendered-v3/ECG_SCOURGE.png"
     },
     "acquisition": {
@@ -10293,6 +11021,13 @@
         "sellCredits": 42336000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 60480000000000.0,
+        "income": 6930000.0,
+        "craftingSeconds": 379440.0,
+        "sellCredits": 42336000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 13104000000000.0,
         "income": 1344000.0,
@@ -10315,6 +11050,7 @@
       "KYBER_GREEN": "assets/droids/fusion-2026-11/AX-L_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/fusion-2026-11/AX-L_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/fusion-2026-11/AX-L_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/AX-L_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/fusion-2026-11/AX-L_SCOURGE.png"
     }
   },
@@ -10401,6 +11137,13 @@
         "sellCredits": 37800000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 54000000000.0,
+        "income": 354816.0,
+        "craftingSeconds": 61732.8,
+        "sellCredits": 37800000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 11700000000.0,
         "income": 69120.0,
@@ -10423,6 +11166,7 @@
       "KYBER_GREEN": "assets/droids/fusion-2026-11/BI-BIT_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/fusion-2026-11/BI-BIT_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/fusion-2026-11/BI-BIT_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/BI-BIT_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/fusion-2026-11/BI-BIT_SCOURGE.png"
     }
   },
@@ -10509,6 +11253,13 @@
         "sellCredits": 4384799999999.9995,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 6264000000000.0,
+        "income": 1559250.0,
+        "craftingSeconds": 133740.0,
+        "sellCredits": 4384799999999.9995,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 1357200000000.0,
         "income": 303750.0,
@@ -10531,6 +11282,7 @@
       "KYBER_GREEN": "assets/droids/fusion-2026-11/HV-EE_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/fusion-2026-11/HV-EE_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/fusion-2026-11/HV-EE_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/HV-EE_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/fusion-2026-11/HV-EE_SCOURGE.png"
     }
   },
@@ -10617,6 +11369,13 @@
         "sellCredits": 39984000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 57120000000000.0,
+        "income": 6756750.0,
+        "craftingSeconds": 371880.0,
+        "sellCredits": 39984000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 12376000000000.0,
         "income": 1310400.0,
@@ -10639,6 +11398,7 @@
       "KYBER_GREEN": "assets/droids/fusion-2026-11/MO-TRO_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/fusion-2026-11/MO-TRO_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/fusion-2026-11/MO-TRO_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/MO-TRO_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/fusion-2026-11/MO-TRO_SCOURGE.png"
     }
   },
@@ -10747,6 +11507,15 @@
         "protocolCpsBonusPercent": 200.0,
         "protocolCraftingBonusPercent": 3000.0
       },
+      "KYBER_YELLOW": {
+        "cost": 53760000000000.0,
+        "income": 4042500.0,
+        "craftingSeconds": 253440.0,
+        "sellCredits": 37632000000000.0,
+        "sellUpgradeChips": 210.0,
+        "protocolCpsBonusPercent": 225.0,
+        "protocolCraftingBonusPercent": 3375.0
+      },
       "SCOURGE": {
         "cost": 11648000000000.0,
         "income": 784000.0,
@@ -10771,6 +11540,7 @@
       "KYBER_GREEN": "assets/droids/fusion-2026-11/KL-NK_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/fusion-2026-11/KL-NK_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/fusion-2026-11/KL-NK_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/KL-NK_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/fusion-2026-11/KL-NK_SCOURGE.png"
     }
   },
@@ -10857,6 +11627,13 @@
         "sellCredits": 35868000000000.0,
         "sellUpgradeChips": 210.0
       },
+      "KYBER_YELLOW": {
+        "cost": 51240000000000.0,
+        "income": 6410250.0,
+        "craftingSeconds": 356760.0,
+        "sellCredits": 35868000000000.0,
+        "sellUpgradeChips": 210.0
+      },
       "SCOURGE": {
         "cost": 11102000000000.0,
         "income": 1243200.0,
@@ -10879,6 +11656,7 @@
       "KYBER_GREEN": "assets/droids/fusion-2026-11/SKM-MR_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/fusion-2026-11/SKM-MR_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/fusion-2026-11/SKM-MR_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/SKM-MR_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/fusion-2026-11/SKM-MR_SCOURGE.png"
     }
   },
@@ -10965,6 +11743,13 @@
         "sellCredits": 4202099999999.9995,
         "sellUpgradeChips": 102.0
       },
+      "KYBER_YELLOW": {
+        "cost": 6003000000000.0,
+        "income": 1496880.0,
+        "craftingSeconds": 131472.0,
+        "sellCredits": 4202099999999.9995,
+        "sellUpgradeChips": 102.0
+      },
       "SCOURGE": {
         "cost": 1300650000000.0,
         "income": 291600.0,
@@ -10987,6 +11772,7 @@
       "KYBER_GREEN": "assets/droids/fusion-2026-11/TOR-Q_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/fusion-2026-11/TOR-Q_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/fusion-2026-11/TOR-Q_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/TOR-Q_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/fusion-2026-11/TOR-Q_SCOURGE.png"
     }
   },
@@ -11073,6 +11859,13 @@
         "sellCredits": 39375000000.0,
         "sellUpgradeChips": 48.0
       },
+      "KYBER_YELLOW": {
+        "cost": 56250000000.0,
+        "income": 369600.0,
+        "craftingSeconds": 64260.0,
+        "sellCredits": 39375000000.0,
+        "sellUpgradeChips": 48.0
+      },
       "SCOURGE": {
         "cost": 12187500000.0,
         "income": 72000.0,
@@ -11095,6 +11888,7 @@
       "KYBER_GREEN": "assets/droids/fusion-2026-11/STRD-3_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/fusion-2026-11/STRD-3_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/fusion-2026-11/STRD-3_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/STRD-3_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/fusion-2026-11/STRD-3_SCOURGE.png"
     }
   },
@@ -11181,6 +11975,13 @@
         "sellCredits": 756000.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 1080000.0,
+        "income": 2661.12,
+        "craftingSeconds": 2217.24,
+        "sellCredits": 756000.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 960000.0,
         "income": 518.4,
@@ -11203,6 +12004,7 @@
       "KYBER_GREEN": "assets/droids/fusion-2026-11/LFT-3R_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/fusion-2026-11/LFT-3R_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/fusion-2026-11/LFT-3R_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/LFT-3R_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/fusion-2026-11/LFT-3R_SCOURGE.png"
     }
   },
@@ -11289,6 +12091,13 @@
         "sellCredits": 655200.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 936000.0,
+        "income": 2365.44,
+        "craftingSeconds": 2090.88,
+        "sellCredits": 655200.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 832000.0,
         "income": 460.8,
@@ -11311,6 +12120,7 @@
       "KYBER_GREEN": "assets/droids/fusion-2026-11/ION_PROBE_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/fusion-2026-11/ION_PROBE_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/fusion-2026-11/ION_PROBE_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/ION_PROBE_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/fusion-2026-11/ION_PROBE_SCOURGE.png"
     }
   },
@@ -11397,6 +12207,13 @@
         "sellCredits": 705600.0,
         "sellUpgradeChips": 22.0
       },
+      "KYBER_YELLOW": {
+        "cost": 1008000.0,
+        "income": 2513.28,
+        "craftingSeconds": 2154.06,
+        "sellCredits": 705600.0,
+        "sellUpgradeChips": 22.0
+      },
       "SCOURGE": {
         "cost": 896000.0,
         "income": 489.6,
@@ -11419,6 +12236,7 @@
       "KYBER_GREEN": "assets/droids/fusion-2026-11/QUAD_SENTRY_KYBER_GREEN.png",
       "KYBER_BLUE": "assets/droids/fusion-2026-11/QUAD_SENTRY_KYBER_BLUE.png",
       "KYBER_PURPLE": "assets/droids/fusion-2026-11/QUAD_SENTRY_KYBER_PURPLE.png",
+      "KYBER_YELLOW": "assets/droids/kyber-yellow/QUAD_SENTRY_KYBER_YELLOW.png",
       "SCOURGE": "assets/droids/fusion-2026-11/QUAD_SENTRY_SCOURGE.png"
     }
   }

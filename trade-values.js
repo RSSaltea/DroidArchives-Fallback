@@ -1,4 +1,4 @@
-import {CHIP_COSTS,ALL_VARIANTS as ranks,RARITY_POWER as crystals,KYBER_TRADE_COLOUR as colour,isIconic} from './droid-rules.js?v=2026-11-08-shared';
+import {CHIP_COSTS,ALL_VARIANTS as ranks,RARITY_POWER as crystals,KYBER_TRADE_COLOUR as colour,isIconic} from './droid-rules.js?v=2026-11-26-yellow-charge';
 // In-game trade valuation: each currency's positive difference is charged
 // independently to the player receiving the higher value in that currency.
 export function tradeValue(d,variant){

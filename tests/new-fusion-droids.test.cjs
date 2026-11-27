@@ -35,7 +35,7 @@ test('eleven new fusion droids have complete canonical definitions and exact rec
   const d=matches[0];assert(d.fusion);assert.equal(d.type,type);assert.equal(d.rarity,rarity);
   assert.equal(d.additionalPowerScale,1);assert.equal(d.variants.DEFAULT.income,income);assert.equal(d.variants.DEFAULT.cost,cost);
   assert.deepEqual(fusion.recipes.find(r=>r.name===name),{name,type,rarity,inputs});
-  assert.equal(Object.keys(d.variants).length,12);
+  assert.equal(Object.keys(d.variants).length,13);
   for(const [v,stats] of Object.entries(d.variants)){
    assert(stats.income>0&&stats.cost>0&&stats.craftingSeconds>0,name+' '+v);
    assert(fs.existsSync(d.portraits[v]),name+' '+v+' portrait');

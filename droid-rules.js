@@ -1,4 +1,10 @@
-export const ACTIVE_KYBER=Object.freeze(['KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE']);
+export const ACTIVE_KYBER=Object.freeze(['KYBER_GREEN','KYBER_BLUE','KYBER_PURPLE','KYBER_YELLOW']);
+export const KYBER_COLOURS=Object.freeze([
+  {variant:'KYBER_GREEN',chance:40,incomeMultiplier:3},
+  {variant:'KYBER_BLUE',chance:30,incomeMultiplier:3.25},
+  {variant:'KYBER_PURPLE',chance:20,incomeMultiplier:3.6},
+  {variant:'KYBER_YELLOW',chance:10,incomeMultiplier:4.2}
+].map(Object.freeze));
 // Shared game rules. Keep feature-specific reward scores separate from display order.
 export const DROID_TYPES=['WORKER','ASTROMECH','BATTLE','PROTOCOL'];
 export const ALL_VARIANTS=['DEFAULT','GOLD','DIAMOND','RAINBOW','BESKAR','GALACTIC','STELLAR','KYBER'];
@@ -13,6 +19,19 @@ export const isIconic=d=>d?.rarity==='ICONIC'||d?.special?.onlyDefaultVariant;
 export const isFusion=d=>Boolean(d?.fusion);
 export const ICONIC_EFFECTS={'SCOURGE PRIME':'Work: Apply Hive Mind Bonus; credit Protocol links this region','WG-22':'2x Flawless Chance (Companion)','BB-8':'×2 Upgrade Chips on claim','MISTER BONES':'×2 Damage','IG-11 MARSHAL':'Blueprint Shield','DJ R-3X':'×2 World Quest Rewards','CB-23':'Secret Astromech Mission','R2-D2':'15% Astromech Mission Speed','C-3PO':'2× Droid Sell Value'};
 export const iconicIncome=d=>isIconic(d)?(d.special?.incomePercent??0.15):0;
+export const iconicProtocolBonus=(base,best)=>best>base?best*1.2:base;
+export const rawProtocolBonus=(d,variant,role)=>Number(d?.variants?.[variant]?.[role==='CREDITS'?'protocolCpsBonusPercent':'protocolCraftingBonusPercent'])||0;
+// Only active Protocol slots of the same role contribute to the Iconic lead.
+export function placedProtocolBonus(d,variant,role,placed=[],droids=[]){
+  const base=rawProtocolBonus(d,variant,role);
+  if(d?.type!=='PROTOCOL'||!isIconic(d))return base;
+  const best=placed.reduce((best,u)=>{
+    if(!u.station?.startsWith('PROTOCOL_')||!u.station.endsWith('_'+role))return best;
+    const other=droids.find(x=>x.name===u.name);
+    return other?.type==='PROTOCOL'&&!isIconic(other)?Math.max(best,rawProtocolBonus(other,u.variant,role)):best;
+  },0);
+  return iconicProtocolBonus(base,best);
+}
 export const CHIP_COSTS={COMMON:{GOLD:10,DIAMOND:25,RAINBOW:40,BESKAR:80,GALACTIC:120,STELLAR:180,KYBER:240},RARE:{GOLD:30,DIAMOND:60,RAINBOW:100,BESKAR:250,GALACTIC:400,STELLAR:750,KYBER:1000},EPIC:{GOLD:120,DIAMOND:180,RAINBOW:240,BESKAR:2000,GALACTIC:5000,STELLAR:8000,KYBER:12000},LEGENDARY:{GOLD:400,DIAMOND:1200,RAINBOW:2500,BESKAR:6000,GALACTIC:16000,STELLAR:24000,KYBER:30000},MYTHIC:{GOLD:4000,DIAMOND:8000,RAINBOW:14000,BESKAR:30000,GALACTIC:60000,STELLAR:90000,KYBER:110000}};
 export const UPGRADE_CHIP_RATES={
   COMMON:{DEFAULT:2,GOLD:4,DIAMOND:6,RAINBOW:8,BESKAR:10,GALACTIC:12,STELLAR:14,KYBER:16},
@@ -21,7 +40,8 @@ export const UPGRADE_CHIP_RATES={
   LEGENDARY:{DEFAULT:8,GOLD:16,DIAMOND:24,RAINBOW:32,BESKAR:40,GALACTIC:48,STELLAR:56,KYBER:64},
   MYTHIC:{DEFAULT:10,GOLD:20,DIAMOND:30,RAINBOW:40,BESKAR:50,GALACTIC:60,STELLAR:70,KYBER:80}
 };
-export const upgradeChipRate=(d,variant)=>UPGRADE_CHIP_RATES[d?.rarity]?.[variant==='SCOURGE'?'KYBER':baseVariant(variant)]||0;
+export const variantPowerBonus=variant=>variant==='KYBER_YELLOW'?1:0;
+export const upgradeChipRate=(d,variant)=>(UPGRADE_CHIP_RATES[d?.rarity]?.[variant==='SCOURGE'?'KYBER':baseVariant(variant)]||0)*(variant==='KYBER_YELLOW'?9/8:1);
 export const CHIP_SELL_VALUES={
   COMMON:{GOLD:4,DIAMOND:7,RAINBOW:10,BESKAR:13,GALACTIC:16,STELLAR:19,KYBER:22},
   RARE:{GOLD:6,DIAMOND:9,RAINBOW:12,BESKAR:15,GALACTIC:18,STELLAR:21,KYBER:24},
@@ -40,11 +60,11 @@ export const PRODUCTIVE_STATIONS=Object.freeze(['WORKER','ASTROMECH','BATTLE']);
 export const BLUEPRINT_RARITY_POINTS=Object.freeze({COMMON:0,RARE:1,EPIC:2,LEGENDARY:3,MYTHIC:5});
 // Crafting power and trade crystals use consecutive rarity levels, not blueprint IDs.
 export const RARITY_POWER=Object.freeze({COMMON:1,RARE:2,EPIC:3,LEGENDARY:4,MYTHIC:5});
-export const KYBER_TRADE_COLOUR=Object.freeze({KYBER_GREEN:1,KYBER_BLUE:2,KYBER_PURPLE:3});
+export const KYBER_TRADE_COLOUR=Object.freeze({KYBER_GREEN:1,KYBER_BLUE:2,KYBER_PURPLE:3,KYBER_YELLOW:4});
 export const KYBER_ACTIVATION=Object.freeze([[1,200,50],[2,400,100],[4,600,150],[7,800,200],[10,1000,250]].map(Object.freeze));
 export const kyberActivationCost=d=>d?.variants?.KYBER?KYBER_ACTIVATION[RARITY_LADDER.indexOf(String(d.rarity).toUpperCase())]?.[0]??null:null;
 export const tradeVariantRank=v=>[...ALL_VARIANTS,'KYBER_ACTIVE','SCOURGE'].indexOf(isActiveKyber(v)?'KYBER_ACTIVE':v);
-export const tradeVariantLabel=v=>({KYBER:'Kyber (inactive)',KYBER_ACTIVE:'Kyber (active ? any colour)',KYBER_GREEN:'Kyber (Green)',KYBER_BLUE:'Kyber (Blue)',KYBER_PURPLE:'Kyber (Purple)'}[v]||String(v||'').replaceAll('_',' '));
+export const tradeVariantLabel=v=>({KYBER:'Kyber (inactive)',KYBER_ACTIVE:'Kyber (active ? any colour)',KYBER_GREEN:'Kyber (Green)',KYBER_BLUE:'Kyber (Blue)',KYBER_PURPLE:'Kyber (Purple)',KYBER_YELLOW:'Kyber (Yellow)'}[v]||String(v||'').replaceAll('_',' '));
 
 // Rule tables are read-only; consumers must copy arrays before sorting/filtering in place.
 function freezeRules(value){if(value&&typeof value==='object'){Object.values(value).forEach(freezeRules);Object.freeze(value)}return value}

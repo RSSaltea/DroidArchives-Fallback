@@ -13,7 +13,7 @@ function setup(){
  const state={droids:structuredClone(data),owned:[],protocolPriority:'credits'};
  const caps={WORKER:1,ASTROMECH:1,BATTLE:1,BUILD:3,FUSION_BUILD:3,LOUNGE:1};
  // No companion activity is on in these layouts, so nothing is reserved for a seat.
- const ctx=vm.createContext({...require('../scourge.js'),...require('../optimise-layout-score.js'),...require('../crafting.js'),...require('../traits.js'),...require('../mission-economy.js'),state,console,companionActivityPicks:()=>({id:null,picks:[],missing:[],locked:[]}),ASTROMECH_MISSION_SLOTS:[0,2,4,6,8],optimiseMoveLambda:()=>0,PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
+ const ctx=vm.createContext({...require('../droid-rules.js'),...require('../scourge.js'),...require('../optimise-layout-score.js'),...require('../crafting.js'),...require('../traits.js'),...require('../mission-economy.js'),state,console,companionActivityPicks:()=>({id:null,picks:[],missing:[],locked:[]}),ASTROMECH_MISSION_SLOTS:[0,2,4,6,8],optimiseMoveLambda:()=>0,PRODUCTIVE_STATIONS:['WORKER','ASTROMECH','BATTLE'],
   effectiveMultiplier:()=>1,isIconic:d=>d?.rarity==='ICONIC',iconicIncome:d=>d?.rarity==='ICONIC'?(d.special?.incomePercent??.15):0,
   placedBaseIncome:placed=>placed.reduce((n,x)=>n+(state.droids.find(d=>d.name===x.name)?.variants[x.variant]?.income||0),0),
   expandedOwned:()=>state.owned.flatMap((x,source)=>Array.from({length:x.qty||1},(_,unit)=>({...x,source,unit}))),
@@ -36,10 +36,10 @@ function setup(){
  vm.runInContext(src.slice(src.indexOf('const optimisedRows='),src.indexOf('function optimisedPlacements(')),ctx);
  return {state,caps,run:code=>vm.runInContext(code,ctx),ctx};
 }
-test('new source stats, eight qualities and three activated Kyber forms, portraits and C-3PO type',()=>{
+test('new source stats, eight qualities and four activated Kyber forms, portraits and C-3PO type',()=>{
  assert.equal(data.find(d=>d.name==='C-3PO').type,'PROTOCOL');
  assert.equal(new Set(data.map(d=>d.name)).size,data.length);
- for(const name of ['SA-5','LOM','PZ','TDA']){const d=data.find(x=>x.name===name);assert.equal(d.type,'PROTOCOL');assert.equal(Object.keys(d.variants).length,12);for(const p of Object.values(d.portraits))assert(fs.existsSync(path.join(__dirname,'..',p)));}
+ for(const name of ['SA-5','LOM','PZ','TDA']){const d=data.find(x=>x.name===name);assert.equal(d.type,'PROTOCOL');assert.equal(Object.keys(d.variants).length,13);for(const p of Object.values(d.portraits))assert(fs.existsSync(path.join(__dirname,'..',p)));}
  assert.equal(data.find(d=>d.name==='SA-5').variants.STELLAR.protocolCpsBonusPercent,56);
  assert.equal(data.find(d=>d.name==='LOM').variants.DIAMOND.protocolCraftingBonusPercent,540);
 });

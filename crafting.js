@@ -1,11 +1,11 @@
-import {RARITY_POWER,ALL_VARIANTS as QUALITIES,PRODUCTIVE_STATIONS as REGIONS} from './droid-rules.js?v=2026-11-08-shared';
+import {placedProtocolBonus,variantPowerBonus,RARITY_POWER,ALL_VARIANTS as QUALITIES,PRODUCTIVE_STATIONS as REGIONS} from './droid-rules.js?v=2026-11-26-yellow-charge';
 import { companionPerkActive, overclockFactor, traitSum } from './traits.js?v=2026-11-02-scourgedex-crit';
 // Passive crafting rules. Pickaxe hits, critical hits and rushes are additional.
 const level=value=>Math.max(0,Math.floor(Number(value)||0));
 export function companionAttributeValue(d,variant='DEFAULT'){
   const rarity=RARITY_POWER[d?.rarity];
   if(!rarity)return 0;
-  const quality=Math.max(0,QUALITIES.indexOf(variant==='SCOURGE'||variant.startsWith('KYBER_')?'KYBER':variant));
+  const quality=Math.max(0,QUALITIES.indexOf(variant==='SCOURGE'||variant.startsWith('KYBER_')?'KYBER':variant))+variantPowerBonus(variant);
   const additional=Number(d.additionalPowerScale)||0;
   if(d.type==='WORKER')return Math.round(.2*(rarity+quality+additional)*1e6)/1e6;
   if(d.type==='ASTROMECH')return rarity+quality+additional;
@@ -26,7 +26,7 @@ export function craftingEstimate({droid,variant='DEFAULT',station='BUILD',slot=0
   const nova=.1*level(novaUpgrades['crafting-speed']);
   const protocolUnit=placed.find(x=>x.station===`PROTOCOL_${REGIONS[slot]}_CRAFTING`);
   const protocolDroid=droids.find(d=>d.name===protocolUnit?.name);
-  const protocol=Number(protocolDroid?.variants?.[protocolUnit?.variant]?.protocolCraftingBonusPercent||0)/100;
+  const protocol=placedProtocolBonus(protocolDroid,protocolUnit?.variant,'CRAFTING',placed,droids)/100;
   const event=Number.isFinite(Number(eventMultiplier))?Math.max(1,Number(eventMultiplier)):1;
   const traits=traitSum(placed,3);
   const speed=(1+nova+worker+protocol+traits)*event;

@@ -1,4 +1,4 @@
-import {OWNED_VARIANTS,rebirthVariantReady,variantLabel,baseVariant} from './droid-rules.js?v=2026-11-08-shared';
+import {OWNED_VARIANTS,rebirthVariantReady,variantLabel,baseVariant} from './droid-rules.js?v=2026-11-26-yellow-charge';
 import {escapeHtml as esc} from './ui-text.js?v=2026-11-08-shared';
 
 // Requirements and recipes come from the same loaded sources as the Rebirth page.

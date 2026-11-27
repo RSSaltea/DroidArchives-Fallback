@@ -1,5 +1,5 @@
-import {ACTIVE_KYBER as active,tradeVariantRank as rank} from './droid-rules.js?v=2026-11-08-shared';
-export {tradeVariantLabel} from './droid-rules.js?v=2026-11-08-shared';
+import {ACTIVE_KYBER as active,tradeVariantRank as rank} from './droid-rules.js?v=2026-11-26-yellow-charge';
+export {tradeVariantLabel} from './droid-rules.js?v=2026-11-26-yellow-charge';
 export function tradeVariantMatches(wanted,offered,minimum=false){
  if(!wanted)return true;
  const same=wanted==='KYBER_ACTIVE'?active.includes(offered):wanted===offered;

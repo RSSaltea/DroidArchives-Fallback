@@ -1,4 +1,4 @@
-import {RARITY_LADDER,BLUEPRINT_RARITY_POINTS} from './droid-rules.js?v=2026-11-08-shared';
+import {RARITY_LADDER,BLUEPRINT_RARITY_POINTS} from './droid-rules.js?v=2026-11-26-yellow-charge';
 // Blueprint rarity is rounded from equipped non-Iconic rarity IDs.
 // Lounge and Protocol stations are excluded; Mythic's ID is 5, not 4.
 export const BLUEPRINT_RARITIES = RARITY_LADDER;

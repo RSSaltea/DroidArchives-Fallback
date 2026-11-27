@@ -66,7 +66,7 @@ void main(){
   vec3 detail=texture2D(patternTex,fract(q*1.2+.3)).rgb*2.-1.;
   float radiance=clamp(${crystal.toneGain.toFixed(6)}*.65*pow(max(exp(crystalResponse(n,detail))-.04,.001)/.65,${crystal.toneGamma.toFixed(6)}),.02,3.84);
   // Reference-calibrated display colours; these are not claimed to be Unreal linear values.
-  c=variant==8?vec3(.134,1.,0.)*radiance:variant==9?vec3(0.,.636,1.)*radiance*1.736:vec3(.519,.075,1.)*radiance*2.027;
+  c=variant==13?vec3(1.,.707977,0.)*radiance:variant==8?vec3(.134,1.,0.)*radiance:variant==9?vec3(0.,.636,1.)*radiance*1.736:vec3(.519,.075,1.)*radiance*2.027;
   if(variant==7)c=vec3(.34+.45*clamp(radiance,0.,1.));
  }
  gl_FragColor=vec4(c,base.a);

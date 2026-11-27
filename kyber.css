@@ -28,3 +28,7 @@
 .variant-choice button{display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
 .variant-choice button>img,.variant-choice button>.fallback{flex:0 0 82px;height:82px}
 .variant-choice button>strong{min-height:32px;display:flex;align-items:center;justify-content:center;line-height:16px}
+
+.variant-kyber_yellow,.quality-kyber_yellow{color:#ffe349}
+.kyber-swatch.yellow{background:#ffe349}
+[data-theme="light"] .variant-kyber_yellow,[data-theme="light"] .quality-kyber_yellow{color:#746000}
